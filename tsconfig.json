@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "esnext", "module": "nodenext", "moduleResolution": "nodenext",
+    "strict": true, "noEmit": true, "skipLibCheck": true, "types": ["node"],
+    "allowImportingTsExtensions": true, "erasableSyntaxOnly": true, "verbatimModuleSyntax": true
+  },
+  "include": ["lib/**/*.ts", "test/**/*.ts"]
+}
