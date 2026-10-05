@@ -5,6 +5,8 @@ export type LegacyRouterSettings = { url: string; model?: string; timeoutMs?: nu
 const ROUTERS = {
   'legacy-kev': async (settings: LegacyRouterSettings): Promise<Router> =>
     (await import('../adapters/routers/legacy-kev.ts')).createLegacyRouter(settings),
+  'ollama-clef': async (settings: LegacyRouterSettings): Promise<Router> =>
+    (await import('../adapters/routers/ollama-clef.ts')).createClefRouter(settings),
 } satisfies Record<string, (settings: LegacyRouterSettings) => Promise<Router>>;
 
 // Static factories only: constructing this registry loads/probes no adapters and owns no service instances.

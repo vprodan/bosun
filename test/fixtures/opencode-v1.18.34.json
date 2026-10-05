@@ -1,0 +1,19 @@
+{
+  "health": {"healthy":true,"version":"1.18.34"},
+  "session": {
+    "id":"ses_fixture","slug":"public-fixture","projectID":"project_fixture","directory":"/fixture/project","title":"Synthetic public session","version":"1.18.34",
+    "model":{"id":"gpt-6.1-sol","providerID":"openai","variant":"high"},
+    "time":{"created":60000,"updated":100000},
+    "tokens":{"input":500000,"output":12000,"reasoning":3000,"cache":{"read":900000,"write":2000}},"cost":10
+  },
+  "messages": [
+    {"info":{"id":"msg_user_old","sessionID":"ses_fixture","role":"user","time":{"created":60000},"agent":"build","model":{"providerID":"openai","modelID":"gpt-6.1-sol","variant":"high"}},"parts":[]},
+    {"info":{"id":"msg_assistant_old","sessionID":"ses_fixture","role":"assistant","time":{"created":65000,"completed":75000},"parentID":"msg_user_old","modelID":"gpt-6.1-sol","providerID":"openai","variant":"high","agent":"build","mode":"build","path":{"cwd":"/fixture/project","root":"/fixture/project"},"cost":1,"tokens":{"input":50000,"output":1000,"reasoning":100,"cache":{"read":20000,"write":0}},"finish":"stop"},"parts":[]},
+    {"info":{"id":"msg_user_new","sessionID":"ses_fixture","role":"user","time":{"created":90000},"agent":"build","model":{"providerID":"openai","modelID":"gpt-6.1-sol","variant":"high"}},"parts":[]},
+    {"info":{"id":"msg_assistant_new","sessionID":"ses_fixture","role":"assistant","time":{"created":95000,"completed":100000},"parentID":"msg_user_new","modelID":"gpt-6.1-sol","providerID":"openai","variant":"high","agent":"build","mode":"build","path":{"cwd":"/fixture/project","root":"/fixture/project"},"cost":0.1,"tokens":{"total":5100,"input":600,"output":400,"reasoning":100,"cache":{"read":4000,"write":0}},"finish":"stop"},"parts":[
+      {"id":"prt_step_old","sessionID":"ses_fixture","messageID":"msg_assistant_new","type":"step-finish","reason":"tool-calls","cost":0.1,"tokens":{"input":2000,"output":300,"reasoning":100,"cache":{"read":3000,"write":0}}},
+      {"id":"prt_step_new","sessionID":"ses_fixture","messageID":"msg_assistant_new","type":"step-finish","reason":"stop","cost":0.1,"tokens":{"total":5100,"input":600,"output":400,"reasoning":100,"cache":{"read":4000,"write":0}}},
+      {"id":"prt_text","sessionID":"ses_fixture","messageID":"msg_assistant_new","type":"text","text":"Synthetic fixture response only."}
+    ]}
+  ]
+}

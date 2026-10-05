@@ -1,0 +1,8 @@
+{
+  "model": "clef-flash:9b",
+  "answers": {
+    "lane": {"type":"choice","choice":"worker","probabilities":{"main":0.1,"worker":0.8,"local":0.05,"scout":0.05},"confidence":0.7},
+    "risk": {"type":"choice","choice":"high","probabilities":{"high":0.85,"low":0.15},"confidence":0.7}
+  },
+  "usage": {"input_tokens":800,"output_tokens":2}
+}
