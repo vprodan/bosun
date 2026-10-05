@@ -123,7 +123,8 @@ test('wire: registers the MCP server with Claude and every Codex home; unwire re
     assert.match((await bosun(['doctor'], { env: sb.env({ OLLAMA_URL: 'http://127.0.0.1:1', ROUTER_PORT: '1' }) })).out, /bosun MCP server in Claude Code/);
     const missing = await bosun(['doctor'], { env: sb.env({ OLLAMA_URL: 'http://127.0.0.1:1', ROUTER_PORT: '1', STUB_MAP: JSON.stringify({ 'claude mcp': { code: 1 }, 'codex mcp': { code: 1 } }) }) });
     assert.match(missing.out, /MCP server missing in Claude Code: bosun install/);
-    assert.match(missing.out, /memory .*memory\.db \(schema v1\)/);
+    assert.match(missing.out, /memory database absent: .*memory\.db/);
+    assert.equal(fs.existsSync(path.join(sb.home, '.bosun', 'memory.db')), false, 'doctor never creates the memory store');
   } finally { sb.cleanup(); }
 });
 

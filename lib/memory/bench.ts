@@ -8,8 +8,7 @@ import { curated, retrieve } from '../context.ts';
 import { mute, quantile } from '../metrics.ts';
 import { die, jsonl } from '../util.ts';
 import { project } from './project.ts';
-import { MemoryService } from './service.ts';
-import { openDb } from './sqlite.ts';
+import { openLocalMemory } from './service.ts';
 import type { Ctx, MemoryApi } from './types.ts';
 
 // mulberry32: a seeded PRNG, so every run measures the same corpus
@@ -53,7 +52,7 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
   try {
     const file = path.join(dir, 'memory.db');
     // Synthetic corpus never adopts the owner's explicitly selected gate/backup paths.
-    const svc = new MemoryService(openDb(file), cfg);
+    const svc = openLocalMemory({ ...cfg, MEMORY_VIEW_PATH: '', MEMORY_BACKUP_DIR: '' }, file);
     const ctx: Ctx = { projectId: project(process.cwd()).id, sessionId: null, linked: [] };
     const store: number[] = [];
     for (let i = 0; i < n; i++) {

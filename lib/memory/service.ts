@@ -5,7 +5,7 @@ import { P, type Cfg } from '../config.ts';
 import { timed } from '../metrics.ts';
 import { validate, type Schema } from '../util.ts';
 import { RemoteStore } from './remote.ts';
-import { contentHash, ftsQuery, openDb, tx } from './sqlite.ts';
+import { contentHash, ftsQuery, openLocalSqlite, plainSession, type SqliteSession } from './sqlite.ts';
 import { CATEGORIES, STATUSES, MemoryError, type Ctx, type Found, type Memory, type MemoryApi, type MemoryEvent, type Patch, type Query, type StoreInput } from './types.ts';
 
 const text = (max: number): Schema => ({ type: 'string', minLength: 1, maxLength: max, pattern: '\\S' });
@@ -53,34 +53,42 @@ const toMemory = (r: Row): Memory => ({
 });
 
 export class MemoryService implements MemoryApi {
-  db: DatabaseSync;
+  #session: SqliteSession;
   cfg: Cfg;
-  constructor(db: DatabaseSync, cfg: Cfg) { this.db = db; this.cfg = cfg; this.expire(); }
-  close(): void { this.db.close(); }
+  constructor(db: DatabaseSync | SqliteSession, cfg: Cfg) {
+    this.#session = 'transaction' in db ? db : plainSession(db); this.cfg = cfg;
+    try { this.expire(); } catch (e) { try { this.close(); } catch {} throw e; }
+  }
+  // Legacy synthetic/direct callers may retain plain handles; registered connections never escape here.
+  get db(): DatabaseSync {
+    if (!this.#session.legacyDb) throw new MemoryError('unavailable', 'registered memory database is private');
+    return this.#session.legacyDb;
+  }
+  close(): void { this.#session.close(); }
 
   // Retention, applied lazily on open: expired memories are archived, each with an event.
   expire(now = Date.now()): number {
-    if (!this.db.prepare("SELECT 1 FROM memories WHERE expires_at <= ? AND status <> 'archived' LIMIT 1").get(now)) return 0;
-    return tx(this.db, () => {
-      this.db.prepare(`INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after)
+    if (!this.#session.read((db) => db.prepare("SELECT 1 FROM memories WHERE expires_at <= ? AND status <> 'archived' LIMIT 1").get(now))) return 0;
+    return this.#session.transaction((db) => {
+      db.prepare(`INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after)
         SELECT id, 'expire', ?, 'retention', hash, hash FROM memories WHERE expires_at <= ? AND status <> 'archived'`).run(now, now);
-      return Number(this.db.prepare("UPDATE memories SET status = 'archived', updated_at = ?, version = version + 1 WHERE expires_at <= ? AND status <> 'archived'").run(now, now).changes);
+      return Number(db.prepare("UPDATE memories SET status = 'archived', updated_at = ?, version = version + 1 WHERE expires_at <= ? AND status <> 'archived'").run(now, now).changes);
     });
   }
 
-  private event(id: string, op: string, source: string, before: string | null, after: string | null, at = Date.now()): void {
-    this.db.prepare('INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after) VALUES (?, ?, ?, ?, ?, ?)').run(id, op, at, source, before, after);
+  private event(db: DatabaseSync, id: string, op: string, source: string, before: string | null, after: string | null, at = Date.now()): void {
+    db.prepare('INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after) VALUES (?, ?, ?, ?, ?, ?)').run(id, op, at, source, before, after);
   }
-  private bySeq(seq: number): Memory { return toMemory(this.db.prepare('SELECT * FROM memories WHERE seq = ?').get(seq) as Row); }
+  private bySeq(db: DatabaseSync, seq: number): Memory { return toMemory(db.prepare('SELECT * FROM memories WHERE seq = ?').get(seq) as Row); }
   // Out-of-scope ids are "not found", never "forbidden": no existence leaks.
-  private row(id: unknown, ctx: Ctx): Row {
+  private row(db: DatabaseSync, id: unknown, ctx: Ctx): Row {
     check(ID, id);
-    const r = this.db.prepare(`SELECT * FROM memories m WHERE m.id = :id AND ${READ}`).get({ id: id as string, ...scope(ctx) });
+    const r = db.prepare(`SELECT * FROM memories m WHERE m.id = :id AND ${READ}`).get({ id: id as string, ...scope(ctx) });
     if (!r) throw new MemoryError('not_found', 'memory not found');
     return r as Row;
   }
-  private writable(id: unknown, ctx: Ctx): Row {
-    const r = this.row(id, ctx);
+  private writable(db: DatabaseSync, id: unknown, ctx: Ctx): Row {
+    const r = this.row(db, id, ctx);
     if (r.project_id !== null && r.project_id !== ctx.projectId) throw new MemoryError('invalid', 'that memory belongs to another project (read-only here)');
     return r;
   }
@@ -97,16 +105,16 @@ export class MemoryService implements MemoryApi {
       const now = Date.now();
       const ttl = input.ttlDays ?? (cat === 'session' ? Number(this.cfg.MEMORY_SESSION_TTL_DAYS) : null);
       const source = input.source || ctx.source || 'api';
-      return tx(this.db, () => {
-        const dup = this.db.prepare("SELECT * FROM memories WHERE COALESCE(project_id, '') = ? AND category = ? AND hash = ? AND status <> 'archived'").get(projectId ?? '', cat, hash);
+      return this.#session.transaction((db) => {
+        const dup = db.prepare("SELECT * FROM memories WHERE COALESCE(project_id, '') = ? AND category = ? AND hash = ? AND status <> 'archived'").get(projectId ?? '', cat, hash);
         if (dup) return { memory: toMemory(dup as Row), duplicate: true };
         const id = newId();
-        const r = this.db.prepare(`INSERT INTO memories (id, category, project_id, session_id, title, body, tags, status, shared, private, source, source_ref, hash, created_at, updated_at, expires_at)
+        const r = db.prepare(`INSERT INTO memories (id, category, project_id, session_id, title, body, tags, status, shared, private, source, source_ref, hash, created_at, updated_at, expires_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(id, cat, projectId, cat === 'session' ? ctx.sessionId : null, title, body,
           JSON.stringify([...new Set(input.tags || [])]), input.status || 'active', input.shared ? 1 : 0, input.private ? 1 : 0,
           source, input.sourceRef ?? null, hash, now, now, ttl ? now + ttl * DAY : null);
-        this.event(id, input.status === 'proposed' ? 'propose' : 'store', source, null, hash, now);
-        return { memory: this.bySeq(Number(r.lastInsertRowid)), duplicate: false };
+        this.event(db, id, input.status === 'proposed' ? 'propose' : 'store', source, null, hash, now);
+        return { memory: this.bySeq(db, Number(r.lastInsertRowid)), duplicate: false };
       });
     }, (r) => ({ chars: r.memory.body.length }));
   }
@@ -115,45 +123,49 @@ export class MemoryService implements MemoryApi {
     return timed('memory.search', () => {
       check(QUERY, q);
       this.expire();   // cheap indexed check; a long-running server has no "next open"
-      const match = q.text ? ftsQuery(q.text) : '';
-      if (q.text?.trim() && !match) return [];   // only stop words: nothing to search for
-      const params = { ...scope(ctx), statuses: JSON.stringify(q.status?.length ? q.status : ['active']), category: q.category ?? null,
-        private: q.includePrivate ? 1 : 0, tags: q.tags?.length ? JSON.stringify(q.tags) : null, limit: q.limit ?? 10 };
-      const filter = `${READ} AND m.status IN (SELECT value FROM json_each(:statuses)) AND (:category IS NULL OR m.category = :category)
-        AND (:private = 1 OR m.private = 0)
-        AND (:tags IS NULL OR EXISTS (SELECT 1 FROM json_each(m.tags) t WHERE t.value IN (SELECT value FROM json_each(:tags))))`;
-      const rows = (match
-        ? this.db.prepare(`SELECT m.*, bm25(memories_fts) AS rank FROM memories_fts JOIN memories m ON m.seq = memories_fts.rowid
-            WHERE memories_fts MATCH :match AND ${filter} ORDER BY bm25(memories_fts) LIMIT :limit`).all({ ...params, match })
-        : this.db.prepare(`SELECT m.*, 0 AS rank FROM memories m WHERE ${filter} ORDER BY m.updated_at DESC, m.seq DESC LIMIT :limit`).all(params)) as Row[];
-      if (match && rows.length && q.touch !== false) this.touch(rows.map((r) => r.id));
-      const matched = match && rows.length ? this.matched(match, rows.map((r) => r.seq)) : null;
-      return rows.map((r) => ({ ...toMemory(r), rank: r.rank, ...(matched ? { matched: matched.get(r.seq) ?? 0 } : {}) }));
+      return this.#session.read((db) => {
+        const match = q.text ? ftsQuery(q.text) : '';
+        if (q.text?.trim() && !match) return [];   // only stop words: nothing to search for
+        const params = { ...scope(ctx), statuses: JSON.stringify(q.status?.length ? q.status : ['active']), category: q.category ?? null,
+          private: q.includePrivate ? 1 : 0, tags: q.tags?.length ? JSON.stringify(q.tags) : null, limit: q.limit ?? 10 };
+        const filter = `${READ} AND m.status IN (SELECT value FROM json_each(:statuses)) AND (:category IS NULL OR m.category = :category)
+          AND (:private = 1 OR m.private = 0)
+          AND (:tags IS NULL OR EXISTS (SELECT 1 FROM json_each(m.tags) t WHERE t.value IN (SELECT value FROM json_each(:tags))))`;
+        const rows = (match
+          ? db.prepare(`SELECT m.*, bm25(memories_fts) AS rank FROM memories_fts JOIN memories m ON m.seq = memories_fts.rowid
+              WHERE memories_fts MATCH :match AND ${filter} ORDER BY bm25(memories_fts) LIMIT :limit`).all({ ...params, match })
+          : db.prepare(`SELECT m.*, 0 AS rank FROM memories m WHERE ${filter} ORDER BY m.updated_at DESC, m.seq DESC LIMIT :limit`).all(params)) as Row[];
+        if (match && rows.length && q.touch !== false) this.touch(rows.map((r) => r.id));
+        const matched = match && rows.length ? this.matched(db, match, rows.map((r) => r.seq)) : null;
+        return rows.map((r) => ({ ...toMemory(r), rank: r.rank, ...(matched ? { matched: matched.get(r.seq) ?? 0 } : {}) }));
+      });
     }, (r) => ({ n: r.length }));
   }
   // Distinct words FTS5 matched in each row, from its own highlight() (so porter stemming counts). A second query over the
   // few returned rows: in the main query SQLite would compute highlight() for every matching row before sorting.
-  private matched(match: string, seqs: number[]): Map<number, number> {
+  private matched(db: DatabaseSync, match: string, seqs: number[]): Map<number, number> {
     const marks = (s: unknown) => [...String(s ?? '').matchAll(/\u0001([^\u0002]*)\u0002/g)].map((m) => m[1].toLowerCase());
-    const rows = this.db.prepare(`SELECT rowid AS seq, highlight(memories_fts, 0, char(1), char(2)) AS t, highlight(memories_fts, 1, char(1), char(2)) AS b,
+    const rows = db.prepare(`SELECT rowid AS seq, highlight(memories_fts, 0, char(1), char(2)) AS t, highlight(memories_fts, 1, char(1), char(2)) AS b,
         highlight(memories_fts, 2, char(1), char(2)) AS g FROM memories_fts WHERE memories_fts MATCH :match AND rowid IN (SELECT value FROM json_each(:seqs))`)
       .all({ match, seqs: JSON.stringify(seqs) }) as Row[];
     return new Map(rows.map((r) => [r.seq as number, new Set([...marks(r.t), ...marks(r.b), ...marks(r.g)]).size]));
   }
   private touch(ids: string[]): void {
     try {
-      this.db.prepare('UPDATE memories SET accessed_at = ?, access_count = access_count + 1 WHERE id IN (SELECT value FROM json_each(?))').run(Date.now(), JSON.stringify(ids));
+      this.#session.transaction((db) => db.prepare('UPDATE memories SET accessed_at = ?, access_count = access_count + 1 WHERE id IN (SELECT value FROM json_each(?))').run(Date.now(), JSON.stringify(ids)));
     } catch { /* a busy database must not fail a read */ }
   }
 
   get(id: string, ctx: Ctx, opts: { events?: boolean } = {}) {
     return timed('memory.get', (): Memory & { events?: MemoryEvent[] } => {
       this.expire();
-      const m = toMemory(this.row(id, ctx));
-      if (!opts.events) return m;
-      const events = (this.db.prepare('SELECT op, at, source, hash_before, hash_after FROM memory_events WHERE memory_id = ? ORDER BY id').all(m.id) as Row[])
-        .map((e) => ({ op: e.op, at: e.at, source: e.source, hashBefore: e.hash_before, hashAfter: e.hash_after }));
-      return { ...m, events };
+      return this.#session.read((db) => {
+        const m = toMemory(this.row(db, id, ctx));
+        if (!opts.events) return m;
+        const events = (db.prepare('SELECT op, at, source, hash_before, hash_after FROM memory_events WHERE memory_id = ? ORDER BY id').all(m.id) as Row[])
+          .map((e) => ({ op: e.op, at: e.at, source: e.source, hashBefore: e.hash_before, hashAfter: e.hash_after }));
+        return { ...m, events };
+      });
     });
   }
 
@@ -161,39 +173,39 @@ export class MemoryService implements MemoryApi {
     return timed('memory.update', () => {
       check(PATCH, patch);
       check(VERSION_NO, expectedVersion);
-      return tx(this.db, () => {
-        const cur = this.writable(id, ctx);
+      return this.#session.transaction((db) => {
+        const cur = this.writable(db, id, ctx);
         if (cur.version !== expectedVersion) throw new MemoryError('conflict', `version conflict: current version is ${cur.version}`, cur.version);
         const title = patch.title?.trim() ?? cur.title;
         const body = patch.body?.trim() ?? cur.body;
         const status = patch.status ?? cur.status;
         const hash = contentHash(title, body);
         if (status !== 'archived') {
-          const dup = this.db.prepare("SELECT id FROM memories WHERE COALESCE(project_id, '') = ? AND category = ? AND hash = ? AND status <> 'archived' AND seq <> ?")
+          const dup = db.prepare("SELECT id FROM memories WHERE COALESCE(project_id, '') = ? AND category = ? AND hash = ? AND status <> 'archived' AND seq <> ?")
             .get(cur.project_id ?? '', cur.category, hash, cur.seq) as Row | undefined;
           if (dup) throw new MemoryError('conflict', `duplicate of ${dup.id}`, cur.version);
         }
         const now = Date.now();
-        this.db.prepare('UPDATE memories SET title = ?, body = ?, tags = ?, status = ?, private = ?, shared = ?, hash = ?, updated_at = ?, version = version + 1 WHERE seq = ?')
+        db.prepare('UPDATE memories SET title = ?, body = ?, tags = ?, status = ?, private = ?, shared = ?, hash = ?, updated_at = ?, version = version + 1 WHERE seq = ?')
           .run(title, body, patch.tags ? JSON.stringify([...new Set(patch.tags)]) : cur.tags, status,
             patch.private === undefined ? cur.private : Number(patch.private), patch.shared === undefined ? cur.shared : Number(patch.shared), hash, now, cur.seq);
         const op = status === cur.status ? 'update'
           : status === 'archived' ? (cur.status === 'proposed' ? 'reject' : 'archive')
             : cur.status === 'proposed' ? 'accept' : 'restore';
-        this.event(cur.id, op, ctx.source || 'api', cur.hash, hash, now);
-        return this.bySeq(cur.seq);
+        this.event(db, cur.id, op, ctx.source || 'api', cur.hash, hash, now);
+        return this.bySeq(db, cur.seq);
       });
     });
   }
 
   delete(id: string, ctx: Ctx) {
-    return timed('memory.delete', () => tx(this.db, () => {
-      const cur = this.writable(id, ctx);
+    return timed('memory.delete', () => this.#session.transaction((db) => {
+      const cur = this.writable(db, id, ctx);
       if (cur.status !== 'archived') {
-        this.db.prepare("UPDATE memories SET status = 'archived', updated_at = ?, version = version + 1 WHERE seq = ?").run(Date.now(), cur.seq);
-        this.event(cur.id, 'archive', ctx.source || 'api', cur.hash, cur.hash);
+        db.prepare("UPDATE memories SET status = 'archived', updated_at = ?, version = version + 1 WHERE seq = ?").run(Date.now(), cur.seq);
+        this.event(db, cur.id, 'archive', ctx.source || 'api', cur.hash, cur.hash);
       }
-      return this.bySeq(cur.seq);
+      return this.bySeq(db, cur.seq);
     }));
   }
 
@@ -207,11 +219,11 @@ export class MemoryService implements MemoryApi {
 
   // Hard delete, archived memories only. Their events stay: the audit trail outlives the content.
   purge(id: string, ctx: Ctx): Promise<void> {
-    return timed('memory.purge', () => tx(this.db, () => {
-      const cur = this.writable(id, ctx);
+    return timed('memory.purge', () => this.#session.transaction((db) => {
+      const cur = this.writable(db, id, ctx);
       if (cur.status !== 'archived') throw new MemoryError('invalid', 'only archived memories can be purged: delete it first');
-      this.db.prepare('DELETE FROM memories WHERE seq = ?').run(cur.seq);
-      this.event(cur.id, 'purge', ctx.source || 'api', cur.hash, null);
+      db.prepare('DELETE FROM memories WHERE seq = ?').run(cur.seq);
+      this.event(db, cur.id, 'purge', ctx.source || 'api', cur.hash, null);
     }));
   }
 
@@ -219,19 +231,21 @@ export class MemoryService implements MemoryApi {
   prune(now = Date.now()): { archived: number; purged: number } {
     const archived = this.expire(now);
     const cutoff = now - Number(this.cfg.MEMORY_PURGE_AFTER_DAYS) * DAY;
-    const purged = tx(this.db, () => {
-      this.db.prepare("INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after) SELECT id, 'purge', ?, 'retention', hash, NULL FROM memories WHERE status = 'archived' AND updated_at < ?").run(now, cutoff);
-      return Number(this.db.prepare("DELETE FROM memories WHERE status = 'archived' AND updated_at < ?").run(cutoff).changes);
+    const purged = this.#session.transaction((db) => {
+      db.prepare("INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after) SELECT id, 'purge', ?, 'retention', hash, NULL FROM memories WHERE status = 'archived' AND updated_at < ?").run(now, cutoff);
+      return Number(db.prepare("DELETE FROM memories WHERE status = 'archived' AND updated_at < ?").run(cutoff).changes);
     });
     return { archived, purged };
   }
 
   counts(): Record<string, number> {
-    return Object.fromEntries((this.db.prepare('SELECT status, COUNT(*) AS n FROM memories GROUP BY status').all() as Row[]).map((r) => [r.status, r.n]));
+    return this.#session.read((db) => Object.fromEntries((db.prepare('SELECT status, COUNT(*) AS n FROM memories GROUP BY status').all() as Row[]).map((r) => [r.status, r.n])));
   }
 }
 
 // The memory store for this machine's config: a memory server when MEMORY_URL is set, else local SQLite.
 export function openMemory(cfg: Cfg, timeoutMs?: number): MemoryApi {
-  return cfg.MEMORY_URL ? new RemoteStore(cfg, timeoutMs) : new MemoryService(openDb(P.DB), cfg);
+  return cfg.MEMORY_URL ? new RemoteStore(cfg, timeoutMs) : openLocalMemory(cfg);
 }
+// Authoritative serve always uses local storage, even when the owner's client has MEMORY_URL configured.
+export function openLocalMemory(cfg: Cfg, file = P.DB): MemoryService { return new MemoryService(openLocalSqlite(file, cfg), cfg); }

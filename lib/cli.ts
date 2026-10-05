@@ -12,7 +12,7 @@ import * as exec from './exec.ts';
 import * as wire from './wire.ts';
 import * as memoryCli from './memory/cli.ts';
 import * as mcp from './mcp.ts';
-import { openDb, schemaVersion } from './memory/sqlite.ts';
+import { inspectMemorySchema } from './memory/sqlite.ts';
 import { RemoteStore } from './memory/remote.ts';
 import * as serveLib from './serve.ts';
 import { MemoryError } from './memory/types.ts';
@@ -246,9 +246,11 @@ async function doctor(argv: string[], cfg: Cfg): Promise<number> {
     chk(`memory server ${cfg.MEMORY_URL} (bosun ${h?.version}, schema v${h?.schema})`, `memory server unreachable at ${cfg.MEMORY_URL}`, !!h);
     if (h && h.version !== VERSION) u.warn(`memory server runs bosun ${h.version}, this is ${VERSION}: update both`);
   } else {
-    let schema = 0;
-    try { const db = openDb(P.DB); schema = schemaVersion(db); db.close(); } catch { /* reported below */ }
-    chk(`memory ${P.DB} (schema v${schema})`, `memory database unreadable: ${P.DB} (see ~/.bosun/bosun.log)`, schema > 0);
+    const inspection = inspectMemorySchema(P.DB);
+    if (inspection.state === 'wal-held') u.warn(`memory ${P.DB}: WAL held; schema not verified by read-only doctor`);
+    else chk(`memory ${P.DB} (schema v${inspection.version ?? 0})`,
+      inspection.state === 'missing' ? `memory database absent: ${P.DB} (created on first use)` : `memory database unreadable: ${P.DB}`,
+      inspection.state === 'verified');
   }
   chk(`local harness: ${harness(cfg)}`, `local harness ${harness(cfg)} not installed`, u.has(harness(cfg)));
   if (services.app() && thisMachine(cfg.OLLAMA_URL)) chk(`Ollama.app env (context ${cfg.CTX})`, 'Ollama.app lost bosun env (reboot?): bosun start ollama', services.appEnvOk(cfg));

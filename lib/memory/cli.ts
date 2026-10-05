@@ -12,6 +12,7 @@ import { makeCtx, project, projectDir } from './project.ts';
 import { bench, evaluate } from './bench.ts';
 import { ClaudeMem } from './claudemem.ts';
 import { MemoryService, cleanTags, openMemory } from './service.ts';
+import { publishLocalMemory } from './sqlite.ts';
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
@@ -19,7 +20,8 @@ export const USAGE = `usage: bosun memory <verb>
   search ["words"] [-c category] [--status active|proposed|archived] [--tags a,b] [--limit N] [--json]
   get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared] [--version N]
   delete <id>   purge <id>   review   accept <id>   reject <id>   prune
-  consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>`;
+  consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>
+  publish [--json]   (already-applied local floor only; no cutover/apply)`;
 
 const OPTIONS = {
   category: { type: 'string', short: 'c' }, title: { type: 'string', short: 't' }, body: { type: 'string', short: 'b' },
@@ -38,6 +40,13 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
   let parsed;
   try { parsed = parseArgs({ args: rest, options: OPTIONS, allowPositionals: true }); } catch (e) { return die(`${(e as Error).message}\n${USAGE}`, 2); }
   const { values: v, positionals: pos } = parsed;
+  if (verb === 'publish') {
+    if (pos.length || Object.keys(v).some((key) => key !== 'json')) return die('usage: bosun memory publish [--json]', 2);
+    if (cfg.MEMORY_URL) return die('local publication unavailable', 1);
+    const result = await publishLocalMemory(cfg, P.DB);
+    console.log(v.json ? JSON.stringify(result) : `published ${result.publicationId} (${result.state})`);
+    return 0;
+  }
   const num = (s: string | undefined, name: string): number | undefined => {
     if (s === undefined) return undefined;
     if (!/^\d+$/.test(s)) die(`--${name} needs a whole number`, 2);

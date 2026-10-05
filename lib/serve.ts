@@ -6,8 +6,8 @@ import os from 'node:os';
 import { P, VERSION, type Cfg } from './config.ts';
 import { curated, retrieve } from './context.ts';
 import { log } from './log.ts';
-import { MemoryService } from './memory/service.ts';
-import { MIGRATIONS, openDb } from './memory/sqlite.ts';
+import { openLocalMemory } from './memory/service.ts';
+import { MIGRATIONS } from './memory/sqlite.ts';
 import { MemoryError, type Ctx, type ErrorCode, type MemoryApi } from './memory/types.ts';
 import { die, sh, validate, type Schema } from './util.ts';
 import { modelMemoryError } from '../src/core/errors.ts';
@@ -140,12 +140,12 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
   const allow = allowList(cfg, bind);
   const pi = argv.indexOf('--port');
   const port = pi >= 0 ? Number(argv[pi + 1]) : Number(kind === 'memory' ? cfg.MEMORY_PORT : cfg.ROUTER_PORT);
-  const svc = kind === 'memory' ? new MemoryService(openDb(P.DB), cfg) : null;
+  const svc = kind === 'memory' ? openLocalMemory(cfg) : null;
   const server = svc ? memoryServer(cfg, svc, allow) : kevServer(cfg, allow);
-  const got = await listen(server, port, bind);
-  console.log(`bosun serve ${kind} on http://${bind}:${got}  (allow ${allow.join(', ')})`);
-  await new Promise((res) => { process.once('SIGTERM', res); process.once('SIGINT', res); });
-  server.close();
-  svc?.close();
-  return 0;
+  try {
+    const got = await listen(server, port, bind);
+    console.log(`bosun serve ${kind} on http://${bind}:${got}  (allow ${allow.join(', ')})`);
+    await new Promise((res) => { process.once('SIGTERM', res); process.once('SIGINT', res); });
+    return 0;
+  } finally { server.close(); svc?.close(); }
 }

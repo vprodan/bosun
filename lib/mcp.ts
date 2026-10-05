@@ -9,7 +9,7 @@ import { ClaudeMem } from './memory/claudemem.ts';
 import { Docs } from './memory/docs.ts';
 import { makeCtx, project, projectDir } from './memory/project.ts';
 import { FIELDS, PATCH, openMemory } from './memory/service.ts';
-import { openDb } from './memory/sqlite.ts';
+import { openLocalSqlite } from './memory/sqlite.ts';
 import { MemoryError, STATUSES, type Memory, type MemoryApi, type MemoryProvider, type StoreInput } from './memory/types.ts';
 import { validate, type Schema } from './util.ts';
 import { mayExposeMemory } from '../src/core/memory-policy.ts';
@@ -51,7 +51,7 @@ export function tools(cfg: Cfg, dir: string, memoryFactory: (cfg: Cfg) => Memory
   const mem = () => (api ??= memoryFactory(cfg));
   const providers = (names: string[]): MemoryProvider[] => [
     ...(names.includes('curated') ? [curated(mem())] : []),
-    ...(names.includes('docs') ? [(docs ??= new Docs(openDb(P.DB), dir, proj.id))] : []),
+    ...(names.includes('docs') ? [(docs ??= new Docs(openLocalSqlite(P.DB, cfg), dir, proj.id))] : []),
     ...(names.includes('claude-mem') ? [new ClaudeMem(cfg, [proj.name, path.basename(dir)])] : []),
   ];
   const list: Tool[] = [
@@ -105,7 +105,7 @@ export function tools(cfg: Cfg, dir: string, memoryFactory: (cfg: Cfg) => Memory
         return { hits: r.items.slice(0, a.limit ?? 10).map((i) => ({ id: i.id, source: i.source, title: i.title, snippet: i.text.slice(0, 500), date: day(i.at) })) };
       } },
   ];
-  return { list, close: () => { try { api?.close(); } finally { docs?.db.close(); } } };
+  return { list, close: () => { try { api?.close(); } finally { docs?.close(); } } };
 }
 
 const error = (id: unknown, code: number, message: string) => ({ jsonrpc: '2.0', id, error: { code, message } });
