@@ -1,14 +1,16 @@
-# Resume bosun (saved 2026-10-02)
+# Resume bosun (saved 2026-10-02; research completed 2026-10-04; development continued 2026-10-06)
 
 This is the one file to read when you pick bosun up on another machine. It holds what lives outside this folder: Claude's local memory, the state of the original Mac, and the decisions made in conversation.
 
-## Prompt to paste into Claude Code (opened in this folder)
+## Prompt to resume in Claude Code or Codex (opened in this folder)
 
 ```
-Read RESUME.md, then docs/research/RESUME.md and docs/research/README.md, and continue the bosun v2 research.
-Restart topic 6 (architecture) with the saved prompt, then topics 7 and 8, one agent at a time (general-purpose, model: sonnet). After each, give me a short summary and ask only the questions that change the outcome.
-Then write the roadmap at docs/plans/2026-10-01-bosun-v2-roadmap.md.
-Also save the "Owner preferences" section of RESUME.md to your memory.
+Read RESUME.md, HANDOFF.md, docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md and docs/plans/2026-10-01-bosun-v1.0-roadmap.md.
+Research topics 1–8 and the roadmap are complete; do not restart the archived research prompts.
+Read docs/research/09-opencode-clef.md for the latest host/router revision: OpenCode primary, native Codex/Claude supported, Clef-Flash replacing Kev.
+Follow the current user request. Local development is authorized with one sub-agent at a time and coordinator verification between slices. Resume the ledger's unfinished step rather than restarting completed work.
+Commit each completed milestone after its checks pass and portable context is updated; the owner requested this on 2026-10-06. Preserve unrelated changes and keep the package version unchanged until the single ship gate.
+Preserve the owner preferences below; repository documents are the portable memory.
 Never run the tests under Bun, and install nothing.
 ```
 
@@ -17,28 +19,55 @@ Never run the tests under Bun, and install nothing.
 | File | What it holds |
 |---|---|
 | `docs/research/README.md` | The vision, **all the owner decisions** ("Owner answers"), the rules and the note format. This is the source of truth. |
-| `docs/research/RESUME.md` | The research status, how it runs, and **ready prompts for topics 6, 7 and 8** and the roadmap |
-| `docs/research/01…05-*.md` | The finished research notes, with citations and measurements (taken on an M5 Pro; don't compare them with other machines) |
-| `prompt.md` | The owner's original vision prompt |
-| `HANDOFF.md`, `ARCHITECTURE.md`, `README.md` | bosun v0.2.0 as built: 87/87 tests, not installed |
+| `docs/research/RESUME.md` | Completed research status, validation and **archived prompts** for topics 6–8 |
+| `docs/research/01…08-*.md` | Finished research notes; only 01–05 contain original-Mac performance measurements (M5 Pro; don't compare them with other machines) |
+| `docs/research/09-opencode-clef.md` | Latest host/router revision: OpenCode primary, three first-class native hosts and Clef-Flash migration/qualification |
+| `docs/plans/2026-10-01-bosun-v1.0-roadmap.md` | One v1.0 release: internal phases, full-scope ship gate, migration/verification plan, feature ranking, estimates and sequence |
+| `docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md` | Sequential development slices, current progress, coordinator checks and carried unresolved v0.2 issues |
+| Original `prompt.md` | Historical vision input; absent in this checkout. The vision and accepted decisions are preserved in `docs/research/README.md`. |
+| `HANDOFF.md` | Current development readiness/first slice, followed by the clearly labelled historical v0.2 report |
+| `ARCHITECTURE.md`, `README.md` | Current implementation and remaining compatibility seams; package metadata stays v0.2.0 until the single v1.0 ship gate |
 
 ## Status
 
-- **Done:** topic 1 runtime, 2 protocol, 3 libraries, 4 abstractions, 5 CLI/topology.
-- **Stopped by the owner, nothing written:** 6 architecture.
-- **Pending:** 7 leveled graph memory, 8 features, then the roadmap.
+- **Done:** topics 1–8 and [the integrated roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md), completed 2026-10-04. Latest notes: [architecture](docs/research/06-architecture.md), [graph memory](docs/research/07-graph-memory.md), [features/auto-handoff](docs/research/08-features.md).
+- **Latest plan revision:** [OpenCode/Clef](docs/research/09-opencode-clef.md), checked 2026-10-04. OpenCode is primary; native OpenCode, Codex and Claude Code remain first-class. Clef-Flash replaces Kev through Ollama's decision API; migration covers the service/config/remote lifecycle as well as the model string.
+- **Implementation (2026-10-04–06):** owner authorized sequential sub-agents with no parallel workers. Slices 1–6, test-only 7a, delivery lifetime 7b1, cutover 7b2a, registered callers 7b2b1, publication 7b2b2a and independently bound reader 7b2b2b are coordinator-verified. Explicit publication uses an already-applied floor; registered mutations commit HOLD before DML. The public hook requires independent `MEMORY_SOURCE_ID`, exact schema/identity/READY metadata and a native lease retained through stdout acceptance. Both local paths omit finite-expiry notes before packing. **Explicitly prepared/bound READY views provide non-expiring notes; ordinary unactivated default WAL remains held.** Initial owner apply/permission/drain/restart/recovery is next (7b2c). Header checks reject obvious corrupt/truncated/offline rollback restores, but arbitrary same-inode WAL restore/epoch changes retaining an old view/binding remain unqualified. The 10,000-row medium-body corpus exceeds the 4 MiB encoded cap. Useful capacity, finite-expiry handoff, durability and daemon refresh remain same-v1 gates. See the ledger and [ADR 0007](docs/adr/0007-bound-public-memory-reader.md). Version stays 0.2.0; Kev runtime, complete native migration and automatic handoff remain unfinished.
+- **Fresh checks:** coordinator full guarded Node run passed 18/18 containment groups and 264/264 application tests, including thirteen public-reader, fourteen publication, eleven registered-caller, fourteen cutover and nine delivery regressions. Isolated strict typecheck, whitespace, AST boundaries (56 production files, 200 edges, zero violations), Markdown links/fences and nine Mermaid grammar blocks passed. No rendering, useful 10,000-row capacity, p95 or live-host claim. Real-Claude is excluded. The sole public-reader worker stopped; coordinator completed review/full verification and no live job needs resuming.
+- **Next phase:** continue authorized development in ledger order using one worker at a time and coordinator review between tasks. No research question blocks foundation work; live host/model qualification is still required before automatic support can ship. No installs/personal writes/Bun tests are authorized.
+- **Readiness review (2026-10-04):** foundation development can begin without another architecture/product clarification. HANDOFF.md now separates current instructions from historical no-daemon/install steps. The owner clarified that Graphify/CodeGraph are optional, installed by users when needed; their absence/identity does not block development or release. No implementation/install was performed by this review.
+
+The owner renewed the request to complete the research in this Codex session after Sonnet was unavailable. Topics 6–8 finished sequentially with available Codex agents; the original Sonnet selection below is historical. Scratch work under `/tmp/bosun-research-q4qYDt/` may not survive a machine switch; the notes preserve the durable findings.
+
+Current checkout: branch `main`, history root `8e835a5082530a132912e6dd3afca65db903aac1`. Completed research, roadmap, four repository skills/discovery links and verified implementation are committed in milestone groups; see [the ledger commit map](docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md#commit-checkpoints-2026-10-06) and `git log`. Transfer the committed checkout and its history to resume elsewhere. `bun.lock` and `node_modules/` remain pre-existing untracked artifacts, untouched and excluded from commits. No worker or test job needs restarting.
+
+Validation: all diagrams in notes 6–8 and the roadmap passed syntax checks with the existing Mermaid 11.17.2 parser (no visual-rendering claim); required note sections, fences, relative links and whitespace passed. Topic 8 also checked its 29 unique external URLs (HTTP 200). No bosun suite, model run, install or personal-config write was performed for topics 6–8/roadmap; the earlier preparation ran only isolated Node wiring checks.
+
+## Codex preparation (2026-10-03)
+
+- Read this file, `docs/research/RESUME.md`, and `docs/research/README.md` when switching hosts. The Sonnet research prompts below describe the original Claude workflow; do not silently substitute an OpenAI model or launch pending research from a historical prompt.
+- **Auto-handoff checked:** it is a required topic 8 feature, not implemented in v0.2. `lib/wire.ts` registers the routing hook; `lib/route.ts` does not monitor context occupancy, and the current config has no `[compact]` parser or summary/restart controller.
+- Added repository skills: [OpenAI models](skills/bosun-openai-models/SKILL.md), [Codex integration](skills/bosun-codex/SKILL.md), [ChatGPT surfaces](skills/bosun-chatgpt/SKILL.md), and [portable handoff](skills/bosun-handoff/SKILL.md). Their `.agents/skills` links support Codex discovery in this checkout; no global installation is needed. They may require a new session to appear in the skill list.
+- [The dated model reference](skills/bosun-openai-models/references/models.md) covers `gpt-6.1-sol`, `gpt-6-astra`, `gpt-6-luna`, and existing `gpt-6-sol` settings. Model defaults were not changed. Refresh official docs before migration; API and host reasoning settings differ.
+- This machine reports Node `v24.16.0` and Codex CLI `0.160.0`. Original-machine measurements and installation state below are historical, not observations of this Mac.
+- At preparation time, research topics 6–8 and the roadmap remained pending; the current status above tracks the subsequent continuation. No installation, personal configuration changes, or live model runs were performed for this preparation.
 
 ## Decisions so far
 
 **Owner answers:**
+- **Commit policy (2026-10-06):** split completed work into coherent milestone commits, then commit every future completed milestone after verification and portable-context updates. This supersedes the earlier no-commit constraint; commits are internal checkpoints within the single v1.0 release, not intermediate releases. Preserve unrelated owner changes and pre-existing untracked artifacts.
+- **Release policy (2026-10-04):** everything selected belongs to **one v1.0**. Finish the full scope before shipping; use internal implementation phases, with no intermediate releases, feature assignments to later versions or pre-ship package-version bumps. This supersedes the earlier staged-release defaults.
+- **Primary host (2026-10-04):** make the plan OpenCode-centric. Default interpretation of the owner's three-host question: OpenCode is the main onboarding/managed-session experience, with native Codex and Claude Code supported through the same contracts. Qualify each host's actual capabilities; a provider model inside OpenCode is not the native Codex/Claude harness.
+- **Router (2026-10-04):** replace Kev with local Ollama **Clef-Flash**, proposed model `clef-flash:9b` on `/v1/systemone`. No Kev uv/Python service in the selected design. Clef is a decision model, separate from the generative handoff model. No model pull/config change has been applied.
+- **External graph tools (2026-10-04):** Graphify and CodeGraph are optional user-installed integrations. Keep absent sources disabled; validate actual export/MCP contracts when configured, with no automatic installation or release dependency on these tools. Bosun's own graph memory remains in scope.
 - **Audience:** me first, others later. Build for publishing (binaries, docs, stable interfaces), but there's one user today.
-- **Rewrite or evolve:** let the research decide. Topic 4 leans **evolve**: 89% of `lib/` names no vendor, and memory survives about 90%.
+- **Rewrite or evolve:** the research decides. Topic 6 concludes **evolve** into one package with enforced boundaries; topic 4 found 89% of `lib/` lines vendor-neutral and estimated ~90% memory-layer retention.
 - **Daemon:** yes. It runs always-on under launchd, the hook becomes a thin client, and it falls back to in-process when the daemon is down.
 - **SQLite:** a vanilla dylib is allowed for extensions (sqlite-vec), with an FTS-only fallback.
-- **Agent loop:** **path (a)** for v2.0, so bosun is a layer over Claude Code, Codex and ACP agents. Whether it gets a minimal own loop for local models is decided in v2.1, after a local-model eval.
+- **Agent loop:** **path (a)**, now OpenCode-primary with native OpenCode, Codex, Claude Code and additional ACP runners. Keep the seven-port core independent; use the external OpenCode server/plugin instead of embedding its full harness. Evaluate local harnesses before a scoped own-loop decision.
 - **Claude Code wiring:** one plugin folder, `~/.claude/skills/bosun/` (subagents become `bosun:worker`), after a 1-day spike.
-- **Server Mac:** there isn't one yet. Plan the split setup, but make it a lower priority than the single-Mac path.
-- **Research cost:** topics 6–8 run on Sonnet.
+- **Server Mac:** there isn't one yet. Build and test remote support after the single-Mac foundations within the same v1.0; use isolated daemon instances for validation. Real server provisioning remains a deployment choice.
+- **Research cost (original workflow):** topics 6–8 were requested on Sonnet; the later Codex continuation is recorded above.
 - **Feature request: auto context compact / handoff (added 2026-10-02).** When a host session's context passes a threshold, bosun writes a handoff summary with a configurable model, and the work continues in a fresh context from that summary. This replaces re-reading a huge context every turn (the `cart-service` problem), and the same handoff file also serves moving work between machines. Settings:
   ```toml
   [compact]
@@ -46,7 +75,7 @@ Never run the tests under Bun, and install nothing.
   model     = "ollama:qwen3:8b"   # any ModelProvider: local (ollama, openai-compatible) or claude-cli/codex-cli
   threshold = 0.70                # fraction of the host's context window
   ```
-  Topic 8 researches how to build it and the roadmap schedules it.
+  [Topic 8](docs/research/08-features.md) designs it and [the roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md) schedules it. It remains unimplemented.
 
 **Topic results:**
 
@@ -55,17 +84,22 @@ Never run the tests under Bun, and install nothing.
 | 1 | Runtime | **Bun 1.4.x, written against `node:*` APIs**, with Node LTS green in CI. Use `node:sqlite`, not `bun:sqlite` (silent NULL binds), and `setCustomSQLite` to a vanilla dylib on macOS. |
 | 2 | Protocol | **HTTP/1.1 + JSON** over a UDS (`~/.bosun/run/bosun.sock`, 0600), SSE for streams, JSON-RPC 2.0 on stdio. No gRPC or HTTP/2/3 (slower and buggy). One method table and three adapters (HTTP, stdio, MCP). MCP moves to the 2026-07-28 spec. Tailscale + a bearer token + allowlist. |
 | 3 | Libraries | commander 15, Ink 7 + @clack/prompts, Zod 4.6, Hono on node:http, @modelcontextprotocol/server 2.2, raw node:sqlite, smol-toml config, LogTape, node:child_process, Biome, TypeScript 7. **The hook imports only `node:*`.** Pinned deps with ≤5 transitive each. Build with `--no-compile-autoload-*` (`.env` leak). |
-| 4 | Abstractions | **7 ports:** HostAdapter, AgentRunner (claude-cli, codex-cli, ACP), ModelProvider, MemoryStore, ContextSource, Workspace (orca, git-worktree), Router. Adapters are compiled in, and third parties come in through ACP, MCP or OpenAI-compatible HTTP. **A bosun-native loop can't use the Claude subscription** (Consumer Terms). |
+| 4 | Abstractions | **7 ports:** HostAdapter, AgentRunner (now native OpenCode, Codex/Claude CLIs and ACP), ModelProvider, MemoryStore, ContextSource, Workspace (orca, git-worktree), Router. Topic 9 adds native managed-server controls without changing the ports. **A bosun-native loop can't use the Claude subscription** (Consumer Terms). |
 | 5 | Topology | **One binary**, `bosun` (`--compile --splitting --bytecode`; hook path ~5 ms). One LaunchAgent daemon, and clients never auto-spawn it. The daemon is the single writer, and the hook reads read-only when the daemon is down. A Homebrew tap, and `~/.bosun/manifest.json` makes uninstall exact. No more `~/.zshrc` edits. |
+| 6 | Architecture | Research default: evolve into one package with seven ports, feature use cases, four composition roots, a lazy adapter registry, enforced import boundaries and HOME containment. Hook config comes from a validated JSON snapshot; fallback reads do not mutate; uncertain writes are not repeated. See [the note](docs/research/06-architecture.md). |
+| 7 | Graph memory | Research default: SQLite + FTS, scoped L0–L4 views, minimal L1–L2/lineage first; graph activation depends on local retrieval/privacy/latency evaluation. No inference on the hook or on private data. claude-mem stays external/read-only. See [the note](docs/research/07-graph-memory.md). |
+| 8 | Features | Research default: mandatory qualified fresh-session handoff, content-free logs/screening, quota holds, portable transfer, router eval, provider-unit ledger, deterministic dispatch/review checks and diagnostics. See [the note](docs/research/08-features.md). |
+
+The [OpenCode/Clef revision](docs/research/09-opencode-clef.md) supersedes earlier two-host/Kev selections, not their historical observations. The inspected upstream OpenCode release is v1.18.34; do not mix its v1 native contracts with v2 SDK/plugin examples. `opencode` and `ollama` are absent from this shell's PATH. Native handoff parity, Clef calibration and local performance remain unmeasured implementation gates. Native Claude keeps its own login; Claude models inside OpenCode require a supported API/cloud provider, with no subscription-token import.
 
 **Defaults taken that you can override:**
-- the Claude `http` hook is opt-in later
+- the Claude `http` hook is an opt-in capability to qualify after the daemon path; it has no separate release assignment
 - the tailnet holds only your devices
 - config moves to TOML
-- the Ink dashboard comes in v2.1
+- the Ink dashboard is part of the same v1.0, built after daemon state/SSE exist
 - binaries only, no npm packages
 - headless spin-off without Orca
-- no ChatGPT-plan LLM calls in v2.0
+- no ChatGPT-plan router/consolidation calls in v1.0; the later any-ModelProvider handoff request permits optional native CLI summarizers after tool-isolation qualification
 
 ## Owner preferences (Claude's local memory, copied here)
 
@@ -107,8 +141,8 @@ Never run the tests under Bun, and install nothing.
 - claude-mem's provider moved to Gemini
 - `/compact` the long sessions
 
-## After the research
+## Continuing development (research complete)
 
-1. Write the roadmap: the decision log, milestones v2.0/v2.1/v2.2+ with exit criteria, the strangler-fig steps with verify commands, the feature ranking and the risks, plus a Mermaid gantt.
-2. Then plan v2.0 with bosun-plan.
-3. Keep v0.2.0 working while it evolves.
+1. Use the completed roadmap's decisions, internal phases, full-scope ship gate, feature ranking and risks; future verify scripts are explicitly proposed, not existing or run. The complete v1.0 planning envelope is 85–135 engineer-days, including the third native host/Clef migration, enrichment, dashboard and remote support; re-estimate after probes.
+2. Follow the implementation ledger using sequential workers and coordinator review. Protocol qualification (7a), delivery lifetime (7b1), cutover/recovery (7b2a), registered callers (7b2b1), publication/revocation (7b2b2a) and independently bound public reader (7b2b2b) are complete with limits. Explicitly bound READY views can serve non-expiring local notes; ordinary default WAL stays held and both local hook paths omit finite-expiry notes. Next is 7b2c: explicit owner permission/drain/restart/apply/recovery, restore epoch rotation/revocation and orphan disposition. Arbitrary same-inode WAL restore/epoch changes retaining old view/binding are not qualified by the filesystem header check. Resolve the demonstrated 10,000-row encoded-capacity hold, finite-expiry handoff, durability and daemon refresh within the same v1.0. Writer discovery/publication may perform native housekeeping and must not replace the zero-write hook reader with a writable connection. No live worker/test job remains; resume this checkpoint rather than repeating completed slices. Full native ownership/control and Codex/Claude parity follow the OpenCode-first path. Development authorization does not permit installation or personal configuration changes.
+3. Keep v0.2.0 working while it evolves; preserve user data, explicitly selected models and privacy constraints.

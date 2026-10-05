@@ -46,7 +46,7 @@ Each role has one source file, `roles/<role>.md`. It's rendered as a Claude suba
 
 ## Skills
 
-Nine skills in `skills/`, linked into `~/.claude/skills` and `~/.agents/skills`: the same files for both hosts.
+Thirteen skills in `skills/`; the installer links the same files into `~/.claude/skills` and `~/.agents/skills` for both hosts. The four context and OpenAI guidance skills also have repository-local links in `.agents/skills`, so Codex can discover them in this checkout without installing bosun. Reload skill discovery or start a new session if they do not appear yet.
 
 ```mermaid
 flowchart LR
@@ -68,6 +68,16 @@ flowchart LR
 | bosun-ship | ship / commit / PR | an evidence gate, then messages; commits or PRs only when you ask |
 | bosun-spin | "spin this off" | a self-contained spec → a new Orca worktree + agent; you keep pairing |
 | bosun-parallel | "parallelize this" | independent tasks → supervised Orca workers with each role's model |
+| [bosun-openai-models](skills/bosun-openai-models/SKILL.md) | model choice or migration | dated GPT-6.1 Sol / Astra / Luna guidance, reasoning controls, and bosun config mapping |
+| [bosun-codex](skills/bosun-codex/SKILL.md) | Codex integration work | CLI, config, skills, MCP, hooks, sessions, and native compaction |
+| [bosun-chatgpt](skills/bosun-chatgpt/SKILL.md) | ChatGPT product or integration questions | Chat / Work / Codex distinctions, access, shared usage, and supported tools |
+| [bosun-handoff](skills/bosun-handoff/SKILL.md) | save or resume task context | portable resume documents and checking the planned automatic handoff |
+
+**Auto-handoff status (2026-10-04):** designed as a required v1.0 feature in [topic 8](docs/research/08-features.md) and [the completed roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md), but not implemented in v0.2. The proposed `[compact]` settings do not work in the current environment-file config. The handoff skill supports manual task-state transfer; it does not create a background context monitor.
+
+**Release plan:** all selected work, including graph enrichment, the Ink dashboard and remote support, belongs to one v1.0. The roadmap uses internal implementation phases and one final ship gate; package-version changes wait until shipping.
+
+**Latest v1.0 direction:** OpenCode becomes the primary experience, with native OpenCode, Codex and Claude Code support behind the same core. Local Ollama Clef-Flash replaces Kev's execution router and separate Python service; the handoff summarizer stays a separate model. See [the host/router revision](docs/research/09-opencode-clef.md). This is planned behavior; v0.2 code still uses Kev and has no OpenCode adapter.
 
 `bosun install --replace-plugins` turns off the plugins that overlap with these (superpowers, mattpocock-skills, code-review) and records what it disabled. `bosun uninstall` turns back on only those.
 
@@ -101,11 +111,25 @@ sequenceDiagram
 
 bosun keeps **curated** memory: facts you or the assistant chose to keep, such as decisions and why, conventions, gotchas and your preferences. It lives in `~/.bosun/memory.db` (SQLite with FTS5, mode 0600). claude-mem stays as it is: bosun reads its database read-only, and never stores the same thing twice.
 
+**Local hook limitation during the v1.0 build:** ordinary default WAL installs remain held. An explicitly prepared READY public view can supply non-expiring local notes only with an independent owner `MEMORY_SOURCE_ID` binding from the cutover receipt. Missing/mismatched bindings or invalid/pending/stale views hold without falling back to primary rows. Initial owner apply/activation remains unimplemented; no configuration or storage is activated automatically. Compatible unactivated rollback stores retain qualified reads. Owner CLI, MCP and remote memory behavior remain compatible. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records the public reader and remaining activation/capacity gates.
+
+For qualified local public-view or rollback reads, router work finishes before the reader opens. Both local paths omit every finite-expiry note in SQL before packing: a pipe write can cross expiry under backpressure or an event-loop stall, and the timer cannot prove a hard delivery deadline. Non-expiring notes remain useful; finite-expiry local handoff support is still a ship gate. The connection stays held through packing and the actual native stdout callback, then releases. Memory delivery currently requires Node on POSIX pipe/socket stdout; file/TTY/Windows/Bun sinks omit local notes before DB open. Advice remains available, with no synchronous-sink latency guarantee. Local envelopes cap at 16 KiB; larger notes are dropped before advisory delivery. A pending write error/signal/250 ms event-loop timeout ends the one-shot hook with the reader retained to teardown, because native probes showed stdout `destroy`/`closed` can still flush later. That path records no completion/injection metric. This is native acceptance, not host acknowledgement or a total latency guarantee; [ADR 0004](docs/adr/0004-wal-read-view-protocol-qualification.md#local-caller-handoff-slice-7b1) records the evidence and remaining activation gates.
+
+An explicit production storage primitive keeps primary write admission across a native SQLite-aware owner backup and persistent writer-floor commit. Real local memory/owner CLI, MCP docs and server callers recognize an already-applied explicit floor and use registered synchronous admission; normal unactivated stores remain compatible. The initial cutover operation has no automatic/CLI apply path, so ordinary installs have no applied floor or automatic WAL-note activation. Default paths are `<db-dir>/memory-view/public.db` and `<db-dir>/memory-backups`, with `MEMORY_VIEW_PATH`/`MEMORY_BACKUP_DIR` overrides; pending/unknown/mismatched gates fail closed before legacy chmod/migration. No directories or permissions are adapted for registered selection. Existing 0755 legacy directories need explicit owner permission planning and old writers must restart before activation. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md) records the cutover/activation limits.
+
+`bosun memory publish [--json]` explicitly publishes a public snapshot only for an already-applied local floor. It upgrades the fixed rollback inode and writer format, fences cached old writers, and commits validated public rows/FTS/READY under primary admission. Supported mutations revoke it to HOLD until another explicit publish; no automatic rebuild runs. Private/unclassified/expired/audit/docs/owner-backup data is excluded from public tables/receipts, while the owner recovery metadata remains in its own table. HOLD is audience revocation, not physical erasure. A post-commit cleanup failure may report an unknown outcome if a lease prevents re-HOLD. Publication is bounded at 10,000 rows, 4 MiB encoded and a 16 MiB view; the synthetic 10,000-row medium-body corpus is held by the byte cap and that capacity remains a ship gate. The bound READY reader now retains the same-inode lease through native delivery and conservatively omits finite-expiry local notes; owner activation and finite-expiry handoff remain gates. [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) records exact recovery, receipt and qualification limits.
+
+Doctor's memory check creates/migrates nothing: missing stays absent, mutable WAL is held without claiming its schema is verified, and compatible rollback files report their queried migration version. The writer-discovery probe can open WAL and perform native sidecar housekeeping; it is not the zero-write hook reader.
+
 - **Categories:** `personal` (you, in every project), `project` (this repo), `session` (expires after `MEMORY_SESSION_TTL_DAYS`, 7).
 - **Projects:** a project is the hash of the repo's normalized `origin` URL. Every clone, worktree and machine of a repo shares one project memory. Projects can't see each other, unless a memory is `shared` or you list a project in `MEMORY_LINKED_PROJECTS`.
-- **Each prompt:** the hook adds up to ~400 tokens (estimated) of the most relevant curated notes, next to Kev's hint. A note must share at least `CONTEXT_HOOK_MIN_TERMS` (2) distinct words with the prompt and score `CONTEXT_HOOK_MIN_SCORE` (0.35); otherwise the hook stays silent. It fails open when anything goes wrong, and until you store a first memory it opens nothing at all.
+- **Each prompt:** when the storage path is qualified/available, the hook adds up to ~400 tokens (estimated) of the most relevant curated notes, next to Kev's hint. A note must share at least `CONTEXT_HOOK_MIN_TERMS` (2) distinct words with the prompt and score `CONTEXT_HOOK_MIN_SCORE` (0.35); otherwise the hook stays silent. It fails open when anything goes wrong, and until you store a first memory it opens nothing at all. The ordinary read APIs filter expiry without archiving; local hook handoff additionally omits finite-expiry notes. Readers never touch access/version/events/mode. Legacy hook/context telemetry and routing inference still run outside that reader; the whole hook is not yet zero-IO or lean.
 - **On demand (MCP, `bosun mcp`):** `memory_search`, `memory_get`, `memory_store`, `memory_update`, `memory_delete`, `context_retrieve` (curated + this repo's Markdown docs + claude-mem, ranked and fitted to a budget) and `project_knowledge_search` (docs + claude-mem).
-- **Private:** `--private` memories never reach the model: not the hook, not `memory_search` or `context_retrieve`, and not a remote LLM. `memory_get` hides their body. Logs and metrics never hold titles, bodies, prompts or keys.
+- **Private:** `--private` memories stay out of hook/search/context output. MCP get/store/update/delete replies for private or unclassified records contain only `{memory:{private:true}}`, without title, body, tags, provenance, IDs, hashes, events, timestamps, versions, duplicate or status details. Explicitly private input is blocked before every inference provider, including local models. `memory add --private --auto` uses the first line (up to 80 characters) and no suggested tags; explicit title/tags win. Logs and metrics use finite metadata fields and never serialize titles, bodies, prompts, arbitrary nested objects, or error messages/causes.
+
+**Foundation privacy fixes (2026-10-04):** private auto suggestions now make zero model calls, and new route observations contain validated decision metadata plus a random ID per observation. Prompt snippets and text-derived route hashes are no longer written. Historical logs are left unchanged; their prompts are never redisplayed by label/stats/eval. Existing stored memory IDs, scope and content hashes retain their storage semantics.
+
+Use `bosun route --private …` or `route --hook --private` to skip routing and retrieval for a private request. Hook payloads can also mark `private: true` or `privacy: "private"`; malformed explicit privacy markers fail closed. Unmarked v0.2 hook input retains its existing routing behavior until typed host adapters carry classification. There is no automatic secret detection: mark private input explicitly. Full v1.0 screening, enrichment and live-host qualification remain implementation work in [the roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md).
 - **Proposals:** `bosun memory consolidate` has the local model turn this repo's recent claude-mem session summaries into **proposed** memories. Nothing becomes durable until you accept it in `bosun memory review` (or with MCP `memory_update`).
 
 | You want | Do |
@@ -148,7 +172,7 @@ bosun install --remote kev=http://100.x.y.z:8009,llm=http://100.x.y.z:11434,memo
 - **Allowlist:** `bosun serve` answers 403 to any source outside `SERVE_ALLOW` (default `127.0.0.1/32,100.64.0.0/10` plus the bind address's subnet). Ollama can't filter by IP, so it relies on its bind address.
 - **No tokens yet (v1):** anyone who can reach the memory port can read your memory, so keep it on a private network. The API is versioned (`/v1`), and one `authorize()` point is ready for auth later.
 - **Transport:** plain HTTP. Tailscale encrypts it (WireGuard); a plain LAN doesn't.
-- **When the server is down:** the hook's memory part gives up after `REMOTE_HOOK_TIMEOUT_MS` (300) and stays silent. The CLI and MCP say "memory server unreachable at …" after `REMOTE_TIMEOUT_MS` (5000). There's no offline queue: writes while offline fail visibly.
+- **When the server is down:** the hook's memory part gives up after `REMOTE_HOOK_TIMEOUT_MS` (300) and stays silent. After `REMOTE_TIMEOUT_MS` (5000), the owner CLI retains "memory server unreachable at …"; MCP returns "memory unavailable" with the closed `unavailable` code. There's no offline queue: writes while offline fail visibly.
 - claude-mem, the docs index, the hook and the MCP server always run on the client. Only the curated store moves.
 - `bosun doctor` checks each URL, the server's `/v1/health` (a version mismatch is a warning), and the model on the remote Ollama. `bosun uninstall` removes the server's services, and on a client puts the URLs back.
 
@@ -174,13 +198,13 @@ flowchart LR
     CS["settings.json: hook + 6 permissions<br/>+ MCP server bosun (user scope)"]
     CM["CLAUDE.md: bosun block"]
     CA["agents/bosun-*.md (6, rendered)"]
-    CK["skills/bosun-* (9 links)"]
+    CK["skills/bosun-* (13 links)"]
   end
   subgraph CX["~/.codex + ~/.agents (host = codex)"]
     XH["hooks.json: hook"]
     XM["AGENTS.md: bosun block"]
     XA["agents/bosun_*.toml (6, rendered)"]
-    XK["~/.agents/skills/bosun-* (9 links)"]
+    XK["~/.agents/skills/bosun-* (13 links)"]
   end
   subgraph ST["~/.bosun"]
     CFG["config.env, state.json"]
@@ -223,6 +247,8 @@ flowchart LR
 | Tune the router | `bosun label`, then `bosun eval` (after about a week) |
 | Memory | `bosun memory add …`, `bosun memory search …`, `bosun memory review` (see [Memory](#memory)) |
 
+`bosun label` displays only observation ID/time and decision fields, including for historical rows. Correlate these with your own current session before assigning a ground-truth lane; skip observations you cannot identify. Metadata cannot reconstruct an old task, so the label workflow no longer provides prompt replay or groups repeated prompts by a content hash. Legacy ten-character IDs still join their existing labels for evaluation; historical prompt records are never automatically rewritten or deleted.
+
 ## Local model and harness
 
 | Model | Size | Notes |
@@ -251,11 +277,49 @@ flowchart LR
 - **Guard:** `BOSUN_DEPTH` keeps executors from spawning more work, and the hook stays silent inside them.
 - **Spin-offs and parallel workers** are told not to commit, push, or fan out further. Orca's depth limit backs that up.
 - **High-risk prompts** (payments, orders, invoices, auth, data, infra) always go to the main thread.
-- **Memory:** `bosun memory` is never auto-allowed for the model (the CLI shows private bodies and can purge), and MCP can mark a memory private but never make it public again. Project isolation comes from your environment (cwd, `CLAUDE_PROJECT_DIR`), never from tool arguments. Out-of-scope ids read as "not found". Private memories never reach a host or a remote LLM, and the remote LLM (`LLM_REMOTE=claude`) is off by default.
+- **Memory:** `bosun memory` is never auto-allowed for the model (the owner CLI shows private content and can purge), and MCP can mark a memory private but never make it public again. Project isolation comes from your environment (cwd, `CLAUDE_PROJECT_DIR`), never from tool arguments. Out-of-scope ids read as "not found". MCP and curated context check classification before accessing returned content, even when a remote adapter ignores filtering; model exposure requires an own boolean `private: false`. Denied mutation/read replies use a constant opaque placeholder. Model-facing memory errors carry finite text/codes without provider messages or current-version details. Stored IDs/scope, owner CLI reads/mutations and historical files remain unchanged. The local reader is qualified for bounded legacy rollback stores and independently bound READY public views; safe WAL fallback, atomic private mutation authorization, races and writer/index/expiry separation remain implementation work. Remote generation rejects explicitly private input and `LLM_REMOTE=claude` is off by default.
 
 ## Tests
 
-`npm test` runs 87 checks offline, against a temp HOME, stub `claude`/`codex`/`orca`, a mock Kev/Ollama/Anthropic server, and fixture claude-mem databases:
+`npm test` uses the mandatory Node launcher. It verifies containment before importing application code, then runs the offline suite sequentially against isolated HOME, bosun/host/XDG/temp roots, stub CLIs, registered ephemeral loopback mocks and fixture databases. Inherited credentials, provider settings and user configuration are removed. Installer/supervisor/model commands use stubs; filesystem, SQLite, child-process and network guards prevent accidental external effects. Every test rejects direct `node --test` invocation. **Never run bosun tests under Bun.**
+
+Supported commands (no dependency installation or model pulls):
+
+```sh
+npm test
+node scripts/run-tests.mjs --suite containment --runtime node
+node scripts/run-tests.mjs --suite legacy --runtime node
+node scripts/run-tests.mjs --suite privacy --runtime node
+node scripts/run-tests.mjs --suite exposure --runtime node
+node scripts/run-tests.mjs --suite readonly --runtime node
+node scripts/run-tests.mjs --suite publicreader --runtime node
+node scripts/run-tests.mjs --suite readview --runtime node
+node scripts/run-tests.mjs --suite hooklease --runtime node
+node scripts/run-tests.mjs --suite benchmark --runtime node
+node scripts/run-tests.mjs --suite core,contracts,boundaries --runtime node
+node scripts/run-tests.mjs --suite router,opencode --runtime node
+npm run boundaries
+npm run typecheck
+```
+
+`all` is the default suite; it contains containment probes, legacy tests, privacy/exposure canaries, core/Router acceptance tests, native protocol fixtures, native read-only SQLite/read-view qualification and boundary fixtures. `readview` tests a synthetic WAL writer/public rollback-view protocol, backup, revocation, process crashes and explicit bypass limits; it activates no production view. `hooklease` qualifies actual local reader lifetime through child stdout handoff/cancellation on POSIX. `benchmark` selects the existing memory/benchmark/eval regressions while retaining their legacy coverage. `exposure` covers private memory metadata, malformed adapters, opaque receipts and safe error replies, including guarded stdio MCP. `readonly` proves only the implemented MemoryStore read subset and real local hook; writable MemoryStore acceptance remains unfinished. `contracts` selects `core`, Clef `router` and `readonly`. `router` and `opencode` use synthetic loopback fixtures, never live models/hosts. Known comma-separated groups are supported and selected files run once. Every selected application suite runs the containment probes first. Unknown options, groups and runtimes fail instead of skipping checks. The typecheck launcher uses the existing local compiler with the same isolated environment.
+
+`cutover` exercises the explicit production backup/floor primitive only on guarded synthetic WAL databases: exact data preservation, persistent old-writer fencing, real process-crash recovery, fresh backups after rolled-back attempts, identity/epoch rejection and finite cleanup failures. It activates no owner database or public view.
+
+`writer` covers registered real local APIs, owner CLI, stdio MCP, authoritative HTTP serve, docs writes, retention/touch, path overrides/holds and read-only doctor behavior. `memory` selects existing memory/MCP/serve/context compatibility tests and retains their legacy coverage. Both use synthetic guarded roots; registered fixture floors are prepared only with the production explicit primitive.
+
+`publication` covers production explicit publication/CLI, v2 writer fencing, native leases, multiprocess contention/crashes, actual hot-journal recovery, private/backup projection, late clocks/expiry, capacity and uncertain post-commit receipts. It activates no owner database.
+
+`publicreader` qualifies the production bound public reader, scoped projection and unchanged reader footprint, expected epoch/schema/identity holds, native retained revocation/delivery/cancel/kill/backpressure, finite-expiry omission/stalls, and pending hot-journal holds. `hooklease` also covers the legacy rollback expiry omission. All fixtures are synthetic; owner apply/activation, finite-expiry handoff and useful 10k capacity remain unqualified.
+
+`bosun memory bench` keeps store/search/context measurements separate from hook delivery. Hook wall times cover attempts; recorded outcomes identify verified injections, no-memory/held, failed and unqualified runs. Default-WAL holds report no retrieval latency. A hook-memory timing requires both successful child output containing memory and that child's matching metric; child failures never count as retrieval.
+
+The [offline Clef/OpenCode prototype](ARCHITECTURE.md#offline-native-protocol-prototypes-2026-10-05) adds an explicitly selected decision adapter and pinned native metadata codecs/read-only probe. The existing Kev default/service remains active. Fixtures establish no model calibration, loaded readiness, verified context occupancy or automatic handoff; native host wiring and complete lifecycle migration remain implementation work.
+
+`npm run boundaries` checks the production import graph with the existing local TypeScript AST/TypeChecker API: core dependencies/globals, resolved aliases, type imports/reexports, literal dynamic imports, loader indirection, cycles and production/test/cross-adapter edges. It checks source structure, not compiled-hook size/latency or arbitrary JavaScript purity. [The current extraction](ARCHITECTURE.md#compatible-core-extraction-2026-10-04) records the remaining legacy seams.
+
+The suite covers:
+
 - config precedence
 - router hints and the cases where it stays silent
 - roles rendering for both hosts
@@ -265,14 +329,15 @@ flowchart LR
 - the watch/fallback/closed-split paths
 - spin and card
 - a lint that every role, skill and command a skill mentions actually exists
-- an end-to-end run of the **real `claude` binary** against the mock endpoint
 - memory: storage, updates and version conflicts, duplicates, project isolation, retention, privacy, migrations, concurrent writers, FTS-safe queries
 - context ranking, dedupe and budgets; the hook with memory (silent, fail-open, a 50 KB prompt); the claude-mem and docs providers
 - the LLM router (timeouts, retries, bad JSON, fallback, remote gating), consolidation and review
 - a real stdio MCP session; MCP registration in both hosts
 - the split setup: `bosun serve` + the remote client (same results as local), the allowlist, unreachable and foreign servers, `install --serve` and `--remote`
 
-Run it after updating Claude Code or Codex. `npm run typecheck` checks the types (strict); it needs `npm install` once for the dev-only `typescript` and `@types/node`.
+The real-Claude fixture is excluded from the default runner and does no executable discovery at import. It requires an explicit absolute `BOSUN_TEST_REAL_CLAUDE` setting and a qualified live-host launcher; that launcher is not implemented or authorized yet. The offline guard rejects real host binaries even if installed.
+
+This guard prevents accidental effects in trusted repository tests. It is not an OS security sandbox: arbitrary native code, inherited file descriptors, deliberate monkeypatch removal and native helpers cannot be treated as hostile-code isolation. SQLite file opens/ATTACH and known native helper operations are checked explicitly; symlink checks do not eliminate concurrent filesystem races. Real native Git is pinned from an existing local installation, with sandbox cwd, clean config, disabled hooks and file-only transport. External services, DNS, UDP, socket paths and unregistered loopback ports are denied; registered mocks can serve HTTP/HTTPS clients across guarded children. Run-root cleanup retires registered detached Node test children before removing their files.
 
 ## Files
 
@@ -283,7 +348,7 @@ lib/orca.ts          watch/spin/card  lib/exec.ts      run + review    lib/wire.
 lib/context.ts       rank + budget    lib/mcp.ts       MCP server      lib/serve.ts    bosun serve memory|kev
 lib/llm.ts           LLM router       lib/consolidate.ts proposals     lib/log.ts, metrics.ts  logs + numbers
 lib/memory/          store (service, sqlite, project, remote), providers (claudemem, docs), CLI, bench
-roles/*.md           6 roles          skills/bosun-*/  9 skills        policy.md       the CLAUDE.md/AGENTS.md block
+roles/*.md           6 roles          skills/bosun-*/  13 skills       policy.md       the CLAUDE.md/AGENTS.md block
 config.default.env   defaults         test/            node:test       docs/           specs, plans, ledgers
 ARCHITECTURE.md      memory design, data flow, measured numbers
 ```

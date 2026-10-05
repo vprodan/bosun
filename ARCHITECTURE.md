@@ -2,6 +2,44 @@
 
 This covers the memory layer added on 2026-09-29, and the TypeScript port that came with it. The design and its decisions (M1–M13) are in `docs/specs/2026-09-29-bosun-memory-design.md`; the build record, with every ruling, is in `docs/plans/2026-09-29-bosun-memory-ledger.md`. The roles, skills, executors and Orca parts are described in [README.md](README.md).
 
+## Compatible core extraction (2026-10-04)
+
+The first v1.0 extraction is implemented while package metadata remains 0.2.0. `src/core/` owns memory/context/task/session/route domain types, deterministic text, coded errors, inference/privacy/capability policy and seven typed ports. Only routing has a migrated use case and adapter: `lib/route.ts` calls `createRoutePrompt` through `src/app/registry.ts` and the temporary `src/adapters/routers/legacy-kev.ts`. Existing Kev endpoint/model/config/service selection and advisory risk/confidence behavior remain active. The opt-in Clef adapter and OpenCode protocol prototype below do not replace that lifecycle.
+
+The registry contains literal lazy router factories; constructing it does no adapter import/probe/inference. New inference requests carry `public/private/unknown`; routing and its adapters require an own data-property public classification before sending text. Inherited/getter classifications fail closed. The legacy entry alone retains its documented unmarked-input compatibility. Router metadata uses a trusted configured label, never a provider response field. Managed telemetry/admission/quiescence/fresh-start/seed/readiness controls are typed contracts with fail-closed selection policy; no native host is qualified by these definitions.
+
+`lib/memory/types.ts` forwards domain/port aliases (including the MemoryReader read subset) and MemoryError class; `lib/util.ts` forwards BosunError with its legacy constructor overload. `lib/memory/sqlite.ts` forwards pure text functions, retaining crypto/hash/open/migration/SQL work. Stored IDs/hashes and owner writer/MCP/remote scope/expiry/write semantics remain compatible. The local hook's storage branch now uses the qualified reader below. Legacy context scoring retains only its existing explicitly allowlisted source metadata and rejects mismatched hit identities. New source IDs remain open in core; adding one does not make it trusted.
+
+The model-audience memory policy is wired into MCP memory replies/search and curated context before content access. Only a record with an own boolean `private: false` is eligible; private/missing/malformed classification fails closed, including throwing getters. Denied get/store/update/delete replies are the constant `{memory:{private:true}}`, without duplicate/status or other derivatives. Public replies project known fields into fresh objects/arrays instead of serializing adapter extras, events or `toJSON` hooks. Model-facing memory/context errors use finite text/codes, omitting unverified current-version details. Owner CLI reads and storage mutations remain compatible. Safe WAL fallback, atomic private mutation authorization/races, hook snapshot/lean closure, writer/index/expiry separation, broader error transport migration, full generation/runner screening, daemon and remaining port implementations are not finished.
+
+`scripts/check-boundaries.mjs` checks every production `src`, existing `lib` and binary entry file using the local TypeScript 6 parser/resolver/type checker. Core imports only core; other new layers obey inward zone rules; adapters cannot import peers; source imports cannot reach tests or legacy lib. Static/type imports, reexports, import-type queries, literal dynamic imports and existing direct require calls enter the graph. Unresolved/local aliases outside the graph, computed/indirect loaders, unknown zones, source symlinks and cycles fail. Ambient core IO, Date and randomness are rejected; deterministic direct Math operations are allowed. This is a constrained source gate, not a universal purity/security verifier; isolated typechecking remains separate. TS7 needs a supported parser replacement or a retained dev-only TS6 checker.
+
+Legacy exceptions are exact in the checker and [ADR 0001](docs/adr/0001-compatible-core-extraction.md): existing 25 lib files retain their old internal dependency zone, eight callers have recorded forwarding edges, and `bin/bosun` may import only `enableCompileCache` from `node:module`. New legacy files/edges and new-source imports of lib fail. These seams must be removed as their callers migrate before v1.0 ships. No compiled hook/bundle enforcement result is claimed.
+
+Guarded `core`/`contracts` tests exercise routing/privacy/error identity, capability denial, lazy construction, Router acceptance and the implemented MemoryStore read subset. `boundaries` contains positive/negative AST and resolution fixtures. Full writable MemoryStore and other port acceptance suites await actual adapters. Every group goes through the mandatory Node containment launcher; Bun runs remain prohibited.
+
+## Offline native protocol prototypes (2026-10-05)
+
+`src/adapters/routers/ollama-clef.ts` implements the explicitly selected `ollama-clef` Router factory, independently of generative ModelProvider. It defaults its trusted model label to `clef-flash:9b` and accepts explicit model/URL/deadline settings. Private/unknown/unclassified input fails before config/payload/HTTP access. Lane/risk questions put main/high first for ties; typed answers, exact question/probability keys, finite distributions/confidence, usage and response-model equality are validated. Provider echoes are discarded. Input is rejected above 24,000 characters or a full serialized UTF-8 request of 64 KiB; response bodies are capped at 64 KiB, with bounded deadlines, cancellation, no redirects/retries/fallback/pulls and finite error messages. Probability-sum tolerance is a bosun policy for rounded values. The existing deterministic risk fence remains authoritative.
+
+Clef qualification markers remain unverified/unsupported and are not a calibrated dispatcher gate. The adapter is reachable only through explicit factory/API selection; no legacy hook/CLI/default/model/service selection was changed. Confidence is concentration, not correctness. Live model wire/residency, held-out calibration, thresholds, latency and complete Kev lifecycle replacement remain unverified or unfinished.
+
+`src/adapters/hosts/opencode/{protocol,probe}.ts` is a bounded native **v1.18.34 metadata prototype**, not a completed HostAdapter or eighth core port. Construction does no discovery/start/install/auth/model probe. An explicit public-session request can read only loopback health/session/messages via GET. Basic-auth support and managed wiring are absent; 401 holds with no credential discovery/retry. Codecs follow the actual pinned v1 route/schema sources, not their older generated SDK or separate v2 examples. They preserve explicit provider/model/variant choices, project no transcript/title/path/cost/session-total data, reject mismatched versions/identities, and decode one bounded global SSE message frame; no live SSE subscription is implemented.
+
+Latest completed-message/step input plus cache counts form a diagnostic candidate only. ContextSample remains unknown with null used/window tokens; stale, pending, changed-model, reset, failed and absent observations do not become zero/full-window estimates. Pure fresh-root/noReply request recipes send no requests and successful decoding proves no seed acknowledgement, ownership, admission fence, tool quiescence or readiness. Every managed capability remains unverified, so existing capability selection rejects automatic control. Codex/Claude parity, native process/config wiring and the controller remain pending. [ADR 0002](docs/adr/0002-offline-native-protocol-prototypes.md) and [fixture provenance](test/fixtures/native-protocol-provenance.md) record the exact source/qualification boundaries.
+
+## Qualified local read-only memory (2026-10-05)
+
+**Ordinary default WAL installs remain held. Explicitly prepared READY views with independent owner `MEMORY_SOURCE_ID` binding now supply qualified non-expiring local notes. Owner activation, finite-expiry handoff and useful capacity remain same-v1.0 ship gates.** Guarded Node 24.16.0 probes show `readOnly:true` creates/leaves sidecars for closed WAL and changes existing sidecars for live WAL. Exclusive connection mode avoids those effects but safely fails WAL reads. No immutable primary, automatic conversion/checkpoint/copy or snapshot design is introduced here.
+
+`src/adapters/memory/sqlite-readonly.ts` implements only `search/get/close` from the existing MemoryStore port. It uses explicit canonical paths, an injected clock, compatible schema-v1 checks, readonly/defensive native open and connection-only PRAGMAs before schema/content SQL. Qualified rollback-journal fixtures have unchanged bytes/mode/mtime/ctime/directory footprint before, while open and after close, with a closed or idle open writer. Reader imports exclude writer/config/log/metrics/model/services; no retained writes, migrations, expiry/events/access/mode updates, temp files or extension loading occur. Ordinary read access-time updates are outside the comparison.
+
+SQL binds bounded terms/limits/scope/tags, applies personal/own/shared/linked visibility plus public/active/unexpired filters before projection, validates numeric/nullable metadata and preserves IDs/hashes/BM25/matched counts. Audit requests are rejected because history can derive from earlier private versions; owner writer API history stays available. Files cap at 16 MiB and limits at 50. Missing, corrupt, stale/unknown schema, pending journal, locked, oversized or exhausted-budget reads fail with finite errors. The 250 ms injected-clock check brackets synchronous work and cannot interrupt native CPU work; no strict deadline/designated-Mac latency is claimed. Exclusive rollback reads can hold writer locks until close; concurrent commit throughput is not qualified.
+
+`lib/route.ts` lazily calls its local selector: present/pending/explicit view or source binding requires the strict public reader, while absent default view plus blank binding retains unactivated rollback reading/WAL hold. Invalid bindings never downgrade to primary rows. Both local handoff paths omit finite-expiry records in SQL before packing; ordinary read APIs retain query-time expiry. Public-view schema/identity/READY/generation metadata stays pinned under a retained native transaction through stdout acceptance. The primary is inspected only through filesystem identity/minimal WAL-header checks, never mutable-primary SQLite; backup recovery values are never selected. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records the exact lifetime and restore limits. Remote storage and owner CLI/MCP mutation paths remain compatible. Curated packing accepts a search subset. Positive hook fixtures explicitly prepare rollback mode, while unchanged default-WAL negatives expose the hold. Legacy inference and route/context/hook metadata writes remain outside the reader: the entire hook is not zero-IO or a completed lean closure. [ADR 0003](docs/adr/0003-qualified-local-readonly-memory.md) records exact qualification, compatibility edge and remaining gates.
+
+The explicit `sqlite-cutover` adapter holds primary admission through native backup/floor commit and binds source/view/backup identities and epochs. Actual local MemoryService/owner CLI, MCP docs and authoritative serve select registered admission for an applied floor before legacy chmod/migration; synchronous writes, expiry/touch and docs indexing use it. `memory publish` now explicitly upgrades the same rollback inode with a v2 public schema/marker, commits public rows/FTS/READY and fences cached v1 writers. Mutations commit HOLD before source DML; publication is never automatic. The initial cutover remains uninvoked by runtime roots, with no owner floor installation or default activation. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md) and [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) record authority/recovery/receipt/capacity limits and remaining owner activation/capacity/finite-expiry handoff gates.
+
 ## Overview
 
 Everything runs in-process. There's no daemon, except `bosun serve` on a server Mac in the optional split setup.
@@ -13,7 +51,9 @@ flowchart TD
   MCP --> CTX
   CLI["bosun memory …"] --> SVC
   CLI --> CONS["consolidate"]
-  CTX["context manager<br/>rank · dedupe · budget"] --> SVC
+  CTX["context manager<br/>rank · dedupe · budget"] -->|"owner/MCP/remote"| SVC
+  CTX -->|"local hook"| RO["qualified read-only reader<br/>bound READY view / rollback / WAL hold"]
+  RO --> STORE
   SVC["memory service<br/>validate · dedupe · isolate · retain"] --> STORE[("SQLite ~/.bosun/memory.db<br/>memories + FTS5 + events")]
   CTX --> DOCS[("project docs index<br/>FTS5, by mtime")]
   CTX --> CM[("claude-mem.db<br/>read-only")]
@@ -33,6 +73,10 @@ flowchart TD
 | `lib/memory/types.ts` | Memory, Category, Status, Ctx, Query, Hit, `MemoryApi`, `MemoryProvider`, `MemoryError` |
 | `lib/memory/sqlite.ts` | `openDb` (0600, WAL, `busy_timeout=2000`), ordered migrations, `tx`, query terms, hashing, Jaccard |
 | `lib/memory/service.ts` | `MemoryService`: validation, dedupe, an event per change, retention, isolation; `openMemory` picks local or remote |
+| `src/adapters/memory/sqlite-readonly.ts` | qualified rollback `search/get/close` and local public-view selector; no writer imports/effects; ordinary WAL held |
+| `src/adapters/memory/sqlite-public-readonly.ts` | independent expected epoch, exact public schema/identity/READY and scoped projection; same-inode native lease retained through delivery |
+| `src/adapters/memory/sqlite-public-protocol.ts` | IO-free exact schema/column/bound literals shared by publisher and public reader |
+| `src/adapters/memory/sqlite-cutover.ts` | explicit owner cutover/recovery/publication; registered v1/v2 admission/revocation; no initial apply/hook reader |
 | `lib/memory/project.ts` | project identity from the git `origin` URL (read from `.git/config`, no git spawn) |
 | `lib/memory/remote.ts` | `RemoteStore`: the same `MemoryApi` over HTTP to `MEMORY_URL` |
 | `lib/memory/claudemem.ts` | read-only provider over claude-mem: this repo's observations and session summaries |
@@ -110,15 +154,15 @@ Then:
 | Tool | Hints | Notes |
 |---|---|---|
 | `memory_search` | read-only | private memories left out |
-| `memory_get` | read-only | a private body comes back as `[private]` |
-| `memory_store` | not destructive | returns the existing duplicate instead of a second copy |
+| `memory_get` | read-only | private/unclassified records return only an opaque private placeholder |
+| `memory_store` | not destructive | public duplicate returned instead of a second copy; private receipt hides duplicate state |
 | `memory_update` | destructive, idempotent | `expectedVersion` required; `status: active` accepts a proposal |
-| `memory_delete` | destructive, idempotent | archives (soft) |
+| `memory_delete` | destructive, idempotent | archives (soft); private receipt hides ID/status |
 | `context_retrieve` | read-only | curated + docs + claude-mem, default budget ~1000 tokens |
 | `project_knowledge_search` | read-only | docs + claude-mem |
 
 - **Inputs:** every schema has `additionalProperties: false`, so a tool argument can't set the project.
-- **Errors:** validation and business errors come back as `isError` results, never quoting stored content. Output is capped at `MCP_MAX_CHARS` (20,000).
+- **Errors:** validation and business errors come back as `isError` results. Memory errors expose only fixed text and a closed `structuredContent.error.code`, never provider messages, private duplicate IDs or current-version details. The HTTP context endpoint applies the same finite mapping; owner memory API transport is unchanged. Output is capped at `MCP_MAX_CHARS` (20,000).
 - **Protocol errors:** unknown method (including `server/discover`) → `-32601`, batch → `-32600`, parse error → `-32700`, unknown tool → `-32602`.
 - **Registration:** `bosun install` registers the server with `claude mcp add --scope user`, and with `codex mcp add` in each Codex home (Orca's too). Uninstall removes them, and `bosun doctor` checks them.
 

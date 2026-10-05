@@ -1,12 +1,63 @@
-# Handoff: bosun (2026-09-29)
+# Handoff: bosun (updated 2026-10-06)
 
-To continue in a new session: **"Read HANDOFF.md, README.md and ARCHITECTURE.md in ~/Developer/bosun and continue."**
+To continue in a new session: **"Read HANDOFF.md, RESUME.md, docs/research/README.md, docs/research/09-opencode-clef.md and docs/plans/2026-10-01-bosun-v1.0-roadmap.md, then follow the current request."**
 
-> **2026-10-01: v2 research in progress.** Topics 1–5 are done; resume from [RESUME.md](RESUME.md). **Never run the tests under Bun:** a homedir bug once installed bosun into the real `~/.claude` and `~/.codex`. That's been restored, and the removed files are in `~/bosun-quarantine-20261001/` on the original Mac.
+## Current status and development readiness
 
-## Status
+**Foundation development started.** The owner authorized sequential sub-agent implementation on 2026-10-04. Topics 1–8 and [the integrated roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md) are complete, with [the OpenCode/Clef revision](docs/research/09-opencode-clef.md) incorporated. Track actual progress and checks in [the implementation ledger](docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md). Containment/typecheck launchers now exist; the other roadmap verification interfaces remain proposed until their slices implement them.
 
-**Built and tested offline. Not installed.**
+- **Release:** all selected work ships together as one v1.0; internal phases only, with no intermediate releases or pre-ship package-version bumps.
+- **Commits (owner request, 2026-10-06):** completed work is split into coherent milestone commits. Commit each future verified milestone with its tests, documentation and updated portable context before starting the next. This supersedes the earlier no-commit constraint; preserve unrelated owner changes and untracked artifacts.
+- **Hosts:** OpenCode is primary; native OpenCode, Codex and Claude Code remain first-class behind the seven shared ports. Qualify automatic handoff for bosun-managed sessions; arbitrary existing UI sessions use the manual path.
+- **Router:** local Ollama Clef-Flash replaces Kev, including the training-run config, uv/Python service, readiness checks and remote naming. Summaries/extraction retain a separate generative ModelProvider.
+- **Core:** evolve one package and one compiled binary, with the approved daemon, read-only hook fallback, SQLite/FTS, scoped memory and manifest-owned installation. The old no-daemon decision is superseded.
+- **Implementation:** slices 1–6, test-only 7a, hook lifetime 7b1, cutover 7b2a, registered callers 7b2b1, explicit publication 7b2b2a and bound public reader 7b2b2b are verified with limits. Explicit `memory publish` upgrades an already-applied floor and registered mutations commit HOLD before DML. The public hook requires independent owner `MEMORY_SOURCE_ID`, exact schema/identity/READY metadata and a native lease retained through stdout acceptance. Both local reader paths omit finite-expiry notes before packing. **Explicitly prepared/bound READY views provide non-expiring notes; ordinary unactivated WAL installs remain held.** Initial owner apply/permission/drain/restart/recovery is next in 7b2c. Arbitrary same-inode WAL restore/epoch changes with old view/binding remain unqualified; source header checks cover obvious truncated/corrupt/offline rollback restores only. The 10,000-row medium-body corpus still exceeds the 4 MiB encoded cap. Owner activation, useful capacity, finite-expiry handoff and durability remain ship gates. Version stays v0.2.0; Kev runtime, complete native integration, Clef lifecycle and automatic handoff remain unfinished.
+- **Fresh validation:** coordinator full guarded Node run passed 18/18 containment groups and 264/264 application tests, including thirteen public-reader, fourteen publication, eleven registered-caller, fourteen cutover and nine actual-hook lifecycle regressions. Isolated strict typecheck, whitespace and AST boundaries (56 production files, 200 edges, zero violations) passed. Markdown links/fences and nine Mermaid grammar blocks passed without rendering claims. Real-Claude remains excluded. Original-Mac measurements below remain historical; functional verification here does not qualify 10,000-row useful capacity, p95 or live hosts.
+
+Checkout: branch `main`, history root `8e835a5082530a132912e6dd3afca65db903aac1`. Completed research, skills and verified foundation implementation are committed in coherent milestone groups; the [ledger commit map](docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md#commit-checkpoints-2026-10-06) and `git log` identify checkpoints. Pre-existing untracked `bun.lock` and `node_modules/` remain untouched. [RESUME.md](RESUME.md) carries portable context and owner constraints.
+
+## First development slice
+
+1. **Complete:** HOME-first paths and a mandatory Node test launcher/preload contain writes before application imports. XDG/host roots, child propagation, symlink/SQLite guards, stub process effects and registered ephemeral mock endpoints are covered. The real-Claude fixture is excluded and no longer discovers a client at import; a qualified live-host launcher is still unavailable.
+2. **Complete:** `npm test` and `npm run typecheck` use isolated launchers. Containment failures run before application tests; a fresh baseline passed. **Never run bosun tests under Bun.** The original incident/restoration is recorded in the root resume. Read README's test section for the accidental-effect guard's limits.
+3. **Complete:** prompt-content route logs and private `--auto` provider leak fixed, with nested telemetry/provider-echo canary checks. Data IDs, scope/privacy behavior and selected models are preserved. Unmarked legacy input still requires explicit privacy classification; full v1.0 screening remains later work.
+4. **Complete:** seven core contracts, pure policy and compatible routing caller with lazy factories and enforced import boundaries. Only Router has an implemented adapter acceptance suite; storage still writes on reads.
+5. **Complete:** MCP/curated context classify before content access. Private/unclassified get/store/update/delete replies are constant opaque placeholders; search/context filter denied records and errors use finite text/codes. Owner CLI access remains compatible. Atomic private mutation authorization/races and true read-only fallback remain unfinished.
+6. **Complete:** initial OpenCode native-protocol codecs/GET-only probe and Clef Router adapter with synthetic wire/privacy/bounds/failure fixtures. Mocks do not qualify live handoff, occupancy or calibration; current Kev runtime stays active. Basic auth/managed wiring, full native adapters and complete Clef lifecycle migration remain unfinished.
+7. **Complete as a narrow qualified slice:** native WAL probes, rollback-only reader, zero-write WAL hold and real local hook caller. IDs/scope/privacy remain intact; expiry filters without archive/touch. Owner audit stays in the writer API. Benchmarks label held/failed/unqualified runs instead of claiming empty-path retrieval latency.
+8. **Test-only qualification complete:** public rollback view with serialized publisher, persistent UDF writer floor, generation and `HOLD`/`READY` gate; retained reader leases, exact owner backup and guarded process-kill probes. Negative cases expose schema/function/inode bypass and early-close cached delivery. See [ADR 0004](docs/adr/0004-wal-read-view-protocol-qualification.md); this does not activate a production view or prove atomic cutover/power-loss durability.
+9. **Complete:** actual rollback-only local reader lifetime through native stdout callback. Local acquisition follows routing; memory delivery is Node POSIX pipe/socket only, capped at 16 KiB. Pending failure/signal/250 ms event-loop timeout terminates the one-shot producer with its lease retained; native stdout close was disproven as release evidence. File/TTY/Windows/Bun sinks omit local notes; advice remains available. No total-latency or host-acknowledgement claim.
+10. **Complete as an explicit primitive:** production native-backup/floor cutover under continuous admission, owner-only recovery gate/artifacts, restart without overwrite/doubleapply and registered synchronous writer wrapper. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md) covers exact schema/identity, finite cleanup errors, same-inode gate leases and trusted-application limits. The operation itself has no runtime/CLI activation; no owner database or READY publication was activated. Unknown pre-intent files stay held.
+11. **Complete:** registered admission is used by real local MemoryService/owner CLI, MCP memory/docs and authoritative serve for existing explicit floors. Constructor/lazy expiry, search touch, mutations, pruning and docs writes are synchronous inside admission. Registered native handles stay private; owner domain errors survive successful rollback and MCP projections remain intact. Canonical path overrides and pending/dangling/mismatched gates fail closed before the legacy opener. Doctor memory checks do not create/migrate; WAL is held without a schema claim. Guarded real CLI/MCP/HTTP/diagnostic fixtures passed.
+12. **Complete:** explicit `memory publish [--json]` for already-applied local floors, fixed-inode public schema/FTS/READY, primary writer-format fencing and synchronous registered revocation. Publication preserves owner rows/backup/IDs/scope/version and copies only validated current public records. Ordinary open never finishes a partial format upgrade or recovers pending journals; explicit publication can recover the verified owned journal. Native process crashes, actual hot spill recovery, same-inode leases, real CLI contenders, late clock/expiry and uncertain cleanup receipts are covered. [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) records exact bounds and limits.
+13. **Complete for non-expiring local notes:** independently bound public reader with exact public schema/identity/READY metadata, scoped projection and retained native lease through stdout acceptance. The reader only filesystem-checks the mutable primary; it opens the rollback view through SQLite and leaves owner recovery derivatives unread. Invalid/pending/unbound views never fall back to primary rows. Both public and rollback hook paths omit finite-expiry notes before packing; real backpressure and event-loop stalls are covered. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records query-time versus delivery eligibility and restore limits.
+
+14. **Next:** slice 7b2c: explicit owner permission/drain/restart/apply/recovery, restore epoch rotation/revocation and orphan disposition. Resolve useful 10,000-row capacity, finite-expiry handoff, durability and daemon refresh before the same-v1 ship gate. No initial owner floor or personal binding has been activated.
+
+The sole public-reader worker stopped after passing focused checks; coordinator completed independent full verification. No worker/test job remains active. Continue the ledger's next slice from this checkpoint.
+
+Local implementation is authorized, using one sub-agent at a time with coordinator verification between slices. The owner's no-install/no-personal-config constraint remains: no model pull, dependency download, authentication change or personal configuration write. Existing local tools suffice for containment and pure contracts; missing host/model/dependency setup is a later integration prerequisite.
+
+## Remaining engineering qualification
+
+| Item | How it is resolved | Blocks beginning development? |
+|---|---|---|
+| Native context telemetry, prompt admission, tool quiescence and fresh-session acknowledgement | Early OpenCode/Codex/Claude capability fixtures, then version-qualified live checks before claiming automatic support | No; this is engineering qualification and a ship gate |
+| Clef wire compatibility, thresholds, latency and local residency | Decision fixtures, held-out calibration and permitted warm/cold model evaluation | No; no speed/quality claim is assumed |
+| Graph/enrichment quality, privacy and latency | Compare with the stronger lexical baseline under actual packing/token budgets | No; activation remains evaluated |
+| Known unresolved v0.2 issues listed in the historical report | Carry each into the migration ledger as fixed, covered by replacement behavior, or explicitly unresolved; preserve relevant regression assertions | No; they are implementation work, not forgotten future-version assignments |
+| Optional Graphify/CodeGraph integrations | Owner clarified that users install these only when needed. Validate the actual tool/export or MCP contract when configured; leave absent sources disabled and never auto-install | No; optional tool presence/identity is not a development or v1.0 release prerequisite |
+| New libraries and real host/model availability | Use existing tools/stubs first; preserve the owner's installation constraint and verify actual setup before live integration | No for containment/contracts; later dependency/integration prerequisite |
+
+Use synthetic/manually redacted fixtures by default; no owner transcript/database is required to start. No owner clarification remains before foundation work. Keep scope and qualification outcomes in the implementation ledger. Failed required support gates need resolution before the single ship decision; optional third-party tool absence does not fail that gate.
+
+## Historical v0.2 report (2026-09-29)
+
+The remainder records the original build and measurements. Its no-daemon, Kev, dependency and installation choices have been superseded by the current plan above. Historical commands are retained as evidence, not the current development or installation sequence.
+
+### Historical status
+
+**Built and tested offline on the original machine. Not installed at that checkpoint.**
 - `npm test`: 87/87 pass in 13.8 s.
 - Strict type check: clean. It ran with the TypeScript already in `~/.npm/_npx`, so there was no `npm install`.
 
@@ -17,14 +68,14 @@ To continue in a new session: **"Read HANDOFF.md, README.md and ARCHITECTURE.md 
 
 The memory layer (spec `docs/specs/2026-09-29-bosun-memory-design.md`, approved) was planned in `docs/plans/2026-09-29-bosun-memory.md` and run natively. It then went through one fresh Opus review of the whole project. Every ruling, fix and deferred minor is in `docs/plans/2026-09-29-bosun-memory-ledger.md`.
 
-**Needs your decision:** the hook's memory part misses the spec target.
+**Historical issue, now resolved in the design:** the hook's memory part missed the spec target. The owner subsequently approved the daemon; this is no longer a pending owner decision.
 - **Target:** p95 under 30 ms.
 - **Measured at 10,000 memories:** p95 36.6–40.1 ms (see "Measurements").
 - **Before you store anything:** the hook costs about what it did before the memory layer.
 - **Where the rest goes:** cold SQLite work in each per-prompt process.
-- **If you want the target met:** that needs a long-lived memory process, which the approved design (no daemon) rules out.
+- **Original restriction:** the then-approved no-daemon design ruled out a long-lived memory process. The current v1.0 plan supersedes that restriction and still requires measured validation of the new path.
 
-## Final report (spec §12)
+### Historical final report (spec §12)
 
 **1. Existing architecture:** spec §2. A CommonJS Node CLI of 10 modules and 43 tests, with no memory and no MCP.
 
@@ -73,9 +124,9 @@ The memory layer (spec `docs/specs/2026-09-29-bosun-memory-design.md`, approved)
 - MCP protocol `2026-07-28`.
 - For the split setup: tokens and TLS, an offline queue and sync, multiple users, a Linux server.
 
-## Measurements
+### Historical measurements
 
-All on this Mac (M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4).
+All on the original Mac (M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4).
 
 **`bosun memory bench`:** 10,000 synthetic memories (seed 42), 200 queries.
 
@@ -103,7 +154,7 @@ All on this Mac (M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4).
 - `npm test`: 87 tests in 13.8 s (§2 baseline: 43 tests in 12.8 s).
 - **Token numbers:** only estimates of what was injected (characters ÷ 4). No savings are claimed, because nothing was measured before and after.
 
-## What the final review changed
+### What the original final review changed
 
 - **Private memories were reachable** in two ways:
   - `bosun memory` was auto-allowed for the model, and the CLI prints private bodies and can purge. It now needs your approval each time.
@@ -114,7 +165,7 @@ All on this Mac (M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4).
 - **The hook created a memory database** for users with no memories.
 - **Found during the fix pass:** a remote that drops packets, such as Tailscale being down, kept every bosun process alive for about 10 s after its work. That would have held the hook past Claude's 5 s timeout on every prompt. `bin/bosun` now flushes and exits.
 
-## Rulings to look at
+### Historical rulings
 
 The full list is in the ledger. The ones that change behaviour you might notice:
 - **Project identity** reads `.git` directly instead of spawning git, which saved 17 ms per prompt. An origin set through `includeIf` or `GIT_DIR` gets a path-based id instead.
@@ -128,7 +179,7 @@ The full list is in the ledger. The ones that change behaviour you might notice:
   - Clients rank remote hits locally.
   - Tag filters are any-of.
 
-## Not verified (needs the install or the real services)
+### Historical checks not verified
 
 **Memory layer:**
 - The `claude mcp add --scope user bosun -- …` and `codex mcp add bosun -- …` formats on your versions, and whether the hosts start the server correctly.
@@ -150,7 +201,7 @@ The full list is in the ledger. The ones that change behaviour you might notice:
 - Real qwen3.6 tool calling, speed and memory at 64K.
 - `kev-0.8b` accuracy.
 
-## Deferred minors
+### Historical unresolved v0.2 issues
 
 **From this build** (details in the ledger):
 - **Remote client:** a server reply `{ok:true}` without data is accepted, so the CLI shows a stack trace.
@@ -176,7 +227,7 @@ The full list is in the ledger. The ones that change behaviour you might notice:
 - Whitespace and CRLF get normalized on restore.
 - A second `.bak-bosun` overwrites the first.
 
-## Next steps
+### Archived v0.2 next steps
 
 1. **Decide on the missed hook target** (see Status). Keep the in-process design, or plan a long-lived memory process.
 2. **Install:** `npm test`, then `./install.sh --host both`.
@@ -196,7 +247,7 @@ The full list is in the ledger. The ones that change behaviour you might notice:
    - `bosun memory stats`.
    - `bosun memory eval <queries.jsonl>` before you tune `CONTEXT_HOOK_MIN_TERMS` or `CONTEXT_HOOK_MIN_SCORE`.
 
-## Decisions
+### Historical decisions
 
 | # | Decision | Why |
 |---|---|---|
