@@ -47,8 +47,9 @@ test('route eval/stats: threshold suggestion, corrupt log lines are skipped', as
     const labels = [];
     for (let i = 0; i < 12; i++) {
       const right = i < 10;
-      rows.push(JSON.stringify({ ts: i, id: `id${i}`, prompt: `p${i}`, lane: 'local', conf: right ? 0.9 : 0.3, risk: 'low', risk_conf: 0.3, ms: 10 + i, router: 'kev', final: 'local', why: '' }));
-      labels.push(JSON.stringify({ id: `id${i}`, label: right ? 'local' : 'worker' }));
+      const id = i.toString(16).padStart(10, '0'); // actual legacy SHA-1 observation ID shape
+      rows.push(JSON.stringify({ ts: i, id, prompt: `p${i}`, lane: 'local', conf: right ? 0.9 : 0.3, risk: 'low', risk_conf: 0.3, ms: 10 + i, router: 'kev', final: 'local', why: '' }));
+      labels.push(JSON.stringify({ id, label: right ? 'local' : 'worker' }));
     }
     fs.writeFileSync(path.join(dir, 'route-log.jsonl'), rows.join('\n') + '\n{"half-writ\n');
     fs.writeFileSync(path.join(dir, 'route-labels.jsonl'), labels.join('\n') + '\n');

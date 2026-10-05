@@ -4,5 +4,5 @@
     "strict": true, "noEmit": true, "skipLibCheck": true, "types": ["node"],
     "allowImportingTsExtensions": true, "erasableSyntaxOnly": true, "verbatimModuleSyntax": true
   },
-  "include": ["lib/**/*.ts", "test/**/*.ts"]
+  "include": ["lib/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
 }

@@ -1,6 +1,8 @@
 // Context manager: rank curated memory, project docs and claude-mem for a task, dedupe, and fit a token budget.
 import { record } from './metrics.ts';
-import { contentHash, jaccard, terms, words } from './memory/sqlite.ts';
+import { contentHash } from './memory/sqlite.ts';
+import { jaccard, terms, words } from '../src/core/text.ts';
+import { mayExposeMemory } from '../src/core/memory-policy.ts';
 import type { Ctx, Hit, MemoryApi, MemoryProvider, Source } from './memory/types.ts';
 
 export type Item = Hit & { score: number };
@@ -13,10 +15,10 @@ const day = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 export const estTokens = (s: string): number => Math.ceil(s.length / 4);   // an estimate, always shown as ~
 
 // Curated memory as a provider: active, non-private memories of the caller's scope.
-export const curated = (api: MemoryApi): MemoryProvider => ({
+export const curated = (api: Pick<MemoryApi, 'search'>): MemoryProvider => ({
   name: 'curated',
   async search(text, ctx, limit) {
-    return (await api.search({ text, limit }, ctx)).map((m) => ({
+    return Array.from(await api.search({ text, limit, includePrivate: false }, ctx)).filter((m) => mayExposeMemory(m, 'model')).map((m) => ({
       source: 'curated' as const, id: m.id, title: m.title, text: m.body, category: m.category, rank: m.rank, at: m.updatedAt, accessCount: m.accessCount, hash: m.hash, matched: m.matched,
     }));
   },
@@ -38,11 +40,13 @@ export async function retrieve(task: string, providers: MemoryProvider[], ctx: C
   const query = list.join(' ');
   const need = Math.min(o.minMatched ?? 1, list.length);
   if (!query) return { items: [], text: '', estTokens: 0, sources, ms: performance.now() - t0 };
+  // The legacy seam accepts only existing source identities; new sources need verified metadata in the new adapter path.
+  providers = providers.filter((p) => Object.hasOwn(WEIGHT, p.name));
   const lists = await Promise.all(providers.map((p) => p.search(query, ctx, FETCH)));
   const now = Date.now();
   const scored: Item[] = [];
   providers.forEach((p, i) => {
-    const hits = lists[i].filter((h) => (h.matched ?? Infinity) >= need);   // providers without counts are not gated
+    const hits = lists[i].filter((h) => h.source === p.name && (h.matched ?? Infinity) >= need);   // providers without counts are not gated
     sources[p.name] = lists[i].length;
     const best = Math.max(0, ...hits.map((h) => -h.rank));   // bm25 is negative: more negative is better
     for (const h of hits) {

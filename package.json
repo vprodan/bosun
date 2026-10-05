@@ -6,6 +6,6 @@
   "description": "Pair with one agent; bosun routes the rest to cheaper, local and other-vendor models, and remembers what matters. Claude Code + Codex + Orca.",
   "bin": { "bosun": "bin/bosun" },
   "engines": { "node": ">=24" },
-  "scripts": { "test": "node scripts/run-tests.mjs", "typecheck": "node scripts/run-typecheck.mjs" },
+  "scripts": { "test": "node scripts/run-tests.mjs", "typecheck": "node scripts/run-typecheck.mjs", "boundaries": "node scripts/check-boundaries.mjs" },
   "devDependencies": { "@types/node": "^26.6.2", "typescript": "^6.0.3" }
 }

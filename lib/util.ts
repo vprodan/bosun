@@ -1,6 +1,8 @@
 // Shared helpers: terminal output, subprocesses, JSON files, a small JSON Schema check. Node built-ins only.
 import { spawnSync, type SpawnSyncOptions } from 'node:child_process';
 import fs from 'node:fs';
+import { BosunError } from '../src/core/errors.ts';
+export { BosunError } from '../src/core/errors.ts';
 import path from 'node:path';
 
 const tty = !!process.stdout.isTTY;
@@ -11,10 +13,6 @@ export const ok = (m: string): void => console.log(`  ${C.g}✓${C.n} ${m}`);
 export const bad = (m: string): void => { console.log(`  ${C.r}✗${C.n} ${m}`); state.failed = true; };
 export const warn = (m: string): void => console.log(`  ${C.y}!${C.n} ${m}`);
 
-export class BosunError extends Error {
-  exitCode: number;
-  constructor(message: string, exitCode = 1) { super(message); this.exitCode = exitCode; }
-}
 export function die(message: string, exitCode = 1): never { throw new BosunError(message, exitCode); }
 
 // Run and capture. Never throws: a missing binary is code 1.
