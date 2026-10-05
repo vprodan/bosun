@@ -72,7 +72,8 @@ test('mcp: every tool works, before initialize too; isError paths; private redac
     assert.equal((await s.call('memory_update', { id: m.id, expectedVersion: 1, body: 'pnpm only.' })).result.structuredContent.memory.version, 2);
     r = await s.call('memory_update', { id: m.id, expectedVersion: 1, body: 'x' });
     assert.equal(r.result.isError, true);
-    assert.match(r.result.content[0].text, /current version is 2/);
+    assert.equal(r.result.content[0].text, 'memory version conflict');
+    assert.deepEqual(r.result.structuredContent, { error: { code: 'conflict' } });
     assert.match((await s.call('context_retrieve', { task: 'pnpm lockfile install' })).result.structuredContent.text, /Use pnpm/);
     assert.match(JSON.stringify((await s.call('project_knowledge_search', { query: 'checkout page' })).result.structuredContent.hits), /README\.md/);
     assert.equal((await s.call('memory_delete', { id: m.id })).result.structuredContent.status, 'archived');
@@ -85,9 +86,9 @@ test('mcp: every tool works, before initialize too; isError paths; private redac
     assert.equal(r.result.isError, true);
     assert.match(r.result.content[0].text, /unknown field/);
     r = await s.call('memory_store', { category: 'project', title: 'Secret', body: 'PRIVATE-BODY token', private: true });
-    const p = r.result.structuredContent.memory;
-    assert.equal(p.body, '[private]');
-    assert.equal((await s.call('memory_get', { id: p.id })).result.structuredContent.memory.body, '[private]');
+    assert.deepEqual(r.result.structuredContent, { memory: { private: true } });
+    const p = JSON.parse((await bosun(['memory', 'search', 'token', '--json'], { env: sb.env(), cwd: repo })).out)[0];
+    assert.deepEqual((await s.call('memory_get', { id: p.id })).result.structuredContent, { memory: { private: true } });
     assert.equal((await s.call('memory_search', { query: 'token' })).result.structuredContent.hits.length, 0);
     assert.doesNotMatch((await s.call('context_retrieve', { task: 'private body token' })).result.structuredContent.text, /PRIVATE-BODY/);
     await s.close();
@@ -126,19 +127,20 @@ test('wire: registers the MCP server with Claude and every Codex home; unwire re
   } finally { sb.cleanup(); }
 });
 
-test('mcp: memory_update cannot make a private memory public (the reply would carry its body)', async () => {
+test('mcp: memory_update cannot make a private memory public; private updates return only an opaque receipt', async () => {
   const sb = sandbox();
   try {
     const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
     const s = session(sb.env(), repo);
     try {
-    const p = (await s.call('memory_store', { category: 'project', title: 'Bank', body: 'my PIN hint is PRIVATE-XYZ', private: true })).result.structuredContent.memory;
+    assert.deepEqual((await s.call('memory_store', { category: 'project', title: 'Bank', body: 'my PIN hint is PRIVATE-XYZ', private: true })).result.structuredContent, { memory: { private: true } });
+    const p = JSON.parse((await bosun(['memory', 'search', 'PRIVATE-XYZ', '--json'], { env: sb.env(), cwd: repo })).out)[0];
     const r = await s.call('memory_update', { id: p.id, expectedVersion: 1, private: false });
     assert.equal(r.result.isError, true);
     assert.doesNotMatch(JSON.stringify(r), /PRIVATE-XYZ/);
-    assert.equal((await s.call('memory_get', { id: p.id })).result.structuredContent.memory.body, '[private]');
+    assert.deepEqual((await s.call('memory_get', { id: p.id })).result.structuredContent, { memory: { private: true } });
     const t = await s.call('memory_update', { id: p.id, expectedVersion: 1, title: 'Bank hint' });
-    assert.equal(t.result.structuredContent.memory.body, '[private]');
+    assert.deepEqual(t.result.structuredContent, { memory: { private: true } });
     } finally { await s.close(); }
   } finally { sb.cleanup(); }
 });

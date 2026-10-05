@@ -86,7 +86,7 @@ test('split: the allowlist rejects other sources (403); bind never defaults to 0
     fs.writeFileSync(path.join(sb.bin, 'tailscale'), fs.readFileSync(path.join(sb.bin, 'claude')), { mode: 0o755 });
     assert.equal(bindAddress({ ...cfg, SERVE_BIND: '' }), '100.101.102.103');
     assert.equal(bindAddress({ ...cfg, SERVE_BIND: '0.0.0.0' }), '0.0.0.0', 'only when you set it');
-    // Model unavailable Tailscale through its stub, never a real executable.
+    // Model unavailable Tailscale through its default stub; PATH never falls back to a real installation.
     const cli = await bosun(['serve', 'memory'], { env: sb.env({ STUB_MAP: JSON.stringify({ 'tailscale ip': { code: 1 } }) }) });
     assert.equal(cli.code, 1);
     assert.match(cli.err, /set SERVE_BIND/);
@@ -117,10 +117,12 @@ test('split: an unreachable, hanging or foreign memory server — the hook fails
       assert.match(r.err, /memory server (unreachable at|at .* sent no bosun reply)/);
     }
     const s = mcpSession(sb.env({ MEMORY_URL: html.url }), repo);
-    const res = await s.call('memory_store', { category: 'project', title: 't', body: 'b' });
-    assert.equal(res.result.isError, true);
-    assert.match(res.result.content[0].text, /memory server at .* sent no bosun reply/);
-    await s.close();
+    try {
+      const res = await s.call('memory_store', { category: 'project', title: 't', body: 'b' });
+      assert.equal(res.result.isError, true);
+      assert.equal(res.result.content[0].text, 'memory unavailable');
+      assert.deepEqual(res.result.structuredContent, { error: { code: 'unavailable' } });
+    } finally { await s.close(); }
   } finally { hang.closeAllConnections(); hang.close(); await kev.close(); await html.close(); sb.cleanup(); }
 });
 

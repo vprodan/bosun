@@ -1,5 +1,5 @@
 // LLM router: generate() over local providers (Ollama, OpenAI-compatible), with timeout, retry, fallback, JSON validation
-// and a usage log. A remote provider (claude -p, haiku) is used only when opted in, allowed by the caller, and not private.
+// and a usage log. Explicitly private input never reaches any provider, including local models.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +13,8 @@ export type GenOpts = { task: string; messages: Msg[]; schema?: Schema; allowRem
 export type GenResult = { ok: boolean; text: string; json?: any; provider: string; model: string; ms: number; tokensIn?: number; tokensOut?: number; error?: string };
 type Raw = { text: string; tokensIn?: number; tokensOut?: number };
 class Transient extends Error {}   // timeouts and connection errors: worth a retry
+const tokenCount = (value: unknown): number | undefined => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : undefined;
+const tasks = new Set(['memory.add', 'consolidate']);
 
 async function post(url: string, body: object, cfg: Cfg): Promise<any> {
   try {
@@ -68,20 +70,23 @@ const PROVIDERS: Record<string, (cfg: Cfg, o: GenOpts, model: string) => Promise
 function usage(task: string, r: GenResult): void {
   try {
     fs.mkdirSync(P.BOSUN, { recursive: true });
-    fs.appendFileSync(path.join(P.BOSUN, 'llm-usage.jsonl'), `${JSON.stringify({ ts: Date.now(), task, provider: r.provider, model: r.model, ms: Math.round(r.ms), ok: r.ok,
-      tokensIn: r.tokensIn ?? null, tokensOut: r.tokensOut ?? null, error_kind: r.error ?? null })}\n`);
+    fs.appendFileSync(path.join(P.BOSUN, 'llm-usage.jsonl'), `${JSON.stringify({ ts: Date.now(), task: tasks.has(task) ? task : 'other',
+      provider: r.provider, model: r.model, ms: Math.round(r.ms), ok: r.ok,
+      tokensIn: tokenCount(r.tokensIn) ?? null, tokensOut: tokenCount(r.tokensOut) ?? null, error_kind: r.error ?? null })}\n`);
   } catch { /* never breaks a caller */ }
   record({ op: 'llm', ms: r.ms, provider: r.provider, ok: r.ok });
 }
 
 export async function generate(cfg: Cfg, o: GenOpts): Promise<GenResult> {
+  // Before config/provider selection, retries, fallback, schema serialization or reading any message.
+  if (o.private !== undefined && o.private !== false) return { ok: false, text: '', provider: 'none', model: '', ms: 0, error: 'private' };
   const chain = cfg.LLM_PROVIDERS.split(',').map((s) => s.trim()).filter((p) => p && p !== 'claude-cli');
   if (cfg.LLM_REMOTE === 'claude' && o.allowRemote && !o.private) chain.push('claude-cli');
   let last: GenResult = { ok: false, text: '', provider: 'none', model: '', ms: 0, error: 'no provider' };
   for (const name of chain) {
-    const fn = PROVIDERS[name];
+    const fn = Object.hasOwn(PROVIDERS, name) ? PROVIDERS[name] : undefined;
     const model = name === 'claude-cli' ? 'haiku' : cfg.LLM_MODEL || cfg.LOCAL_MODEL;
-    if (!fn) { last = { ...last, provider: name, error: 'unknown provider' }; continue; }
+    if (!fn) { last = { ...last, provider: 'unknown', error: 'unknown provider' }; continue; }
     for (let attempt = 0; ; attempt++) {
       const t = performance.now();
       let r: GenResult;
@@ -94,9 +99,10 @@ export async function generate(cfg: Cfg, o: GenOpts): Promise<GenResult> {
           if (!error && validate(o.schema, json)) error = 'invalid';
         }
         r = { ok: !error, text: raw.text, ...(o.schema && !error ? { json } : {}), provider: name, model, ms: performance.now() - t,
-          tokensIn: raw.tokensIn, tokensOut: raw.tokensOut, ...(error ? { error } : {}) };
+          tokensIn: tokenCount(raw.tokensIn), tokensOut: tokenCount(raw.tokensOut), ...(error ? { error } : {}) };
       } catch (e) {
-        r = { ok: false, text: '', provider: name, model, ms: performance.now() - t, error: e instanceof Transient ? e.message : 'error' };
+        r = { ok: false, text: '', provider: name, model, ms: performance.now() - t,
+          error: e instanceof Transient && e.message === 'timeout' ? 'timeout' : e instanceof Transient && e.message === 'connection' ? 'connection' : 'error' };
       }
       usage(o.task, r);
       if (r.ok) return r;
@@ -111,6 +117,7 @@ export async function generate(cfg: Cfg, o: GenOpts): Promise<GenResult> {
 const SUGGEST: Schema = { type: 'object', required: ['title', 'tags'], properties: { title: { type: 'string', maxLength: 200 }, tags: { type: 'array', maxItems: 12, items: { type: 'string', maxLength: 40 } } } };
 // memory add --auto: a suggested title and tags, which explicit flags override.
 export async function suggest(cfg: Cfg, text: string, priv: boolean): Promise<{ title: string; tags: unknown[] } | null> {
+  if (priv !== false) return { title: text.trim().split('\n')[0].slice(0, 80), tags: [] };
   const r = await generate(cfg, { task: 'memory.add', schema: SUGGEST, allowRemote: true, private: priv, messages: [
     { role: 'user', content: `Suggest a short title (under 80 characters) and 1-4 lowercase tags (a-z, 0-9, hyphens) for this note. Reply with JSON only: {"title": "...", "tags": ["..."]}\n\n${text.slice(0, 4000)}` }] });
   return r.ok ? { title: String(r.json.title).trim().slice(0, 200), tags: r.json.tags } : null;

@@ -8,12 +8,20 @@ export type Metric = { op: string; ms: number; n?: number; chars?: number; estTo
 const FILE = () => path.join(P.BOSUN, 'metrics.jsonl');
 let muted = false;
 export const mute = (): void => { muted = true; };   // bench: a synthetic corpus must not skew your stats
+const OPS = new Set(['db.open', 'hook', 'context.retrieve', 'docs.index', 'llm', 'claude-mem.search', 'claude-mem.summaries',
+  ...['store', 'search', 'get', 'update', 'delete', 'purge'].map((op) => `memory.${op}`),
+  'remote.health', ...['store', 'search', 'get', 'update', 'delete', 'accept', 'reject'].map((op) => `remote.memory/${op}`)]);
+const finite = (value: unknown): number | undefined => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER ? value : undefined;
 
 export function record(m: Metric): void {
   if (muted) return;
   try {
     fs.mkdirSync(P.BOSUN, { recursive: true });
-    fs.appendFileSync(FILE(), `${JSON.stringify({ ts: Date.now(), ...m, ms: Math.round(m.ms * 100) / 100 })}\n`);
+    const safe = { ts: Date.now(), op: OPS.has(m.op) ? m.op : 'other', ms: Math.round((finite(m.ms) ?? 0) * 100) / 100,
+      n: finite(m.n), chars: finite(m.chars), estTokens: finite(m.estTokens),
+      provider: ['ollama', 'openai', 'claude-cli'].includes(m.provider ?? '') ? m.provider : undefined,
+      ok: typeof m.ok === 'boolean' ? m.ok : undefined };
+    fs.appendFileSync(FILE(), `${JSON.stringify(safe)}\n`);
   } catch { /* metrics never break a caller */ }
 }
 
@@ -35,8 +43,12 @@ const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.le
 const sum = (xs: number[]) => xs.reduce((a, b) => a + (b || 0), 0);
 
 export function report(): string[] {
-  const rows = jsonl(FILE()) as Metric[];
-  const usage = jsonl(path.join(P.BOSUN, 'llm-usage.jsonl'));
+  // Old files are left untouched; reports also accept only finite metadata rather than redisplaying old injected strings.
+  const rows: Metric[] = jsonl(FILE()).filter((r) => r && typeof r === 'object').map((r) => ({
+    op: OPS.has(r.op) ? r.op : 'other', ms: finite(r.ms) ?? 0, n: finite(r.n), chars: finite(r.chars), estTokens: finite(r.estTokens),
+    ok: typeof r.ok === 'boolean' ? r.ok : undefined }));
+  const usage = jsonl(path.join(P.BOSUN, 'llm-usage.jsonl')).filter((r) => r && typeof r === 'object').map((r) => ({
+    ok: r.ok === true, ms: finite(r.ms) ?? 0, tokensIn: finite(r.tokensIn) ?? 0, tokensOut: finite(r.tokensOut) ?? 0 }));
   if (!rows.length && !usage.length) return [`no metrics yet (${FILE()})`];
   const by = new Map<string, Metric[]>();
   for (const r of rows) by.set(r.op, [...(by.get(r.op) || []), r]);

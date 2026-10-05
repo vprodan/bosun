@@ -10,6 +10,7 @@ import { MemoryService } from './memory/service.ts';
 import { MIGRATIONS, openDb } from './memory/sqlite.ts';
 import { MemoryError, type Ctx, type ErrorCode, type MemoryApi } from './memory/types.ts';
 import { die, sh, validate, type Schema } from './util.ts';
+import { modelMemoryError } from '../src/core/errors.ts';
 
 export const DEFAULT_ALLOW = ['127.0.0.1/32', '100.64.0.0/10'];
 const MAX_BODY = 64 * 1024;
@@ -80,6 +81,7 @@ const ROUTES: Record<string, (s: MemoryApi, b: any, c: Ctx) => Promise<unknown>>
 
 export function memoryServer(_cfg: Cfg, svc: MemoryApi, allow: string[]): http.Server {
   return http.createServer(async (req, res) => {
+    const contextRequest = req.method === 'POST' && (req.url || '').split('?')[0] === '/v1/context/retrieve';
     const send = (status: number, body: object) => { if (!res.headersSent) { res.writeHead(status, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); } };
     const fail = (status: number, code: ErrorCode, message: string, current?: number) => send(status, { ok: false, error: { code, message, ...(current ? { current } : {}) } });
     try {
@@ -97,7 +99,13 @@ export function memoryServer(_cfg: Cfg, svc: MemoryApi, allow: string[]): http.S
       const c: Ctx = { projectId: raw.projectId as string, sessionId: (raw.sessionId as string) ?? null, linked: (raw.linked as string[]) ?? [], source: (raw.source as string) ?? 'remote' };
       return send(200, { ok: true, data: await route(svc, body, c) });
     } catch (e) {
-      if (e instanceof MemoryError) return fail(STATUS[e.code], e.code, e.message, e.current);
+      if (e instanceof MemoryError) {
+        if (contextRequest) {
+          const safe = modelMemoryError(e);
+          return fail(STATUS[safe.code], safe.code, safe.message);
+        }
+        return fail(STATUS[e.code], e.code, e.message, e.current);
+      }
       if (e instanceof HttpError) return fail(e.status, 'invalid', e.message);
       log('error', 'serve.memory', { err: e });
       return fail(500, 'unavailable', 'internal error');

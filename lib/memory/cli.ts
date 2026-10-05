@@ -61,7 +61,7 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
         if (!body) return die(USAGE, 2);
         let title = v.title;
         let tags = list(v.tags);
-        if (v.auto && (!title || !tags)) {   // explicit -t / --tags win over suggestions
+        if (v.auto && !v.private && (!title || !tags)) {   // private notes use deterministic defaults; explicit flags always win
           const s = await suggest(cfg, body, !!v.private);
           if (s) { title ??= s.title; tags ??= cleanTags(s.tags); }
           else console.error('bosun: --auto: no usable suggestion from the LLM; using the first line');
