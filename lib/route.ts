@@ -140,7 +140,7 @@ async function memoryBlock(cfg: Cfg, prompt: string, sessionId: string | null): 
   const t = performance.now();
   let n = 0;
   let est = 0;
-  let api: MemoryReader | null = null;
+  let api: (MemoryReader & { validate?: () => void }) | null = null;
   let retained = false;
   let completed = false;
   const complete = (delivered: boolean) => {
@@ -157,8 +157,8 @@ async function memoryBlock(cfg: Cfg, prompt: string, sessionId: string | null): 
       const { openMemory } = await import('./memory/service.ts');
       api = openMemory(cfg, Number(cfg.REMOTE_HOOK_TIMEOUT_MS));
     } else {
-      const { SqliteReadOnly } = await import('../src/adapters/memory/sqlite-readonly.ts');
-      api = new SqliteReadOnly(P.DB, Date.now, { nonExpiringOnly: true });
+      const { openHookMemory } = await import('../src/adapters/memory/sqlite-readonly.ts');
+      api = openHookMemory({ primary: P.DB, view: cfg.MEMORY_VIEW_PATH, sourceId: cfg.MEMORY_SOURCE_ID }, Date.now);
     }
     const r = await retrieve(prompt, [curated(api)], makeCtx(cfg, project(projectDir()), sessionId, 'hook'), {
       budgetTokens: Number(cfg.CONTEXT_HOOK_BUDGET), minScore: Number(cfg.CONTEXT_HOOK_MIN_SCORE), itemChars: Number(cfg.CONTEXT_ITEM_CHARS),
@@ -167,7 +167,7 @@ async function memoryBlock(cfg: Cfg, prompt: string, sessionId: string | null): 
     est = r.estTokens;
     if (!cfg.MEMORY_URL && r.text) {
       retained = true;
-      return { text: r.text, complete };
+      return { text: r.text, complete, valid: () => { try { api?.validate?.(); return true; } catch { return false; } } };
     }
     // Remote has no local read lease and retains its existing selected-row accounting/parallel path.
     complete(!!r.text);

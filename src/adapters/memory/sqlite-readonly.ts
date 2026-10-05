@@ -6,6 +6,7 @@ import { CATEGORIES, type Ctx, type Found, type Memory, type Query } from '../..
 import { MemoryError } from '../../core/errors.ts';
 import type { MemoryReader } from '../../core/ports/memory.ts';
 import { ftsQuery } from '../../core/text.ts';
+import { SqlitePublicReadOnly } from './sqlite-public-readonly.ts';
 
 const MAX_BYTES = 16 * 1024 * 1024;
 const BUDGET_MS = 250;
@@ -155,4 +156,50 @@ export class SqliteReadOnly implements MemoryReader {
 function present(file: string): boolean {
   try { fs.lstatSync(file); return true; }
   catch (e) { if ((e as { code?: unknown })?.code === 'ENOENT') return false; throw e; }
+}
+/** No writer/config imports or implicit publication. Explicit/pending bindings never fall back. */
+export function openHookMemory(options: { primary: string; view?: string; sourceId?: string }, now: () => number): MemoryReader & { validate?: () => void } {
+  try {
+    const input = options;
+    options = { primary: '' };
+    try {
+      if (!input || typeof input !== 'object') throw 0;
+      for (const key of ['primary','view','sourceId'] as const) {
+        const d = Object.getOwnPropertyDescriptor(input, key);
+        if (d && !Object.hasOwn(d, 'value')) throw 0;
+        if (d?.value !== undefined && typeof d.value !== 'string') throw 0;
+        options[key] = d?.value;
+      }
+    } catch { invalid(); }
+    if (typeof options.primary !== 'string' || typeof now !== 'function') invalid();
+    const view = options.view || path.join(path.dirname(options.primary), 'memory-view', 'public.db');
+    if (!path.isAbsolute(view) || path.resolve(view) !== view || view.includes('\0')) unavailable('path');
+    let ancestor = view; let found = false;
+    for (;;) {
+      if (present(ancestor)) {
+        const s = fs.lstatSync(ancestor);
+        if (s.isSymbolicLink() || fs.realpathSync(ancestor) !== ancestor || (ancestor === view ? !s.isFile() : !s.isDirectory())) unavailable('path');
+        found = ancestor === view; break;
+      }
+      const parent = path.dirname(ancestor); if (parent === ancestor) unavailable('path'); ancestor = parent;
+    }
+    const pending = ['-journal', '-wal', '-shm'].some((s) => present(view + s));
+    if (found || pending || options.view || options.sourceId) return new SqlitePublicReadOnly({ primary: options.primary, view,
+      sourceId: options.sourceId ?? '', nonExpiringOnly: true }, now);
+    return new SqliteReadOnly(options.primary, now, { nonExpiringOnly: true });
+  } catch (e) {
+    let code: unknown; let message: unknown;
+    try { if (e instanceof MemoryError) {
+      code = Object.getOwnPropertyDescriptor(e, 'code')?.value;
+      message = Object.getOwnPropertyDescriptor(e, 'message')?.value;
+    } } catch {}
+    if (code === 'invalid' && message === 'invalid read-only memory request') invalid();
+    if (code === 'not_found' && message === 'memory not found') throw new MemoryError('not_found', 'memory not found');
+    if (code === 'unavailable' && typeof message === 'string'
+      && (/^local memory unavailable \((path|missing|size|format|wal_requires_writes|journal_pending|schema|storage|deadline|closed)\)$/.test(message)
+        || /^local public memory unavailable \((input|path|identity|size|format|journal_pending|schema|state|data|storage|runtime|deadline|closed)\)$/.test(message))) {
+      throw new MemoryError('unavailable', message);
+    }
+    unavailable('storage');
+  }
 }
