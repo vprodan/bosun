@@ -131,6 +131,7 @@ async function seeded(sb: Sandbox): Promise<string> {
   await s.store({ category: 'project', title: 'Cart naming', body: 'getCart was renamed to fetchCart in cart-service; keep the old export for one release.' }, ctx);
   await s.store({ category: 'project', title: 'Private note', body: 'fetchCart secret PRIVATE-XYZ', private: true }, ctx);
   await s.store({ category: 'project', title: 'Rename checklist', body: `# Cart rename\n\nWhen you rename getCart in cart-service, update the imports.\n${'detail '.repeat(200)}\n- list item\n` }, ctx);
+  s.db.exec('PRAGMA journal_mode=DELETE'); // explicitly qualified synthetic rollback fixture; default WAL hold is tested separately
   s.close();
   return repo;
 }
@@ -193,6 +194,7 @@ test('hook: a prompt that shares just one common word with unrelated memories st
     await s.store({ category: 'project', title: 'Use pnpm', body: 'Always use pnpm install; npm breaks the lockfile.' }, ctx);
     await s.store({ category: 'personal', title: 'Answer style', body: 'Give the answer first, then the detail.' }, ctx);
     await s.store({ category: 'project', title: 'Deploys', body: 'ArgoCD deploys main to production.' }, ctx);
+    s.db.exec('PRAGMA journal_mode=DELETE'); // explicitly qualified local hook fixture, not a production conversion
     s.close();
     const hook = (prompt: string) => bosun(['route', '--hook'], { env: sb.env({ ROUTER_URL: m.url }), cwd: repo, input: JSON.stringify({ prompt }) });
     for (const p of ['write a test that uses the new parser', 'why does the login page flash on first load', 'explain what this code does in main']) {

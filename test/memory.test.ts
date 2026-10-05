@@ -11,6 +11,7 @@ import { MemoryService } from '../lib/memory/service.ts';
 import { openDb, schemaVersion, MIGRATIONS, terms } from '../lib/memory/sqlite.ts';
 import { makeCtx, normalizeOrigin, project } from '../lib/memory/project.ts';
 import { MemoryError, type Ctx } from '../lib/memory/types.ts';
+import { hookObservation } from '../lib/memory/bench.ts';
 
 const A: Ctx = { projectId: 'p_a', sessionId: 's1', linked: [] };
 const B: Ctx = { projectId: 'p_b', sessionId: 's2', linked: [] };
@@ -287,6 +288,9 @@ test('memory bench and eval: measured numbers, nothing in your own stats', async
     assert.equal(r.code, 0, r.err);
     for (const k of ['store', 'search', 'context', 'hook']) assert.match(r.out, new RegExp(`${k}\\s.*p50 [\\d.]+ ms\\s+p95 [\\d.]+ ms`), k);
     assert.match(r.out, /budget\s+200\/200 within ~400 tokens/);
+    assert.match(r.out, /outcomes 0 verified memory injections, 20 no-memory\/held, 0 failed, 0 unqualified/);
+    assert.match(r.out, /hook mem unqualified: no verified memory injection; no retrieval latency reported/);
+    assert.doesNotMatch(r.out, /hook mem\s+p50|the memory part inside the hook/);
     assert.ok(!fs.existsSync(path.join(sb.home, '.bosun', 'metrics.jsonl')), 'bench metrics stay out of your stats');
     fresh(sb);
     const s = new MemoryService(openDb(P.DB), load());
@@ -299,6 +303,21 @@ test('memory bench and eval: measured numbers, nothing in your own stats', async
     const e = await bosun(['memory', 'eval', q], { env: sb.env(), cwd: repo });
     assert.match(e.out, /3 queries\s+recall@5 0\.667\s+MRR 0\.667/);
   } finally { sb.cleanup(); }
+});
+
+test('benchmark hook evidence rejects failed children and mismatched/missing outcomes before claiming retrieval timing', () => {
+  const stdout = JSON.stringify({ hookSpecificOutput: { additionalContext: '[bosun memory: 1 note; memory_get <id> for details]\n- [curated project 2026-10-05 m_public] Public: public body' } });
+  const metric = { op: 'hook', ms: 3, n: 1, estTokens: 30 };
+  assert.deepEqual(hookObservation({ status: 0, stdout }, metric), { outcome: 'injected', ms: 3 });
+  assert.deepEqual(hookObservation({ status: 1, get stdout(): string { throw Error('failed child output must not be consumed as retrieval'); } }, metric), { outcome: 'failed' });
+  for (const child of [{ status: null, stdout, error: new Error('synthetic spawn failure') }, { status: 0, stdout, signal: 'SIGTERM' }]) {
+    assert.deepEqual(hookObservation(child, metric), { outcome: 'failed' });
+  }
+  for (const result of [hookObservation({ status: 0, stdout }, null), hookObservation({ status: 0, stdout }, { ...metric, n: 2 }),
+    hookObservation({ status: 0, stdout: '' }, metric), hookObservation({ status: 0, stdout: 'not JSON' }, metric)]) {
+    assert.deepEqual(result, { outcome: 'unqualified' });
+  }
+  assert.deepEqual(hookObservation({ status: 0, stdout: '' }, { ...metric, n: 0, estTokens: 0 }), { outcome: 'no-memory' });
 });
 
 test('memory: an expired session memory leaves search in a long-running process, not only on the next open', async () => {

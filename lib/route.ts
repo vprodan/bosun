@@ -7,7 +7,7 @@ import { P, type Cfg } from './config.ts';
 import { jsonl } from './util.ts';
 import { log as logEvent } from './log.ts';
 import { record } from './metrics.ts';
-import type { MemoryApi } from './memory/types.ts';
+import type { MemoryReader } from './memory/types.ts';
 import { finite, isLane as lane, isRisk as risk, type Decision, type RouteResult } from '../src/core/domain/route.ts';
 import { createRoutePrompt } from '../src/core/use-cases/route-prompt.ts';
 import { createAdapterRegistry } from '../src/app/registry.ts';
@@ -126,30 +126,85 @@ function evaluate(): number {
   return 0;
 }
 
-// The hook's memory part: a few relevant curated notes, or '' on any failure (fail open). Always records its latency.
-async function memoryBlock(cfg: Cfg, prompt: string, sessionId: string | null): Promise<string> {
+type MemoryBlock = { text: string; valid?: () => boolean; complete?: (delivered: boolean) => void };
+const DELIVERY_BYTES = 16 * 1024;
+const DELIVERY_MS = 250;
+// Only POSIX pipe/socket stdout permits an asynchronous write phase on the qualified Node runtime.
+function memorySink(): boolean {
+  try { const sink = fs.fstatSync(process.stdout.fd); return !process.versions.bun && process.platform !== 'win32' && (sink.isFIFO() || sink.isSocket()); }
+  catch { return false; }
+}
+
+// A local nonempty block owns its EXCLUSIVE-mode connection until native stdout acceptance/cancellation.
+async function memoryBlock(cfg: Cfg, prompt: string, sessionId: string | null): Promise<MemoryBlock> {
   const t = performance.now();
   let n = 0;
   let est = 0;
-  let api: MemoryApi | null = null;
+  let api: MemoryReader | null = null;
+  let retained = false;
+  let completed = false;
+  const complete = (delivered: boolean) => {
+    if (completed) return;
+    completed = true;
+    try { api?.close(); } catch { /* process teardown also releases a failed close */ }
+    record({ op: 'hook', ms: performance.now() - t, n: delivered ? n : 0, estTokens: delivered ? est : 0, ok: delivered });
+  };
   try {
-    if (!cfg.MEMORY_URL && !fs.existsSync(P.DB)) return '';   // no memories yet: open nothing, load nothing
-    const [{ curated, retrieve }, { makeCtx, project, projectDir }, { openMemory }] = await Promise.all([
-      import('./context.ts'), import('./memory/project.ts'), import('./memory/service.ts')]);
-    api = openMemory(cfg, Number(cfg.REMOTE_HOOK_TIMEOUT_MS));
+    if (!cfg.MEMORY_URL && (!memorySink() || !fs.existsSync(P.DB))) return { text: '' }; // unsupported sink/missing DB: acquire nothing
+    const [{ curated, retrieve }, { makeCtx, project, projectDir }] = await Promise.all([
+      import('./context.ts'), import('./memory/project.ts')]);
+    if (cfg.MEMORY_URL) {
+      const { openMemory } = await import('./memory/service.ts');
+      api = openMemory(cfg, Number(cfg.REMOTE_HOOK_TIMEOUT_MS));
+    } else {
+      const { SqliteReadOnly } = await import('../src/adapters/memory/sqlite-readonly.ts');
+      api = new SqliteReadOnly(P.DB, Date.now, { nonExpiringOnly: true });
+    }
     const r = await retrieve(prompt, [curated(api)], makeCtx(cfg, project(projectDir()), sessionId, 'hook'), {
       budgetTokens: Number(cfg.CONTEXT_HOOK_BUDGET), minScore: Number(cfg.CONTEXT_HOOK_MIN_SCORE), itemChars: Number(cfg.CONTEXT_ITEM_CHARS),
       minMatched: Number(cfg.CONTEXT_HOOK_MIN_TERMS) });
     n = r.items.length;
     est = r.estTokens;
-    return r.text;
+    if (!cfg.MEMORY_URL && r.text) {
+      retained = true;
+      return { text: r.text, complete };
+    }
+    // Remote has no local read lease and retains its existing selected-row accounting/parallel path.
+    complete(!!r.text);
+    return { text: r.text };
   } catch (e) {
     logEvent('warn', 'hook.memory', { err: e });
-    return '';
+    return { text: '' };
   } finally {
-    try { api?.close(); } catch { /* already closed */ }
-    record({ op: 'hook', ms: performance.now() - t, n, estTokens: est });
+    if (!retained) complete(false);
   }
+}
+
+// Success is native stdout acceptance, not host processing. Stdout destroy/closed can reset and flush later on Node.
+function deliverHook(line: string, signal: AbortSignal): Promise<boolean> {
+  return new Promise((resolve) => {
+    const out = process.stdout;
+    let done = false;
+    const finish = (accepted: boolean) => {
+      if (done) return;
+      done = true;
+      clearTimeout(deadline);
+      out.off('error', cancel); signal.removeEventListener('abort', cancel);
+      resolve(accepted);
+    };
+    const cancel = () => {
+      if (done) return;
+      // Native probes disproved destroy/closed as permanent cancellation. Keep the reader until OS teardown.
+      // No synchronous telemetry IO here and no JavaScript release before terminating this one-shot hook.
+      try { out.destroy(); } catch { /* teardown still cancels pending output */ }
+      process.exit(0);
+    };
+    const deadline = setTimeout(cancel, DELIVERY_MS);
+    if (signal.aborted || out.destroyed) { finish(false); return; } // this memory has never been queued
+    out.on('error', cancel); signal.addEventListener('abort', cancel, { once: true });
+    try { out.write(line, (error) => { if (done) return; if (error) cancel(); else finish(true); }); }
+    catch { cancel(); }
+  });
 }
 
 export async function main(argv: string[], cfg: Cfg): Promise<number> {
@@ -168,16 +223,44 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
     const p = prompt.trimStart();
     if (!p || p.startsWith('/') || p.startsWith('!') || p.split(/\s+/).length < 3 || prompt.includes('#noroute')) return 0;
     const sid = typeof input.session_id === 'string' ? input.session_id : null;
-    const [result, mem] = await Promise.all([ask(cfg, prompt).catch(() => null), memoryBlock(cfg, prompt, sid)]);
+    // Remote compatibility stays parallel. Local acquisition follows all configured router/network work.
+    const [result, remote] = cfg.MEMORY_URL
+      ? await Promise.all([ask(cfg, prompt).catch(() => null), memoryBlock(cfg, prompt, sid)])
+      : [await ask(cfg, prompt).catch(() => null), null];
     let hint = '';
     if (result) {
       const { decision: d, final, why } = result;
       log(d, final, why);
       if (final) hint = `[router ${d.router} ${d.ms}ms] suggests: ${final} (conf ${d.conf}, risk ${d.risk})${why ? ` (${why})` : ''} -> ${(HINT[host] || HINT.claude)[final]}. Advisory only: override it if the request needs otherwise.`;
     }
-    const ctx = [mem, hint].filter(Boolean).join('\n\n');
-    if (ctx) console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: ctx } }));
-    return 0;
+    if (remote) {
+      const ctx = [remote.text, hint].filter(Boolean).join('\n\n');
+      if (ctx) console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: ctx } }));
+      return 0;
+    }
+    const abort = new AbortController();
+    const cancel = () => abort.abort();
+    process.once('SIGTERM', cancel); process.once('SIGINT', cancel);
+    let mem: MemoryBlock | undefined;
+    let delivered = false;
+    try {
+      mem = await memoryBlock(cfg, prompt, sid);
+      if (abort.signal.aborted) return 0;
+      if (mem.text && mem.valid && !mem.valid()) { mem.complete?.(false); mem.text = ''; }
+      const envelope = (text: string) => JSON.stringify({ hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: text } }) + '\n';
+      let ctx = [mem.text, hint].filter(Boolean).join('\n\n');
+      let line = ctx ? envelope(ctx) : '';
+      if (mem.complete && Buffer.byteLength(line) > DELIVERY_BYTES) {
+        mem.complete(false); // discard the uncertain memory, never emit it after releasing
+        ctx = hint;
+        line = ctx ? envelope(ctx) : '';
+      }
+      if (line) delivered = await deliverHook(line, abort.signal);
+      return 0;
+    } finally {
+      mem?.complete?.(delivered);
+      process.off('SIGTERM', cancel); process.off('SIGINT', cancel);
+    }
   }
   const prompt = argv.filter((a) => !a.startsWith('--')).join(' ') || fs.readFileSync(0, 'utf8');
   let result: RouteResult | null;

@@ -23,6 +23,25 @@ const SYL = ['ka', 'ro', 'mi', 'te', 'su', 'na', 'lo', 'vi', 'de', 'pa', 'shi', 
 const f = (xs: number[]) => `p50 ${quantile(xs, 0.5).toFixed(2)} ms  p95 ${quantile(xs, 0.95).toFixed(2)} ms`;
 const QUERIES = 200;
 const HOOK_RUNS = 20;
+type HookProcess = { status: number | null; stdout: string; error?: unknown; signal?: unknown };
+// A timing is retrieval evidence only when both the successful child output and its own metric confirm delivery.
+export function hookObservation(child: HookProcess, metric: unknown): { outcome: 'failed' | 'no-memory' | 'unqualified' | 'injected'; ms?: number } {
+  if (child.status !== 0 || child.error || child.signal) return { outcome: 'failed' };
+  let context = '';
+  try {
+    const parsed = child.stdout.trim() ? JSON.parse(child.stdout) : null;
+    const value = parsed?.hookSpecificOutput?.additionalContext;
+    if (typeof value === 'string') context = value;
+  } catch { return { outcome: 'unqualified' }; }
+  if (!metric || typeof metric !== 'object' || Array.isArray(metric)) return { outcome: 'unqualified' };
+  const m = metric as Record<string, unknown>;
+  if (m.op !== 'hook' || typeof m.n !== 'number' || !Number.isSafeInteger(m.n) || m.n < 0
+    || typeof m.ms !== 'number' || !Number.isFinite(m.ms) || m.ms < 0 || m.ms > Number.MAX_SAFE_INTEGER) return { outcome: 'unqualified' };
+  const count = context.match(/^\[bosun memory: ([1-9][0-9]*) notes?;/)?.[1];
+  if (!count && m.n === 0) return { outcome: 'no-memory' };
+  if (Number(count) !== m.n || typeof m.estTokens !== 'number' || m.estTokens <= 0 || !Number.isFinite(m.estTokens)) return { outcome: 'unqualified' };
+  return { outcome: 'injected', ms: m.ms };
+}
 
 export async function bench(cfg: Cfg, n: number): Promise<number> {
   mute();
@@ -33,6 +52,7 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
   const text = (k: number) => Array.from({ length: k }, word).join(' ');
   try {
     const file = path.join(dir, 'memory.db');
+    // Synthetic corpus never adopts the owner's explicitly selected gate/backup paths.
     const svc = new MemoryService(openDb(file), cfg);
     const ctx: Ctx = { projectId: project(process.cwd()).id, sessionId: null, linked: [] };
     const store: number[] = [];
@@ -57,21 +77,32 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
     }
     svc.close();
     const wall: number[] = [];
+    const mem: number[] = [];
+    const outcomes = { injected: 0, 'no-memory': 0, unqualified: 0, failed: 0 };
+    const hookMetrics = () => jsonl(path.join(dir, 'metrics.jsonl')).filter((r) => r.op === 'hook');
     const env = { ...process.env, BOSUN_HOME: dir, ROUTER_URL: 'http://127.0.0.1:1', MEMORY_URL: '', CLAUDE_PROJECT_DIR: process.cwd() };
     for (let i = 0; i <= HOOK_RUNS; i++) {   // run 0 warms the compile cache and is not counted
+      const prior = hookMetrics().length;
       const t = performance.now();
-      spawnSync(process.execPath, [path.join(P.REPO, 'bin', 'bosun'), 'route', '--hook'], { env, input: JSON.stringify({ prompt: prompts[i] }) });
-      if (i) wall.push(performance.now() - t);
+      const child = spawnSync(process.execPath, [path.join(P.REPO, 'bin', 'bosun'), 'route', '--hook'], { env, encoding: 'utf8', input: JSON.stringify({ prompt: prompts[i] }) });
+      if (i) {
+        wall.push(performance.now() - t);
+        const rows = hookMetrics().slice(prior);
+        const observation = hookObservation(child, rows.length === 1 ? rows[0] : null);
+        outcomes[observation.outcome]++;
+        if (observation.outcome === 'injected') mem.push(observation.ms!);
+      }
     }
-    const mem = jsonl(path.join(dir, 'metrics.jsonl')).filter((r) => r.op === 'hook').slice(1).map((r) => r.ms);
     const mb = (p: string) => (fs.existsSync(p) ? fs.statSync(p).size / 1048576 : 0);
     console.log(`bosun memory bench: ${n} memories (synthetic, seed 42), ${QUERIES} queries; node ${process.versions.node}, sqlite ${process.versions.sqlite}`);
     console.log(`  store    ${f(store)}   (one transaction per memory)`);
     console.log(`  search   ${f(search)}   (FTS5, limit 10)`);
     console.log(`  context  ${f(context)}   (curated, budget ~400 tokens)`);
     console.log(`  budget   ${sizes.filter((s) => s <= 400).length}/${sizes.length} within ~400 tokens (max ~${Math.max(0, ...sizes)}, average ~${Math.round(sizes.reduce((a, b) => a + b, 0) / Math.max(1, sizes.length))})`);
-    console.log(`  hook     ${f(wall)}   (wall clock per prompt, Kev unreachable, ${wall.length} runs)`);
-    console.log(`  hook mem ${f(mem)}   (the memory part inside the hook)`);
+    console.log(`  hook     ${f(wall)}   (wall clock per attempt, Kev unreachable, ${wall.length} runs)`);
+    console.log(`  outcomes ${outcomes.injected} verified memory injections, ${outcomes['no-memory']} no-memory/held, ${outcomes.failed} failed, ${outcomes.unqualified} unqualified`);
+    console.log(mem.length ? `  hook mem ${f(mem)}   (verified injected runs only, ${mem.length} runs)`
+      : '  hook mem unqualified: no verified memory injection; no retrieval latency reported');
     console.log(`  db       ${(mb(file) + mb(`${file}-wal`)).toFixed(1)} MB`);
     return 0;
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
