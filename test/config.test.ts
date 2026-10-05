@@ -1,6 +1,8 @@
+import "./bootstrap.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { sandbox, fresh } from './helpers.ts';
 import * as config from '../lib/config.ts';
@@ -54,4 +56,15 @@ test('config: paths follow HOME at call time, so tests switch sandboxes without 
     fresh(b, { BOSUN_HOME: path.join(b.root, 'elsewhere') });
     assert.equal(P.STATE, path.join(b.root, 'elsewhere', 'state.json'));
   } finally { a.cleanup(); b.cleanup(); }
+});
+
+test('config: HOME takes precedence over the runtime homedir implementation', () => {
+  const sb = sandbox();
+  const homedir = os.homedir;
+  try {
+    fresh(sb);
+    os.homedir = () => '/runtime-homedir-sentinel';
+    assert.equal(P.HOME, sb.home);
+    assert.equal(P.BOSUN, path.join(sb.home, '.bosun'));
+  } finally { os.homedir = homedir; sb.cleanup(); }
 });

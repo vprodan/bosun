@@ -1,3 +1,4 @@
+import "./bootstrap.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -85,7 +86,8 @@ test('split: the allowlist rejects other sources (403); bind never defaults to 0
     fs.writeFileSync(path.join(sb.bin, 'tailscale'), fs.readFileSync(path.join(sb.bin, 'claude')), { mode: 0o755 });
     assert.equal(bindAddress({ ...cfg, SERVE_BIND: '' }), '100.101.102.103');
     assert.equal(bindAddress({ ...cfg, SERVE_BIND: '0.0.0.0' }), '0.0.0.0', 'only when you set it');
-    const cli = await bosun(['serve', 'memory'], { env: sb.env({ PATH: `${path.dirname(process.execPath)}:/usr/bin:/bin` }) });
+    // Model unavailable Tailscale through its stub, never a real executable.
+    const cli = await bosun(['serve', 'memory'], { env: sb.env({ STUB_MAP: JSON.stringify({ 'tailscale ip': { code: 1 } }) }) });
     assert.equal(cli.code, 1);
     assert.match(cli.err, /set SERVE_BIND/);
   } finally { cleanup(); sb.cleanup(); }
@@ -216,13 +218,15 @@ test('install: re-running a plain install on a split-setup client keeps the remo
   } finally { sb.cleanup(); }
 });
 
-test('split: a memory or Kev host that drops packets (no reply at all) — the hook still exits within its budget, not after the OS connect timeout', async () => {
+test('split: a memory or Kev host that never replies — the hook still exits within its budget', async () => {
   const sb = sandbox();
+  const hang = http.createServer(() => { /* synthetic endpoint never replies */ });
+  const port = await listen(hang, 0, '127.0.0.1');
   try {
     const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
     const t = Date.now();
-    const r = await bosun(['route', '--hook'], { env: sb.env({ ROUTER_URL: 'http://10.255.255.1:8009', MEMORY_URL: 'http://10.255.255.1:8788', ROUTER_TIMEOUT: '0.3' }), cwd: repo, input: JSON.stringify({ prompt: 'rename getCart to fetchCart in cart-service' }) });
+    const r = await bosun(['route', '--hook'], { env: sb.env({ ROUTER_URL: `http://127.0.0.1:${port}`, MEMORY_URL: `http://127.0.0.1:${port}`, ROUTER_TIMEOUT: '0.3' }), cwd: repo, input: JSON.stringify({ prompt: 'rename getCart to fetchCart in cart-service' }) });
     assert.deepEqual([r.code, r.out], [0, '']);
     assert.ok(Date.now() - t < 3000, `exited after ${Date.now() - t} ms (Claude's hook timeout is 5 s)`);
-  } finally { sb.cleanup(); }
+  } finally { hang.closeAllConnections(); await new Promise<void>((resolve) => hang.close(() => resolve())); sb.cleanup(); }
 });

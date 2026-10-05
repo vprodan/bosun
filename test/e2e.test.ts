@@ -1,3 +1,4 @@
+import "./bootstrap.ts";
 // The real Claude Code binary against a mock Anthropic endpoint: catches CLI flag drift after Claude updates.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -6,9 +7,12 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { sandbox, bosun, mock } from './helpers.ts';
 
-const REAL = spawnSync('/bin/sh', ['-c', 'command -v claude'], { encoding: 'utf8' }).stdout.trim();
+// Never discover a real executable at import. This fixture is excluded by the offline launcher.
+// A future qualified live-host launcher must explicitly supply an absolute binary and its guard.
+const REAL = process.env.BOSUN_TEST_REAL_CLAUDE;
 
-test('e2e: local claude --bare talks only to the local endpoint, with the dummy key and 3 tools', { skip: !REAL && 'claude not installed' }, async () => {
+test('e2e: local claude --bare talks only to the local endpoint, with the dummy key and 3 tools', { skip: !REAL && 'real-host integration requires explicit opt-in' }, async () => {
+  assert.ok(REAL && path.isAbsolute(REAL), 'explicit absolute Claude executable is required');
   const sb = sandbox({ stubs: [] });
   const m = await mock();
   try {

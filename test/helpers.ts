@@ -1,18 +1,21 @@
-// Test sandbox: temp HOME, stub CLIs that record their calls, a mock Kev/Ollama/Anthropic server.
+import './bootstrap.ts';
+// Test sandbox: roots below the enforced per-run guard, stub CLIs, offline mock servers.
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
-import os from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
+
+const { environment, DEFAULT_STUBS } = createRequire(import.meta.url)('../scripts/test-env.cjs');
+const guard = (globalThis as any)[Symbol.for('bosun.test.guard')];
 
 export const REPO = path.resolve(import.meta.dirname, '..');
 export const BIN = path.join(REPO, 'bin', 'bosun');
-const NODE_DIR = path.dirname(process.execPath);
 
 // Stub CLI. Appends {bin, argv, env, stdin, cwd} to $STUB_OUT. Reply and exit code come from $STUB_MAP,
 // keyed "<bin> <argv0> <argv1>", then "<bin> <argv0>", then "<bin>": { "out": string|object, "code": number }.
-// `orca terminal split` also plays the pane: it runs the --command in a shell (STUB_SPLIT=dead fakes a closed
+// `orca terminal split` also plays the pane: it accepts the exact bosun _exec command and runs Node directly (STUB_SPLIT=dead fakes a closed
 // pane, STUB_SPLIT=noop a pane that never starts, STUB_SPLIT=force a pane that opens although orca reports failure,
 // STUB_SPLIT=emptyrc a pane that creates an empty exit-code file before writing 7). STUB_SLEEP_<BIN>=s sleeps before exiting.
 // (CommonJS on purpose: it lives in the sandbox, outside this ESM package.)
@@ -21,22 +24,31 @@ const fs = require('fs'), path = require('path'), cp = require('child_process');
 const name = path.basename(process.argv[1]); const argv = process.argv.slice(2);
 let stdin = ''; try { stdin = fs.readFileSync(0, 'utf8'); } catch {}
 const env = {}; for (const [k, v] of Object.entries(process.env)) if (/^(ANTHROPIC|CLAUDE|CODEX_|BOSUN_|ORCA_)/.test(k)) env[k] = v;
-fs.appendFileSync(process.env.STUB_OUT, JSON.stringify({ bin: name, argv, env, stdin, cwd: process.cwd(), pid: process.pid }) + '\\n');
 const map = JSON.parse(process.env.STUB_MAP || '{}');
-const hit = map[[name, argv[0], argv[1]].join(' ')] || map[[name, argv[0]].join(' ')] || map[name] || {};
+const mapped = map[[name, argv[0], argv[1]].join(' ')] || map[[name, argv[0]].join(' ')] || map[name];
+const hit = mapped || {};
+if (name === 'curl' && !mapped && process.env.BOSUN_TEST_CURL_SUCCESS !== '1') {
+  const url = argv.find(a => /^https?:/.test(a));
+  fetch(url).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1));
+  return;
+}
+fs.appendFileSync(process.env.STUB_OUT, JSON.stringify({ bin: name, argv, env, stdin, cwd: process.cwd(), pid: process.pid }) + '\\n');
 const split = process.env.STUB_SPLIT;
 if (name === 'orca' && argv[0] === 'terminal' && argv[1] === 'split' && (!hit.code || split === 'force') && split !== 'noop') {
   const cmd = argv[argv.indexOf('--command') + 1];
+  const match = cmd.match(/^'([^']+)' _exec ([0-9]+-[a-f0-9]+)$/);
+  if (!match) throw Error('unsupported synthetic split command');
   const runs = path.join(process.env.HOME, '.bosun', 'runs');
   if (split === 'emptyrc') {
     const id = cmd.trim().split(' ').pop();
     const b = path.join(runs, id);
-    cp.spawn('/bin/sh', ['-c', "echo $$ > '" + b + ".pid'; : > '" + b + ".rc'; sleep 2; printf 7 > '" + b + ".rc'"], { detached: true, stdio: 'ignore' }).unref();
+    const source = "const fs=require('fs'); const b=process.argv[1]; fs.writeFileSync(b+'.pid',String(process.pid)); fs.writeFileSync(b+'.rc',''); setTimeout(()=>fs.writeFileSync(b+'.rc','7'),2000)";
+    cp.spawn(process.execPath, ['-e', source, b], { detached: true, stdio: 'ignore' }).unref();
   } else if (split === 'dead') {
     const id = cmd.trim().split(' ').pop();
     const dead = cp.spawnSync('true').pid;
     fs.writeFileSync(path.join(process.env.HOME, '.bosun', 'runs', id + '.pid'), String(dead), { flag: 'wx' });
-  } else cp.spawn('/bin/sh', ['-c', cmd], { detached: true, stdio: 'ignore' }).unref();
+  } else cp.spawn(process.execPath, [match[1], '_exec', match[2]], { detached: true, stdio: 'ignore' }).unref();
 }
 const nap = Number(process.env['STUB_SLEEP_' + name.toUpperCase()] || 0);
 if (nap) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, nap * 1000);
@@ -52,16 +64,16 @@ export type Sandbox = {
 };
 
 export function sandbox({ stubs = ['claude', 'codex', 'orca'] }: { stubs?: string[] } = {}): Sandbox {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bosun-test-'));
+  const base = path.join(guard.root, 'sandboxes');
+  fs.mkdirSync(base, { recursive: true });
+  const root = fs.mkdtempSync(path.join(base, 'case-'));
   const home = path.join(root, 'home');
   const bin = path.join(root, 'stubs');
   const out = path.join(root, 'stub.jsonl');
-  fs.mkdirSync(home, { recursive: true });
-  fs.mkdirSync(bin);
-  for (const name of stubs) fs.writeFileSync(path.join(bin, name), STUB, { mode: 0o755 });
-  const env = (extra: Record<string, string> = {}) => ({
-    PATH: `${bin}:${NODE_DIR}:/usr/bin:/bin:/usr/sbin:/sbin`, HOME: home, TMPDIR: root, STUB_OUT: out,
-    BOSUN_TAILSCALE_APP: path.join(root, 'no-tailscale'), ...extra,
+  const baseEnv: Record<string, string> = environment(root, guard.root);
+  for (const name of new Set([...DEFAULT_STUBS, ...stubs])) fs.writeFileSync(path.join(bin, name), STUB, { mode: 0o755 });
+  const env = (extra: Record<string, string> = {}): Record<string, string> => ({
+    ...baseEnv, ...(stubs.includes('curl') ? { BOSUN_TEST_CURL_SUCCESS: '1' } : {}), ...extra,
   });
   const calls = (): Call[] => (fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []);
   const reset = () => fs.rmSync(out, { force: true });
@@ -70,11 +82,10 @@ export function sandbox({ stubs = ['claude', 'codex', 'orca'] }: { stubs?: strin
 
 // Point this process at a sandbox: HOME, PATH and stub output. Paths are getters, so nothing needs reloading.
 export function fresh(sb: Sandbox, env: Record<string, string> = {}): void {
-  Object.assign(process.env, { HOME: sb.home, PATH: sb.env().PATH, STUB_OUT: sb.out });
-  for (const k of ['BOSUN_HOME', 'CODEX_HOME', 'ORCA_CODEX_HOME', 'ORCA_PANE_KEY', 'CLAUDECODE', 'CODEX_THREAD_ID', 'BOSUN_DEPTH',
-    'BOSUN_OLLAMA_APP', 'STUB_MAP', 'CLAUDE_PROJECT_DIR', 'MEMORY_URL', 'OLLAMA_URL', 'ROUTER_URL', 'CLAUDE_MEM', 'CLAUDE_MEM_DB',
-    'LLM_REMOTE', 'LLM_PROVIDERS', 'SERVE_BIND', 'SERVE_ALLOW']) delete process.env[k];
-  Object.assign(process.env, { BOSUN_TAILSCALE_APP: path.join(sb.root, 'no-tailscale') }, env);
+  const next = sb.env(env);
+  guard.assertEnvironment(next);
+  for (const key of Object.keys(process.env)) delete process.env[key];
+  Object.assign(process.env, next, { NODE_TEST_CONTEXT: 'child-v8' });
 }
 
 // A git repo under the sandbox with one commit, and an origin remote when given.
@@ -185,24 +196,31 @@ export function claudeMemDb(file: string, rows: { obs?: { project: string; title
 export function mcpSession(env: NodeJS.ProcessEnv, cwd: string) {
   const p = spawn(process.execPath, [BIN, 'mcp'], { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
   const lines: string[] = [];
-  const waiting: ((v: any) => void)[] = [];
+  const waiting: { resolve: (v: any) => void; reject: (e: Error) => void }[] = [];
   let buf = '';
+  let stderr = '';
+  let closed: { code: number | null; lines: string[] } | undefined;
+  p.stderr.on('data', (d) => { stderr += d; });
+  p.on('close', (code) => {
+    closed = { code, lines };
+    for (const waiter of waiting.splice(0)) waiter.reject(new Error(`MCP child exited ${code}: ${stderr}`));
+  });
   p.stdout.on('data', (d) => {
     buf += d;
     for (let i = buf.indexOf('\n'); i >= 0; i = buf.indexOf('\n')) {
       const l = buf.slice(0, i);
       buf = buf.slice(i + 1);
       lines.push(l);
-      waiting.shift()?.(JSON.parse(l));
+      waiting.shift()?.resolve(JSON.parse(l));
     }
   });
   const send = (m: object | string) => p.stdin.write(`${typeof m === 'string' ? m : JSON.stringify(m)}\n`);
-  const next = () => new Promise<any>((res) => waiting.push(res));
+  const next = () => closed ? Promise.reject(new Error(`MCP child exited ${closed.code}: ${stderr}`)) : new Promise<any>((resolve, reject) => waiting.push({ resolve, reject }));
   let n = 100;
   return {
     send, next,
     rpc: (id: unknown, method: string, params?: object) => { send({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }); return next(); },
     call: (name: string, args: object) => { send({ jsonrpc: '2.0', id: n++, method: 'tools/call', params: { name, arguments: args } }); return next(); },
-    close: () => new Promise<{ code: number | null; lines: string[] }>((res) => { p.on('close', (code) => res({ code, lines })); p.stdin.end(); }),
+    close: () => closed ? Promise.resolve(closed) : new Promise<{ code: number | null; lines: string[] }>((res) => { p.on('close', (code) => res({ code, lines })); p.stdin.end(); }),
   };
 }

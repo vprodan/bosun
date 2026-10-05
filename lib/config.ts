@@ -10,7 +10,7 @@ export const VERSION: string = JSON.parse(fs.readFileSync(path.join(REPO, 'packa
 export const P = {
   REPO,
   DEFAULTS: path.join(REPO, 'config.default.env'),
-  get HOME(): string { return os.homedir(); },
+  get HOME(): string { return process.env.HOME || os.homedir(); },
   get BOSUN(): string { return process.env.BOSUN_HOME || path.join(this.HOME, '.bosun'); },
   get SHARE(): string { return path.join(this.HOME, '.local', 'share', 'bosun'); },
   get LA(): string { return path.join(this.HOME, 'Library', 'LaunchAgents'); },
