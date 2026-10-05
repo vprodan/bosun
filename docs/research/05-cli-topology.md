@@ -4,11 +4,13 @@ Checked 2026-10-01 on the owner's Mac: Apple M5 Pro, 48 GB, macOS 27.0.1 (Darwin
 
 ## 1. Question
 
+**Current design update, 2026-10-04:** [09-opencode-clef.md](09-opencode-clef.md) adds an external managed OpenCode host server/plugin as the primary experience and replaces the proposed Kev service/proxy with Ollama Clef-Flash decision routing. Bosun still has one binary/daemon writer. The old Kev topology and original-Mac measurements below are historical inputs, not Clef/OpenCode measurements or the current selected service inventory; use the revised roadmap for implementation.
+
 The owner said: "maybe is good to have multiple CLIs then one." This note answers:
-- How many executables or entry points should bosun v2 ship?
+- How many executables or entry points should bosun v1.0 ship?
 - Which processes run, and who starts, stops and upgrades each one?
 - How do the hook, the CLI, the TUI, the MCP bridge, executors and the server Mac talk to the daemon? What are the concurrency rules for the one SQLite database?
-- What is the v2 command tree, and where does each v0.2.0 command go?
+- What is the v1.0 command tree, and where does each v0.2.0 command go?
 - How do install and uninstall stay clean, reversible and scoped?
 
 ## 2. TL;DR
@@ -21,7 +23,7 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
   - **Size:** five binaries take **303 MB on disk and a 123.6 MB gzip tarball**, against **62.8 MB and 25.7 MB** for one.
   - **First exec after an upgrade:** each freshly written binary pays a **~0.4 s first-exec scan** here (404–537 ms, once 1.65 s). The cost is per file, and symlinks and hardlinks share it. So N binaries pay it N times per upgrade.
   - **Skew and signing:** every pair of binaries needs its own version-skew handling, and each must be signed and notarized.
-- **External `bosun-<name>` subcommands on PATH (git, kubectl, gh, docker style): not in v2.0.** A dispatch costs **+5.2–5.6 ms** (a second runtime start; Node and Bun have no `exec(2)`), and it opens a supply-chain door. Topic 4's ACP, MCP and profiles already cover extension.
+- **External `bosun-<name>` subcommands on PATH (git, kubectl, gh, docker style): outside the selected scope.** A dispatch costs **+5.2–5.6 ms** (a second runtime start; Node and Bun have no `exec(2)`), and it opens a supply-chain door. Topic 4's ACP, MCP and profiles already cover extension.
 - **Daemon lifecycle: one LaunchAgent, `com.bosun.daemon`, with `RunAtLoad` + `KeepAlive`, always on.**
   - **Cost of always-on:** idle it uses **0.1% CPU, ~1 idle wakeup per 10 s and an 8.8 MB footprint** (RSS 26.7 MB). Cold start to first answer is **18.8–18.9 ms p50**.
   - **Restarts and upgrades:** launchd handles crash restart (throttled to one spawn per 10 s). An upgrade is **drain then exit 0**: launchd respawns the new binary from the stable `opt` path.
@@ -36,7 +38,7 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
   - **Agent-facing verbs stay top-level and unchanged:** `run`, `review`, `spin`, `card`, `roles`, `memory …`. The skills, the policy and the host permission rules use them.
   - **Admin is grouped by noun:** `daemon`, `host`, `service`, `router`, `model`, `job`, `config`.
   - **Internal entry points:** `hook` and `mcp`.
-  - v0.2.0 spellings stay as hidden aliases for one minor release.
+  - v0.2.0 spellings stay as hidden aliases during migration; decide and document the final compatibility set before the one v1.0 ship gate.
 - **Install and uninstall:**
   - **Binary:** Homebrew tap. Every reference (plist, hooks, MCP registrations) points at `/opt/homebrew/opt/bosun/bin/bosun`, which Homebrew documents as stable across upgrades.
   - **One manifest:** `~/.bosun/manifest.json` records every artifact bosun writes outside `~/.bosun`, with a hash, backup and undo, written *before* each change. `bosun uninstall` reverses it exactly, skips anything you've modified, and has `--dry-run`.
@@ -67,9 +69,9 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
 | **A. One binary, subcommands, `--compile --splitting --bytecode`** | **62.8 MB / 25.7 MB** | **5.0–5.3 ms** (dedicated: 5.0–5.1) | = dedicated within noise | none: one file | one file to scan (~0.4 s), warmed by the daemon's restart | **pick** |
 | A′. Same, but without `--splitting` | 62.8 MB / 25.7 MB | 7.1–7.2 ms | CLI +1–2 ms | none | same | no: +2 ms on every prompt for nothing |
 | A″. One binary, eager imports | 62.8 MB | 12.5 ms | – | none | same | no |
-| **B. Multi-call (busybox): A plus symlinks `bosun-hook`, `bosund`, `bosun-mcp`, dispatch on argv[0]** | as A, + symlinks | split build via a `bosun-hook` symlink: 5.9–6.2 against 6.0–6.4 for `bosun hook` in the same (noisier) round | = A | none | as A | allowed, but **no symlinks shipped in v2.0**: subcommands do the same job, and there are fewer files to install and remove |
+| **B. Multi-call (busybox): A plus symlinks `bosun-hook`, `bosund`, `bosun-mcp`, dispatch on argv[0]** | as A, + symlinks | split build via a `bosun-hook` symlink: 5.9–6.2 against 6.0–6.4 for `bosun hook` in the same (noisier) round | = A | none | as A | allowed, but **no symlinks shipped in v1.0**: subcommands do the same job, and there are fewer files to install and remove |
 | **C. Separate binaries** (`bosun`, `bosund`, `bosun-hook`, `bosun-mcp`, `bosun-tui`) | **303.0 MB / 123.6 MB** | 5.0–5.1 ms | = A | **yes**: a hook, a bridge and a daemon from different builds can meet; each pair needs a handshake | N files to scan after each upgrade (N × ~0.4 s, paid by whichever process runs each first, often the hook) | no |
-| **D. External subcommands** (`bosun foo` → `bosun-foo` on PATH) | +58 MB per extension | n/a | **+5.2–5.6 ms per call** | extension versions are independent of bosun's | each extension upgrades itself | no for v2.0; ACP, MCP and profiles cover extension (topic 4) |
+| **D. External subcommands** (`bosun foo` → `bosun-foo` on PATH) | +58 MB per extension | n/a | **+5.2–5.6 ms per call** | extension versions are independent of bosun's | each extension upgrades itself | no for v1.0; ACP, MCP and profiles cover extension (topic 4) |
 
 **Evidence:**
 
@@ -122,8 +124,8 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
 | Option | Who starts it | Single instance | Idle cost | First request after start or idle | Crash restart | Bun / Node feasibility | Verdict |
 |---|---|---|---|---|---|---|---|
 | **LaunchAgent, `RunAtLoad` + `KeepAlive: true`** | launchd at login | launchd (one process per label) + a lockfile for manual runs | 0.1% CPU, ~1 idle wakeup per 10 s, 8.8 MB footprint (§5.5) | always warm | launchd, ≥ 10 s apart | plain `node:http.listen(path)` | **pick (installed mode)** |
-| On-demand spawn by the first client, plus a lockfile and idle exit | a client (hook, CLI or MCP) | lockfile (`link(2)`: 20/20 single) | 0 when idle | spawn → first answer 18.8–18.9 ms p50, 28.8 ms p95 (+ ~0.4 s once per new binary) | the next client | yes | **no for v2.0**: the hook mustn't spawn processes, and every client already has a fallback. Kept only as `bosun daemon start` without a plist (dev). |
-| launchd socket activation (`Sockets` → `SockPathName`, `SockPathMode`) | launchd on first connect | launchd owns the socket: no stale file, no race | 0 when idle | the kernel queues the connect while the job starts (~19 ms) | launchd | `launch_activate_socket` via **experimental** `bun:ffi` (works, §5.4) or Node 26's **experimental** `node:ffi`, or a native addon. Then `net.listen({fd})` + an `http` `'connection'` bridge (topic 2) | **v2.1 candidate** |
+| On-demand spawn by the first client, plus a lockfile and idle exit | a client (hook, CLI or MCP) | lockfile (`link(2)`: 20/20 single) | 0 when idle | spawn → first answer 18.8–18.9 ms p50, 28.8 ms p95 (+ ~0.4 s once per new binary) | the next client | yes | **no for v1.0**: the hook mustn't spawn processes, and every client already has a fallback. Kept only as `bosun daemon start` without a plist (dev). |
+| launchd socket activation (`Sockets` → `SockPathName`, `SockPathMode`) | launchd on first connect | launchd owns the socket: no stale file, no race | 0 when idle | the kernel queues the connect while the job starts (~19 ms) | launchd | `launch_activate_socket` via **experimental** `bun:ffi` (works, §5.4) or Node 26's **experimental** `node:ffi`, or a native addon. Then `net.listen({fd})` + an `http` `'connection'` bridge (topic 2) | **Conditional experiment; no release assignment** |
 | Homebrew `service` block + `brew services` | launchd via a `homebrew.mxcl.bosun` plist [brew-cookbook] | launchd | as KeepAlive | warm | launchd | yes | no: tarball installs don't have it, `bosun daemon …` couldn't own its plist, and bosun's own plist is ~15 lines (already in `services.ts`) |
 
 **Evidence from the launchd man pages** (local, macOS 27.0.1; `launchd.plist(5)` dated 30 July 2019, `launchctl(1)`, `launch(3)`):
@@ -183,7 +185,7 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
   - The call returned **rc = 3 (`ESRCH`)** outside launchd, from a script and from a compiled binary.
   - But "`bun:ffi` is **experimental**, with known bugs and limitations. Do not rely on it in production" [bun-ffi].
 - **Node:** 24 has no FFI (`ERR_UNKNOWN_BUILTIN_MODULE`). Node 26 adds `node:ffi`, "Stability: 1 - Experimental", added in v26.1.0 [node-ffi].
-- **Verdict:** a v2.1 option. It's worth it only if idle exit matters (for example on battery). It would remove the stale-socket handling and the lockfile. Fall back to self-binding when activation returns `ESRCH`.
+- **Verdict:** a conditional experiment within the build, justified only if idle exit matters (for example on battery). The always-on daemon remains the selected baseline; release naming does not require adopting experimental FFI. Activation would remove stale-socket handling and the lockfile. Fall back to self-binding when activation returns `ESRCH`.
 
 **Upgrades: drain, then exit** (§6, sequence diagram):
 - **Trigger:**
@@ -209,7 +211,7 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
 | `bosun hook --host <h>` | the host, per prompt (`command` hook) | ~5 ms + daemon work | daemon: `POST /v1/hook` over the UDS, 150 ms timeout | lean in-process path, **read-only SQLite**, no writes | the next prompt runs the new binary (stable path) |
 | `bosun mcp` | the host, per session (stdio) | the session | daemon: one keep-alive UDS connection; JSON-RPC 2.0 to the host | in-process `MemoryService` (v0.2.0 behaviour), r/w | the next session; a running bridge is fine within `/v1` |
 | `bosun <cmd>` (CLI) | you, or the model through `Bash(bosun …)` | the command | daemon: JSON, or SSE for `run` and `job tail` | in-process: memory verbs r/w; `run`, `review` and `spin` run their executor as the CLI's child (v0.2.0 behaviour) | – |
-| `bosun tui` (v2.1) | you | interactive | daemon: SSE `events.listen` | "daemon down" banner, read-only views | restart |
+| `bosun tui` (v1.0 interface phase) | you | interactive | daemon: SSE `events.listen` | "daemon down" banner, read-only views | restart |
 | **`bosun daemon run`** | **launchd** (`com.bosun.daemon`), or the test or dev harness | login session | DB (single writer), executors, Kev, Ollama, the server daemon | – | drain, then exit; launchd respawns |
 | executors (`claude -p`, `codex exec`, ACP agents) | daemon job (or the CLI, in fallback) | the job | NDJSON or ACP on pipes to their parent | – | – |
 | Kev | launchd (`com.bosun.router`) | login session | HTTP 127.0.0.1:8009 | – | `bosun service update router` (git pull + uv sync) |
@@ -250,7 +252,7 @@ The owner said: "maybe is good to have multiple CLIs then one." This note answer
   - **Hosts** call two internal entry points.
 - commander 15 with lazy `import()` per command body (topic 3). Every command body is its own split chunk (§4.1).
 - **No separate CLI earns its keep.** The audiences differ, but permission rules already separate them by prefix (`Bash(bosun run *)` is allowed; `bosun memory purge` isn't). The cadence is the same (one repo, one version), and so is the size (one runtime).
-- **If the memory layer is ever published for other agents' users,** a second `--compile` target from the same workspace costs one build line. That's a later call, not a v2.0 layout.
+- **If the memory layer is ever published for other agents' users,** a second `--compile` target from the same workspace costs one build line. That's a later call, not a v1.0 layout.
 
 ```text
 bosun                                   help (also -h, --help, help <cmd>)
@@ -272,15 +274,15 @@ bosun                                   help (also -h, --help, help <cmd>)
   service status | start | stop | restart | update  [ollama|router|all]
   router ask "prompt" | label | eval | stats
   model use <tag> | list
-  tui                                                             v2.1
+  tui                                                             v1.0 interface phase
   # hosts: internal entry points (hidden from help)
   hook --host claude|codex                                        the per-prompt thin client
   mcp                                                             the stdio MCP bridge
 ```
 
-**v0.2.0 → v2 command map.** All 23 `COMMANDS` entries, the install flags and the memory verbs:
+**v0.2.0 → v1.0 command map.** All 23 `COMMANDS` entries, the install flags and the memory verbs:
 
-| v0.2.0 | v2 | Notes |
+| v0.2.0 | v1.0 | Notes |
 |---|---|---|
 | `bosun install [--host claude\|codex\|both]` | `bosun install [--host claude,codex]` | Umbrella: `host install` for each host, plus the daemon LaunchAgent, services and models. `both` is still accepted. Manifest-driven; `--dry-run` prints the plan. |
 | `bosun install --replace-plugins` | `bosun install --replace-plugins` / `bosun host install claude --replace-plugins` | Recorded in the manifest with the prior plugin states. |
@@ -293,7 +295,7 @@ bosun                                   help (also -h, --help, help <cmd>)
 | `bosun review …` | `bosun review …` | Unchanged. The runner is picked by `caps.vendor` (topic 4). |
 | `bosun help` | `bosun help [cmd]`, `-h` | commander. |
 | `bosun roles [--json]` | `bosun roles [--json]` | Unchanged. |
-| `bosun start\|stop\|restart [ollama\|router\|all]` | `bosun service start\|stop\|restart [ollama\|router\|all]` | Old spellings are hidden aliases in v2.0. `all` no longer includes the split-setup plists (gone). |
+| `bosun start\|stop\|restart [ollama\|router\|all]` | `bosun service start\|stop\|restart [ollama\|router\|all]` | Old spellings are hidden aliases in v1.0. `all` no longer includes the split-setup plists (gone). |
 | `bosun status` | `bosun status` | Overview: daemon, services, running jobs, router stats. |
 | `bosun model [tag]` | `bosun model use <tag>` / `bosun model list` | `bosun model <tag>` stays as an alias. |
 | `bosun card …` | `bosun card …` | Unchanged. `Workspace.status` (a no-op without Orca). |
@@ -301,13 +303,13 @@ bosun                                   help (also -h, --help, help <cmd>)
 | `bosun _exec <id>` | removed | The Orca split runs `bosun job tail <id>`. The `~/.bosun/runs` rendezvous goes (topic 4). |
 | `bosun route "prompt"` | `bosun router ask "prompt"` | `route` stays as a hidden alias. |
 | `bosun route --hook --host X` | `bosun hook --host X` | The old form stays accepted until `bosun install` has rewritten both hosts' hook entries. v0.2.0 entries point at `~/.local/bin/bosun route --hook`. |
-| `bosun label` / `eval` / `stats` | `bosun router label` / `eval` / `stats` | Hidden aliases in v2.0. |
+| `bosun label` / `eval` / `stats` | `bosun router label` / `eval` / `stats` | Hidden aliases in v1.0. |
 | `bosun memory <verb>` (14 verbs) | unchanged | add, search, get, update, delete, purge, review, accept, reject, prune, consolidate, stats, bench, eval. They go through the daemon when it's up. `bosun memory` stays **out** of the permission allowlist (README security note). |
 | `bosun mcp` | `bosun mcp` | Internal. The SDK v2 bridge (topics 2, 3). |
 | `bosun serve memory\|kev [--port N]` | `bosun daemon run` with the `[serve]` profile | `serve` stays as a deprecated alias that prints the replacement. |
 | – (new) | `daemon …`, `job …`, `host …`, `agents …`, `version`, `tui` | |
 
-**Permission rules** (`settings.json`): today they're `Bash(bosun run|review|spin|card|roles|route *)`. v2 has `Bash(bosun run *)`, `review`, `spin`, `card`, `roles`, `Bash(bosun job *)` and `Bash(bosun router ask *)`. Only `ask`, since `router label` is interactive.
+**Permission rules** (`settings.json`): today they're `Bash(bosun run|review|spin|card|roles|route *)`. v1.0 has `Bash(bosun run *)`, `review`, `spin`, `card`, `roles`, `Bash(bosun job *)` and `Bash(bosun router ask *)`. Only `ask`, since `router label` is interactive.
 
 ### 4.6 Install and uninstall
 
@@ -345,7 +347,7 @@ bosun                                   help (also -h, --help, help <cmd>)
   - **Validation first:** each one is checked (the path is under `$HOME`, and the marker or target matches) before anything changes. The plan is shown before it runs.
   - **Why:** topic 1 found that the real `state.json` holds test-fixture values, so it can't be trusted blindly.
 
-**What v2 writes outside `~/.bosun`** (the full manifest inventory):
+**What v1.0 writes outside `~/.bosun`** (the full manifest inventory):
 
 | Artifact | Laptop | Server |
 |---|---|---|
@@ -366,7 +368,7 @@ bosun                                   help (also -h, --help, help <cmd>)
 - `WorkingDirectory` `~/.bosun`
 - `EnvironmentVariables` `{ PATH }`, baked at install
 - `StandardOutPath` and `StandardErrorPath` → `~/.bosun/logs/daemon.stderr.log`
-- No `Umask`, and no `Sockets` in v2.0.
+- No `Umask`, and no `Sockets` in v1.0.
 
 ## 5. Measurements
 
@@ -523,7 +525,7 @@ flowchart LR
     HK["bosun hook --host …<br/>per prompt · ~5 ms + daemon work"]
     MB["bosun mcp<br/>stdio bridge · one per host session"]
     CLI["bosun … (you, or the model via Bash)<br/>run · review · memory · job tail"]
-    TUI["bosun tui (v2.1)"]
+    TUI["bosun tui (same v1.0)"]
     subgraph LA["launchd gui/UID"]
       D["bosun daemon run<br/>com.bosun.daemon · KeepAlive<br/>single writer · jobs · caches"]
       KEV["Kev · com.bosun.router<br/>127.0.0.1:8009 (if local)"]
@@ -564,13 +566,13 @@ sequenceDiagram
   autonumber
   participant B as brew upgrade bosun
   participant L as launchd (com.bosun.daemon, KeepAlive)
-  participant O as daemon 2.0.0 (old, running)
-  participant H as hook / CLI 2.0.1 (new)
-  participant N as daemon 2.0.1 (new)
+  participant O as daemon 1.0.0 (old, running)
+  participant H as hook / CLI 1.0.1 (new)
+  participant N as daemon 1.0.1 (new)
   participant DB as memory.db
-  B->>B: install Cellar/bosun/2.0.1, relink opt/bosun to 2.0.1
+  B->>B: install Cellar/bosun/1.0.1, relink opt/bosun to 1.0.1
   Note over O: still runs from the old mapped file<br/>(lazy chunks keep loading after rm or mv, measured)
-  H->>O: POST /v1/hook, header Bosun-Version 2.0.1
+  H->>O: POST /v1/hook, header Bosun-Version 1.0.1
   O-->>H: 200 (same /v1 major, additive-only)
   O->>O: client is newer, or realpath/ino of the opt path changed: enter draining
   H->>O: POST /v1/jobs.start (bosun run)
@@ -583,7 +585,7 @@ sequenceDiagram
   Note over N: first exec of the new file pays the ~0.4 s scan,<br/>so the next hook does not
   H--xN: hook during the gap: connect fails in under 0.5 ms, read-only in-process fallback
   N->>DB: take run/daemon.lock, migrations in BEGIN IMMEDIATE
-  N->>N: listen bosun.sock (0600), discover reports 2.0.1
+  N->>N: listen bosun.sock (0600), discover reports 1.0.1
   H->>N: POST /v1/hook
   N-->>H: 200
 ```
@@ -595,7 +597,7 @@ sequenceDiagram
 3. **An always-on LaunchAgent is cheap here and keeps the hook warm.** At 8.8 MB and ~0 CPU, idle exit buys nothing that matters on a 48 GB Mac on mains power.
    - launchd already gives crash restart and single-instance.
    - Upgrades reuse the same mechanism: exit, and launchd respawns.
-   - Socket activation would be more elegant, but it needs an experimental FFI on both runtimes, so it's a v2.1 option.
+   - Socket activation needs experimental FFI on both runtimes; evaluate it within the build only if measured idle-exit benefits justify changing the always-on baseline. It has no separate release assignment.
 4. **No auto-spawn, because every client can do without the daemon.**
    - That removes the start race from production, since only launchd starts it. The lockfile stays for dev and tests, measured 20/20.
    - It keeps the hook from ever spawning processes.
@@ -674,7 +676,7 @@ Only the ones that change the outcome. Each has the default I'll assume.
    - jobs take the client's cwd and an env allowlist
    - anything over ~20 ms runs as a job, never on the request path
 7. **CLI tree** (§4.5) in commander:
-   - hidden aliases for `start|stop|restart`, `route`, `label`, `eval`, `stats`, `serve`, `model <tag>` and `route --hook` through v2.0.x, removed in v2.1
+   - retain hidden aliases for `start|stop|restart`, `route`, `label`, `eval`, `stats`, `serve`, `model <tag>` and `route --hook` during migration; decide and document the final supported aliases before the single v1.0 ship gate
    - update `wire.ts`'s `PERMS` (adds `job`, and `router ask` instead of `route`)
    - a new `job` group
 8. **Server profile:** a `[serve]` section in `config.toml` (`listen = "tailscale"`, `expose = ["memory", "router"]`, token). The daemon adds the TCP listener and a `/v1/router/*` proxy to Kev. Delete `serve.ts`'s `kevServer` and the `com.bosun.memory` and `com.bosun.kev-proxy` plists.

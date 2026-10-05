@@ -1,7 +1,12 @@
-# Resume: bosun v2 research (saved 2026-10-01)
+# Resume: bosun v1.0 research (saved 2026-10-01; completed 2026-10-04)
 
-To continue on any machine, open Claude Code in the bosun folder and say:
-**"Read docs/research/RESUME.md and continue the research."**
+All eight topics and [the roadmap](../plans/2026-10-01-bosun-v1.0-roadmap.md) are complete. On a new machine, read this file, [the root resume](../../RESUME.md), [the decision register](README.md) and the roadmap, then follow the current user request. The prompts below are archived research inputs; do not restart completed topics.
+
+**Current owner release policy (2026-10-04):** everything selected ships together as one v1.0. Use internal implementation phases and one full-scope ship gate; no feature assignments to later versions or pre-ship package-version bumps. Graph enrichment, dashboard and remote support are included. This policy supersedes the earlier staging in the archived inputs below.
+
+**Latest host/router steering (2026-10-04):** [09-opencode-clef.md](09-opencode-clef.md) updates the plan to OpenCode primary, native OpenCode/Codex/Claude Code first-class, and local Clef-Flash decision routing replacing Kev's model/service lifecycle. It supplements the original eight topics; preserve their historical measurements. The roadmap and root resume carry these current decisions.
+
+**Readiness clarification (2026-10-04):** Graphify/CodeGraph are optional user-installed sources. Validate them only when configured; their absence/identity is not a prerequisite for development or shipping. No owner clarification remains before foundation work.
 
 ## Status
 
@@ -12,16 +17,22 @@ To continue on any machine, open Claude Code in the bosun folder and say:
 | 3 | Libraries | ✅ [03-libraries.md](03-libraries.md) |
 | 4 | Abstractions | ✅ [04-abstractions.md](04-abstractions.md) |
 | 5 | CLI and topology | ✅ [05-cli-topology.md](05-cli-topology.md) |
-| 6 | Architecture | ⏸ The owner stopped it before it wrote anything. **Next: restart it with the prompt below**, unless the owner wants changes. |
-| 7 | Graph memory | ⏳ Prompt below |
-| 8 | Features | ⏳ Prompt below |
-| — | Roadmap | ⏳ The main thread writes `docs/plans/2026-10-01-bosun-v2-roadmap.md` from notes 01–08 |
+| 6 | Architecture | ✅ [06-architecture.md](06-architecture.md), completed 2026-10-04 |
+| 7 | Graph memory | ✅ [07-graph-memory.md](07-graph-memory.md), completed 2026-10-04 |
+| 8 | Features | ✅ [08-features.md](08-features.md), completed 2026-10-04 |
+| 9 | Host/router design revision | ✅ [09-opencode-clef.md](09-opencode-clef.md), checked 2026-10-04; current OpenCode/Clef steering |
+| — | Roadmap | ✅ [2026-10-01-bosun-v1.0-roadmap.md](../plans/2026-10-01-bosun-v1.0-roadmap.md), completed 2026-10-04 |
 
 All decisions and the result of each topic are in [README.md](README.md) under "Owner answers". That section is the source of truth, and every agent reads it.
 
-## How the research runs
+**Preparation checked 2026-10-03:** auto-handoff is still a required design, with no v0.2 implementation. Repository skills for OpenAI models, Codex, ChatGPT, and manual handoff are listed in [the root resume](../../RESUME.md). For topic 8, the current [Codex app-server docs](https://learn.chatgpt.com/docs/app-server) document `thread/tokenUsage/updated` and `thread/compact/start`; verify them against the installed client and session ownership. Native compaction does not by itself provide the external-model summary and fresh-session handoff requested here. That preparation did not start topics 6–8; the status table tracks the subsequent continuation.
+
+Validation of notes 6–8/roadmap: Mermaid syntax (existing 11.17.2 parser), required sections, fences, relative links and whitespace passed. Topic 8's 29 unique external URLs returned HTTP 200. No implementation, tests, models or installs were run for these notes. Automatic handoff remains unimplemented; live Claude/Codex/session ownership, tool isolation and summary/recovery qualification are implementation gates. Next planning starts with enforced test homes and capability probes, without host installation.
+
+## How the research ran (historical)
 
 The owner asked for this process:
+- **Continuation (2026-10-04):** the owner asked to finish in Codex after Sonnet was unavailable and a usage-limit interruption. Available Codex agents completed topics 6–8 sequentially; the original Claude/Sonnet workflow below is retained as history.
 - **One agent per topic, run one after another, never in parallel,** so the owner can follow along.
 - **Each agent is a `general-purpose` agent with `model: "sonnet"`.** The owner decided this on 2026-10-01 to cut usage: topics 1–5 on Opus used ~27% of a day's tokens, about 200k of context per call. It reads README.md and all the earlier notes, then writes `NN-topic.md` in the note format from the README. Its reply is short: the picks, the key numbers, and open questions with defaults.
 - **After each topic, the main thread:**
@@ -56,9 +67,9 @@ The owner asked for this process:
 - Don't edit any repo file except the one note you write. Use Mermaid for diagrams.
 ```
 
-## Prompt: topic 6, architecture (restart this)
+## Archived prompt: topic 6, architecture
 
-> You are research agent 6 of 8 for bosun v2. The topics run one after another, and later agents build on your note, so be rigorous and concrete.
+> You are research agent 6 of 8 for bosun v1.0. The topics run one after another, and later agents build on your note, so be rigorous and concrete.
 >
 > **Read first:**
 > - docs/research/README.md: the vision, ALL the owner answers and the topic 1–5 results, the rules and the note format.
@@ -69,7 +80,7 @@ The owner asked for this process:
 >
 > Cover:
 > 1. **The architecture style for a project this size** (~5k lines, one maintainer, growing): hexagonal / ports-and-adapters, clean architecture, vertical slices, or a modular monolith. Use primary sources: Cockburn's article, and the opencode, MCP TS SDK and Hono repos. Recommend one, and say what NOT to import from enterprise patterns (no DI container unless justified).
-> 2. **Layout:** a bun workspaces monorepo vs a single package with strict folders. Count the real cost of each package. Recommend the smallest layout that enforces the boundaries, show the tree, and map every v0.2.0 file to its v2 location.
+> 2. **Layout:** a bun workspaces monorepo vs a single package with strict folders. Count the real cost of each package. Recommend the smallest layout that enforces the boundaries, show the tree, and map every v0.2.0 file to its v1.0 location.
 > 3. **Enforcing boundaries:** the rules (core imports no adapters; the hook imports only node:*) and how to enforce them. Options are TS project references, the package.json `exports`/`imports` fields, Biome's `noRestrictedImports`, dependency-cruiser, or a ~30-line import-graph check in CI. Prefer whatever needs no new heavy dependencies (topic 3's policy).
 > 4. **Composition and DI:** a composition root per entry point (hook, cli, daemon, mcp), factory injection, the static adapter registry (topic 4), how config flows in (TOML + Zod), and lazy loading per subcommand (`--splitting`).
 > 5. **Error model:** `BosunError` with codes + `cause`, one error envelope across HTTP/JSON-RPC/MCP, exit codes, and user messages vs logs.
@@ -89,9 +100,9 @@ The owner asked for this process:
 >
 > *(Append the common rules block.)*
 
-## Prompt: topic 7, leveled graph memory
+## Archived prompt: topic 7, leveled graph memory
 
-> You are research agent 7 of 8 for bosun v2. The topics run one after another, and the roadmap builds on your note.
+> You are research agent 7 of 8 for bosun v1.0. The topics run one after another, and the roadmap builds on your note.
 >
 > **Read first:**
 > - docs/research/README.md: the owner answers, the topic results, the rules and the note format.
@@ -119,15 +130,15 @@ The owner asked for this process:
 >
 > *(Append the common rules block.)*
 
-## Prompt: topic 8, other features and optimizations
+## Archived prompt: topic 8, other features and optimizations
 
-> You are research agent 8 of 8 for bosun v2. The roadmap builds on your note.
+> You are research agent 8 of 8 for bosun v1.0. The roadmap builds on your note.
 >
 > **Read first:** docs/research/README.md, notes 01–07, README.md, ARCHITECTURE.md, HANDOFF.md, policy.md, roles/ and skills/.
 >
 > **Topic: new features and optimizations.** The owner's words: "new features, optimizations".
 >
-> Answer: beyond what topics 1–7 already plan, which features and optimizations are worth building in v2, ranked by value against effort?
+> Answer: beyond what topics 1–7 already plan, which features and optimizations are worth building in v1.0, ranked by value against effort?
 >
 > Gather candidates from the notes, the code and prior art, and check each against primary sources. Seed ideas, to be judged honestly:
 > - **Usage-limit-aware routing** across the Claude and ChatGPT plans. This session hit Claude usage limits twice mid-research, so the "cross" lane and the hold-and-resume behaviour matter.
@@ -140,7 +151,7 @@ The owner asked for this process:
 > - Secret scanning before memory writes.
 > - A policy engine for `risk high`.
 > - Review automation.
-> - The TUI dashboard (v2.1).
+> - The TUI dashboard (in the same v1.0, after daemon state exists).
 > - Notifications.
 > - Background consolidation in the daemon.
 > - Worktree lifecycle without Orca.
@@ -161,11 +172,11 @@ The owner asked for this process:
 >
 > *(Append the common rules block.)*
 
-## After topic 8: the roadmap
+## Archived roadmap brief (completed)
 
-The main thread, optionally helped by a Plan agent, writes `docs/plans/2026-10-01-bosun-v2-roadmap.md` from notes 01–08. It covers:
+The main thread, optionally helped by a Plan agent, writes `docs/plans/2026-10-01-bosun-v1.0-roadmap.md` from notes 01–08. It covers:
 - the decision log
-- milestones (v2.0, v2.1, v2.2+) with exit criteria
+- internal implementation phases with exit criteria and one final v1.0 ship gate
 - the strangler-fig migration steps from topic 6, each with a verify command
 - the feature ranking from topic 8
 - risks

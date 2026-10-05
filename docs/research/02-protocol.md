@@ -4,7 +4,7 @@ Checked 2026-10-01 on the owner's Mac: Apple M5 Pro, 48 GB, macOS 27.0.1 (Darwin
 
 ## 1. Question
 
-The owner asked for a "fast and reliable intercom protocol like http/2, http/3, gRPC, etc." What should bosun v2's components use to talk to each other on each link?
+The owner asked for a "fast and reliable intercom protocol like http/2, http/3, gRPC, etc." What should bosun v1.0's components use to talk to each other on each link?
 
 - **(a)** The per-prompt hook thin client → the local daemon. This is the latency-critical link: the hook has a 30 ms budget, and topic 1 measured ~11 ms for a warm daemon over HTTP.
 - **(b)** CLIs and the TUI → the local daemon, including streamed events such as job progress and logs.
@@ -494,7 +494,7 @@ These are the only ones that change the outcome. Each has the default I'll assum
 1. **For Claude Code, should the hook be an `http` hook straight to the daemon (no process per prompt, ~6 ms saved) instead of the command thin client?**
    - It needs a loopback TCP listener with a token.
    - When the daemon is down, Claude shows a non-blocking hook error and the prompt goes without memory (no in-process fallback).
-   - **Default:** no for v2.0. Use one command thin client for both hosts, and offer `bosun install --claude-http-hook` once the daemon runs under launchd.
+   - **Default, with updated release scope:** use one command thin client for both hosts. Qualify the opt-in `bosun install --claude-http-hook` capability after the daemon path within this build; no separate release assignment. It requires an explicit loopback listener and supported host configuration.
 2. **Is the tailnet only ever your own devices?** That means no shared nodes, family members or tagged servers you don't control.
    - **If yes:** a bearer token + bind + allowlist + one grant is enough.
    - **If no:** add the `tailscale whois` identity check (LoginName must match), or front the server with `tailscale serve`.

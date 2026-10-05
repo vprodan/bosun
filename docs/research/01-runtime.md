@@ -4,7 +4,7 @@ Checked 2026-10-01 on the owner's Mac (Apple M5 Pro, 48 GB, macOS Darwin 27.0.0)
 
 ## 1. Question
 
-Should bosun v2 run on **Bun**, stay on **Node 24 LTS**, or move to something else: Deno 2, Go, Rust, or a hybrid such as a TS core with a native hot path? If Bun, how do we keep the lock-in low?
+Should bosun v1.0 run on **Bun**, stay on **Node 24 LTS**, or move to something else: Deno 2, Go, Rust, or a hybrid such as a TS core with a native hot path? If Bun, how do we keep the lock-in low?
 
 ## 2. TL;DR
 
@@ -323,7 +323,7 @@ The repo was copied to the scratchpad and run with `HOME` pointed at scratch. Th
 
 ## 6. Recommendation
 
-**Bun 1.4.x as the runtime for bosun v2, coded to `node:*` APIs, released as a Bun-compiled single binary, with Node 26 LTS kept green in CI as the escape hatch.**
+**Bun 1.4.x as the runtime for bosun v1.0, coded to `node:*` APIs, released as a Bun-compiled single binary, with Node 26 LTS kept green in CI as the escape hatch.**
 
 **Rationale:**
 1. **Startup is the per-prompt cost that the language actually controls:** 4.4 ms against 19.6–23.3 ms. On the real hook, Bun removes 25–35 ms wall with no code changes, and compiling removes another ~8 ms.

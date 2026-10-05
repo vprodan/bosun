@@ -4,8 +4,10 @@ Checked 2026-10-01 on the owner's Mac (Apple M5 Pro, 48 GB, macOS 27.0.1). Claud
 
 ## 1. Question
 
+**Current design update, 2026-10-04:** [09-opencode-clef.md](09-opencode-clef.md) makes OpenCode the primary native host, with native Codex/Claude Code retained and generic ACP additional. Clef-Flash replaces Kev. The seven ports and host-orchestration choice below remain; original measurements and dated source observations are historical.
+
 The owner said: "I need this project to be independent first. so orca, claude/codex, memory, etc. it is abstracted and extended." This note answers:
-- Which ports (interfaces) should bosun v2 have, and which adapters ship in v2.0?
+- Which ports (interfaces) should bosun v1.0 have, and which adapters ship in v1.0?
 - How do third parties add a host or an executor without forking?
 - Should bosun stay an orchestrator over host agents (path a), or also run its own agent loop (path b)? What does each cost, and can bosun's own loop use the owner's subscriptions?
 - Which open standards give independence for free?
@@ -15,7 +17,7 @@ The owner said: "I need this project to be independent first. so orca, claude/co
 ## 2. TL;DR
 
 - **Seven ports, no more:** `HostAdapter`, `AgentRunner`, `ModelProvider`, `MemoryStore`, `ContextSource`, `Workspace` and `Router`.
-  - Each has at least two real implementations in v2.0.
+  - Each has at least two real implementations in v1.0.
   - Two of them already exist in v0.2.0: `MemoryApi` and `MemoryProvider` in `lib/memory/types.ts:35-49`.
   - **Reviewer is not a port.** It's a use case: run a read-only `AgentRunner` from the other vendor.
   - **The launchd supervisor isn't a port** either. bosun runs on macOS only.
@@ -27,7 +29,7 @@ The owner said: "I need this project to be independent first. so orca, claude/co
   - **a simple new host:** a declarative TOML profile
 
   A bosun-specific JSON-RPC plugin protocol waits for the first real request.
-- **Recommendation: path (a) now, and no bosun-owned agent loop in v2.0.**
+- **Recommendation: path (a) now, and no bosun-owned agent loop in v1.0.**
   - Cost: ~6–7 engineer-weeks for path (a) with the ACP runner, against +5–7 for a minimal own loop and 4–6 months for a full one (§4.4).
   - Local models already have loops: `claude --bare` against Ollama's Anthropic API, `codex exec --oss`, and any ACP agent (opencode, Goose, Pi) pointed at Ollama.
   - A hybrid, a minimal own loop for local models only, is justified only if a local-model eval shows the hosts' harnesses failing.
@@ -191,7 +193,7 @@ interface HostAdapter {
 }
 ```
 
-| | v2.0 | later |
+| | v1.0 | later |
 |---|---|---|
 | **Adapters** | **claude:** a skills-dir plugin at `~/.claude/skills/bosun/` (skills, rendered agents, `hooks/hooks.json`, `.mcp.json`), plus the CLAUDE.md block and the permission rules in `settings.json`. **codex:** today's approach (AGENTS.md block, `agents/*.toml`, `~/.agents/skills`, `hooks.json`, `codex mcp add`), with Orca's Codex home discovered by this adapter. | a declarative **profile** (TOML: instructions file, skills dir, agents dir + template, hooks file, MCP registration command) for opencode, Gemini CLI, Cursor CLI and Copilot CLI; a Codex **Agent Plugins** bundle |
 
@@ -235,7 +237,7 @@ interface AgentRunner {
 }
 ```
 
-| | v2.0 | later |
+| | v1.0 | later |
 |---|---|---|
 | **Adapters** | **`claude-cli`:** `-p --output-format stream-json`, with today's `FENCE`, `--restricted`, `--strict-mcp-config` and `SUBSCRIPTION_ONLY`. **`codex-cli`:** `exec --json`, with `-s read-only` or `workspace-write`. **`acp`:** a generic ACP client; the command comes from config or the ACP registry. **`local`** is a *profile*, not an adapter: `claude-cli` + Ollama env, or `codex-cli --oss`. | `codex-app-server` (now "experimental and unsupported"); a bosun-native loop (§4.4) |
 
@@ -255,7 +257,7 @@ interface ModelProvider {
 }
 ```
 
-| | v2.0 | later |
+| | v1.0 | later |
 |---|---|---|
 | **Adapters** | `ollama` (native `/api/chat`, because only it sets `num_ctx` (topic 3)), `openai-compatible` (LM Studio, mlx_lm), `claude-cli` (opt-in, never private) | `anthropic-api` and `openai-api` (API keys); `openai-siwc` (the ChatGPT plan, §4.4.4) once it's out of preview |
 
@@ -280,7 +282,7 @@ interface ContextSource {
 }
 ```
 
-| Port | v2.0 | later |
+| Port | v1.0 | later |
 |---|---|---|
 | **MemoryStore** | `sqlite` (`MemoryService`), `http` (`RemoteStore` → the daemon's remote client) | topic 7 decides whether graph memory is a store or a source |
 | **ContextSource** | `curated`, `docs`, `claude-mem` (read-only) | `graph` (topic 7); `mcp` (any MCP server's search tool, with a mapping in config); a reader for Claude Code's auto memory (`~/.claude/projects/<project>/memory/`, plain Markdown [cc-memory]) |
@@ -303,7 +305,7 @@ interface Workspace {
 }
 ```
 
-| | v2.0 | later |
+| | v1.0 | later |
 |---|---|---|
 | **Adapters** | `orca` (all capabilities), `git-worktree` (none of the optional ones) | a `tmux` pane (not installed here; only if asked) |
 
@@ -330,7 +332,7 @@ interface Router { readonly id: 'kev' | 'llm' | (string & {}); classify(prompt: 
 
 #### 4.2.8 Ports × adapters
 
-| Port | Capability flags | v2.0 adapters | Later | 2nd implementation |
+| Port | Capability flags | v1.0 adapters | Later | 2nd implementation |
 |---|---|---|---|---|
 | HostAdapter | `subagents`, `plugins`, `promptHook`, `hookTrust`, `mcpStdio`, `readsAgentsMd`, `skillsDirs` | claude, codex | opencode, gemini-cli, cursor-cli, copilot-cli (profile); codex Agent Plugins bundle | real today |
 | AgentRunner | `vendor`, `readOnly`, `sandbox`, `mcpInject`, `effort`, `localBackend`, `billing` | claude-cli, codex-cli, acp (+ `local` profiles) | codex-app-server; native loop (only if §4.4 triggers) | real today; ACP reaches 41 registry agents |
@@ -344,7 +346,7 @@ interface Router { readonly id: 'kev' | 'llm' | (string & {}); classify(prompt: 
 
 | Mechanism | Prior art (primary source) | Isolation | Discovery | Versioning | Fit for bosun |
 |---|---|---|---|---|---|
-| **In-process modules in a static table** | – | none | compiled in | bosun's own semver | **v2.0, first-party adapters only** |
+| **In-process modules in a static table** | – | none | compiled in | bosun's own semver | **v1.0, first-party adapters only** |
 | **In-process plugins from directories or npm** | opencode: "Files in these directories are automatically loaded at startup"; npm plugins are "installed automatically using Bun at startup"; plugins run in-process, typed by `@opencode-ai/plugin` [opencode-plugins] | none: full trust | `~/.config/opencode/plugins/`, `.opencode/plugins/`, config | a types package | **no.** Third-party code would run inside a process that edits `~/.claude` and `~/.codex`; it's supply-chain surface (topic 3's policy); and loading code into a compiled binary is unproven |
 | **A separate extension host process** | VS Code runs extensions in a separate Extension Host (local Node, web worker, or remote), activates them "lazily" by activation events, and declares compatibility via `engines.vscode` [vscode-host] [vscode-manifest] | process | marketplace + `contributes` manifest | semver range against the host API | too heavy: an RPC-proxied API surface for one user |
 | **Out-of-process servers over JSON-RPC** | MCP servers; Goose's extensions *are* MCP servers ("builtin, platform, stdio, and streamable_http") [goose-ext] | process | entries in a config file | `protocolVersion` + capabilities (MCP 2026-07-28: `server/discover`, topic 2) | **yes, for context sources and tools** |
@@ -376,7 +378,7 @@ interface Router { readonly id: 'kev' | 'llm' | (string & {}); classify(prompt: 
    - **A host that needs code:** a **bosun plugin process**, using topic 2's stdio link with JSON-RPC 2.0 and MCP framing. It answers `bosun/initialize { api: 1, kind: "host" | "runner" | …, capabilities }`, then the port's methods (`host/plan`, `runner/run` + `runner/event` notifications, `$/cancel`). **Build this only when a third party asks.** Every case the owner has today is covered by the first four.
 5. **Versioning:**
    - Out-of-process contracts carry their own versions: ACP major 1, MCP date versions, and the plugin protocol's integer `api` major with additive capabilities, the same pattern as topic 2's `/v1` + `discover`.
-   - The in-process TS port interfaces aren't a public API in v2.0, because releases are binaries only (topic 3). Freeze them, with semver, only if bosun ever publishes npm packages.
+   - The in-process TS port interfaces aren't a public API in v1.0, because releases are binaries only (topic 3). Freeze them, with semver, only if bosun ever publishes npm packages.
 
 ### 4.4 Path (a) against path (b)
 
@@ -475,7 +477,7 @@ sequenceDiagram
 
 | Standard | What it is | Who supports it (2026-10-01) | Adopt? |
 |---|---|---|---|
-| **ACP** (Agent Client Protocol) | JSON-RPC 2.0 between a client and an agent: `initialize`, `session/new` (with `cwd` + `mcpServers`), `session/prompt`, `session/update`, `session/cancel`, `session/request_permission`, optional `fs/*` and `terminal/*` [acp-overview] [acp-session]; stable protocol version 1, schema 1.24.1, repo v1.10.1 (2026-09-30), Apache-2.0 [acp-repo] | Native: Gemini CLI, Cursor, GitHub Copilot, Goose, OpenCode, Cline, Junie, Kiro CLI, Qwen Code, Mistral Vibe, OpenHands and others. By adapter: "Claude Agent (via Zed's SDK adapter)", "Codex CLI (via ACP's adapter)", Pi [acp-agents]. The registry lists 41 agents [acp-registry] | **Yes, as the generic `AgentRunner`.** Not for Claude and Codex in v2.0 (below). |
+| **ACP** (Agent Client Protocol) | JSON-RPC 2.0 between a client and an agent: `initialize`, `session/new` (with `cwd` + `mcpServers`), `session/prompt`, `session/update`, `session/cancel`, `session/request_permission`, optional `fs/*` and `terminal/*` [acp-overview] [acp-session]; stable protocol version 1, schema 1.24.1, repo v1.10.1 (2026-09-30), Apache-2.0 [acp-repo] | Native: Gemini CLI, Cursor, GitHub Copilot, Goose, OpenCode, Cline, Junie, Kiro CLI, Qwen Code, Mistral Vibe, OpenHands and others. By adapter: "Claude Agent (via Zed's SDK adapter)", "Codex CLI (via ACP's adapter)", Pi [acp-agents]. The registry lists 41 agents [acp-registry] | **Yes, as the generic `AgentRunner`.** Not for Claude and Codex in v1.0 (below). |
 | **A2A** | agent-to-agent over HTTP: JSON-RPC 2.0, gRPC or REST bindings; an Agent Card at `/.well-known/agent-card.json`; tasks with SSE or push notifications; `A2A-Version` header [a2a-spec]. v1.0.0 (2026-03-12), v1.0.1 (2026-05-28) [a2a-repo]; Linux Foundation, joined the AAIF 2026-08-27 [a2a-home] | agent frameworks (ADK, LangGraph, CrewAI, Semantic Kernel) [a2a-home]; no coding CLI found | **No.** It's built for "opaque" remote agents across organisations; bosun's agents are local CLIs, and topic 2's HTTP contract already covers the server Mac. |
 | **AGENTS.md** | "a simple, open format for guiding coding agents"; nearest file wins; stewarded by the Agentic AI Foundation [agents-md] | Codex, Jules, Factory, Aider, goose, opencode, Zed, Warp, VS Code, Devin, Junie, Amp, Cursor, RooCode, Gemini CLI, Kilo Code, Copilot coding agent, Windsurf, Augment … [agents-md]. **Claude Code** reads `AGENTS.md` since v2.1.277, by default only when no `CLAUDE.md` exists on the path; `~/.claude/CLAUDE.md` doesn't count against it [cc-memory] | **Yes**, as the format of the policy block for every non-Claude host. Claude keeps `~/.claude/CLAUDE.md`, which loads alongside a repo's AGENTS.md. |
 | **Agent Skills** | a folder with `SKILL.md`: `name` (≤ 64, matches the folder) and `description` (≤ 1024) required; optional `license`, `compatibility`, `metadata`, `allowed-tools` [skills-spec]; "originally developed by Anthropic, released as an open standard" [skills-home] | 40+ clients, including Claude Code, Codex, Gemini CLI, OpenCode, Cursor, Goose, GitHub Copilot, VS Code, Amp, Junie, Kiro, Pi [skills-home]. **Directories:** Codex `$HOME/.agents/skills` [codex-skills]; Gemini CLI `~/.gemini/skills` or `~/.agents/skills` [gemini-skills]; opencode `~/.agents/skills` and `~/.claude/skills` [opencode-skills]; **Claude Code** only `~/.claude/skills`, `.claude/skills` and plugins, and it adds its own frontmatter fields [cc-skills] | **Yes** (already). Link into `~/.agents/skills` once (Codex, Gemini, opencode) and ship them in the Claude plugin. Make the skill text host-neutral (§8). |
@@ -490,7 +492,7 @@ sequenceDiagram
 - Per-session MCP injection: bosun's memory server could be attached to every run.
 - `codex-acp` "starts the Codex App Server" and offers "ChatGPT, API key, and client-provided custom gateway authentication". [codex-acp]
 
-**Against, for v2.0:**
+**Against, for v1.0:**
 - **Claude:**
   - The adapter is `@agentclientprotocol/claude-agent-acp` 0.84.0, which depends on `@anthropic-ai/claude-agent-sdk`.
   - It can use the user's own binary (`CLAUDE_CODE_EXECUTABLE`), and its login method is "Run `claude /login` in the terminal". That's compliant, but it puts a fast-moving 0.x layer between bosun and Claude Code. [claude-acp-src]
@@ -508,7 +510,7 @@ sequenceDiagram
 | Use | Code | Without Orca (`git-worktree` workspace) |
 |---|---|---|
 | **Detection** | `orca.ts:23-27` (`ORCA_PANE_KEY` + `orca status --json`) | `Workspace.active()` per adapter; `workspace.prefer` picks |
-| **Watchable executor split** | `exec.ts:102-105` → `orca.ts:52-136` (`orca terminal split --command "bosun _exec <id>"`, polling `.pid/.rc/.log` in `~/.bosun/runs`, 30 s start fallback, timeout kill) | **a daemon job.** `bosun run` posts the job and streams `RunEvent`s over SSE (topic 2), so the main model still gets only the result and the exit code. The live view is `bosun jobs tail <id>` (v2.0) or the Ink dashboard (v2.1, topic 3). With Orca, `Workspace.pane()` opens a split that just runs `bosun jobs tail <id>`. **The file rendezvous goes away in both cases.** |
+| **Watchable executor split** | `exec.ts:102-105` → `orca.ts:52-136` (`orca terminal split --command "bosun _exec <id>"`, polling `.pid/.rc/.log` in `~/.bosun/runs`, 30 s start fallback, timeout kill) | **a daemon job.** `bosun run` posts the job and streams `RunEvent`s over SSE (topic 2), so the main model still gets only the result and the exit code. The live view is `bosun jobs tail <id>` or the Ink dashboard (topic 3), both included in v1.0. With Orca, `Workspace.pane()` opens a split that just runs `bosun jobs tail <id>`. **The file rendezvous goes away in both cases.** |
 | **Spin-off worktree** | `orca.ts:147-191` (`orca worktree create --parent-worktree active [--base-branch] --agent --prompt`; `orca terminal create` for `local`) | `git worktree add -b spin-<slug> <dir> <base>`, then a **headless** `AgentRunner.run()` job in that path. The difference: no interactive agent pane to drop into. The owner reviews the diff afterwards. |
 | **Card status** | `orca.ts:193-201` (`orca worktree set --workspace-status`); every skill calls `bosun card`; `policy.md:24` | the daemon records job and task status, and the TUI shows it. `Workspace.status?()` is a no-op without Orca, as today. |
 | **Parallel workers** | `skills/bosun-parallel/SKILL.md:8-15` (`orca orchestration worker-start --worktree new-child --agent --model --effort`, `check --wait`) | `bosun parallel <plan>`: N worktrees × N `AgentRunner` jobs in the daemon, with a concurrency cap (local models: 1, since `OLLAMA_NUM_PARALLEL=1`, `services.ts:56`). The skill keeps the Orca path when `Workspace=orca`. |
@@ -551,7 +553,7 @@ No runtime benchmarks: this topic is structural. Inventory commands, all run 202
 
 ## 6. Recommendation
 
-**Path (a): bosun as an orchestration layer with seven ports, in-process first-party adapters, and existing open protocols as the extension surface (ACP for agents, MCP for context, OpenAI-compatible HTTP for models, profiles for hosts). Cost ~6–7 engineer-weeks. No bosun-owned agent loop in v2.0.**
+**Path (a): bosun as an orchestration layer with seven ports, in-process first-party adapters, and existing open protocols as the extension surface (ACP for agents, MCP for context, OpenAI-compatible HTTP for models, profiles for hosts). Cost ~6–7 engineer-weeks. No bosun-owned agent loop in v1.0.**
 
 **Rationale:**
 1. **It's the only path that keeps the Claude subscription.** Anthropic's terms allow it only through the user's own unmodified `claude` binary (§4.4.4). Any native loop leaves Claude behind.
@@ -567,8 +569,8 @@ No runtime benchmarks: this topic is structural. Inventory commands, all run 202
 | Host CLI flags change (Claude Code ships near-daily) | Each runner keeps a `detect()` version check and a contract test against a stub CLI (as `test/exec.test.ts` does); `bosun doctor` reports drift. |
 | The skills-dir plugin behaves differently from the docs (hooks or MCP not loading; the `bosun:` agent namespace changes the role names in the policy) | Spike first on 2.1.286 (`claude plugin details bosun`, a live `/agents` check). Keep v0.2.0's direct wiring behind the same `HostAdapter` as a fallback. |
 | ACP churn (repo v1.10.1, schema 1.24.1, a v2 schema directory exists) | Negotiate `protocolVersion: 1`; treat omitted capabilities as unsupported (the spec rule); pin the SDK; one stub ACP agent in tests. |
-| ACP agents' permission prompts block a headless run | The `acp` runner answers `session/request_permission` from the run's `access` policy (read: deny writes; edit: allow inside the worktree), and never asks the owner mid-run in v2.0. |
-| SIWC is a 2-day-old preview | Don't depend on it in v2.0. Revisit for the `openai-siwc` provider when the preview label goes. |
+| ACP agents' permission prompts block a headless run | The `acp` runner answers `session/request_permission` from the run's `access` policy (read: deny writes; edit: allow inside the worktree), and never asks the owner mid-run in v1.0. |
+| SIWC is a 2-day-old preview | Don't depend on it in v1.0. Revisit for the `openai-siwc` provider when the preview label goes. |
 | A 7-port design creeps into more ports | Rule: no new port without two real adapters (§4.2.7 lists what stays a function). |
 
 **What would change the call:**
@@ -581,17 +583,17 @@ No runtime benchmarks: this topic is structural. Inventory commands, all run 202
 
 Only the ones that change the outcome. Each has the default I'll assume.
 
-1. **Is a bosun-owned agent loop in scope for v2 at all?**
+1. **Is a bosun-owned agent loop in scope for v1.0 at all?**
    - **No:** path (a) only; local models run through host and ACP harnesses.
    - **Yes:** +5–7 weeks for a local-only loop, or months for full parity, and it still can't use the Claude subscription.
-   - **Default:** no for v2.0. Decide after a local-model eval in v2.1.
+   - **Default:** keep path (a). Evaluate local harnesses during this build before a scoped decision on a minimal local-only loop; there is no subsequent release assignment. A full replacement agent platform remains outside scope.
 2. **May bosun wire Claude Code as a skills-dir plugin (`~/.claude/skills/bosun/`)** instead of editing `~/.claude/agents`, the skill links, the `settings.json` hook and `claude mcp add`?
    - It renames subagents to the plugin namespace (`bosun:worker` style).
    - **Default:** yes, after a one-day spike. The CLAUDE.md block and the permission rules stay as they are.
 3. **Without Orca, is a headless spin-off (no interactive agent pane; you review the diff after) acceptable?**
    - **Default:** yes. Orca stays the preferred `Workspace` whenever it's running.
 4. **Should bosun's own LLM calls (router fallback, consolidation) use your ChatGPT plan through Sign in with ChatGPT once it leaves preview?**
-   - **Default:** not in v2.0. Local Ollama first, as today; `claude -p` stays an opt-in.
+   - **Default:** not in v1.0. Local Ollama first, as today; `claude -p` stays an opt-in.
 
 ## 8. Roadmap implications
 
@@ -600,7 +602,7 @@ Only the ones that change the outcome. Each has the default I'll assume.
    - Consolidation takes a structural `summaries()` source.
    - CI check: the hook entry imports no adapter modules except `hosts/<id>/hook.ts` (extends topic 3's metafile rule).
 2. **Config sections** in `config.toml`: `[hosts]`, `[runners.<id>]` (`kind = "claude-cli" | "codex-cli" | "acp"`, plus `backend` for local profiles), `[models.<id>]`, `[context.<id>]` (`kind = "mcp"` with a tool mapping), `[workspace] prefer`, `[router] kind/fallback`. Migrate the flat `ROLE_*`/`LOCAL_*`/`LLM_*` keys.
-3. **Claude HostAdapter v2:**
+3. **Claude HostAdapter v1.0:**
    - Spike: generate `~/.local/share/bosun/hosts/claude/` (`.claude-plugin/plugin.json`, `skills/`, rendered `agents/`, `hooks/hooks.json` with `UserPromptSubmit`, `.mcp.json`), symlink it as `~/.claude/skills/bosun`, and verify with `claude plugin details bosun`.
    - Then the `plan()`/`apply()` split, uninstall of v0.2.0 artefacts, and `roleRef()` for namespaced agents.
    - Keep the CLAUDE.md block and the permission rules.
@@ -608,7 +610,7 @@ Only the ones that change the outcome. Each has the default I'll assume.
 5. **Runners:**
    - `claude-cli` and `codex-cli` with `RunEvent` normalisation from `stream-json` / `exec --json` (topic 2's parsers).
    - `local` profiles.
-   - The **`acp` runner**: spawn, `initialize` (protocol 1, no `fs`/`terminal` capabilities in v2.0, so agents use their own tools), `session/new` with `cwd` + bosun's MCP server, `session/prompt`, map `session/update` → `RunEvent`, answer permissions by policy, `session/cancel` on abort.
+   - The **`acp` runner**: spawn, `initialize` (protocol 1, no `fs`/`terminal` capabilities in v1.0, so agents use their own tools), `session/new` with `cwd` + bosun's MCP server, `session/prompt`, map `session/update` → `RunEvent`, answer permissions by policy, `session/cancel` on abort.
    - Decide hand-rolled versus `@agentclientprotocol/sdk` after a `bun build --compile` check.
    - Tests use a stub ACP agent.
 6. **`bosun agents add <id>`:** read the ACP registry, write `[runners.<id>]`, never install; `doctor` runs `detect()`.

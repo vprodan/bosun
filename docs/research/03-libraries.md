@@ -4,7 +4,7 @@ Checked 2026-10-01 on the owner's Mac: Apple M5 Pro, 48 GB, macOS 27.0.1 (Darwin
 
 ## 1. Question
 
-The owner said: "I need to rely and use libraries instead of reinventing a wheel - cli package, tui, etc." For each category, which library should bosun v2 adopt, which hand-rolled v0.2.0 module does it replace, and what dependency policy keeps the hot path lean? The hot path is the per-prompt hook thin client, a compiled Bun binary where every millisecond counts.
+The owner said: "I need to rely and use libraries instead of reinventing a wheel - cli package, tui, etc." For each category, which library should bosun v1.0 adopt, which hand-rolled v0.2.0 module does it replace, and what dependency policy keeps the hot path lean? The hot path is the per-prompt hook thin client, a compiled Bun binary where every millisecond counts.
 
 ## 2. TL;DR
 
@@ -239,7 +239,7 @@ Sources: registry.npmjs.org, api.npmjs.org and api.github.com, all read 2026-10-
 
 **Facts that drive the call:**
 - **Ollama's OpenAI endpoint can't set the context size:** "The OpenAI API does not have a way of setting the context size for a model" [ollama-openai]. bosun sets `num_ctx` per call, so the native Ollama API stays.
-- **The AI SDK now has "harnesses":** `HarnessAgent` with adapters for Claude Code, Codex, OpenCode, Pi, ACP and others. But "Harness packages are **experimental**", they run inside a sandbox provider (Vercel Sandbox or the in-process `just-bash`), and the Claude Code adapter is built on `@anthropic-ai/claude-agent-sdk` [ai-harness] [ai-harness-cc]. **That's topic 4 input**, not a v2.0 dependency.
+- **The AI SDK now has "harnesses":** `HarnessAgent` with adapters for Claude Code, Codex, OpenCode, Pi, ACP and others. But "Harness packages are **experimental**", they run inside a sandbox provider (Vercel Sandbox or the in-process `just-bash`), and the Claude Code adapter is built on `@anthropic-ai/claude-agent-sdk` [ai-harness] [ai-harness-cc]. **That's topic 4 input**, not a v1.0 dependency.
 
 **Pick: keep the provider calls** (they're small and fit Ollama's native API), but swap `validate()` for Zod and send `z.toJSONSchema` output as `format` / `response_format`. **Conditional: the AI SDK 7** (`ai` + `@ai-sdk/openai-compatible` + `ollama-ai-provider-v2`) **if topic 4 chooses path (b)**, bosun's own tool loop. It's then the provider abstraction and the loop, so bosun doesn't need to own either. **Avoid:**
 - the vendor SDKs as a direct dependency (the AI SDK providers don't use them)
@@ -270,7 +270,7 @@ Keep spawning the user's installed `claude -p --output-format stream-json` and `
 | Cost | compiled +0.2 ms (1.8.0) | 0 | 0 | c12's `latest` is an RC with 4 peers; cosmiconfig searches many paths and brings js-yaml |
 
 **Pick: smol-toml + Zod.**
-- Make `~/.bosun/config.toml` the v2 config, with nested `[roles]`, `[hosts]`, `[llm]` and `[memory]` tables.
+- Make `~/.bosun/config.toml` the v1.0 config, with nested `[roles]`, `[hosts]`, `[llm]` and `[memory]` tables.
 - Defaults live in one plain object that the Zod schema also uses (`.default(DEFAULTS.x)`). So the hook can read the config without Zod, and every other process validates it with typed errors.
 - `BOSUN_*` env vars override it.
 - Read an old `config.env` once with `util.parseEnv` (stdlib) and migrate it.
@@ -570,16 +570,16 @@ The maintenance and footprint columns use the same definitions as §4.
 
 These are the only ones that change a pick. Each has the default I'll assume unless you say otherwise.
 
-1. **Should the v2 config move from `~/.bosun/config.env` to a typed `~/.bosun/config.toml`, with nested roles, hosts and providers?**
+1. **Should the v1.0 config move from `~/.bosun/config.env` to a typed `~/.bosun/config.toml`, with nested roles, hosts and providers?**
    - **Yes:** smol-toml + Zod, and `bosun` migrates the old file once.
    - **No:** `util.parseEnv`, no library, and the flat `ROLE_*` keys stay.
    - **Default:** yes.
-2. **Does v2.0 need the TUI dashboard, or are clack prompts + `bosun status` enough?**
+2. **Does v1.0 need the TUI dashboard, or are clack prompts + `bosun status` enough?**
    - The dashboard is the only reason to bring React + Ink (36 transitive deps).
-   - **Default:** clack in v2.0, and the Ink dashboard in v2.1 once the daemon's SSE events exist.
+   - **Owner update, 2026-10-04:** include clack and the Ink dashboard in the same v1.0; build the dashboard after the daemon's SSE state exists. This supersedes the original staged-release default.
 3. **Will bosun publish npm packages (for example a typed client), or only binaries?**
    - Only npm publishing needs changesets, and its Bun support is still an open PR.
-   - **Default:** binaries only for v2.0.
+   - **Default:** binaries only for v1.0.
 
 ## 8. Roadmap implications
 
