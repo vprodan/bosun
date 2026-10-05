@@ -11,8 +11,9 @@ const SKILLS_DIR = path.join(REPO, 'skills');
 const SKILLS = fs.readdirSync(SKILLS_DIR).filter((n) => n.startsWith('bosun-')).sort();
 const read = (p: string) => fs.readFileSync(p, 'utf8');
 
-test('lint: nine skills, frontmatter name matches the folder, descriptions long enough to trigger', () => {
-  assert.deepEqual(SKILLS, ['bosun-build', 'bosun-debug', 'bosun-design', 'bosun-parallel', 'bosun-plan', 'bosun-review', 'bosun-ship', 'bosun-spin', 'bosun-tdd']);
+test('lint: thirteen skills, frontmatter name matches the folder, descriptions long enough to trigger', () => {
+  assert.deepEqual(SKILLS, ['bosun-build', 'bosun-chatgpt', 'bosun-codex', 'bosun-debug', 'bosun-design', 'bosun-handoff',
+    'bosun-openai-models', 'bosun-parallel', 'bosun-plan', 'bosun-review', 'bosun-ship', 'bosun-spin', 'bosun-tdd']);
   for (const s of SKILLS) {
     const m = read(path.join(SKILLS_DIR, s, 'SKILL.md')).match(/^---\nname: (.+)\ndescription: (.+)\n---\n/);
     assert.ok(m, `${s}: frontmatter`);
@@ -28,7 +29,11 @@ test('lint: skills, policy and roles only reference roles, skills and commands t
   for (const f of files) {
     const t = read(f);
     const where = path.relative(REPO, f);
-    for (const [, n] of t.matchAll(/\bbosun-([a-z]+)\b/g)) assert.ok(ROLES.includes(n) || skillNames.includes(n), `${where}: bosun-${n}`);
+    // Preserve checks of plain prose references, excluding the one ordinary adjective in research skills.
+    for (const [, n] of t.matchAll(/\bbosun-([a-z]+(?:-[a-z]+)*)\b/g)) {
+      if (n === 'specific') continue;
+      assert.ok(ROLES.includes(n) || skillNames.includes(n), `${where}: bosun-${n}`);
+    }
     for (const [, n] of t.matchAll(/\bbosun_([a-z]+)\b/g)) assert.ok(ROLES.includes(n), `${where}: bosun_${n}`);
     for (const [, n] of t.matchAll(/`bosun ([a-z_]+)/g)) assert.ok(n in COMMANDS, `${where}: bosun ${n}`);
     for (const [, n] of t.matchAll(/\*\*([a-z]+)\*\* role/g)) assert.ok(ROLES.includes(n), `${where}: ${n} role`);
