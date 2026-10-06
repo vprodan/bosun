@@ -12,7 +12,7 @@ import { makeCtx, project, projectDir } from './project.ts';
 import { bench, evaluate } from './bench.ts';
 import { ClaudeMem } from './claudemem.ts';
 import { MemoryService, cleanTags, openMemory } from './service.ts';
-import { publishLocalMemory, planLocalMemoryCutover, applyLocalMemoryCutover } from './sqlite.ts';
+import { publishLocalMemory, planLocalMemoryCutover, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from './sqlite.ts';
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
@@ -21,31 +21,37 @@ export const USAGE = `usage: bosun memory <verb>
   get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared] [--version N]
   delete <id>   purge <id>   review   accept <id>   reject <id>   prune
   consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>
+  cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json]
+  cutover prepare --plan TOKEN --clients-stopped [--json]
   cutover plan [--json]
   cutover apply --plan TOKEN --clients-stopped [--json]
   cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]   (revokes READY to HOLD)
   publish [--json]   (already-applied local floor only)`;
 
-const CUTOVER_USAGE = 'usage: bosun memory cutover plan [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]';
+const CUTOVER_USAGE = 'usage: bosun memory cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json] | prepare --plan TOKEN --clients-stopped [--json] | plan [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]';
 async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
   const [operation, ...rest] = argv;
-  if (!['plan', 'apply', 'reconcile'].includes(operation)) return die(CUTOVER_USAGE, 2);
+  if (!['prepare-plan', 'prepare', 'plan', 'apply', 'reconcile'].includes(operation)) return die(CUTOVER_USAGE, 2);
   let parsed;
   try {
     parsed = parseArgs({ args: rest, options: { json: { type: 'boolean' }, plan: { type: 'string' },
-      'source-id': { type: 'string' }, 'clients-stopped': { type: 'boolean' } }, allowPositionals: false, tokens: true });
+      'source-id': { type: 'string' }, 'clients-stopped': { type: 'boolean' },
+      'create-view-directory': { type: 'boolean' }, 'create-backup-directory': { type: 'boolean' } }, allowPositionals: false, tokens: true });
     const names = parsed.tokens.filter((t) => t.kind === 'option').map((t) => t.name);
     if (names.length !== parsed.tokens.length || new Set(names).size !== names.length
-      || names.some((name) => !(operation === 'plan' ? ['json'] : operation === 'apply' ? ['json', 'plan', 'clients-stopped'] : ['json', 'plan', 'source-id', 'clients-stopped']).includes(name))) return die(CUTOVER_USAGE, 2);
+      || names.some((name) => !(operation === 'plan' ? ['json'] : operation === 'prepare-plan' ? ['json', 'create-view-directory', 'create-backup-directory']
+        : operation === 'reconcile' ? ['json', 'plan', 'source-id', 'clients-stopped'] : ['json', 'plan', 'clients-stopped']).includes(name))) return die(CUTOVER_USAGE, 2);
   } catch { return die(CUTOVER_USAGE, 2); }
   const v = parsed.values;
-  if (operation === 'plan') {
-    const result = planLocalMemoryCutover(cfg);
+  if (operation === 'plan' || operation === 'prepare-plan') {
+    const result = operation === 'plan' ? planLocalMemoryCutover(cfg) : planLocalMemoryPreparation(cfg,
+      { createViewDirectory: v['create-view-directory'], createBackupDirectory: v['create-backup-directory'] });
     if (v.json) console.log(JSON.stringify(result));
     else {
       console.log(`${result.state}${result.operation ? ` ${result.operation}` : ''}; schema, floor and clients unverified`);
       for (const b of result.blockers) console.log(`${b.target}: ${b.reason}${b.requiredMode ? ` (current ${b.currentMode}, required ${b.requiredMode})` : ''}`);
-      if (result.sourceId) console.log(`save sourceId independently: ${result.sourceId}`);
+      if ('actions' in result) for (const action of result.actions) console.log(`${action.target}: ${action.action} ${JSON.stringify(action.path)} (${action.currentMode ?? 'absent'} -> ${action.requiredMode})`);
+      if ('sourceId' in result && result.sourceId) console.log(`save sourceId independently: ${result.sourceId}`);
       if (result.plan) console.log(`plan: ${result.plan}\nexpires: ${new Date(result.expiresAt!).toISOString()}`);
       for (const requirement of result.requirements) console.log(requirement);
       if (result.operation === 'reconcile') console.log('Explicit reconcile requires your independently saved source ID and revokes READY to HOLD.');
@@ -53,6 +59,16 @@ async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
     return result.state === 'PLANNED' ? 0 : 1;
   }
   if (!v.plan || v['clients-stopped'] !== true || operation === 'reconcile' && !v['source-id']) return die(CUTOVER_USAGE, 2);
+  if (operation === 'prepare') {
+    try {
+      const result = prepareLocalMemoryLayout(cfg, { plan: v.plan, clientsStopped: v['clients-stopped'] });
+      console.log(v.json ? JSON.stringify(result) : 'PREPARED; clients stopped: operator attestation. Inspect storage and obtain a fresh cutover plan.');
+      return 0;
+    } catch (e) {
+      console.error('bosun: preparation failed; tightened modes or created directories may remain and the outcome may be unknown. Inspect storage and obtain a fresh preparation plan.');
+      throw e;
+    }
+  }
   try {
     const result = await applyLocalMemoryCutover(cfg, { operation: operation as 'apply' | 'reconcile', plan: v.plan,
       sourceId: v['source-id'], clientsStopped: v['clients-stopped'] });

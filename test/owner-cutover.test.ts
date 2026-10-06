@@ -7,8 +7,8 @@ import crypto from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { sandbox, fresh, bosun } from './helpers.ts';
 import { P, load } from '../lib/config.ts';
-import { openDb, writerPaths, contentHash, applyLocalMemoryCutover } from '../lib/memory/sqlite.ts';
-import { planOwnerCutover, applyOwnerCutover, OwnerCutoverError } from '../src/adapters/memory/sqlite-owner.ts';
+import { openDb, writerPaths, contentHash, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from '../lib/memory/sqlite.ts';
+import { planOwnerCutover, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout, OwnerCutoverError } from '../src/adapters/memory/sqlite-owner.ts';
 import { cutoverMemory, publishMemoryView, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
 
 function fixture(closed = false) {
@@ -317,4 +317,349 @@ test('non-synchronous owner validation is refused under native admission before 
       for (const [table, expected] of Object.entries(before)) assert.deepEqual(rows(f.db, table), expected);
     } finally { f.close(); }
   }
+});
+
+function preparation(f: ReturnType<typeof fixture>, create = false, now = Date.now) {
+  const result = planOwnerPreparation({ paths: f.paths, now, createViewDirectory: create, createBackupDirectory: create });
+  assert.equal(result.state, 'PLANNED', JSON.stringify(result)); assert.ok(result.plan); return result;
+}
+function prepare(f: ReturnType<typeof fixture>, value = preparation(f), now = Date.now) {
+  return prepareOwnerLayout({ paths: f.paths, plan: value.plan!, clientsStopped: true, now });
+}
+const mode = (file: string) => fs.statSync(file).mode & 0o7777;
+
+test('real CLI reviews absent-leaf creation and legacy modes without SQLite, then applies a fresh strict candidate', async () => {
+  const f = fixture(true); const exec = DatabaseSync.prototype.exec; const query = DatabaseSync.prototype.prepare;
+  try {
+    fs.rmdirSync(path.dirname(f.paths.view)); fs.rmdirSync(f.paths.backups);
+    fs.chmodSync(P.BOSUN, 0o755); fs.chmodSync(f.paths.primary, 0o644);
+    const primary = fs.readFileSync(f.paths.primary); const config = tree(P.CFG); const before = tree(P.BOSUN);
+    const blocked = await bosun(['memory', 'cutover', 'prepare-plan', '--json'], { env: f.sb.env() });
+    assert.equal(blocked.code, 1); assert.equal(JSON.parse(blocked.out).blockers[0].reason, 'missing');
+    assert.deepEqual(tree(P.BOSUN), before);
+    const planned = await bosun(['memory', 'cutover', 'prepare-plan', '--create-view-directory', '--create-backup-directory', '--json'], { env: f.sb.env() });
+    assert.equal(planned.code, 0, planned.err); const p = JSON.parse(planned.out);
+    assert.equal(p.schema, 'unverified'); assert.equal(p.floor, 'unverified'); assert.equal(p.clients, 'unverified');
+    assert.deepEqual(p.actions.map((a: { target: string }) => a.target).sort(), ['backup-directory', 'primary', 'primary-directory', 'view-directory']);
+    assert.deepEqual(p.actions.filter((a: { action: string }) => a.action === 'mkdir').map((a: { path: string }) => a.path).sort(), [f.paths.backups, path.dirname(f.paths.view)].sort());
+    assert.doesNotMatch(JSON.stringify(p), /PRIVATE|sourceId|backup_hash/); assert.deepEqual(tree(P.BOSUN), before);
+    DatabaseSync.prototype.exec = function () { throw new Error('preparation must not execute SQLite'); };
+    DatabaseSync.prototype.prepare = function () { throw new Error('preparation must not prepare SQLite'); };
+    // The adapter also runs with native SQL methods trapped; the CLI independently covers composition.
+    const nativePlan = preparation(f, true); assert.deepEqual(nativePlan.actions, p.actions);
+    DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = query;
+    const applied = await bosun(['memory', 'cutover', 'prepare', '--plan', p.plan, '--clients-stopped', '--json'], { env: f.sb.env() });
+    assert.equal(applied.code, 0, applied.err); const result = JSON.parse(applied.out);
+    assert.equal(result.state, 'PREPARED'); assert.equal(result.clientsStopped, 'attested'); assert.equal(result.replanRequired, true);
+    for (const file of [P.BOSUN, path.dirname(f.paths.view), f.paths.backups]) assert.equal(mode(file), 0o700);
+    assert.equal(mode(f.paths.primary), 0o600); assert.deepEqual(fs.readFileSync(f.paths.primary), primary); assert.deepEqual(tree(P.CFG), config);
+    assert.equal(fs.existsSync(f.paths.view), false); assert.deepEqual(fs.readdirSync(f.paths.backups), []);
+    assert.equal(fs.existsSync(f.paths.primary + '-wal'), false); assert.equal(fs.existsSync(f.paths.primary + '-shm'), false);
+    const candidate = plan(f); assert.equal(candidate.operation, 'apply');
+    const cutover = await bosun(['memory', 'cutover', 'apply', '--plan', candidate.plan!, '--clients-stopped', '--json'], { env: f.sb.env() });
+    assert.equal(cutover.code, 0, cutover.err); assert.equal(JSON.parse(cutover.out).sourceId, candidate.sourceId); assert.equal(JSON.parse(cutover.out).state, 'HOLD');
+    assert.equal(f.cfg.MEMORY_SOURCE_ID, ''); assert.deepEqual(f.sb.calls(), []);
+  } finally { DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = query; f.close(); }
+});
+
+test('preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched', () => {
+  const f = fixture(); const exec = DatabaseSync.prototype.exec; const query = DatabaseSync.prototype.prepare; const chmod = fs.chmodSync;
+  const files = [f.paths.primary, f.paths.primary + '-wal', f.paths.primary + '-shm'];
+  try {
+    fs.chmodSync(P.BOSUN, 0o750); fs.chmodSync(path.dirname(f.paths.view), 0o755); fs.chmodSync(f.paths.backups, 0o750);
+    for (const [i, file] of files.entries()) fs.chmodSync(file, i % 2 ? 0o640 : 0o644);
+    const before = files.map((file) => ({ file, bytes: fs.readFileSync(file), ino: fs.statSync(file).ino, mtime: fs.statSync(file, { bigint: true }).mtimeNs }));
+    const config = tree(P.CFG); const p = preparation(f); assert.equal(p.actions.length, 6);
+    DatabaseSync.prototype.exec = function () { throw new Error('no SQL'); }; DatabaseSync.prototype.prepare = function () { throw new Error('no SQL'); };
+    fs.chmodSync = (() => { throw new Error('path chmod is forbidden'); }) as typeof fs.chmodSync;
+    const result = prepare(f, p); assert.equal(result.state, 'PREPARED');
+    for (const expected of before) {
+      assert.equal(mode(expected.file), 0o600); assert.deepEqual(fs.readFileSync(expected.file), expected.bytes);
+      assert.equal(fs.statSync(expected.file).ino, expected.ino); assert.equal(fs.statSync(expected.file, { bigint: true }).mtimeNs, expected.mtime);
+    }
+    assert.deepEqual(tree(P.CFG), config); assert.equal(fs.existsSync(f.paths.view), false);
+    assert.equal(preparation(f).actions.length, 0); assert.equal(plan(f).operation, 'apply');
+  } finally { DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = query; fs.chmodSync = chmod; f.close(); }
+});
+
+test('preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects', () => {
+  const effects = ['directory-write', 'directory-special', 'file-write', 'file-special', 'file-unusual', 'unowned', 'primary-link', 'hardlink',
+    'view-link', 'view-present', 'primary-journal', 'view-shm', 'view-inventory', 'backup-inventory', 'rollback', 'oversize', 'missing-primary', 'recursive-parent'];
+  for (const effect of effects) {
+    const f = fixture(true); const lstat = fs.lstatSync;
+    try {
+      fs.chmodSync(P.BOSUN, 0o755);
+      if (effect === 'directory-write') fs.chmodSync(path.dirname(f.paths.view), 0o777);
+      if (effect === 'directory-special') fs.chmodSync(f.paths.backups, 0o1700);
+      if (effect === 'file-write') fs.chmodSync(f.paths.primary, 0o666);
+      if (effect === 'file-special') fs.chmodSync(f.paths.primary, 0o4600);
+      if (effect === 'file-unusual') fs.chmodSync(f.paths.primary, 0o604);
+      if (effect === 'primary-link') { fs.renameSync(f.paths.primary, f.paths.primary + '.old'); fs.symlinkSync(f.paths.primary + '.old', f.paths.primary); }
+      if (effect === 'hardlink') fs.linkSync(f.paths.primary, path.join(f.sb.root, 'alias.db'));
+      if (effect === 'view-link') fs.symlinkSync(path.join(f.sb.root, 'absent'), f.paths.view);
+      if (effect === 'view-present') fs.writeFileSync(f.paths.view, '', { mode: 0o600 });
+      if (effect === 'primary-journal') fs.writeFileSync(f.paths.primary + '-journal', '', { mode: 0o600 });
+      if (effect === 'view-shm') fs.symlinkSync(path.join(f.sb.root, 'absent'), f.paths.view + '-shm');
+      if (effect === 'view-inventory') fs.writeFileSync(path.join(path.dirname(f.paths.view), 'unknown'), 'PRIVATE canary', { mode: 0o600 });
+      if (effect === 'backup-inventory') fs.writeFileSync(path.join(f.paths.backups, crypto.randomUUID() + '.db'), '', { mode: 0o600 });
+      if (effect === 'rollback') { const db = new DatabaseSync(f.paths.primary); db.exec('PRAGMA journal_mode=DELETE'); db.close(); }
+      if (effect === 'oversize') fs.truncateSync(f.paths.primary, 64 * 1024 * 1024 + 1);
+      if (effect === 'missing-primary') fs.unlinkSync(f.paths.primary);
+      const before = tree(P.BOSUN);
+      if (effect === 'unowned') fs.lstatSync = ((file, options) => {
+        const stat = lstat(file, options as never); if (file === f.paths.primary) Object.defineProperty(stat, 'uid', { value: typeof stat.uid === 'bigint' ? stat.uid + 1n : stat.uid + 1 });
+        return stat;
+      }) as typeof fs.lstatSync;
+      const paths = effect === 'recursive-parent' ? { ...f.paths, view: path.join(P.BOSUN, 'absent', 'leaf', 'public.db') } : f.paths;
+      const result = planOwnerPreparation({ paths, now: Date.now, createViewDirectory: true, createBackupDirectory: true });
+      fs.lstatSync = lstat;
+      assert.equal(result.state, 'BLOCKED', effect); assert.equal(result.plan, null); assert.deepEqual(result.actions, []);
+      assert.doesNotMatch(JSON.stringify(result), /PRIVATE|alias\.db/); assert.deepEqual(tree(P.BOSUN), before);
+    } finally { fs.lstatSync = lstat; f.close(); }
+  }
+});
+
+test('a real existing READY view stays blocked before any preparation permission action', async () => {
+  const f = fixture(true);
+  try {
+    const initial = await apply(f); await publishMemoryView(options(f.paths));
+    fs.chmodSync(P.BOSUN, 0o755); fs.chmodSync(path.dirname(f.paths.view), 0o755); fs.chmodSync(f.paths.view, 0o644);
+    const before = tree(P.BOSUN); const result = planOwnerPreparation({ paths: f.paths, now: Date.now });
+    assert.equal(result.state, 'BLOCKED'); assert.deepEqual(result.blockers, [{ target: 'view', reason: 'layout' }]);
+    const cli = await bosun(['memory', 'cutover', 'prepare-plan', '--json'], { env: f.sb.env() });
+    assert.equal(cli.code, 1); assert.deepEqual(tree(P.BOSUN), before); assert.ok(initial.sourceId);
+  } finally { f.close(); }
+});
+
+test('preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths', () => {
+  for (const effect of ['wal-bytes', 'shm-bytes', 'shm-replace', 'primary-mode', 'view-dir-replace', 'create-leaf', 'path']) {
+    const f = fixture();
+    try {
+      fs.chmodSync(P.BOSUN, 0o755);
+      if (effect === 'create-leaf') fs.rmdirSync(path.dirname(f.paths.view));
+      const p = preparation(f, effect === 'create-leaf');
+      if (effect === 'wal-bytes' || effect === 'shm-bytes') {
+        const file = f.paths.primary + (effect === 'wal-bytes' ? '-wal' : '-shm'); const fd = fs.openSync(file, 'r+');
+        try { fs.writeSync(fd, Buffer.from('changed'), 0, 7, 40); } finally { fs.closeSync(fd); }
+      }
+      if (effect === 'shm-replace') { const file = f.paths.primary + '-shm'; fs.renameSync(file, file + '.old'); fs.writeFileSync(file, fs.readFileSync(file + '.old'), { mode: 0o600 }); }
+      if (effect === 'primary-mode') fs.chmodSync(f.paths.primary, 0o644);
+      if (effect === 'view-dir-replace') { fs.rmdirSync(path.dirname(f.paths.view)); fs.mkdirSync(path.dirname(f.paths.view), { mode: 0o700 }); }
+      if (effect === 'create-leaf') fs.mkdirSync(path.dirname(f.paths.view), { mode: 0o700 });
+      const before = tree(P.BOSUN);
+      const paths = effect === 'path' ? { ...f.paths, view: path.join(path.dirname(f.paths.view), 'changed.db') } : f.paths;
+      assert.throws(() => prepareOwnerLayout({ paths, plan: p.plan!, clientsStopped: true, now: Date.now }), (e) => e instanceof OwnerCutoverError && e.blocker.reason === 'stale', effect);
+      assert.deepEqual(tree(P.BOSUN), before);
+    } finally { f.close(); }
+  }
+});
+
+test('preparation pins all actionable and creation-parent descriptors before any permission effect', () => {
+  const f = fixture(true); const open = fs.openSync; const fchmod = fs.fchmodSync; let changed = 0;
+  try {
+    fs.chmodSync(P.BOSUN, 0o755); fs.chmodSync(f.paths.primary, 0o644); const p = preparation(f);
+    const before = tree(P.BOSUN);
+    fs.openSync = ((file, flags, mode) => {
+      if (file === path.dirname(f.paths.view)) throw new Error('PRIVATE cannot pin directory');
+      return open(file, flags, mode);
+    }) as typeof fs.openSync;
+    fs.fchmodSync = ((fd, permissions) => { changed++; return fchmod(fd, permissions); }) as typeof fs.fchmodSync;
+    assert.throws(() => prepare(f, p), (e) => e instanceof OwnerCutoverError && !/PRIVATE/.test(e.message));
+    assert.equal(changed, 0); assert.deepEqual(tree(P.BOSUN), before);
+  } finally { fs.openSync = open; fs.fchmodSync = fchmod; f.close(); }
+});
+
+test('all pinned source, WAL and SHM metadata is rechecked before the first fchmod', () => {
+  for (const suffix of ['', '-wal', '-shm']) {
+    const f = fixture(); const open = fs.openSync; const close = fs.closeSync; const fchmod = fs.fchmodSync;
+    const held = new Set<number>(); let replaced = false; let narrowed = 0;
+    try {
+      fs.chmodSync(P.BOSUN, 0o755); const p = preparation(f);
+      fs.openSync = ((file, flags, permissions) => {
+        const fd = open(file, flags, permissions); held.add(fd);
+        if (!replaced && held.size === 6) {
+          replaced = true;
+          assert.equal(typeof flags, 'number'); assert.ok(Number(flags) & fs.constants.O_NOFOLLOW);
+          const changed = open(f.paths.primary + suffix, 'r+');
+          try { fs.writeSync(changed, Buffer.from('changed'), 0, 7, 40); } finally { close(changed); }
+        }
+        return fd;
+      }) as typeof fs.openSync;
+      fs.closeSync = ((fd) => { held.delete(fd); return close(fd); }) as typeof fs.closeSync;
+      fs.fchmodSync = ((fd, permissions) => { narrowed++; return fchmod(fd, permissions); }) as typeof fs.fchmodSync;
+      assert.throws(() => prepare(f, p), OwnerCutoverError);
+      assert.equal(replaced, true); assert.equal(narrowed, 0); assert.equal(mode(P.BOSUN), 0o755); assert.equal(held.size, 0);
+    } finally { fs.openSync = open; fs.closeSync = close; fs.fchmodSync = fchmod; f.close(); }
+  }
+});
+
+test('descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes', () => {
+  for (const effect of ['pin-replace', 'chmod-replace']) {
+    const f = fixture(true); const open = fs.openSync; const fchmod = fs.fchmodSync; let primaryOpens = 0; let changed = 0;
+    try {
+      fs.chmodSync(f.paths.primary, 0o644); const p = preparation(f); const file = f.paths.primary;
+      function replace() { fs.renameSync(file, file + '.old'); fs.writeFileSync(file, fs.readFileSync(file + '.old'), { mode: 0o644 }); }
+      if (effect === 'pin-replace') fs.openSync = ((candidate, flags, mode) => {
+        const fd = open(candidate, flags, mode);
+        if (candidate === file && ++primaryOpens === 2) replace();
+        return fd;
+      }) as typeof fs.openSync;
+      fs.fchmodSync = ((fd, permissions) => {
+        changed++; const result = fchmod(fd, permissions); if (effect === 'chmod-replace') replace(); return result;
+      }) as typeof fs.fchmodSync;
+      assert.throws(() => prepare(f, p), OwnerCutoverError);
+      assert.equal(mode(file), 0o644); assert.equal(changed, effect === 'pin-replace' ? 0 : 1);
+      assert.equal(mode(file + '.old'), effect === 'pin-replace' ? 0o644 : 0o600);
+    } finally { fs.openSync = open; fs.fchmodSync = fchmod; f.close(); }
+  }
+});
+
+test('partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan', () => {
+  for (const effect of ['chmod-fail', 'chmod-after-effect', 'mkdir-fail', 'close-fail']) {
+    const f = fixture(true); const fchmod = fs.fchmodSync; const mkdir = fs.mkdirSync; const close = fs.closeSync;
+    let narrowed = 0; let failClose = true;
+    try {
+      fs.chmodSync(P.BOSUN, 0o755); fs.chmodSync(f.paths.primary, 0o644);
+      if (effect === 'mkdir-fail') { fs.rmdirSync(path.dirname(f.paths.view)); fs.rmdirSync(f.paths.backups); }
+      const p = preparation(f, effect === 'mkdir-fail');
+      fs.fchmodSync = ((fd, permissions) => {
+        if (effect === 'chmod-fail' && narrowed === 1) throw new Error('PRIVATE partial fchmod');
+        const result = fchmod(fd, permissions); narrowed++;
+        if (effect === 'chmod-after-effect') throw new Error('PRIVATE after fchmod');
+        return result;
+      }) as typeof fs.fchmodSync;
+      fs.mkdirSync = ((file, options) => { if (file === path.dirname(f.paths.view)) throw new Error('PRIVATE partial mkdir'); return mkdir(file, options); }) as typeof fs.mkdirSync;
+      fs.closeSync = ((fd) => {
+        if (effect === 'close-fail' && narrowed > 0 && failClose && fs.fstatSync(fd).isDirectory()) { failClose = false; throw new Error('PRIVATE close failed'); }
+        return close(fd);
+      }) as typeof fs.closeSync;
+      assert.throws(() => prepare(f, p), (e) => e instanceof OwnerCutoverError && !/PRIVATE/.test(e.message));
+      fs.fchmodSync = fchmod; fs.mkdirSync = mkdir; fs.closeSync = close;
+      assert.equal(mode(P.BOSUN), 0o700); assert.equal(mode(f.paths.primary), effect === 'close-fail' ? 0o600 : 0o644);
+      if (effect === 'mkdir-fail') { assert.equal(mode(f.paths.backups), 0o700); assert.equal(fs.existsSync(path.dirname(f.paths.view)), false); }
+      assert.throws(() => prepare(f, p), OwnerCutoverError, 'an old token cannot waive earlier partial effects');
+      const fresh = preparation(f, effect === 'mkdir-fail'); assert.ok(fresh.plan);
+      assert.equal(prepare(f, fresh).state, 'PREPARED');
+    } finally { fs.fchmodSync = fchmod; fs.mkdirSync = mkdir; fs.closeSync = close; f.close(); }
+  }
+});
+
+test('created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening', () => {
+  for (const effect of ['raced-existing', 'created-link', 'created-replace', 'other-change']) {
+    const f = fixture(true); const mkdir = fs.mkdirSync; const open = fs.openSync; const fchmod = fs.fchmodSync;
+    try {
+      fs.rmdirSync(path.dirname(f.paths.view)); fs.rmdirSync(f.paths.backups); fs.chmodSync(P.BOSUN, 0o755); fs.chmodSync(f.paths.primary, 0o644);
+      const p = preparation(f, true); const leaf = f.paths.backups;
+      fs.mkdirSync = ((file, options) => {
+        if (file === leaf && effect === 'raced-existing') mkdir(file, { mode: 0o750 });
+        const result = mkdir(file, options);
+        if (file === leaf && effect === 'created-link') { fs.renameSync(leaf, leaf + '.old'); fs.symlinkSync(leaf + '.old', leaf); }
+        return result;
+      }) as typeof fs.mkdirSync;
+      fs.openSync = ((file, flags, mode) => {
+        if (file === leaf && effect === 'created-replace') { fs.renameSync(leaf, leaf + '.old'); mkdir(leaf, { mode: 0o750 }); }
+        return open(file, flags, mode);
+      }) as typeof fs.openSync;
+      fs.fchmodSync = ((fd, permissions) => {
+        const result = fchmod(fd, permissions);
+        if (effect === 'other-change') fs.chmodSync(f.paths.primary, 0o640);
+        return result;
+      }) as typeof fs.fchmodSync;
+      assert.throws(() => prepare(f, p), OwnerCutoverError);
+      assert.equal(mode(P.BOSUN), 0o700); assert.equal(fs.existsSync(leaf), effect !== 'other-change');
+      if (effect === 'raced-existing' || effect === 'created-replace') assert.equal(mode(leaf), 0o750);
+      if (effect === 'created-link') assert.equal(fs.lstatSync(leaf).isSymbolicLink(), true);
+      assert.equal(mode(f.paths.primary), effect === 'other-change' ? 0o640 : 0o644);
+    } finally { fs.mkdirSync = mkdir; fs.openSync = open; fs.fchmodSync = fchmod; f.close(); }
+  }
+});
+
+test('owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release', () => {
+  for (const persistent of [false, true]) {
+    const f = fixture(true); const close = fs.closeSync; const fchmod = fs.fchmodSync;
+    let narrowed = false; let refused: number | undefined; let attempts = 0;
+    try {
+      fs.chmodSync(P.BOSUN, 0o755); const p = preparation(f);
+      fs.fchmodSync = ((fd, permissions) => { narrowed = true; return fchmod(fd, permissions); }) as typeof fs.fchmodSync;
+      fs.closeSync = ((fd) => {
+        if (narrowed && refused === undefined && fs.fstatSync(fd).isDirectory()) refused = fd;
+        if (fd === refused && (++attempts === 1 || persistent)) throw new Error('PRIVATE close receipt');
+        return close(fd);
+      }) as typeof fs.closeSync;
+      assert.throws(() => prepare(f, p), (e) => e instanceof OwnerCutoverError && e.blocker.reason === 'storage' && !/PRIVATE/.test(e.message));
+      assert.equal(attempts, 2); assert.equal(mode(P.BOSUN), 0o700);
+      if (persistent) { assert.equal(fs.fstatSync(refused!).isDirectory(), true); close(refused!); }
+      else assert.throws(() => fs.fstatSync(refused!), /bad file descriptor|EBADF/);
+      assert.throws(() => prepare(f, p), OwnerCutoverError);
+    } finally { fs.closeSync = close; fs.fchmodSync = fchmod; f.close(); }
+  }
+});
+
+test('preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields', () => {
+  const f = fixture(true); const p = preparation(f, false, () => 100); const before = tree(P.BOSUN);
+  const defaults = { paths: f.paths, plan: p.plan!, clientsStopped: true, now: () => 100 };
+  try {
+    for (const override of [ { clientsStopped: false }, { now: () => 99 }, { now: () => 300100 }, { plan: 'A'.repeat(1025) },
+      { plan: 'PRIVATE invalid token' }, { plan: encode({ ...decode(p.plan!), extra: true }) }, { plan: encode({ ...decode(p.plan!), operation: 'apply' }) },
+      { plan: encode({ ...decode(p.plan!), expiresAt: 999999 }) }, { plan: encode({ ...decode(p.plan!), createViewDirectory: 'true' }) },
+      { plan: plan(f, () => 100).plan! }, { extra: true } ]) {
+      assert.throws(() => prepareOwnerLayout({ ...defaults, ...override } as typeof defaults), OwnerCutoverError); assert.deepEqual(tree(P.BOSUN), before);
+    }
+    for (const createViewDirectory of ['true', 1, null]) assert.equal(planOwnerPreparation({ paths: f.paths, now: Date.now, createViewDirectory } as never).state, 'BLOCKED');
+  } finally { f.close(); }
+});
+
+test('real preparation CLI rejects unexpected flags/positionals/duplicate options/remote and prints finite partial-outcome guidance', async () => {
+  const f = fixture(true); const p = preparation(f); const before = tree(P.BOSUN);
+  try {
+    for (const args of [ ['prepare-plan', '--plan', p.plan!], ['prepare-plan', '--create-view-directory', '--create-view-directory'],
+      ['prepare-plan', 'extra'], ['prepare', '--plan', p.plan!], ['prepare', '--plan', p.plan!, '--clients-stopped', '--create-backup-directory'],
+      ['prepare', '--plan', p.plan!, '--plan', p.plan!, '--clients-stopped'], ['prepare', '--plan', p.plan!, '--source-id', crypto.randomUUID(), '--clients-stopped'] ]) {
+      const cli = await bosun(['memory', 'cutover', ...args], { env: f.sb.env() }); assert.equal(cli.code, 2, cli.err); assert.deepEqual(tree(P.BOSUN), before);
+    }
+    const bad = await bosun(['memory', 'cutover', 'prepare', '--plan', 'PRIVATEinvalid', '--clients-stopped'], { env: f.sb.env() });
+    assert.equal(bad.code, 2); assert.match(bad.err, /tightened modes or created directories may remain/); assert.doesNotMatch(bad.err, /PRIVATE/);
+    for (const args of [['prepare-plan', '--json'], ['prepare', '--plan', p.plan!, '--clients-stopped']]) {
+      const cli = await bosun(['memory', 'cutover', ...args], { env: f.sb.env({ MEMORY_URL: 'http://127.0.0.1:1' }) });
+      assert.equal(cli.code, 1); assert.match(cli.err, /local cutover unavailable \(remote\)/); assert.deepEqual(tree(P.BOSUN), before);
+    }
+    assert.deepEqual(f.sb.calls(), []);
+  } finally { f.close(); }
+});
+
+test('real CLI quotes exact reviewed action paths containing spaces and control characters without changing storage', async () => {
+  const f = fixture(true);
+  try {
+    const view = path.join(P.BOSUN, 'view space\nline', 'public.db'); const before = tree(P.BOSUN);
+    const result = await bosun(['memory', 'cutover', 'prepare-plan', '--create-view-directory'], { env: f.sb.env({ MEMORY_VIEW_PATH: view }) });
+    assert.equal(result.code, 0, result.err);
+    assert.ok(result.out.includes(`view-directory: mkdir ${JSON.stringify(path.dirname(view))} (absent -> 0700)`));
+    assert.equal(result.out.includes('view space\nline'), false); assert.deepEqual(tree(P.BOSUN), before);
+  } finally { f.close(); }
+});
+
+test('preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem', () => {
+  const f = fixture(true); const p = preparation(f); const before = tree(P.BOSUN); const lstat = fs.lstatSync; let inspected = 0;
+  try {
+    const getter = Object.defineProperty({}, 'paths', { get() { throw new Error('PRIVATE getter'); } });
+    const proxy = new Proxy({}, { ownKeys() { throw new Error('PRIVATE proxy'); } });
+    fs.lstatSync = (() => { inspected++; throw new Error('PRIVATE unexpected scan'); }) as typeof fs.lstatSync;
+    for (const input of [getter, proxy]) {
+      const blocked = planOwnerPreparation(input as never); assert.equal(blocked.state, 'BLOCKED'); assert.doesNotMatch(JSON.stringify(blocked), /PRIVATE/);
+      assert.throws(() => prepareOwnerLayout(input as never), (e) => e instanceof OwnerCutoverError && e.blocker.reason === 'input');
+    }
+    for (const field of ['plan', 'clientsStopped']) {
+      const input = Object.defineProperty({}, field, { get() { throw new Error('PRIVATE wrapper getter'); } });
+      assert.throws(() => prepareLocalMemoryLayout(f.cfg, input as never), /invalid owner cutover request/);
+    }
+    assert.throws(() => planLocalMemoryPreparation(f.cfg, proxy), /invalid owner cutover request/);
+    assert.equal(inspected, 0);
+    const injected = new OwnerCutoverError({ target: 'primary', reason: 'storage' });
+    Object.defineProperty(injected, 'blocker', { get() { throw new Error('PRIVATE blocker accessor'); } });
+    fs.lstatSync = (() => { throw injected; }) as typeof fs.lstatSync;
+    const result = planOwnerPreparation({ paths: f.paths, now: Date.now }); assert.equal(result.state, 'BLOCKED'); assert.doesNotMatch(JSON.stringify(result), /PRIVATE/);
+    assert.throws(() => prepare(f, p), (e) => e instanceof OwnerCutoverError && !/PRIVATE/.test(e.message));
+    fs.lstatSync = (() => { throw new Proxy({}, { getPrototypeOf() { throw new Error('PRIVATE error proxy'); } }); }) as typeof fs.lstatSync;
+    assert.doesNotMatch(JSON.stringify(planOwnerPreparation({ paths: f.paths, now: Date.now })), /PRIVATE/);
+  } finally { fs.lstatSync = lstat; assert.deepEqual(tree(P.BOSUN), before); f.close(); }
 });

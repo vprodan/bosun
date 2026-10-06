@@ -93,21 +93,22 @@ function present(file: string): boolean {
   catch (e) { if ((e as { code?: unknown })?.code === 'ENOENT') return false; throw e; }
 }
 type Meta = { dev: string; ino: string; mode: string; uid: string; size?: string; mtime?: string; ctime?: string; header?: string };
-function metadata(file: string, target: Target, directory = false, stable = true): Meta {
+function metadata(file: string, target: Target, directory = false, stable = true, preparing = false): Meta {
   let s: fs.BigIntStats;
   try { s = fs.lstatSync(file, { bigint: true }); }
   catch (e) { if ((e as { code?: unknown })?.code === 'ENOENT') fail(target, 'missing'); throw e; }
   if (s.isSymbolicLink() || (directory ? !s.isDirectory() : !s.isFile() || s.nlink !== 1n) || fs.realpathSync(file) !== file) fail(target, 'path');
   const required = directory ? 0o700 : 0o600;
   const current = Number(s.mode & 0o7777n);
-  if (current !== required || Number(s.uid) !== process.getuid!()) fail(target, 'permissions', {
+  const allowed = preparing ? (directory ? [0o700, 0o750, 0o755] : [0o600, 0o640, 0o644]) : [required];
+  if (!allowed.includes(current) || Number(s.uid) !== process.getuid!()) fail(target, 'permissions', {
     currentMode: '0' + current.toString(8).padStart(3, '0'), requiredMode: '0' + required.toString(8),
   });
   const result: Meta = { dev: String(s.dev), ino: String(s.ino), mode: String(s.mode), uid: String(s.uid) };
   if (stable) Object.assign(result, { size: String(s.size), mtime: String(s.mtimeNs), ctime: String(s.ctimeNs) });
   return result;
 }
-function header(file: string, target: Target, meta: Meta, wal = false): Meta {
+function header(file: string, target: Target, meta: Meta, wal = false, preparing = false): Meta {
   const size = Number(meta.size);
   if (!Number.isSafeInteger(size) || size > MAX_BYTES || size < (wal ? 0 : 100)) fail(target, 'size');
   if (wal && size === 0) return { ...meta, header: '' };
@@ -119,7 +120,7 @@ function header(file: string, target: Target, meta: Meta, wal = false): Meta {
     const opened = fs.fstatSync(fd, { bigint: true });
     if (String(opened.dev) !== meta.dev || String(opened.ino) !== meta.ino || fs.readSync(fd, bytes, 0, count, 0) !== count) fail(target, 'identity');
   } finally { fs.closeSync(fd); }
-  if (JSON.stringify(metadata(file, target)) !== JSON.stringify(meta)) fail(target, 'identity');
+  if (JSON.stringify(metadata(file, target, false, true, preparing)) !== JSON.stringify(meta)) fail(target, 'identity');
   if (wal ? ![0x377f0682, 0x377f0683].includes(bytes.readUInt32BE(0))
     : bytes.toString('ascii', 0, 16) !== 'SQLite format 3\0' || bytes[18] !== (target === 'primary' ? 2 : 1) || bytes[19] !== (target === 'primary' ? 2 : 1)) fail(target, 'format');
   return { ...meta, header: bytes.toString('hex') };
@@ -215,4 +216,186 @@ export async function applyOwnerCutover(input: { paths: CutoverPaths; plan: stri
     });
     return { ...result, operation: approved.operation, clientsStopped: 'attested', restartRequired: true, publicationRequired: true, bindingRequired: true };
   } catch (error) { return mapped(error); }
+}
+
+// Separate initial-layout operation: no SQLite open, floor, publication or view adoption.
+type DirectoryTarget = 'primary-directory' | 'view-directory' | 'backup-directory';
+export type PreparationAction = { target: Target; path: string; action: 'mkdir' | 'chmod'; currentMode: string | null; requiredMode: '0700' | '0600' };
+type PreparationObject = { target: Target; path: string; directory: boolean; meta: Meta };
+type PreparationSnapshot = { paths: CutoverPaths; createViewDirectory: boolean; createBackupDirectory: boolean;
+  objects: PreparationObject[]; missing: { target: DirectoryTarget; path: string }[]; actions: PreparationAction[] };
+type PreparationToken = { version: 1; operation: 'prepare'; createViewDirectory: boolean; createBackupDirectory: boolean;
+  issuedAt: number; expiresAt: number; fingerprint: string };
+const PREPARATION_REQUIREMENTS = [
+  'Review every exact path and action; only listed owner directories/files are narrowed, with no recursive repair.',
+  'Stop all owner memory, MCP, docs and server clients; --clients-stopped is operator attestation, not verified drain.',
+  'Preparation opens no SQLite and installs no floor, publication or source binding; obtain a fresh cutover plan afterward.',
+  'Failures can leave tightened modes or newly created directories; never broaden or delete them, inspect and replan.',
+  'Existing views, pending or unknown artifacts and broader recovery remain held.',
+] as const;
+function creation(value: unknown): boolean {
+  if (value !== undefined && typeof value !== 'boolean') fail('input', 'input');
+  return value === true;
+}
+function preparationScan(p: CutoverPaths, createViewDirectory: boolean, createBackupDirectory: boolean): PreparationSnapshot {
+  runtime();
+  // In particular, do not tighten an old view's directory and silently make READY eligible.
+  if (present(p.view)) fail('view', 'layout');
+  if (present(p.primary + '-journal')) fail('primary', 'pending');
+  if (['-wal', '-shm', '-journal'].some((suffix) => present(p.view + suffix))) fail('view', 'pending');
+  const objects: PreparationObject[] = []; const missing: PreparationSnapshot['missing'] = [];
+  const actions: PreparationAction[] = [];
+  function directory(file: string, target: DirectoryTarget, actionable: boolean): void {
+    if (objects.some((o) => o.path === file)) return;
+    const meta = metadata(file, target, true, true, true);
+    objects.push({ target, path: file, directory: true, meta });
+    const current = Number(BigInt(meta.mode) & 0o7777n);
+    if (actionable && current !== 0o700) actions.push({ target, path: file, action: 'chmod',
+      currentMode: '0' + current.toString(8), requiredMode: '0700' });
+  }
+  directory(path.dirname(p.primary), 'primary-directory', true);
+  for (const [file, target, requested] of [
+    [path.dirname(p.view), 'view-directory', createViewDirectory], [p.backups, 'backup-directory', createBackupDirectory],
+  ] as const) {
+    if (present(file)) {
+      directory(file, target, true);
+      if (fs.readdirSync(file).length) fail(target, 'layout');
+    } else {
+      if (!requested) fail(target, 'missing');
+      missing.push({ target, path: file });
+      actions.push({ target, path: file, action: 'mkdir', currentMode: null, requiredMode: '0700' });
+    }
+    // A flag permits only this leaf under an existing canonical owner parent, never recursive mkdir.
+    if (requested) directory(path.dirname(file), target, false);
+  }
+  function file(file: string, target: 'primary' | 'wal' | 'shm'): Meta {
+    let meta = metadata(file, target, false, true, true);
+    if (target !== 'shm') meta = header(file, target, meta, target === 'wal', true);
+    else if (Number(meta.size) > 4 * 1024 * 1024) fail(target, 'size');
+    objects.push({ target, path: file, directory: false, meta });
+    const current = Number(BigInt(meta.mode) & 0o7777n);
+    if (current !== 0o600) actions.push({ target, path: file, action: 'chmod', currentMode: '0' + current.toString(8), requiredMode: '0600' });
+    return meta;
+  }
+  const primary = file(p.primary, 'primary');
+  const wal = present(p.primary + '-wal') ? file(p.primary + '-wal', 'wal') : null;
+  if (present(p.primary + '-shm')) file(p.primary + '-shm', 'shm');
+  if (Number(primary.size) + Number(wal?.size ?? 0) > MAX_BYTES) fail('primary', 'size');
+  if (new Set(objects.map((o) => `${o.meta.dev}:${o.meta.ino}`)).size !== objects.length) fail('input', 'path');
+  objects.sort((a, b) => a.path.localeCompare(b.path));
+  actions.sort((a, b) => a.path.localeCompare(b.path));
+  return { paths: p, createViewDirectory, createBackupDirectory, objects, missing, actions };
+}
+function preparationFingerprint(snapshot: PreparationSnapshot): string {
+  return crypto.createHash('sha256').update(JSON.stringify(snapshot)).digest('hex');
+}
+function preparationToken(input: unknown, now: number): PreparationToken {
+  if (typeof input !== 'string' || input.length > 1024 || !/^[A-Za-z0-9_-]+$/.test(input)) fail('plan', 'input');
+  let p: Record<string, unknown>;
+  try {
+    const bytes = Buffer.from(input, 'base64url');
+    if (bytes.toString('base64url') !== input) fail('plan', 'input');
+    p = fields(JSON.parse(bytes.toString('utf8')), ['version', 'operation', 'createViewDirectory', 'createBackupDirectory', 'issuedAt', 'expiresAt', 'fingerprint']);
+  } catch { fail('plan', 'input'); }
+  if (p.version !== 1 || p.operation !== 'prepare' || typeof p.createViewDirectory !== 'boolean' || typeof p.createBackupDirectory !== 'boolean'
+    || !stamp(p.issuedAt) || p.expiresAt !== p.issuedAt + TTL || typeof p.fingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(p.fingerprint)) fail('plan', 'input');
+  if (now < p.issuedAt || now >= Number(p.expiresAt)) fail('plan', 'stale');
+  return p as PreparationToken;
+}
+export type OwnerPreparationPlan = { state: 'PLANNED' | 'BLOCKED'; operation: 'prepare'; plan: string | null; expiresAt: number | null;
+  schema: 'unverified'; floor: 'unverified'; clients: 'unverified'; actions: PreparationAction[]; blockers: CutoverBlocker[]; requirements: readonly string[] };
+export function planOwnerPreparation(input: { paths: CutoverPaths; now: () => number; createViewDirectory?: boolean; createBackupDirectory?: boolean }): OwnerPreparationPlan {
+  const base = { operation: 'prepare', schema: 'unverified', floor: 'unverified', clients: 'unverified', requirements: PREPARATION_REQUIREMENTS } as const;
+  try {
+    const o = fields(input, ['paths', 'now', 'createViewDirectory', 'createBackupDirectory']); const issuedAt = time(o.now);
+    const snapshot = preparationScan(configured(o.paths), creation(o.createViewDirectory), creation(o.createBackupDirectory));
+    const expiresAt = issuedAt + TTL;
+    const value: PreparationToken = { version: 1, operation: 'prepare', createViewDirectory: snapshot.createViewDirectory,
+      createBackupDirectory: snapshot.createBackupDirectory, issuedAt, expiresAt, fingerprint: preparationFingerprint(snapshot) };
+    return { ...base, state: 'PLANNED', plan: Buffer.from(JSON.stringify(value)).toString('base64url'), expiresAt, actions: snapshot.actions, blockers: [] };
+  } catch (error) {
+    try { mapped(error); }
+    catch (finite) {
+      if (!(finite instanceof OwnerCutoverError)) throw finite;
+      return { ...base, state: 'BLOCKED', plan: null, expiresAt: null, actions: [], blockers: [finite.blocker] };
+    }
+  }
+}
+function descriptorMeta(object: PreparationObject, fd: number): Meta {
+  const s = fs.fstatSync(fd, { bigint: true });
+  if ((object.directory ? !s.isDirectory() : !s.isFile() || s.nlink !== 1n) || Number(s.uid) !== process.getuid!()) fail(object.target, 'identity');
+  return { dev: String(s.dev), ino: String(s.ino), mode: String(s.mode), uid: String(s.uid),
+    size: String(s.size), mtime: String(s.mtimeNs), ctime: String(s.ctimeNs), ...(object.meta.header !== undefined ? { header: object.meta.header } : {}) };
+}
+function sameMeta(a: Meta, b: Meta): boolean { return JSON.stringify(a) === JSON.stringify(b); }
+function checkDescriptor(object: PreparationObject, fd: number): void {
+  if (!sameMeta(descriptorMeta(object, fd), object.meta)) fail(object.target, 'identity');
+  const current = metadata(object.path, object.target, object.directory, true, true);
+  if (!sameMeta({ ...current, ...(object.meta.header !== undefined ? { header: object.meta.header } : {}) }, object.meta)) fail(object.target, 'identity');
+}
+export type OwnerPreparationReceipt = { state: 'PREPARED'; clientsStopped: 'attested'; replanRequired: true; actions: PreparationAction[] };
+export function prepareOwnerLayout(input: { paths: CutoverPaths; plan: string; clientsStopped: boolean; now: () => number }): OwnerPreparationReceipt {
+  const handles = new Map<string, number>(); let failed = false; let failure: unknown; let receipt: OwnerPreparationReceipt | undefined;
+  try {
+    const o = fields(input, ['paths', 'plan', 'clientsStopped', 'now']);
+    const approved = preparationToken(o.plan, time(o.now));
+    if (o.clientsStopped !== true) fail('input', 'input');
+    const p = configured(o.paths);
+    const before = preparationScan(p, approved.createViewDirectory, approved.createBackupDirectory);
+    if (preparationFingerprint(before) !== approved.fingerprint) fail('plan', 'stale');
+    // Pin every existing actionable object and finite creation parent before the first effect.
+    for (const object of before.objects) {
+      const fd = fs.openSync(object.path, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | (object.directory ? fs.constants.O_DIRECTORY : 0));
+      handles.set(object.path, fd); checkDescriptor(object, fd);
+    }
+    function unchanged(): void {
+      for (const object of before.objects) checkDescriptor(object, handles.get(object.path)!);
+      const current = preparationScan(p, approved.createViewDirectory, approved.createBackupDirectory);
+      // Own completed actions change the next scan's action list, never its bound file metadata.
+      if (JSON.stringify(current.objects) !== JSON.stringify(before.objects) || JSON.stringify(current.missing) !== JSON.stringify(before.missing)) fail('plan', 'stale');
+    }
+    unchanged(); preparationToken(o.plan, time(o.now));
+    const actions = before.actions.map((a) => ({ ...a }));
+    for (const action of actions) {
+      unchanged();
+      if (action.action === 'chmod') {
+        const object = before.objects.find((item) => item.path === action.path)!; const fd = handles.get(action.path)!;
+        fs.fchmodSync(fd, parseInt(action.requiredMode, 8));
+        const changed = descriptorMeta(object, fd);
+        const expected = { ...object.meta, mode: String((BigInt(object.meta.mode) & ~0o7777n) | BigInt(parseInt(action.requiredMode, 8))), ctime: changed.ctime };
+        if (!sameMeta(changed, expected)) fail(object.target, 'identity');
+        object.meta = expected;
+      } else {
+        const parent = before.objects.find((item) => item.path === path.dirname(action.path))!;
+        checkDescriptor(parent, handles.get(parent.path)!);
+        if (present(action.path)) fail(action.target, 'identity');
+        fs.mkdirSync(action.path, { mode: 0o700 });
+        const created: PreparationObject = { target: action.target, path: action.path, directory: true,
+          meta: metadata(action.path, action.target, true) };
+        const fd = fs.openSync(action.path, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_DIRECTORY);
+        handles.set(action.path, fd);
+        checkDescriptor(created, fd);
+        const changed = descriptorMeta(parent, handles.get(parent.path)!);
+        const expected = { ...parent.meta, size: changed.size, mtime: changed.mtime, ctime: changed.ctime };
+        if (!sameMeta(changed, expected)) fail(parent.target, 'identity');
+        parent.meta = expected; before.objects.push(created); before.objects.sort((a, b) => a.path.localeCompare(b.path));
+        before.missing = before.missing.filter((item) => item.path !== action.path);
+      }
+      unchanged();
+    }
+    // Do not expire/retract an already-admitted operation; require a new strict cutover plan afterward.
+    receipt = { state: 'PREPARED', clientsStopped: 'attested', replanRequired: true, actions };
+  } catch (error) { failed = true; failure = error; }
+  finally {
+    for (const fd of handles.values()) {
+      try { fs.closeSync(fd); }
+      catch {
+        // A close failure keeps the receipt uncertain even if one best-effort retry releases it.
+        try { fs.closeSync(fd); } catch {}
+        if (!failed) { failed = true; failure = new OwnerCutoverError({ target: 'input', reason: 'storage' }); }
+      }
+    }
+  }
+  if (failed) return mapped(failure);
+  return receipt!;
 }
