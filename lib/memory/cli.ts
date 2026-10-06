@@ -119,7 +119,7 @@ async function ownerRestore(operation: string, argv: string[], cfg: Cfg): Promis
       if (result.newSourceId) console.log(`save new sourceId independently: ${result.newSourceId}`);
       if (result.outcome) console.log(`recorded outcome: ${result.outcome}; primary commit remains unverified until admission`);
       if (result.inventory) {
-        console.log(`Current view/reference verified; artifacts ${result.inventory.count}; unreferenced ownership unverified ${result.inventory.unreferenced.length}.`);
+        console.log(`Current view/reference ${result.inventory.reference}; artifacts ${result.inventory.count}; unreferenced ownership unverified ${result.inventory.unreferenced.length}.`);
         for (const artifact of result.inventory.unreferenced) console.log(`retain unreferenced ${artifact.id}: ${JSON.stringify(artifact.metadata)}`);
       }
       if (result.plan) console.log(`plan: ${result.plan}\nexpires: ${new Date(result.expiresAt!).toISOString()}`);

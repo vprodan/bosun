@@ -540,27 +540,57 @@ function priorReceipt(p: CutoverPaths, intent: RestoreIntent): void {
     sameCapsule(file, intent.priorReceipt); completedReceipt(p, intent.old);
   } else if (present(file)) fail('identity');
 }
-function intentBinding(intent: RestoreIntent, p: CutoverPaths, source: Identity, view: Identity): void {
-  paths(p, true); same(p.primary, source); same(p.view, view); viewIdentity(p);
-  bindGate(intent.old, p, source, view); reconcileBackup(intent.old, p);
-  same(path.join(p.backups, intent.attemptId + '.db'), { dev: intent.backupDev, ino: intent.backupIno });
-  if (['-wal', '-shm', '-journal'].some((suffix) => present(path.join(p.backups, intent.attemptId + '.db') + suffix))) fail('backup');
+function intentArtifacts(intent: RestoreIntent, p: CutoverPaths, source: Identity, view: Identity): void {
+  bindGate(intent.old, p, source, view);
+  const artifact = path.join(p.backups, intent.attemptId + '.db');
+  same(artifact, { dev: intent.backupDev, ino: intent.backupIno });
+  if (fs.statSync(artifact).size > MAX_BYTES || ['-wal', '-shm', '-journal'].some((suffix) => present(artifact + suffix))) fail('backup');
+}
+function intentBinding(intent: RestoreIntent, p: CutoverPaths, source: Identity, view: Identity, ownedRecovery = false): void {
+  paths(p, true); same(p.primary, source); same(p.view, view); viewIdentity(p, ownedRecovery);
+  intentArtifacts(intent, p, source, view);
+  reconcileBackup(intent.old, p);
   priorReceipt(p, intent);
 }
-/** Explicit owner planning only: native-opens the rollback view, never primary or backup. */
+// No journal payload is read. The trusted-app boundary binds its mutable filesystem
+// identity to the reviewed plan; source authority must still be proved under admission.
+function restoreJournal(p: CutoverPaths): string {
+  const file = p.view + '-journal'; canonical(file, true); identity(file);
+  const s = fs.lstatSync(file, { bigint: true });
+  if (s.size < 512n || s.size > BigInt(MAX_BYTES)) fail('state');
+  return JSON.stringify(['dev', 'ino', 'mode', 'uid', 'nlink', 'size', 'mtimeNs', 'ctimeNs'].map((key) => String(s[key as keyof fs.BigIntStats])));
+}
+/** Explicit owner planning only. A pending journal uses capsule/filesystem metadata;
+ * otherwise only the journal-free rollback view is opened natively, never primary/backup. */
 export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], sourceId: string, newSourceId?: string): {
-  index: number; ownedNames: string[]; attemptId: string | null; newSourceId: string | null; pending: boolean; outcome: 'committed' | 'rolled_back' | null;
+  reference: 'verified' | 'unverified'; index: number; ownedNames: string[]; attemptId: string | null; newSourceId: string | null;
+  pending: boolean; outcome: 'committed' | 'rolled_back' | null;
 } {
   let view: DatabaseSync | undefined;
   try {
     if (typeof sourceId !== 'string' || !UUID.test(sourceId) || newSourceId !== undefined && (typeof newSourceId !== 'string' || !UUID.test(newSourceId))
       || !Array.isArray(names) || names.length > 32) fail('input');
-    p = paths(p, true); const source = identity(p.primary); const fixed = viewIdentity(p);
+    p = paths(p, true); const source = identity(p.primary);
+    const journal = present(p.view + '-journal'); const pending = present(p.view + RESTORE_PENDING_SUFFIX);
+    if (journal) {
+      if (!pending || newSourceId === undefined) fail('state');
+      const fixed = viewIdentity(p, true); const journalBefore = restoreJournal(p);
+      const capsule = readCapsule(p.view + RESTORE_PENDING_SUFFIX); const intent = capsule.intent;
+      if (intent.old.source_id !== sourceId || intent.newSourceId !== newSourceId) fail('identity');
+      intentArtifacts(intent, p, source, fixed);
+      const receiptFile = p.view + RESTORE_RECEIPT_SUFFIX;
+      if (intent.priorReceipt) sameCapsule(receiptFile, intent.priorReceipt); else if (present(receiptFile)) fail('identity');
+      const index = names.indexOf(intent.old.backup_name); if (index < 0 || !names.includes(intent.attemptId + '.db')) fail('identity');
+      sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity); same(p.primary, source); same(p.view, fixed);
+      if (restoreJournal(p) !== journalBefore) fail('identity');
+      return { reference: 'unverified', index, ownedNames: [intent.old.backup_name, intent.attemptId + '.db'],
+        attemptId: intent.attemptId, newSourceId: intent.newSourceId, pending: true, outcome: null };
+    }
+    const fixed = viewIdentity(p);
     view = new DatabaseSync(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
     view.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;'); runtime(view);
     const gate = validateGate(view, p, source, fixed); if (gate.phase !== 'applied') fail('state');
     let intent: RestoreIntent | undefined; let outcome: 'committed' | 'rolled_back' | null = null;
-    const pending = present(p.view + RESTORE_PENDING_SUFFIX);
     if (newSourceId !== undefined) {
       intent = readCapsule(p.view + (pending ? RESTORE_PENDING_SUFFIX : RESTORE_RECEIPT_SUFFIX)).intent;
       if (intent.old.source_id !== sourceId || intent.newSourceId !== newSourceId) fail('identity');
@@ -576,7 +606,7 @@ export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], s
     reconcileBackup(gate, p);
     const index = names.indexOf(newSourceId !== undefined ? intent!.old.backup_name : gate.backup_name); if (index < 0) fail('identity');
     same(p.primary, source); same(p.view, fixed); viewIdentity(p);
-    return { index, ownedNames: [...new Set([gate.backup_name, ...(intent ? [intent.old.backup_name, intent.attemptId + '.db'] : [])])],
+    return { reference: 'verified', index, ownedNames: [...new Set([gate.backup_name, ...(intent ? [intent.old.backup_name, intent.attemptId + '.db'] : [])])],
       attemptId: newSourceId !== undefined ? intent!.attemptId : null, newSourceId: newSourceId !== undefined ? intent!.newSourceId : null, pending, outcome };
   } catch (e) { return mapped(e); }
   finally { if (!closeNative(view)) fail('storage'); }
@@ -645,9 +675,36 @@ export async function restoreMemory(options: RestoreOptions): Promise<RestoreRec
       || typeof options.newSourceId !== 'string' || !UUID.test(options.newSourceId) || typeof options.attemptId !== 'string' || !UUID.test(options.attemptId)
       || new Set([options.sourceId, options.newSourceId, options.attemptId]).size !== 3 || typeof options.now !== 'function' || typeof options.validate !== 'function'
       || options.checkpoint !== undefined && typeof options.checkpoint !== 'function') fail('input');
-    const startedAt = time(options.now); const p = paths(options.paths, true); const primaryId = identity(p.primary); const fixed = viewIdentity(p);
+    const startedAt = time(options.now); const p = paths(options.paths, true); const primaryId = identity(p.primary);
+    const journal = present(p.view + '-journal');
+    if (journal && (options.operation !== 'restore-reconcile' || !hasPendingMemoryRestore(p.view))) fail('state');
+    const fixed = viewIdentity(p, journal); const journalBefore = journal ? restoreJournal(p) : null;
+    const recovering = journal ? readCapsule(p.view + RESTORE_PENDING_SUFFIX) : undefined;
+    if (recovering && (recovering.intent.old.source_id !== options.sourceId || recovering.intent.newSourceId !== options.newSourceId
+      || recovering.intent.attemptId !== options.attemptId)) fail('identity');
     source = open(p.primary); runtime(source); source.exec('BEGIN IMMEDIATE'); admitted = true;
     same(p.primary, primaryId); paths(p, true); schema(source); const floor = sourceFloor(source); if (!floor) fail('state');
+    if (recovering) {
+      const intent = recovering.intent;
+      intentBinding(intent, p, primaryId, fixed, true);
+      // Independently supplied epochs plus the actual admitted source floor are
+      // required BEFORE SQLite can recover any view bytes. The old floor permits
+      // its reserved unfinished backup; a new committed floor requires its digest.
+      if (floor.source_id === intent.old.source_id) {
+        if (floor.format !== intent.old.format || floor.generation !== intent.generation) fail('identity');
+        reconcile(floor, intent.old, p);
+      } else if (floor.source_id === intent.newSourceId) {
+        const outcome = floor.attempt_id === intent.attemptId ? 'committed' : 'rolled_back';
+        const expected = restoreGate(intent, outcome, String(floor.backup_hash));
+        if (floor.format !== expected.format) fail('identity'); reconcile(floor, expected, p);
+      } else fail('identity');
+      if (options.validate() !== undefined) fail('input');
+      intentBinding(intent, p, primaryId, fixed, true); sameCapsule(p.view + RESTORE_PENDING_SUFFIX, recovering.identity);
+      if (restoreJournal(p) !== journalBefore) fail('identity');
+      // Native recovery can change storage even if subsequent schema validation
+      // fails. Preserve pending fencing and classify that result as uncertain.
+      effected = true;
+    }
     view = open(p.view); let gate = validateGate(view, p, primaryId, fixed); if (gate.phase !== 'applied' || floor.format !== gate.format) fail('state');
     let capsule: Capsule; let outcome: 'committed' | 'rolled_back'; let generation: number;
     if (options.operation === 'restore') {
@@ -691,6 +748,7 @@ export async function restoreMemory(options: RestoreOptions): Promise<RestoreRec
     } else {
       const pending = hasPendingMemoryRestore(p.view);
       capsule = readCapsule(p.view + (pending ? RESTORE_PENDING_SUFFIX : RESTORE_RECEIPT_SUFFIX)); const intent = capsule.intent;
+      if (recovering && JSON.stringify(capsule.identity) !== JSON.stringify(recovering.identity)) fail('identity');
       if (intent.old.source_id !== options.sourceId || intent.newSourceId !== options.newSourceId || intent.attemptId !== options.attemptId) fail('identity');
       if (!pending) {
         completedReceipt(p, gate); reconcile(floor, gate, p);
@@ -706,7 +764,7 @@ export async function restoreMemory(options: RestoreOptions): Promise<RestoreRec
         return { ...receipt(gate, generation), outcome, previousSourceId: intent.old.source_id };
       }
       intentBinding(intent, p, primaryId, fixed);
-      if (options.validate() !== undefined) fail('input');
+      if (!recovering && options.validate() !== undefined) fail('input');
       effected = true;
       if (floor.source_id === intent.old.source_id) {
         if (!gateEqual(gate, intent.old)) fail('identity'); reconcile(floor, gate, p);

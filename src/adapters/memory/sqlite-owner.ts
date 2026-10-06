@@ -129,7 +129,7 @@ function header(file: string, target: Target, meta: Meta, wal = false, preparing
   return { ...meta, header: bytes.toString('hex') };
 }
 type Snapshot = { paths: CutoverPaths; directories: Meta[]; primary: Meta; wal: Meta | null; shm: Meta | null; view: Meta | null;
-  restore: { name: string; meta: Meta }[]; backups: { name: string; meta: Meta }[] };
+  journal: Meta | null; restore: { name: string; meta: Meta }[]; backups: { name: string; meta: Meta }[] };
 function inventoryNames(directory: string, target: Target, limit: number): string[] {
   const names: string[] = []; const handle = fs.opendirSync(directory);
   try {
@@ -152,7 +152,13 @@ function scan(p: CutoverPaths, broader = false, recover = false, restoring = fal
   const shm = present(p.primary + '-shm') ? metadata(p.primary + '-shm', 'shm', false, false) : null;
   if (shm && fs.statSync(p.primary + '-shm').size > 4 * 1024 * 1024) fail('shm', 'size');
   if (Number(primary.size) + Number(wal?.size ?? 0) > MAX_BYTES) fail('primary', 'size');
-  if (['-wal', '-shm', '-journal'].some((suffix) => present(p.view + suffix))) fail('view', 'pending');
+  if (['-wal', '-shm'].some((suffix) => present(p.view + suffix))) fail('view', 'pending');
+  let journal: Meta | null = null;
+  if (present(p.view + '-journal')) {
+    if (!restoring || !present(p.view + RESTORE_PENDING_SUFFIX)) fail('view', 'pending');
+    journal = metadata(p.view + '-journal', 'view');
+    if (Number(journal.size) < 512 || Number(journal.size) > MAX_BYTES) fail('view', 'size');
+  }
   const view = present(p.view) ? header(p.view, 'view', metadata(p.view, 'view')) : null;
   const restore = [RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX].filter((suffix) => present(p.view + suffix)).map((suffix) => {
     if (suffix === RESTORE_PENDING_SUFFIX && !restoring) fail('view', 'pending');
@@ -160,8 +166,9 @@ function scan(p: CutoverPaths, broader = false, recover = false, restoring = fal
     if (Number(meta.size) < 1 || Number(meta.size) > 16 * 1024) fail('view', 'size');
     return { name: path.basename(p.view + suffix), meta };
   });
-  const viewNames = inventoryNames(path.dirname(p.view), 'view-directory', 3);
-  if (JSON.stringify(viewNames) !== JSON.stringify((view ? [path.basename(p.view), ...restore.map((r) => r.name)] : []).sort())) fail('view-directory', 'layout');
+  const viewNames = inventoryNames(path.dirname(p.view), 'view-directory', 4);
+  if (JSON.stringify(viewNames) !== JSON.stringify((view ? [path.basename(p.view), ...restore.map((r) => r.name),
+    ...(journal ? [path.basename(p.view) + '-journal'] : [])] : []).sort())) fail('view-directory', 'layout');
   const names = inventoryNames(p.backups, 'backup-directory', MAX_ARTIFACTS);
   if (!broader && names.length !== (view ? 1 : 0) || broader && (!view || !names.length)) fail('backup-directory', 'layout');
   let total = 0;
@@ -176,9 +183,9 @@ function scan(p: CutoverPaths, broader = false, recover = false, restoring = fal
     return { name, meta: broader ? meta : header(file, 'backup', meta) };
   });
   if (recover && (names.length === MAX_ARTIFACTS || total > MAX_INVENTORY_BYTES - MAX_BYTES)) fail('backup-directory', 'size');
-  const identities = [primary, wal, shm, view, ...restore.map((r) => r.meta), ...backups.map((b) => b.meta)].filter((m): m is Meta => !!m);
+  const identities = [primary, wal, shm, view, journal, ...restore.map((r) => r.meta), ...backups.map((b) => b.meta)].filter((m): m is Meta => !!m);
   if (new Set(identities.map((m) => `${m.dev}:${m.ino}`)).size !== identities.length) fail('input', 'path');
-  return { paths: p, directories, primary, wal, shm, view, restore, backups };
+  return { paths: p, directories, primary, wal, shm, view, journal, restore, backups };
 }
 function fingerprint(snapshot: Snapshot): string { return crypto.createHash('sha256').update(JSON.stringify(snapshot)).digest('hex'); }
 type Token = { version: 2; operation: Operation; sourceId: string | null; retainUnreferenced: boolean; issuedAt: number; expiresAt: number; fingerprint: string };
@@ -203,7 +210,7 @@ const REQUIREMENTS = ['Stop all owner memory, MCP, docs and server clients befor
   'Recover valid incomplete attempts explicitly using the independently saved initial sourceId and a fresh backup; committed floors require explicit reconcile.',
   'Recovery preserves its verified previous reference automatically; acknowledge any already-unreferenced UUID files separately.',
   'Retained unreferenced UUID files have unverified ownership; acknowledgement permits coexistence only, never adoption or deletion. General restore and unknown artifacts remain held.'] as const;
-export type OwnerRecoveryInventory = { reference: 'verified'; phase: 'copying' | 'backed' | 'applied'; count: number;
+export type OwnerRecoveryInventory = { reference: 'verified' | 'unverified'; phase: 'copying' | 'backed' | 'applied'; count: number;
   unreferenced: { ownership: 'unverified'; id: string; metadata: Meta }[]; retainUnreferenced: boolean };
 export type OwnerCutoverPlan = { state: 'PLANNED' | 'BLOCKED'; operation: Operation | null; sourceId: string | null; plan: string | null; expiresAt: number | null;
   schema: 'unverified'; floor: 'unverified'; clients: 'unverified'; blockers: CutoverBlocker[]; requirements: readonly string[]; inventory?: OwnerRecoveryInventory };
@@ -298,7 +305,8 @@ const RESTORE_REQUIREMENTS = [
   'A fresh native current-source backup and all earlier artifacts are preserved. No arbitrary backup adoption or file restoration occurs.',
   'The operation leaves HOLD. Set the saved new MEMORY_SOURCE_ID yourself, explicitly publish separately, and reopen every authority.',
   'An interrupted attempt requires a fresh restore-reconcile-plan and both saved epochs; reconcile never replays restoration data.',
-  'Pending or unknown metadata and incomplete backup sidecars remain refused; process-kill evidence does not qualify power-loss durability.',
+  'A pending owned view journal is an unverified candidate until explicit source-floor admission; unknown metadata and incomplete backup sidecars remain refused.',
+  'Process-kill evidence does not qualify power-loss durability.',
 ] as const;
 export type OwnerRestorePlan = { state: 'PLANNED' | 'BLOCKED'; operation: RestoreOperation | null; sourceId: string | null;
   newSourceId: string | null; plan: string | null; expiresAt: number | null; schema: 'unverified'; floor: 'unverified'; clients: 'unverified';
@@ -329,7 +337,7 @@ export function planOwnerRestore(input: { paths: CutoverPaths; sourceId: string;
     const snapshot = scan(p, true, !reconciling, reconciling); const before = fingerprint(snapshot);
     const inspected = inspectOwnerRestore(p, snapshot.backups.map((b) => b.name), o.sourceId, o.newSourceId as string | undefined);
     if (fingerprint(scan(p, true, !reconciling, reconciling)) !== before) fail('plan', 'stale');
-    const inventory: OwnerRecoveryInventory = { reference: 'verified', phase: 'applied', count: snapshot.backups.length, retainUnreferenced: retain,
+    const inventory: OwnerRecoveryInventory = { reference: inspected.reference, phase: 'applied', count: snapshot.backups.length, retainUnreferenced: retain,
       unreferenced: snapshot.backups.filter((b) => !inspected.ownedNames.includes(b.name)).map((b) => ({ ownership: 'unverified', id: b.name.slice(0, -3), metadata: b.meta })) };
     if (inventory.unreferenced.length && !retain) return { ...base, state: 'BLOCKED', operation: null, sourceId: null, newSourceId: null,
       plan: null, expiresAt: null, blockers: [{ target: 'backup-directory', reason: 'layout' }], inventory };
