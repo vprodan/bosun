@@ -184,6 +184,8 @@ test('direct registered queries remain usable under a retained view lease while 
   let lease: DatabaseSync | undefined; let current: SqliteMemoryStore | undefined;
   try {
     const m = (await f.store.store({ category: 'personal', title: 'Lease constellation', body: 'Lease constellation body' }, A)).memory;
+    const expired = (await f.store.store({ category: 'session', title: 'Held restore', body: 'Held restore session body', ttlDays: 1 }, A)).memory;
+    f.clock.value = expired.expiresAt!; f.store.expire();
     await publishMemoryView({ paths: f.paths, now: () => f.clock.value, id: crypto.randomUUID });
     current = new SqliteMemoryStore(new CutoverWriter(f.paths), f.deps);
     lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('PRAGMA query_only=ON; PRAGMA busy_timeout=0; BEGIN;');
@@ -192,8 +194,15 @@ test('direct registered queries remain usable under a retained view lease while 
     assert.equal((await current.search({ text: 'constellation', touch: true }, A))[0].id, m.id);
     assert.equal((await current.get(m.id, A)).id, m.id); assert.equal(f.generation(), generation);
     await assert.rejects(current.update(m.id, { private: true }, 1, A), CutoverError);
+    await assert.rejects(current.update(expired.id, { status: 'active' }, 2, A), CutoverError);
+    assert.equal((await current.get(expired.id, A)).version, 2); assert.equal((await current.get(expired.id, A)).expiresAt, expired.expiresAt);
+    assert.equal(lease.prepare('SELECT state FROM bosun_public_state').get()!.state, 'READY');
     assert.deepEqual(f.db.prepare('SELECT title,body,version,access_count FROM memories WHERE id=?').get(m.id), state); assert.equal(f.generation(), generation);
     lease.exec('ROLLBACK'); lease.close(); lease = undefined;
+    await assert.rejects(f.store.update(expired.id, { status: 'active' }, 2, A), CutoverError, 'cached pre-publication writer remains fenced for restore');
+    const restored = await current.update(expired.id, { status: 'active' }, 2, A); assert.equal(restored.expiresAt, f.clock.value + 3 * DAY); assert.equal(restored.version, 3);
+    const gate = new DatabaseSync(f.paths.view, { readOnly: true });
+    try { assert.equal(gate.prepare('SELECT state FROM bosun_public_state').get()!.state, 'HOLD'); } finally { gate.close(); }
     assert.equal((await current.update(m.id, { private: true }, 1, A)).version, 2);
   } finally { try { lease?.exec('ROLLBACK'); } catch {} lease?.close(); current?.close(); f.close(); }
 });
@@ -321,4 +330,135 @@ test('direct adapter imports and works under a synthetic HOME with unusable ambi
     assert.equal(result.status, 0, result.stderr); assert.deepEqual(JSON.parse(result.stdout), { expiry: 100 + 4 * DAY, ids: ['m_fixture'] });
     assert.deepEqual(footprint(owner), before); assert.deepEqual(sb.calls(), []);
   } finally { sb.cleanup(); }
+});
+
+for (const registered of [false, true]) test(`direct ${registered ? 'registered' : 'plain'} expired session restore renews the current default and survives reopen until the new boundary`, async () => {
+  const f = await fixture(registered);
+  let reopened: SqliteMemoryStore | undefined;
+  try {
+    const m = (await f.store.store({ category: 'session', title: 'Restore constellation', body: 'Restore constellation body', ttlDays: 1,
+      private: true, shared: true, source: 'owner-source', sourceRef: 'owner-ref', tags: ['restore'] }, A)).memory;
+    f.clock.value = m.expiresAt!;
+    assert.equal(f.store.expire(), 1);
+    const archived = await f.store.get(m.id, A);
+    const before = f.generation(); let calls = 0;
+    const operation = new SqliteMemoryStore(f.session, { ...f.deps, now() { assert.equal(++calls, 1); return f.clock.value; } });
+    const restored = await operation.update(m.id, { status: 'active' }, archived.version, A);
+    assert.equal(restored.expiresAt, f.clock.value + 3 * DAY, 'old custom TTL is unavailable; use current configured default');
+    assert.equal(restored.updatedAt, f.clock.value); assert.equal(restored.version, 3); assert.equal(calls, 1);
+    for (const key of ['id', 'hash', 'createdAt', 'source', 'sourceRef', 'projectId', 'sessionId', 'tags', 'private', 'shared', 'accessedAt', 'accessCount'] as const) assert.deepEqual(restored[key], m[key], key);
+    assert.equal(f.generation(), before + (registered ? 2 : 0));
+    if (registered) reopened = new SqliteMemoryStore(new CutoverWriter(f.paths), f.deps);
+    else reopened = new SqliteMemoryStore(plainSession(new DatabaseSync(f.paths.primary)), f.deps);
+    assert.deepEqual(await reopened.get(m.id, A), restored);
+    const audited = await reopened.get(m.id, A, { events: true });
+    assert.deepEqual(audited.events!.map((e) => [e.op, e.at, e.source, e.hashBefore, e.hashAfter]), [
+      ['store', m.createdAt, 'owner-source', null, m.hash], ['expire', f.clock.value, 'retention', m.hash, m.hash], ['restore', f.clock.value, 'fixture', m.hash, m.hash],
+    ]);
+    f.clock.value = restored.expiresAt! - 1;
+    assert.equal(reopened.expire(), 0); assert.equal((await reopened.search({ text: 'constellation', includePrivate: true }, A))[0].id, m.id);
+    f.clock.value++;
+    assert.equal(reopened.expire(), 1); assert.equal(reopened.expire(), 0);
+    const expired = await reopened.get(m.id, A, { events: true });
+    assert.equal(expired.version, 4); assert.equal(expired.status, 'archived');
+    assert.deepEqual(expired.events!.map((e) => e.op), ['store', 'expire', 'restore', 'expire']);
+    assert.equal(expired.events!.at(-1)!.at, restored.expiresAt);
+  } finally { reopened?.close(); f.close(); }
+});
+
+for (const registered of [false, true]) test(`direct ${registered ? 'registered' : 'plain'} restoration preserves unexpired/normal/non-session deadlines and omitted raw flags`, async () => {
+  const f = await fixture(registered);
+  try {
+    const cases = [
+      { category: 'session' as const, archived: true, ttl: 10, status: 'active' as const },
+      { category: 'session' as const, archived: true, ttl: 1, status: undefined },
+      { category: 'session' as const, archived: false, ttl: 1, status: 'active' as const },
+      { category: 'project' as const, archived: true, ttl: 1, status: 'active' as const },
+      { category: 'personal' as const, archived: true, ttl: 1, status: 'active' as const },
+    ];
+    const start = f.clock.value;
+    for (const [i, c] of cases.entries()) {
+      f.clock.value = start;
+      const m = (await f.store.store({ category: c.category, title: `Preserve deadline ${i}`, body: `Preserve deadline body ${i}`, ttlDays: c.ttl }, A)).memory;
+      if (c.archived) await f.store.delete(m.id, A);
+      f.session.transaction((db) => db.prepare('UPDATE memories SET private=?,shared=? WHERE id=?').run('false', new Uint8Array([49]), m.id));
+      const flags = () => f.session.read((db) => db.prepare('SELECT typeof(private) AS ptype,hex(private) AS phex,typeof(shared) AS stype,hex(shared) AS shex FROM memories WHERE id=?').get(m.id));
+      const raw = flags();
+      f.clock.value = start + 2 * DAY;
+      const updated = await f.store.update(m.id, { body: `${m.body} edited`, status: c.status }, c.archived ? 2 : 1, A);
+      assert.equal(updated.expiresAt, m.expiresAt, `case ${i}`); assert.deepEqual(flags(), raw); assert.equal(updated.private, true); assert.equal(updated.shared, false);
+      assert.notEqual(updated.hash, m.hash); assert.equal(updated.updatedAt, f.clock.value);
+    }
+    const unbounded = (await f.store.store({ category: 'session', title: 'Unbounded archive', body: 'Unbounded archive body' }, A)).memory;
+    await f.store.delete(unbounded.id, A);
+    f.session.transaction((db) => db.prepare('UPDATE memories SET expires_at=NULL WHERE id=?').run(unbounded.id));
+    assert.equal((await f.store.update(unbounded.id, { status: 'active' }, 2, A)).expiresAt, null);
+    const proposal = (await f.store.store({ category: 'session', title: 'Expired proposal', body: 'Expired proposal body', status: 'proposed', ttlDays: 1 }, A)).memory;
+    f.clock.value = proposal.expiresAt!;
+    assert.equal((await f.store.accept(proposal.id, A)).expiresAt, proposal.expiresAt, 'accepting proposals keeps its existing TTL semantics');
+    const malformed = (await f.store.store({ category: 'session', title: 'Malformed flags restore', body: 'Malformed flags restore body', ttlDays: 1 }, A)).memory;
+    await f.store.delete(malformed.id, A);
+    f.session.transaction((db) => db.prepare('UPDATE memories SET private=?,shared=? WHERE id=?').run(new Uint8Array([48]), 'false', malformed.id));
+    const flags = f.session.read((db) => db.prepare('SELECT typeof(private) AS ptype,hex(private) AS phex,typeof(shared) AS stype,hex(shared) AS shex FROM memories WHERE id=?').get(malformed.id));
+    f.clock.value = malformed.expiresAt!;
+    const restored = await f.store.update(malformed.id, { status: 'active' }, 2, A);
+    assert.equal(restored.expiresAt, f.clock.value + 3 * DAY); assert.equal(restored.private, true); assert.equal(restored.shared, false);
+    assert.deepEqual(f.session.read((db) => db.prepare('SELECT typeof(private) AS ptype,hex(private) AS phex,typeof(shared) AS stype,hex(shared) AS shex FROM memories WHERE id=?').get(malformed.id)), flags);
+  } finally { f.close(); }
+});
+
+for (const registered of [false, true]) test(`direct ${registered ? 'registered' : 'plain'} zero session TTL disables expiry for creation and explicit expired restore`, async () => {
+  const f = await fixture(registered); let reopened: SqliteMemoryStore | undefined;
+  try {
+    const m = (await f.store.store({ category: 'session', title: 'Disable expiry', body: 'Disable expiry restore', ttlDays: 1 }, A)).memory;
+    await f.store.delete(m.id, A);
+    f.clock.value = m.expiresAt!;
+    const zero = new SqliteMemoryStore(f.session, { ...f.deps, retention: { sessionTtlDays: 0, purgeAfterDays: 5 } });
+    const restored = await zero.update(m.id, { status: 'active' }, 2, A); assert.equal(restored.expiresAt, null);
+    f.clock.value = 8_640_000_000_000_000;
+    const created = (await zero.store({ category: 'session', title: 'No expiry', body: 'No expiry creation' }, A)).memory; assert.equal(created.expiresAt, null);
+    assert.equal(zero.expire(), 0); assert.equal((await zero.get(m.id, A)).status, 'active');
+    reopened = new SqliteMemoryStore(registered ? new CutoverWriter(f.paths) : plainSession(new DatabaseSync(f.paths.primary)), f.deps);
+    assert.equal((await reopened.get(m.id, A)).expiresAt, null); assert.equal(reopened.expire(), 0);
+  } finally { reopened?.close(); f.close(); }
+});
+
+for (const registered of [false, true]) test(`direct ${registered ? 'registered' : 'plain'} restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations`, async () => {
+  const f = await fixture(registered);
+  try {
+    const m = (await f.store.store({ category: 'session', title: 'Restore failure', body: 'Restore failure body', ttlDays: 1 }, A)).memory;
+    f.clock.value = m.expiresAt!; f.store.expire();
+    let dml = 0;
+    const observed: SqliteSession = { read: (fn) => f.session.read(fn), close() {}, transaction: (fn) => f.session.transaction((db) => {
+      const prepare = db.prepare;
+      db.prepare = function (sql) { if (/^(UPDATE memories|INSERT INTO memory_events)/.test(sql)) dml++; return prepare.call(this, sql); };
+      try { return fn(db); } finally { db.prepare = prepare; }
+    }) };
+    const state = f.state(); const generation = f.generation();
+    for (const value of [NaN, Infinity, -1, 0.5, 8_640_000_000_000_001, 8_640_000_000_000_000]) {
+      const bad = new SqliteMemoryStore(observed, { ...f.deps, now: () => value });
+      await assert.rejects(bad.update(m.id, { status: 'active' }, 2, A), code('unavailable'));
+      assert.equal(dml, 0); assert.deepEqual(f.state(), state); assert.equal(f.generation(), generation);
+    }
+    let ticks = 0;
+    const atomic = new SqliteMemoryStore(observed, { ...f.deps, now() { ticks++; throw Error('must not sample on refused row/version'); } });
+    await f.store.update(m.id, { body: 'Committed archived edit' }, 2, A);
+    const current = f.state(); const currentGeneration = f.generation();
+    await assert.rejects(atomic.update(m.id, { status: 'active' }, 2, A), (e) => code('conflict')(e) && (e as MemoryError).current === 3);
+    await assert.rejects(atomic.update(m.id, { status: 'active' }, 3, B), code('not_found'));
+    assert.equal(ticks, 0); assert.equal(dml, 0); assert.deepEqual(f.state(), current); assert.equal(f.generation(), currentGeneration);
+    await f.store.store({ category: 'session', title: m.title, body: 'Committed archived edit' }, A);
+    const duplicate = f.state(); const duplicateGeneration = f.generation();
+    await assert.rejects(atomic.update(m.id, { status: 'active' }, 3, A), code('conflict'));
+    assert.equal(ticks, 0); assert.equal(dml, 0); assert.deepEqual(f.state(), duplicate); assert.equal(f.generation(), duplicateGeneration);
+    let version = 3;
+    for (const value of ['invalid-expiry', new Uint8Array([49]), 0.5, -1, 8_640_000_000_000_001]) {
+      f.session.transaction((db) => db.prepare('UPDATE memories SET expires_at=? WHERE id=?').run(value, m.id));
+      const stored = f.state(); const g = f.generation();
+      const safe = new SqliteMemoryStore(observed, f.deps);
+      await assert.rejects(safe.update(m.id, { status: 'active', body: 'Distinct restored body' }, version, A), code('unavailable'));
+      assert.equal(dml, 0); assert.deepEqual(f.state(), stored); assert.equal(f.generation(), g);
+      const edited = await f.store.update(m.id, { title: 'Ordinary archived edit' }, version, A); assert.equal(edited.version, ++version);
+    }
+  } finally { f.close(); }
 });

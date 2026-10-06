@@ -1,6 +1,6 @@
 # ADR 0010: Writable memory isolation with explicit maintenance composition
 
-Date: 2026-10-06. Status: implemented internal milestones 7b4 and 7b5; package remains 0.2.0 and all selected work still ships together in v1.0.
+Date: 2026-10-06. Status: implemented internal milestones 7b4, 7b5 and 7b6; package remains 0.2.0 and all selected work still ships together in v1.0.
 
 ## Decision
 
@@ -19,6 +19,16 @@ Direct get deliberately inspects the persisted owner row and its actual events. 
 `lib/memory/service.ts` binds the legacy config, clocks, ID/hash functions and metrics sink and extends the actual adapter with explicit compatibility maintenance. Existing callers still expire on construction and before get/search, see an expired row as archived with its actual event/version, and best-effort touch successful FTS matches. Whitespace-only listing does not touch. Public schemas, IDs, dedupe, versions, scopes, raw malformed legacy privacy/sharing flag handling, owner business errors, private owner inspection and transaction-time MCP projection remain compatible. The public cfg property remains available; configured retention is selected when opening and requires reopening to change.
 
 The existing local/remote selection and authoritative local serve composition are unchanged. Default legacy open/migration/config/logging behavior remains in lib. Query SQL isolation is an effect claim for established sessions: native WAL/SHM housekeeping on arbitrary SQLite opens, telemetry/config effects in legacy caller closures and model delivery are separate boundaries. This milestone does not make the whole CLI/MCP/context path zero-IO or replace the qualified hook reader.
+
+## Owner sharing and expired session restore (7b6)
+
+Owner add/update accept `--shared|--unshared`, mapping to the existing shared boolean. Their combination fails immediately after argument parsing, before project discovery, file input, providers or storage opens. Update forwards the existing `--status active|archived` option to Patch.status, including status-only updates; proposed/unknown states retain shared PATCH validation refusal. No new verb, schema, domain port, MCP field or broad retention API is added. Unsharing removes cross-project access while preserving owner and explicitly linked reads; it changes no omitted raw privacy flag.
+
+An admitted update reads the exact writable row and expected version, checks duplicates and then captures one injected operation timestamp. Only an explicit archived-to-active session transition with a valid deadline at or before that timestamp renews expiry. Renewal uses the current frozen sessionTtlDays policy, sharing creation's Date-ms/overflow validation before DML; zero disables expiry. The unchanged schema retains an absolute deadline, not the selected duration, so a prior custom TTL cannot be inferred. Future/null deadlines, ordinary edits, proposals and non-session TTL semantics remain unchanged. Malformed stored session expiry refuses explicit restore with a finite unavailable error; ordinary omitted expiry and private/shared fields remain preserved. The row/version increment and restore event commit atomically using the same time, ID/hash and established provenance semantics.
+
+Legacy construction/get maintenance can first archive an expired active row and advance its version. The CLI's default version lookup uses that resulting persisted version; an explicitly stale version still conflicts. MCP status-active restoration remains compatible for private and malformed-private records and returns only the existing opaque receipt. Existing source admission, HOLD/public revocation and cached-writer fences still govern these mutations. No model-delivery lease or general expiry handoff guarantee follows.
+
+Guarded native plain/registered fixtures exercise renewal from a historical custom TTL, reopen/get/search and expiry at the new boundary, one operation clock/event, zero policy, raw flags, audit/version/hash/ID parity, deadline preservation and clock/overflow/conflict/malformed-expiry failures before source DML. Actual owner CLI fixtures cover sharing choices/help, pre-effect conflict rejection, status-only restore with post-maintenance versions, invalid status refusal and reopen. Actual stdio MCP fixtures restore and unshare public/private/malformed-private session rows, preserve opaque replies and reject cross-project/stale-version access.
 
 ## Qualification
 

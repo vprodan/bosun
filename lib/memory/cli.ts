@@ -17,9 +17,9 @@ import { publishLocalMemory, planLocalMemoryCutover, planLocalMemoryRecovery, ap
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
-  add [-c project|personal|session] [-t title] [--tags a,b] [--private] [--shared] [--ttl-days N] [--auto] "text" | -f file | -f -
+  add [-c project|personal|session] [-t title] [--tags a,b] [--private] [--shared|--unshared] [--ttl-days N] [--auto] "text" | -f file | -f -
   search ["words"] [-c category] [--status active|proposed|archived] [--tags a,b] [--limit N] [--json]
-  get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared] [--version N]
+  get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared|--unshared] [--status active|archived] [--version N]
   delete <id>   purge <id>   review   accept <id>   reject <id>   prune
   consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000] [--public-view]   eval <queries.jsonl>
   cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json]
@@ -141,7 +141,7 @@ async function ownerRestore(operation: string, argv: string[], cfg: Cfg): Promis
 const OPTIONS = {
   category: { type: 'string', short: 'c' }, title: { type: 'string', short: 't' }, body: { type: 'string', short: 'b' },
   file: { type: 'string', short: 'f' }, tags: { type: 'string' }, private: { type: 'boolean' }, public: { type: 'boolean' },
-  shared: { type: 'boolean' }, 'ttl-days': { type: 'string' }, auto: { type: 'boolean' }, status: { type: 'string' },
+  shared: { type: 'boolean' }, unshared: { type: 'boolean' }, 'ttl-days': { type: 'string' }, auto: { type: 'boolean' }, status: { type: 'string' },
   limit: { type: 'string' }, json: { type: 'boolean' }, version: { type: 'string' }, since: { type: 'string' }, n: { type: 'string' },
   'public-view': { type: 'boolean' },
 } as const;
@@ -157,6 +157,8 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
   let parsed;
   try { parsed = parseArgs({ args: rest, options: OPTIONS, allowPositionals: true }); } catch (e) { return die(`${(e as Error).message}\n${USAGE}`, 2); }
   const { values: v, positionals: pos } = parsed;
+  if (v.shared && v.unshared) return die('--shared and --unshared cannot be combined', 2);
+  const shared = v.shared ? true : v.unshared ? false : undefined;
   if (v['public-view'] !== undefined && verb !== 'bench') return die('--public-view is only valid for memory bench', 2);
   if (verb === 'publish') {
     if (pos.length || Object.keys(v).some((key) => key !== 'json')) return die('usage: bosun memory publish [--json]', 2);
@@ -195,7 +197,7 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
         }
         title ??= body.split('\n')[0].slice(0, 80);
         const r = await mem().store({ category: (v.category ?? 'project') as Category, title, body, tags,
-          private: v.private, shared: v.shared, ttlDays: num(v['ttl-days'], 'ttl-days') }, ctx);
+          private: v.private, shared, ttlDays: num(v['ttl-days'], 'ttl-days') }, ctx);
         console.log(r.duplicate ? `duplicate of ${r.memory.id} (nothing stored)` : `stored ${r.memory.id} (${r.memory.category}${r.memory.private ? ', private' : ''})`);
         return 0;
       }
@@ -217,8 +219,8 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
       case 'update': {
         const id = need('id');
         const patch = { title: v.title, body: v.body ?? (v.file ? read(v.file).trim() : undefined), tags: list(v.tags),
-          private: v.private ? true : v.public ? false : undefined, shared: v.shared };
-        if (Object.values(patch).every((x) => x === undefined)) return die('nothing to change: pass -t, -b, -f, --tags, --private, --public or --shared', 2);
+          private: v.private ? true : v.public ? false : undefined, shared, status: v.status as 'active' | 'archived' | undefined };
+        if (Object.values(patch).every((x) => x === undefined)) return die('nothing to change: pass -t, -b, -f, --tags, --private, --public, --shared, --unshared or --status', 2);
         const m = await mem().update(id, patch, num(v.version, 'version') ?? (await mem().get(id, ctx)).version, ctx);
         console.log(`updated ${m.id} to version ${m.version}`);
         return 0;

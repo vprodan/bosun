@@ -46,6 +46,9 @@ export class SqliteMemoryStore implements MemoryStore {
     if (!Number.isSafeInteger(now) || now < 0 || now > MAX_DATE_MS) throw new MemoryError('unavailable', 'invalid memory clock');
     return now;
   }
+  private expiresAt(now: number, ttl: number | null): number | null {
+    return ttl ? this.timestamp(now + ttl * DAY) : null;
+  }
   private monotonic(): number {
     try { return finite(this.#dependencies.monotonic()) ?? 0; } catch { return 0; }
   }
@@ -105,7 +108,7 @@ export class SqliteMemoryStore implements MemoryStore {
       const hash = this.hash(title, body);
       const now = this.now();
       const ttl = input.ttlDays ?? (cat === 'session' ? this.#dependencies.retention.sessionTtlDays : null);
-      const expiresAt = ttl ? this.timestamp(now + ttl * DAY) : null;
+      const expiresAt = this.expiresAt(now, ttl);
       const source = input.source || ctx.source || 'api';
       return this.#session.transaction((db) => {
         const dup = db.prepare("SELECT * FROM memories WHERE COALESCE(project_id, '') = ? AND category = ? AND hash = ? AND status <> 'archived'").get(projectId ?? '', cat, hash);
@@ -139,9 +142,15 @@ export class SqliteMemoryStore implements MemoryStore {
           if (dup) throw new MemoryError('conflict', `duplicate of ${dup.id}`, cur.version);
         }
         const now = this.now();
-        db.prepare('UPDATE memories SET title = ?, body = ?, tags = ?, status = ?, private = ?, shared = ?, hash = ?, updated_at = ?, version = version + 1 WHERE seq = ?')
+        let expiresAt = cur.expires_at;
+        if (patch.status === 'active' && cur.status === 'archived' && cur.category === 'session' && expiresAt !== null) {
+          // Historical rows retain a deadline, not their selected TTL. Only expired session restores renew the current default.
+          if (!Number.isSafeInteger(expiresAt) || expiresAt < 0 || expiresAt > MAX_DATE_MS) throw new MemoryError('unavailable', 'invalid memory expiry');
+          if (expiresAt <= now) expiresAt = this.expiresAt(now, this.#dependencies.retention.sessionTtlDays);
+        }
+        db.prepare('UPDATE memories SET title = ?, body = ?, tags = ?, status = ?, private = ?, shared = ?, hash = ?, updated_at = ?, expires_at = ?, version = version + 1 WHERE seq = ?')
           .run(title, body, patch.tags ? JSON.stringify([...new Set(patch.tags)]) : cur.tags, status,
-            patch.private === undefined ? cur.private : Number(patch.private), patch.shared === undefined ? cur.shared : Number(patch.shared), hash, now, cur.seq);
+            patch.private === undefined ? cur.private : Number(patch.private), patch.shared === undefined ? cur.shared : Number(patch.shared), hash, now, expiresAt, cur.seq);
         const op = status === cur.status ? 'update'
           : status === 'archived' ? (cur.status === 'proposed' ? 'reject' : 'archive')
             : cur.status === 'proposed' ? 'accept' : 'restore';

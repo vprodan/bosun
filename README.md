@@ -157,6 +157,10 @@ Doctor's memory check creates/migrates nothing: missing stays absent, mutable WA
 
 Legacy SQLite privacy flags are conservative: only stored integer `0` is public, and only stored integer `1` enables sharing across projects. Empty, text, blob and other numeric flags stay protected or unshared. Owner get/search can still inspect in-scope content; duplicate requests and edits that omit flags preserve the stored values. Use the owner CLI's explicit `memory update <id> --public` to reclassify a protected note. MCP continues to permit opaque private edits/deletes and cannot make a note public.
 
+Use `memory update <id> --unshared` to remove sharing across projects; the owner and explicitly linked projects retain read access. `--shared` enables sharing, and `memory add` accepts both choices. Combining `--shared` and `--unshared` fails before project discovery, file reads, model calls or opening memory storage.
+
+`memory update <id> --status active` restores an archived note or accepts a proposal; `--status archived` archives it. Restoring an expired archived **session** note renews its deadline from the update time using the current configured `MEMORY_SESSION_TTL_DAYS` (zero disables expiry). The old schema stores the deadline, not the selected TTL duration, so a previous custom `--ttl-days` duration cannot be recovered. Unexpired deadlines, ordinary edits and other categories keep their existing expiry behavior. Malformed session expiry blocks explicit restore without changing the row. Legacy CLI/MCP construction and reads still perform expiry maintenance, which can advance the version before an update; omit `--version` to use the current version or read it again explicitly. Private MCP restore replies remain opaque.
+
 Use `bosun route --private …` or `route --hook --private` to skip routing and retrieval for a private request. Hook payloads can also mark `private: true` or `privacy: "private"`; malformed explicit privacy markers fail closed. Unmarked v0.2 hook input retains its existing routing behavior until typed host adapters carry classification. There is no automatic secret detection: mark private input explicitly. Full v1.0 screening, enrichment and live-host qualification remain implementation work in [the roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md).
 - **Proposals:** `bosun memory consolidate` has the local model turn this repo's recent claude-mem session summaries into **proposed** memories. Nothing becomes durable until you accept it in `bosun memory review` (or with MCP `memory_update`).
 
@@ -164,7 +168,7 @@ Use `bosun route --private …` or `route --hook --private` to skip routing and 
 |---|---|
 | Remember something | `bosun memory add -t "Use pnpm" --tags tooling "Always pnpm install; npm breaks the lockfile"` (`--auto` suggests title and tags) |
 | Find it | `bosun memory search lockfile`, `bosun memory get <id>` (with its audit trail) |
-| Change or drop it | `bosun memory update <id> -b "…"`, `bosun memory delete <id>` (archive), `bosun memory purge <id>` |
+| Change, restore or drop it | `bosun memory update <id> -b "…"`, `bosun memory update <id> --unshared`, `bosun memory update <id> --status active`, `bosun memory delete <id>` (archive), `bosun memory purge <id>` |
 | Review proposals | `bosun memory consolidate`, then `bosun memory review` |
 | Housekeeping | `bosun memory prune` (expired → archived, archived > 90 days → purged) |
 | Numbers | `bosun memory stats` (this project's id, p50/p95 per operation, hook injections, LLM calls), `bosun memory bench`, `bosun memory eval <queries.jsonl>` |

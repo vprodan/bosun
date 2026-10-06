@@ -12,7 +12,7 @@ import { load, P } from '../lib/config.ts';
 import { MemoryService, openMemory, openLocalMemory } from '../lib/memory/service.ts';
 import { Docs } from '../lib/memory/docs.ts';
 import { openDb, openLocalSqlite, writerPaths, inspectMemorySchema } from '../lib/memory/sqlite.ts';
-import { MemoryError, type Ctx } from '../lib/memory/types.ts';
+import { MemoryError, type Ctx, type Memory } from '../lib/memory/types.ts';
 import { project } from '../lib/memory/project.ts';
 import { main as serveMain } from '../lib/serve.ts';
 import { cutoverMemory, CutoverWriter, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
@@ -20,6 +20,12 @@ import { footprint } from './read-view-prototype.ts';
 
 const DAY = 86400000;
 const domain = (code: string) => (e: unknown) => e instanceof MemoryError && e.code === code;
+function storageTree(file: string): unknown {
+  const stat = fs.lstatSync(file, { bigint: true });
+  return { mode: String(stat.mode), ino: String(stat.ino), size: String(stat.size), mtime: String(stat.mtimeNs), ctime: String(stat.ctimeNs),
+    ...(stat.isDirectory() ? { entries: Object.fromEntries(fs.readdirSync(file).sort().map((name) => [name, storageTree(path.join(file, name))])) }
+      : { hash: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') }) };
+}
 async function fixture({ override = false, floor = true } = {}) {
   const sb = sandbox(); fresh(sb);
   const cfg = load();
@@ -131,6 +137,124 @@ test('registered owner CLI uses loaded path overrides and retains private reads,
     assert.equal(f.db.prepare('SELECT 1 FROM memories WHERE id=?').get(id), undefined);
     assert.equal(f.sb.calls().filter((c) => ['claude', 'codex', 'ollama'].includes(c.bin)).length, 0, 'private auto causes no model/host calls');
   } finally { f.close(); }
+});
+
+for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI unshares with owner/linked access, audit parity and early conflict rejection`, async () => {
+  const f = await fixture({ override: floor, floor });
+  try {
+    const local = openLocalMemory(f.cfg);
+    const shared = await local.update(f.publicNote.id, { shared: true }, 1, f.ctx);
+    local.close();
+    const other = gitRepo(f.sb, 'other-repo', 'git@github.com:org/other-repo.git');
+    const env = f.env();
+    const cross = await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: other }); assert.equal(cross.code, 0, cross.err);
+    const changed = await bosun(['memory', 'update', shared.id, '--unshared'], { env, cwd: f.repo }); assert.equal(changed.code, 0, changed.err);
+    const owner = await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: f.repo }); assert.equal(owner.code, 0, owner.err);
+    const unshared = JSON.parse(owner.out);
+    assert.equal(unshared.shared, false); assert.equal(unshared.version, 3);
+    for (const key of ['id', 'hash', 'createdAt', 'expiresAt', 'source', 'sourceRef', 'body', 'title', 'tags', 'private', 'projectId', 'sessionId', 'accessCount', 'accessedAt'] as const) assert.deepEqual(unshared[key], shared[key], key);
+    assert.deepEqual(unshared.events.map((e: any) => e.op), ['store', 'update', 'update']);
+    assert.equal(unshared.events.at(-1).source, 'cli'); assert.equal(unshared.events.at(-1).hashBefore, shared.hash); assert.equal(unshared.events.at(-1).hashAfter, shared.hash);
+    assert.equal((await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: other })).code, 1);
+    const linked = openLocalMemory(f.cfg);
+    try {
+      assert.equal((await linked.get(shared.id, { ...f.ctx, projectId: project(other).id, linked: [f.ctx.projectId!] })).id, shared.id);
+      assert.deepEqual(await linked.search({ text: 'admission zebra', touch: false }, { ...f.ctx, projectId: project(other).id, linked: [] }), []);
+    } finally { linked.close(); }
+    const add = await bosun(['memory', 'add', '--unshared', '-t', 'Unshared creation', 'Unshared creation body'], { env, cwd: f.repo }); assert.equal(add.code, 0, add.err);
+    const id = add.out.match(/stored (m_\w+)/)![1]; assert.equal(f.db.prepare('SELECT shared FROM memories WHERE id=?').get(id)!.shared, 0);
+    const help = await bosun(['memory', 'help'], { env, cwd: f.repo }); assert.match(help.out, /--shared\|--unshared/);
+    const state = () => ({ memories: f.db.prepare('SELECT * FROM memories ORDER BY seq').all(), events: f.db.prepare('SELECT * FROM memory_events ORDER BY id').all(), generation: floor ? f.generation() : 0 });
+    const before = state(); const files = [storageTree(path.dirname(f.paths.primary)), storageTree(path.dirname(f.paths.view)), storageTree(f.paths.backups)]; f.sb.reset();
+    for (const args of [['update', id, '--shared', '--unshared', '-f', path.join(f.sb.root, 'does-not-exist')], ['add', '--unshared', '--shared', '--auto', 'SHARING-CONFLICT-CANARY']]) {
+      const result = await bosun(['memory', ...args], { env, cwd: f.repo }); assert.equal(result.code, 2, result.err); assert.match(result.err, /--shared.*--unshared|--unshared.*--shared/);
+      assert.deepEqual(state(), before); assert.deepEqual([storageTree(path.dirname(f.paths.primary)), storageTree(path.dirname(f.paths.view)), storageTree(f.paths.backups)], files);
+    }
+    assert.deepEqual(f.sb.calls(), [], 'conflicting sharing flags precede project discovery, IO, model and database effects');
+    const stale = await bosun(['memory', 'update', id, '--shared', '--version', '99'], { env, cwd: f.repo });
+    assert.equal(stale.code, 1, stale.err); assert.match(stale.err, /version conflict/); assert.deepEqual(state(), before);
+  } finally { f.close(); }
+});
+
+for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI unsharing preserves a malformed private flag and owner-only content`, async () => {
+  const f = await fixture({ override: floor, floor });
+  try {
+    const id = f.privateNote.id; const env = f.env();
+    const plainFlags = openLocalSqlite(f.paths.primary, f.cfg);
+    plainFlags.transaction((db) => db.prepare('UPDATE memories SET private=?,shared=? WHERE id=?').run('false', 1, id)); plainFlags.close();
+    const protectedUpdate = await bosun(['memory', 'update', id, '--unshared'], { env, cwd: f.repo }); assert.equal(protectedUpdate.code, 0, protectedUpdate.err);
+    assert.deepEqual({ ...f.db.prepare('SELECT private,shared FROM memories WHERE id=?').get(id) }, { private: 'false', shared: 0 });
+    const privateGet = await bosun(['memory', 'get', id, '--json'], { env, cwd: f.repo }); assert.equal(JSON.parse(privateGet.out).body, f.privateNote.body);
+  } finally { f.close(); }
+});
+
+for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen`, async () => {
+  const f = await fixture({ override: floor, floor });
+  try {
+    const env = f.env(); const id = f.expired.id;
+    const restore = await bosun(['memory', 'update', id, '--status', 'active'], { env, cwd: f.repo }); assert.equal(restore.code, 0, restore.err);
+    const stored = f.db.prepare('SELECT * FROM memories WHERE id=?').get(id)!;
+    assert.equal(stored.status, 'active'); assert.equal(stored.version, 3, 'constructor archives expired v1; default get obtains v2 before restore');
+    assert.equal(stored.expires_at, Number(stored.updated_at) + Number(f.cfg.MEMORY_SESSION_TTL_DAYS) * DAY);
+    assert.equal(stored.id, id); assert.equal(stored.hash, f.expired.hash); assert.equal(stored.created_at, f.expired.createdAt); assert.equal(stored.source, f.expired.source);
+    const got = await bosun(['memory', 'get', id, '--json'], { env, cwd: f.repo }); assert.equal(got.code, 0, got.err);
+    const inspected = JSON.parse(got.out); assert.equal(inspected.status, 'active'); assert.equal(inspected.version, 3); assert.equal(inspected.expiresAt, stored.expires_at);
+    assert.deepEqual(inspected.events.map((e: any) => e.op), ['store', 'expire', 'restore']); assert.equal(inspected.events.at(-1).source, 'cli'); assert.equal(inspected.events.at(-1).at, stored.updated_at);
+    const stale = await bosun(['memory', 'update', id, '--status', 'archived', '--version', '2'], { env, cwd: f.repo }); assert.equal(stale.code, 1, stale.err);
+    for (const status of ['proposed', 'unknown']) {
+      const bad = await bosun(['memory', 'update', id, '--status', status], { env, cwd: f.repo }); assert.equal(bad.code, 1, bad.err); assert.match(bad.err, /status.*must be one of/);
+      assert.deepEqual(f.db.prepare('SELECT * FROM memories WHERE id=?').get(id), stored); assert.equal(f.db.prepare('SELECT COUNT(*) AS n FROM memory_events WHERE memory_id=?').get(id)!.n, 3);
+    }
+    const reopened = openLocalMemory(f.cfg);
+    try {
+      assert.equal((await reopened.get(id, f.ctx)).status, 'active');
+      assert.equal(reopened.expire(Number(stored.expires_at) - 1), 0); assert.equal(reopened.expire(Number(stored.expires_at)), 1);
+      const after = await reopened.get(id, f.ctx, { events: true }); assert.equal(after.status, 'archived'); assert.equal(after.version, 4);
+      assert.deepEqual(after.events!.map((e) => e.op), ['store', 'expire', 'restore', 'expire']); assert.equal(after.events!.at(-1)!.at, stored.expires_at);
+    } finally { reopened.close(); }
+  } finally { f.close(); }
+});
+
+for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks`, async () => {
+  const f = await fixture({ override: floor, floor }); let session: ReturnType<typeof mcpSession> | undefined;
+  try {
+    const local = openLocalMemory(f.cfg);
+    const notes: { note: Memory; flag: number | string; archived: Memory }[] = [];
+    for (const [i, flag] of [0, 1, 'false'].entries()) {
+      const note = (await local.store({ category: 'session', title: `Restore session ${i}`, body: `RESTORE-PRIVATE-CANARY-${i}`, source: 'restore-source', sourceRef: 'restore-ref', shared: true }, f.ctx)).memory;
+      notes.push({ note, flag, archived: await local.delete(note.id, f.ctx) });
+    }
+    local.close();
+    const injected = openLocalSqlite(f.paths.primary, f.cfg);
+    injected.transaction((db) => {
+      for (const { note, flag } of notes) db.prepare('UPDATE memories SET private=?,expires_at=? WHERE id=?').run(flag, Date.now() - 1, note.id);
+    }); injected.close();
+    session = mcpSession(f.env(), f.repo); let rpc = 0;
+    for (const { note, flag, archived } of notes) {
+      const before = floor ? f.generation() : 0;
+      const reply = await session.call('memory_update', { id: note.id, expectedVersion: archived.version, status: 'active', shared: false });
+      assert.equal(reply.result.isError, undefined);
+      if (flag !== 0) { assert.deepEqual(reply.result.structuredContent, { memory: { private: true } }); assert.doesNotMatch(JSON.stringify(reply), /RESTORE-PRIVATE-CANARY|restore-source|restore-ref|expiresAt|version|m_/); }
+      else { assert.equal(reply.result.structuredContent.memory.id, note.id); assert.equal(reply.result.structuredContent.memory.status, 'active'); }
+      const row = f.db.prepare('SELECT * FROM memories WHERE id=?').get(note.id)!;
+      assert.equal(row.version, 3); assert.equal(row.status, 'active'); assert.equal(row.private, flag); assert.equal(row.shared, 0);
+      assert.equal(row.expires_at, Number(row.updated_at) + Number(f.cfg.MEMORY_SESSION_TTL_DAYS) * DAY);
+      assert.equal(row.hash, note.hash); assert.equal(row.id, note.id); assert.equal(row.created_at, note.createdAt); assert.equal(row.source_ref, note.sourceRef);
+      assert.equal(floor ? f.generation() : 0, before + (floor ? 2 : 0));
+      const events = f.db.prepare('SELECT op,at,source,hash_before,hash_after FROM memory_events WHERE memory_id=? ORDER BY id').all(note.id);
+      assert.deepEqual(events.map((e) => e.op), ['store', 'archive', 'restore']); assert.equal(events.at(-1)!.at, row.updated_at); assert.equal(events.at(-1)!.source, 'mcp'); assert.equal(events.at(-1)!.hash_after, note.hash);
+      const stale = await session.call('memory_update', { id: note.id, expectedVersion: 2, status: 'active' }); assert.deepEqual(stale.result.structuredContent, { error: { code: 'conflict' } });
+      assert.deepEqual(f.db.prepare('SELECT * FROM memories WHERE id=?').get(note.id), row);
+      const foreign = mcpSession(f.env(), gitRepo(f.sb, `foreign-${++rpc}`, `git@github.com:org/foreign-${rpc}.git`));
+      try { assert.deepEqual((await foreign.call('memory_get', { id: note.id })).result.structuredContent, { error: { code: 'not_found' } }); } finally { await foreign.close(); }
+    }
+    await session.close(); session = undefined;
+    const reopened = openLocalMemory(f.cfg);
+    try {
+      for (const { note } of notes) { const got = await reopened.get(note.id, f.ctx, { events: true }); assert.equal(got.status, 'active'); assert.equal(got.version, 3); assert.equal(got.events!.at(-1)!.op, 'restore'); }
+    } finally { reopened.close(); }
+    assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM memory_events WHERE op='expire' AND memory_id IN (SELECT id FROM memories WHERE title LIKE 'Restore session%')").get()!.n, 0);
+  } finally { if (session) await session.close(); f.close(); }
 });
 
 test('registered stdio MCP keeps private replies opaque, conflict codes finite and docs on the real admission root', async () => {
