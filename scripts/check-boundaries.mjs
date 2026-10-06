@@ -25,13 +25,14 @@ const LEGACY_FILES = new Set(['bin/bosun', ...[
 const FORWARDING = new Map([
   ['lib/context.ts', ['src/core/text.ts', 'src/core/memory-policy.ts']], ['lib/log.ts', ['src/core/errors.ts']], ['lib/util.ts', ['src/core/errors.ts']],
   ['lib/mcp.ts', ['src/core/memory-policy.ts', 'src/core/errors.ts']], ['lib/serve.ts', ['src/core/errors.ts']],
-  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts']],
+  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts']],
   ['lib/memory/types.ts', ['src/core/domain/memory.ts', 'src/core/domain/context.ts', 'src/core/errors.ts', 'src/core/ports/memory.ts', 'src/core/ports/context-source.ts']],
   ['lib/route.ts', ['src/core/domain/route.ts', 'src/core/use-cases/route-prompt.ts', 'src/core/route-policy.ts', 'src/app/registry.ts', 'src/adapters/memory/sqlite-readonly.ts']],
 ]);
 // Exact SQLite implementation seams: constants have no IO; the local selector never imports writer code.
 const ADAPTER_SEAMS = new Map([
   ['src/adapters/memory/sqlite-cutover.ts', ['src/adapters/memory/sqlite-public-protocol.ts']],
+  ['src/adapters/memory/sqlite-owner.ts', ['src/adapters/memory/sqlite-cutover.ts']],
   ['src/adapters/memory/sqlite-public-readonly.ts', ['src/adapters/memory/sqlite-public-protocol.ts']],
   ['src/adapters/memory/sqlite-readonly.ts', ['src/adapters/memory/sqlite-public-readonly.ts']],
 ]);

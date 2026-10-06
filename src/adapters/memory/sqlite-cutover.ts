@@ -35,6 +35,8 @@ export type CutoverOptions = {
   paths: CutoverPaths;
   now: () => number;
   id: () => string;
+  /** Explicit owner workflow only. No native handles are passed; validation must be synchronous. */
+  expectation?: { operation: 'apply' | 'reconcile'; sourceId: string; validate: () => void };
   /** Owner progress/checkpoint only; no data, artifact hashes or paths are passed. */
   checkpoint?: (phase: CutoverPhase) => void | Promise<void>;
 };
@@ -280,9 +282,13 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
   try {
     if (!options || typeof options.now !== 'function' || typeof options.id !== 'function') fail('input');
     if (options.checkpoint !== undefined && typeof options.checkpoint !== 'function') fail('input');
+    const expectation = options.expectation;
+    if (expectation !== undefined && (!expectation || !['apply', 'reconcile'].includes(expectation.operation)
+      || typeof expectation.sourceId !== 'string' || !UUID.test(expectation.sourceId) || typeof expectation.validate !== 'function')) fail('input');
     // Validate injected values before any reservation or gate creation.
     const started = time(options.now); const attempt = freshId(options.id); const newEpoch = freshId(options.id);
     if (attempt === newEpoch) fail('input');
+    if (expectation?.operation === 'apply' && newEpoch !== expectation.sourceId) fail('input');
     const p = paths(options.paths); const sourceId = identity(p.primary);
     source = open(p.primary); runtime(source);
     source.exec('BEGIN IMMEDIATE'); admitted = true;
@@ -295,6 +301,13 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
       view = open(p.view); gate = validateGate(view, p, sourceId, viewId);
     } else {
       if (floor) fail('identity');
+    }
+    // Independent owner expectations and filesystem freshness are checked under actual admission,
+    // before revocation, artifact reservation, gate changes or floor installation.
+    if (expectation) {
+      if (expectation.operation === 'apply' ? !!floor || !!gate
+        : !floor || !gate || floor.source_id !== expectation.sourceId || gate.source_id !== expectation.sourceId) fail('identity');
+      if (expectation.validate() !== undefined) fail('input');
     }
     if (floor) {
       if (!gate || !view || !viewId) fail('state');

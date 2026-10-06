@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { CutoverWriter, CutoverError, publishMemoryView, type CutoverPaths, type PublicationReceipt } from '../../src/adapters/memory/sqlite-cutover.ts';
+import { planOwnerCutover, applyOwnerCutover, type OwnerCutoverPlan, type OwnerCutoverReceipt } from '../../src/adapters/memory/sqlite-owner.ts';
 import { MemoryError } from './types.ts';
 import { P, type Cfg } from '../config.ts';
 import { log } from '../log.ts';
@@ -121,6 +122,25 @@ export function plainSession(db: DatabaseSync): SqliteSession {
 export function writerPaths(file: string, cfg: Cfg): CutoverPaths {
   return { primary: file, view: cfg.MEMORY_VIEW_PATH || path.join(path.dirname(file), 'memory-view', 'public.db'),
     backups: cfg.MEMORY_BACKUP_DIR || path.join(path.dirname(file), 'memory-backups') };
+}
+export function planLocalMemoryCutover(cfg: Cfg, file = P.DB): OwnerCutoverPlan {
+  if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
+  return planOwnerCutover({ paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
+}
+export async function applyLocalMemoryCutover(cfg: Cfg, input: { plan: string; operation: 'apply' | 'reconcile'; sourceId?: string; clientsStopped: boolean }, file = P.DB): Promise<OwnerCutoverReceipt> {
+  if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
+  let request: typeof input;
+  try {
+    const names = ['plan', 'operation', 'sourceId', 'clientsStopped'];
+    if (!input || typeof input !== 'object' || Array.isArray(input) || Reflect.ownKeys(input).some((key) => typeof key !== 'string' || !names.includes(key))) throw 0;
+    request = {} as typeof input;
+    for (const name of names) {
+      const d = Object.getOwnPropertyDescriptor(input, name);
+      if (d && !Object.hasOwn(d, 'value')) throw 0;
+      Object.defineProperty(request, name, { value: d?.value, enumerable: true });
+    }
+  } catch { throw new MemoryError('invalid', 'invalid owner cutover request'); }
+  return applyOwnerCutover({ ...request, paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
 }
 export async function publishLocalMemory(cfg: Cfg, file = P.DB): Promise<PublicationReceipt> {
   if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local publication unavailable');

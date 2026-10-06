@@ -1,12 +1,12 @@
 # 0007 · Bound public memory reader and local handoff
 
-**Status:** Implemented for explicitly bound READY views and non-expiring local notes; owner activation and finite-expiry handoff held. **Date:** 2026-10-06.
+**Status:** Implemented for explicitly bound READY views and non-expiring local notes; strict owner workflow in ADR 0008, broader activation/recovery and finite-expiry handoff held. **Date:** 2026-10-06.
 
 ## Decision
 
 The local hook uses `openHookMemory` through its existing literal `lib/route.ts → sqlite-readonly.ts` compatibility seam. A present/pending view, explicit view override or source binding selects the public reader and never falls back to primary rows on failure. An absent default view with blank binding retains the qualified unactivated rollback reader and its default-WAL hold. A floor-bearing rollback primary is also rejected by the legacy reader. Selection creates no files, directories, permissions, floor or publication; missing/corrupt/uninitialized/old-format/HOLD/stale/mismatched views stay unavailable. Remote memory behavior remains compatible.
 
-`MEMORY_SOURCE_ID` is an independent explicit owner binding to the random `sourceId` in the cutover receipt. It is blank by default. The reader requires a valid matching UUID; it never learns its expected source epoch from the candidate view and never writes owner configuration. Initial owner apply/permission/drain/restart activation remains unimplemented. Existing plain installs therefore retain the WAL hold; a synthetic or previously explicitly prepared and independently bound READY view can supply qualified non-expiring notes.
+`MEMORY_SOURCE_ID` is an independent explicit owner binding to the random `sourceId` saved in the initial owner plan/cutover receipt. It is blank by default. The reader requires a valid matching UUID; it never learns its expected source epoch from the candidate view and never writes owner configuration. [ADR 0008](0008-strict-owner-memory-cutover.md) implements explicit apply/reconciliation for strict prepared layouts. Permission adaptation and verified drain/restart remain held. Existing plain installs retain the WAL hold until an owner explicitly prepares, applies, publishes and independently binds a READY view.
 
 `SqlitePublicReadOnly` opens only the fixed rollback view through SQLite, with native read-only/defensive/no-extension options and connection-only query-only, memory-temp, zero-busy-wait and EXCLUSIVE-mode settings. It starts one read transaction during acquisition and retains that native lease through scoped queries, packing and native stdout acceptance. `close` releases it. Actual registered revocation must commit HOLD on this same inode before primary DML, so a retained lease prevents a supported writer from advancing source data/generation. Generation is pinned to READY within that lease; no mutable-primary SQL generation query is performed.
 

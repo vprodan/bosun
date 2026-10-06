@@ -1,10 +1,10 @@
 # 0006 · Explicit public memory publication
 
-**Status:** Implemented publication and registered revocation; bound reader implemented in ADR 0007, owner cutover activation held. **Date:** 2026-10-06.
+**Status:** Implemented publication and registered revocation; bound reader in ADR 0007 and strict owner plan/apply/reconcile in ADR 0008. Broader activation/recovery held. **Date:** 2026-10-06.
 
 ## Decision
 
-`bosun memory publish [--json]` calls `publishLocalMemory → publishMemoryView` directly for an already-applied local floor. It rejects remote, plain/missing stores, extra positionals and all other flags. It never invokes the legacy opener, creates a primary/view/backup/directory, adapts permissions or installs the initial floor. Existing `bin`/config loading can still initialize configuration as before; the publication operation itself creates no missing storage. The owner cutover/apply CLI remains unimplemented.
+`bosun memory publish [--json]` calls `publishLocalMemory → publishMemoryView` directly for an already-applied local floor. It rejects remote, plain/missing stores, extra positionals and all other flags. It never invokes the legacy opener, creates a primary/view/backup/directory, adapts permissions or installs the initial floor. Existing `bin`/config loading can still initialize configuration as before; the publication operation itself creates no missing storage. The separate strict owner cutover workflow is implemented in [ADR 0008](0008-strict-owner-memory-cutover.md).
 
 The existing owner-only recovery gate stays unchanged and always HOLD. The same fixed rollback inode gains exact `bosun_public_state`, `public_memories`, external-content FTS and maintenance-trigger schemas. No view file replacement, primary mode conversion/checkpoint, immutable primary or live filesystem copy is used. Public state has format, source epoch, generation, random publication UUID, publication time and earliest published expiry; owner backup paths/digests remain only in the original recovery metadata. Receipts contain only READY plus the random publication UUID.
 

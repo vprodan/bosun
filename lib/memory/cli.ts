@@ -12,7 +12,7 @@ import { makeCtx, project, projectDir } from './project.ts';
 import { bench, evaluate } from './bench.ts';
 import { ClaudeMem } from './claudemem.ts';
 import { MemoryService, cleanTags, openMemory } from './service.ts';
-import { publishLocalMemory } from './sqlite.ts';
+import { publishLocalMemory, planLocalMemoryCutover, applyLocalMemoryCutover } from './sqlite.ts';
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
@@ -21,7 +21,49 @@ export const USAGE = `usage: bosun memory <verb>
   get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared] [--version N]
   delete <id>   purge <id>   review   accept <id>   reject <id>   prune
   consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>
-  publish [--json]   (already-applied local floor only; no cutover/apply)`;
+  cutover plan [--json]
+  cutover apply --plan TOKEN --clients-stopped [--json]
+  cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]   (revokes READY to HOLD)
+  publish [--json]   (already-applied local floor only)`;
+
+const CUTOVER_USAGE = 'usage: bosun memory cutover plan [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]';
+async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
+  const [operation, ...rest] = argv;
+  if (!['plan', 'apply', 'reconcile'].includes(operation)) return die(CUTOVER_USAGE, 2);
+  let parsed;
+  try {
+    parsed = parseArgs({ args: rest, options: { json: { type: 'boolean' }, plan: { type: 'string' },
+      'source-id': { type: 'string' }, 'clients-stopped': { type: 'boolean' } }, allowPositionals: false, tokens: true });
+    const names = parsed.tokens.filter((t) => t.kind === 'option').map((t) => t.name);
+    if (names.length !== parsed.tokens.length || new Set(names).size !== names.length
+      || names.some((name) => !(operation === 'plan' ? ['json'] : operation === 'apply' ? ['json', 'plan', 'clients-stopped'] : ['json', 'plan', 'source-id', 'clients-stopped']).includes(name))) return die(CUTOVER_USAGE, 2);
+  } catch { return die(CUTOVER_USAGE, 2); }
+  const v = parsed.values;
+  if (operation === 'plan') {
+    const result = planLocalMemoryCutover(cfg);
+    if (v.json) console.log(JSON.stringify(result));
+    else {
+      console.log(`${result.state}${result.operation ? ` ${result.operation}` : ''}; schema, floor and clients unverified`);
+      for (const b of result.blockers) console.log(`${b.target}: ${b.reason}${b.requiredMode ? ` (current ${b.currentMode}, required ${b.requiredMode})` : ''}`);
+      if (result.sourceId) console.log(`save sourceId independently: ${result.sourceId}`);
+      if (result.plan) console.log(`plan: ${result.plan}\nexpires: ${new Date(result.expiresAt!).toISOString()}`);
+      for (const requirement of result.requirements) console.log(requirement);
+      if (result.operation === 'reconcile') console.log('Explicit reconcile requires your independently saved source ID and revokes READY to HOLD.');
+    }
+    return result.state === 'PLANNED' ? 0 : 1;
+  }
+  if (!v.plan || v['clients-stopped'] !== true || operation === 'reconcile' && !v['source-id']) return die(CUTOVER_USAGE, 2);
+  try {
+    const result = await applyLocalMemoryCutover(cfg, { operation: operation as 'apply' | 'reconcile', plan: v.plan,
+      sourceId: v['source-id'], clientsStopped: v['clients-stopped'] });
+    console.log(v.json ? JSON.stringify(result) : `${operation} ${result.state}; sourceId ${result.sourceId}\nClients stopped: operator attestation. Reopen every authority. Save/set MEMORY_SOURCE_ID yourself; explicitly publish separately.`);
+    return 0;
+  } catch (e) {
+    // A floor may have committed before a native cleanup/receipt error. Never advertise rollback or blind retry.
+    console.error('bosun: cutover failed; outcome may be unknown. Save the planned source ID; inspect storage and use a fresh explicit plan before reconciliation.');
+    throw e;
+  }
+}
 
 const OPTIONS = {
   category: { type: 'string', short: 'c' }, title: { type: 'string', short: 't' }, body: { type: 'string', short: 'b' },
@@ -37,6 +79,7 @@ const line = (m: Memory) => `${m.id}  ${day(m.updatedAt)}  ${m.status.padEnd(8)}
 export async function main(argv: string[], cfg: Cfg): Promise<number> {
   const [verb = 'help', ...rest] = argv;
   if (verb === 'help' || verb === '-h' || verb === '--help') { console.log(USAGE); return 0; }
+  if (verb === 'cutover') return ownerCutover(rest, cfg);
   let parsed;
   try { parsed = parseArgs({ args: rest, options: OPTIONS, allowPositionals: true }); } catch (e) { return die(`${(e as Error).message}\n${USAGE}`, 2); }
   const { values: v, positionals: pos } = parsed;
