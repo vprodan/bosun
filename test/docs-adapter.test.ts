@@ -17,7 +17,7 @@ import { checkDocsStorage, enumerateDocs, inspectDoc, resolveDocsRoot } from '..
 import { plainSession, type SqliteSession } from '../src/adapters/memory/sqlite-session.ts';
 import { cutoverMemory, CutoverWriter, publishMemoryView } from '../src/adapters/memory/sqlite-cutover.ts';
 import type { ContextSource } from '../src/core/ports/context-source.ts';
-import { MemoryError } from '../src/core/errors.ts';
+import { BosunError, MemoryError, modelMemoryError } from '../src/core/errors.ts';
 
 const CTX = { projectId: 'p_a', sessionId: null, linked: [] as string[] };
 function baseline() {
@@ -405,8 +405,43 @@ for (const registered of [false, true]) test(`docs actual oversized source plus 
     fs.writeFileSync(path.join(f.repo, 'new.md'), '# Zebra\nZebra new document');
     fs.truncateSync(f.paths.primary, 64 * 1024 * 1024 + 1);
     const files = f.files();
-    assert.equal(f.index.index().state, 'held');
+    let checks = 0; let inspected = 0;
+    const index = new SqliteDocsIndex(f.session, f.scope, { ...f.deps,
+      checkStorage(db, reserve) { checks++; return f.deps.checkStorage(db, reserve); },
+      inspect(...args) { inspected++; return f.deps.inspect(...args); },
+    });
+    assert.equal(index.index().state, 'held');
+    assert.equal(checks, registered ? 0 : 1, 'registered admission rejects before native read callback; plain uses its storage preflight');
+    assert.equal(inspected, 0, 'both held paths precede source payload inspection');
     if (registered) assert.throws(() => new CutoverWriter(f.paths));
     assert.deepEqual(f.db.prepare('SELECT * FROM docs ORDER BY seq').all(), before); assert.deepEqual(f.files(), files);
   } finally { f.close(); }
+});
+
+test('docs native COMMIT followed by error preserves finite unknown receipt, committed row/FTS and fenced session', async () => {
+  const f = await fixture(true); const exec = DatabaseSync.prototype.exec; let source: DatabaseSync | undefined; let commits = 0;
+  try {
+    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra\nZebra committed document');
+    const index = new SqliteDocsIndex(f.session, f.scope, { ...f.deps,
+      checkStorage(db, reserved) { if (reserved) source = db; return f.deps.checkStorage(db, reserved); },
+    });
+    DatabaseSync.prototype.exec = function (sql) {
+      const result = exec.call(this, sql);
+      if (this === source && sql === 'COMMIT') { commits++; throw new MemoryError('conflict', 'PRIVATE docs commit canary', 99); }
+      return result;
+    };
+    assert.throws(() => index.index(), (error: unknown) => {
+      assert.ok(error instanceof BosunError); assert.equal(error.code, 'unavailable'); assert.equal(error.message, 'docs index unavailable');
+      assert.equal(error.details?.outcome, 'unknown'); assert.equal(error.details?.currentVersion, undefined);
+      assert.deepEqual(modelMemoryError(error), { code: 'unavailable', message: 'memory unavailable' }); return true;
+    });
+    assert.equal(commits, 1);
+    const rows = f.db.prepare('SELECT path,title,body FROM docs').all(); assert.equal(rows.length, 1); assert.equal(rows[0].body, '# Zebra\nZebra committed document');
+    assert.equal(f.db.prepare("SELECT count(*) AS n FROM docs_fts WHERE docs_fts MATCH 'committed'").get()!.n, 1);
+    assert.equal(f.generation(), 1); assert.equal(f.metrics.at(-1)?.ok, false); assert.doesNotMatch(JSON.stringify(f.metrics), /PRIVATE|guide|repo/);
+    let replay = 0; assert.throws(() => f.session.transaction(() => { replay++; })); assert.equal(replay, 0);
+    const reopened = new CutoverWriter(f.paths);
+    try { assert.equal(reopened.read((db) => db.prepare('SELECT body FROM docs').get()!.body), '# Zebra\nZebra committed document'); }
+    finally { reopened.close(); }
+  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
 });

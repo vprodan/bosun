@@ -13,6 +13,9 @@ const FN2 = 'bosun_writer_floor_v2';
 const PUBLIC_FLOOR = 'bosun_public_floor';
 const META = 'bosun_source_floor';
 const MAX_BYTES = 64 * 1024 * 1024;
+// SQLite FULL WAL commit may repeat its last frame through the next sector boundary.
+// sqlite3SectorSize caps that boundary at 64 KiB; reserve one further full frame.
+const WAL_SECTOR_BYTES = 64 * 1024;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const TABLES = ['memories', 'memory_events', 'docs'] as const;
 // Fingerprint of the existing migration-1 sqlite_master (including FTS shadow tables), not its data.
@@ -972,11 +975,17 @@ export class CutoverWriter {
   #gate!: Gate;
   #admitted = false;
   #transactionControl = false;
+  #pragma: { name: string; value: string | null } | null = null;
+  #capacityAllowed = false;
+  #protectedDml = false;
   constructor(input: CutoverPaths) {
     try {
       this.#paths = paths(input);
       const p = this.#paths;
       this.#source = open(p.primary); runtime(this.#source);
+      // Keep dirty pages in the native cache until the one pending WAL commit.
+      // This is connection-local and never changes source journal mode or schema.
+      this.#source.exec('PRAGMA cache_spill=OFF');
       const viewId = viewIdentity(p);
       this.#view = open(p.view);
       this.#gate = validateGate(this.#view, p, identity(p.primary), viewId);
@@ -991,6 +1000,8 @@ export class CutoverWriter {
         same(p.primary, { dev: this.#gate.source_dev, ino: this.#gate.source_ino });
         same(p.view, { dev: this.#gate.view_dev, ino: this.#gate.view_ino });
         holdPublic(this.#view!, this.#gate);
+        if (!this.#capacityAllowed) fail('state');
+        this.#protectedDml = true;
         return 1;
       });
       const ddl = new Set([constants.SQLITE_CREATE_TABLE, constants.SQLITE_CREATE_INDEX, constants.SQLITE_CREATE_TRIGGER,
@@ -1001,7 +1012,9 @@ export class CutoverWriter {
         constants.SQLITE_DROP_TEMP_TRIGGER, constants.SQLITE_DROP_TEMP_VIEW,
         constants.SQLITE_ATTACH, constants.SQLITE_DETACH]);
       this.#source.setAuthorizer((action, table, _column, _db, trigger) => {
-        if (ddl.has(action) || action === constants.SQLITE_PRAGMA && !(table === 'data_version' && _column === null)) return constants.SQLITE_DENY;
+        if (ddl.has(action) || action === constants.SQLITE_PRAGMA
+          && !(table === 'data_version' && _column === null)
+          && !(this.#pragma?.name === table && this.#pragma.value === _column && (_db === null || _db === 'main'))) return constants.SQLITE_DENY;
         if (action === constants.SQLITE_TRANSACTION && !this.#transactionControl || action === constants.SQLITE_SAVEPOINT) return constants.SQLITE_DENY;
         if (action === constants.SQLITE_FUNCTION && [FN, FN2].includes(_column ?? '') && !TABLES.some((t) => ['insert', 'update', 'delete'].some((op) => trigger === triggerName(t, op)))) return constants.SQLITE_DENY;
         if ([constants.SQLITE_UPDATE, constants.SQLITE_INSERT, constants.SQLITE_DELETE].includes(action)
@@ -1010,34 +1023,81 @@ export class CutoverWriter {
       });
     } catch (e) { try { this.close(); } catch {} mapped(e); }
   }
+  // Exact driver-only authorization, cleared even when prepare/get throws. Callbacks
+  // cannot set or inspect these controls through the ordinary PRAGMA SQL interface.
+  #control(name: string, value: number | null = null): unknown {
+    this.#pragma = { name, value: value === null ? null : String(value) };
+    try { return this.#source!.prepare(`PRAGMA main.${name}${value === null ? '' : '=' + value}`).get()?.[name]; }
+    finally { this.#pragma = null; }
+  }
+  #confirmed(): { gate: Gate; generation: number } {
+    paths(this.#paths); viewIdentity(this.#paths);
+    return confirmed(this.#source!, this.#view!, this.#paths, this.#gate);
+  }
+  #reserveCapacity(): void {
+    const p = this.#paths;
+    if (this.#control('journal_mode') !== 'wal' || this.#control('cache_spill') !== 0) fail('state');
+    const page = this.#control('page_size'); const count = this.#control('page_count');
+    if (!integer(page) || page < 512 || page > 65536 || (page & (page - 1)) !== 0 || !integer(count) || count < 1) fail('state');
+    const sourceBytes = fs.statSync(p.primary).size;
+    const walBytes = present(p.primary + '-wal') ? fs.statSync(p.primary + '-wal').size : 0;
+    const frame = page + 24;
+    const remaining = MAX_BYTES - walBytes - 32 - WAL_SECTOR_BYTES - frame;
+    // Both inequalities bound max(physical source, final logical source) plus
+    // the entire existing WAL extent and at most one dirty frame per page.
+    const limit = Math.min(Math.floor((remaining - sourceBytes) / frame), Math.floor(remaining / (page + frame)));
+    this.#capacityAllowed = limit >= count;
+    // max_page_count cannot be reduced below the current native page count.
+    // Keep larger eligible stores queryable; their first protected DML refuses.
+    const applied = this.#control('max_page_count', Math.max(count, limit));
+    if (applied !== Math.max(count, limit)) fail('state');
+  }
   /** Synchronous callback only; do not retain statements/connection or replace its floor function. */
   transaction<T>(write: (db: DatabaseSync) => T): T {
     if (!this.#source || !this.#view || this.#admitted || typeof write !== 'function') fail('state');
+    let admissionAttempted = false; let commitAttempted = false; let committed = false;
     try {
       const p = this.#paths;
+      paths(p); viewIdentity(p);
       same(p.primary, { dev: this.#gate.source_dev, ino: this.#gate.source_ino });
       same(p.view, { dev: this.#gate.view_dev, ino: this.#gate.view_ino });
       this.#transactionControl = true;
+      admissionAttempted = true;
       this.#source.exec('BEGIN IMMEDIATE'); this.#transactionControl = false; this.#admitted = true;
       // Revalidate the installed epoch/floor after acquiring actual write admission.
-      const current = confirmed(this.#source, this.#view, p, this.#gate);
+      const current = this.#confirmed();
       if (current.gate.phase !== 'applied') fail('state');
+      this.#reserveCapacity();
       const result = write(this.#source);
       if (result === this.#source || result instanceof StatementSync || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
-      same(p.primary, { dev: this.#gate.source_dev, ino: this.#gate.source_ino });
-      same(p.view, { dev: this.#gate.view_dev, ino: this.#gate.view_ino });
+      this.#confirmed();
+      this.#reserveCapacity();
+      if (this.#protectedDml && !this.#capacityAllowed) fail('state');
       this.#transactionControl = true;
-      this.#source.exec('COMMIT'); this.#transactionControl = false; this.#admitted = false;
+      commitAttempted = true;
+      this.#source.exec('COMMIT'); committed = true; this.#transactionControl = false; this.#admitted = false;
+      this.#capacityAllowed = false; this.#protectedDml = false;
+      // A post-commit check can only produce an uncertain receipt, never a domain
+      // refusal that implies the source was unchanged or safe to replay.
+      this.#confirmed();
       return result;
     } catch (e) {
       this.#transactionControl = true;
-      let rolledBack = true;
-      if (this.#admitted) try { this.#source.exec('ROLLBACK'); } catch { rolledBack = false; try { this.close(); } catch {} }
-      this.#admitted = false; this.#transactionControl = false;
+      let rolledBack = false;
+      // A native wrapper can throw after BEGIN acquired admission, before our
+      // bookkeeping assignment. Inspect/release that actual transaction too.
+      let nativeAdmission = this.#admitted; let unreadableAdmission = false;
+      try { if (admissionAttempted && !committed) nativeAdmission ||= this.#source.isTransaction; }
+      catch { unreadableAdmission = true; }
+      if (nativeAdmission) try { this.#source.exec('ROLLBACK'); rolledBack = true; } catch {}
+      const uncertain = committed || commitAttempted && !rolledBack;
+      const poison = unreadableAdmission || nativeAdmission && !rolledBack || uncertain;
+      this.#admitted = false; this.#transactionControl = false; this.#capacityAllowed = false; this.#protectedDml = false; this.#pragma = null;
+      if (poison) try { this.close(); } catch {}
+      if (uncertain) fail('receipt_unknown');
       // Authoritative store validation/conflict errors survive only a successful rollback.
       const domain = rolledBack ? authoritative(e) : undefined;
       if (domain) throw domain;
-      if (!rolledBack) fail('storage');
       mapped(e);
     }
   }
@@ -1045,7 +1105,7 @@ export class CutoverWriter {
   read<T>(read: (db: DatabaseSync) => T): T {
     if (!this.#source || typeof read !== 'function') fail('state');
     try {
-      const current = confirmed(this.#source, this.#view!, this.#paths, this.#gate);
+      const current = this.#confirmed();
       if (current.gate.phase !== 'applied') fail('state');
       const result = read(this.#source);
       if (result === this.#source || result instanceof StatementSync || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
@@ -1054,7 +1114,7 @@ export class CutoverWriter {
   }
   close(): void {
     const source = this.#source; const view = this.#view;
-    this.#source = null; this.#view = null; this.#admitted = false;
+    this.#source = null; this.#view = null; this.#admitted = false; this.#capacityAllowed = false; this.#protectedDml = false; this.#pragma = null; this.#transactionControl = false;
     const sourceClosed = closeNative(source); const viewClosed = closeNative(view);
     if (!sourceClosed || !viewClosed) fail('storage');
   }

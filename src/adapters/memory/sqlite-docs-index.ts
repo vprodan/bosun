@@ -1,5 +1,5 @@
 // Explicit admitted indexing; injected source operations are synchronous and must never return partial enumeration as complete.
-import { MemoryError } from '../../core/errors.ts';
+import { BosunError, MemoryError } from '../../core/errors.ts';
 import type { DatabaseSync } from 'node:sqlite';
 import { docsRelative, docsScope, type DocsScope } from './sqlite-docs.ts';
 import type { SqliteSession } from './sqlite-session.ts';
@@ -25,6 +25,15 @@ export type DocsIndexDependencies = {
 export type DocsIndexReceipt = { state: 'indexed' | 'held'; changed: number; removed: number; excludedRoots: string[] };
 type Known = { path: string; mtime: number; title: string | null; body: string; bytes: number };
 const finite = (value: number): number => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER ? value : 0;
+function unknownOutcome(error: unknown): boolean {
+  try {
+    if (!(error instanceof BosunError)) return false;
+    const details = Object.getOwnPropertyDescriptor(error, 'details');
+    if (!details || !('value' in details) || !details.value || typeof details.value !== 'object') return false;
+    const outcome = Object.getOwnPropertyDescriptor(details.value, 'outcome');
+    return !!outcome && 'value' in outcome && outcome.value === 'unknown';
+  } catch { return false; }
+}
 export class SqliteDocsIndex {
   readonly scope: Readonly<Required<DocsScope>>;
   #session: SqliteSession;
@@ -39,7 +48,10 @@ export class SqliteDocsIndex {
   index(): DocsIndexReceipt {
     const started = this.ticks(); let result: DocsIndexReceipt | undefined;
     try { result = this.run(); return result; }
-    catch { throw new MemoryError('unavailable', 'docs index unavailable'); }
+    catch (error) {
+      if (unknownOutcome(error)) throw new BosunError('unavailable', 'docs index unavailable', { details: { outcome: 'unknown' } });
+      throw new MemoryError('unavailable', 'docs index unavailable');
+    }
     finally {
       try { this.#dependencies.measure({ op: 'docs.index', ms: finite(this.ticks() - started),
         ok: result?.state === 'indexed', n: result?.changed ?? 0, removed: result?.removed ?? 0 }); } catch {}
@@ -55,11 +67,16 @@ export class SqliteDocsIndex {
       || enumeration.files.some((relative) => !relative.endsWith('.md') || docsRelative(root, root + '/' + relative) !== relative)) return held();
     const files = [...new Set(enumeration.files)];
     const listed = new Set(files);
-    const totalsBefore = this.#session.read((db) => {
+    const preflight = () => this.#session.read((db) => {
       if (!this.#dependencies.checkStorage(db, 0)) return null;
       return db.prepare(`SELECT count(*) AS n,coalesce(sum(length(CAST(path AS BLOB))+
         coalesce(length(CAST(title AS BLOB)),0)+length(CAST(body AS BLOB))),0) AS bytes FROM docs`).get()!;
     });
+    let totalsBefore: ReturnType<typeof preflight>;
+    // A registered session can reject storage before invoking this read callback.
+    // Preserve the existing held preflight receipt; no mutation/COMMIT exceptions
+    // are caught here, and no source payload inspection has begun.
+    try { totalsBefore = preflight(); } catch { return held(); }
     if (!totalsBefore || Number(totalsBefore.n) > DOCS_MAX_STORED_FILES || Number(totalsBefore.bytes) > DOCS_MAX_TOTAL_BYTES) return held();
     const known = this.#session.read((db) => db.prepare(`SELECT path,mtime,title,body,
       length(CAST(path AS BLOB))+coalesce(length(CAST(title AS BLOB)),0)+length(CAST(body AS BLOB)) AS bytes

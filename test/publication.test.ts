@@ -84,7 +84,13 @@ test('v2 publication fences cached real v1 MemoryService/Docs and old prepared s
   try {
     await publishMemoryView(options(f.paths));
     await assert.rejects(cached.store({ category: 'personal', title: 'Cached', body: 'cached writer' }, f.ctx), (e) => e instanceof MemoryError && e.code === 'unavailable');
-    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra guide\nZebra guide public docs.'); assert.throws(() => docs.index(), MemoryError);
+    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra guide\nZebra guide public docs.');
+    const savedDocs = f.db.prepare('SELECT * FROM docs ORDER BY seq').all();
+    const savedFloor = f.db.prepare('SELECT * FROM bosun_source_floor').all();
+    assert.deepEqual(docs.index(), { changed: 0, removed: 0 }, 'cached format rejection is an initial read-admission hold');
+    assert.deepEqual(await docs.search('zebra', f.ctx, 10), []);
+    assert.deepEqual(f.db.prepare('SELECT * FROM docs ORDER BY seq').all(), savedDocs);
+    assert.deepEqual(f.db.prepare('SELECT * FROM bosun_source_floor').all(), savedFloor);
     assert.throws(() => prepared.run(f.publicNote.id), /bosun_writer_floor_v2/);
     assert.equal(viewRows(f.paths.view).state.state, 'READY');
     local = openLocalMemory(f.cfg); currentDocs = new Docs(openLocalSqlite(f.paths.primary, f.cfg), f.repo, 'p_a');
