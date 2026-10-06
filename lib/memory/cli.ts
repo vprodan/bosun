@@ -20,7 +20,7 @@ export const USAGE = `usage: bosun memory <verb>
   search ["words"] [-c category] [--status active|proposed|archived] [--tags a,b] [--limit N] [--json]
   get <id> [--json]   update <id> [-t title] [-b text] [--tags a,b] [--private|--public] [--shared] [--version N]
   delete <id>   purge <id>   review   accept <id>   reject <id>   prune
-  consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>
+  consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000] [--public-view]   eval <queries.jsonl>
   cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json]
   cutover prepare --plan TOKEN --clients-stopped [--json]
   cutover plan [--retain-unreferenced] [--json]
@@ -95,6 +95,7 @@ const OPTIONS = {
   file: { type: 'string', short: 'f' }, tags: { type: 'string' }, private: { type: 'boolean' }, public: { type: 'boolean' },
   shared: { type: 'boolean' }, 'ttl-days': { type: 'string' }, auto: { type: 'boolean' }, status: { type: 'string' },
   limit: { type: 'string' }, json: { type: 'boolean' }, version: { type: 'string' }, since: { type: 'string' }, n: { type: 'string' },
+  'public-view': { type: 'boolean' },
 } as const;
 
 const day = (ms: number) => new Date(ms).toISOString().slice(0, 10);
@@ -108,6 +109,7 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
   let parsed;
   try { parsed = parseArgs({ args: rest, options: OPTIONS, allowPositionals: true }); } catch (e) { return die(`${(e as Error).message}\n${USAGE}`, 2); }
   const { values: v, positionals: pos } = parsed;
+  if (v['public-view'] !== undefined && verb !== 'bench') return die('--public-view is only valid for memory bench', 2);
   if (verb === 'publish') {
     if (pos.length || Object.keys(v).some((key) => key !== 'json')) return die('usage: bosun memory publish [--json]', 2);
     if (cfg.MEMORY_URL) return die('local publication unavailable', 1);
@@ -183,7 +185,10 @@ export async function main(argv: string[], cfg: Cfg): Promise<number> {
         return 0;
       }
       case 'review': return await review(mem(), ctx);
-      case 'bench': return await bench(cfg, num(v.n, 'n') ?? 10000);   // a temp database: nothing of yours is opened
+      case 'bench': {
+        if (pos.length || Object.keys(v).some((key) => !['n', 'public-view'].includes(key))) return die('usage: bosun memory bench [--n 10000] [--public-view]', 2);
+        return await bench(cfg, num(v.n, 'n') ?? 10000, v['public-view']);   // a temp database: nothing of yours is opened
+      }
       case 'eval': return await evaluate(need('queries.jsonl'), mem(), ctx);
       case 'consolidate': {
         const days = Number(String(v.since ?? '7d').replace(/d$/, ''));

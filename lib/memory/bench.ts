@@ -9,6 +9,7 @@ import { mute, quantile } from '../metrics.ts';
 import { die, jsonl } from '../util.ts';
 import { project } from './project.ts';
 import { openLocalMemory } from './service.ts';
+import { writerPaths, planLocalMemoryCutover, applyLocalMemoryCutover, publishLocalMemory } from './sqlite.ts';
 import type { Ctx, MemoryApi } from './types.ts';
 
 // mulberry32: a seeded PRNG, so every run measures the same corpus
@@ -42,9 +43,10 @@ export function hookObservation(child: HookProcess, metric: unknown): { outcome:
   return { outcome: 'injected', ms: m.ms };
 }
 
-export async function bench(cfg: Cfg, n: number): Promise<number> {
+export async function bench(cfg: Cfg, n: number, publicView = false): Promise<number> {
+  if (!Number.isSafeInteger(n) || n < 1 || publicView && n > 10000) return die('bench --n needs a positive whole number (public view maximum 10000)', 2);
   mute();
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bosun-bench-'));
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'bosun-bench-')));
   const rnd = prng(42);
   const vocab = Array.from({ length: 2000 }, () => Array.from({ length: 2 + Math.floor(rnd() * 3) }, () => SYL[Math.floor(rnd() * SYL.length)]).join(''));
   const word = () => vocab[Math.floor(vocab.length * rnd() ** 2)];   // skewed: low indexes are common words
@@ -52,7 +54,8 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
   try {
     const file = path.join(dir, 'memory.db');
     // Synthetic corpus never adopts the owner's explicitly selected gate/backup paths.
-    const svc = openLocalMemory({ ...cfg, MEMORY_VIEW_PATH: '', MEMORY_BACKUP_DIR: '' }, file);
+    const synthetic = { ...cfg, MEMORY_URL: '', MEMORY_TOKEN: '', MEMORY_VIEW_PATH: '', MEMORY_BACKUP_DIR: '', MEMORY_SOURCE_ID: '', MEMORY_LINKED_PROJECTS: '', CLAUDE_MEM: 'off', CLAUDE_MEM_DB: '' };
+    const svc = openLocalMemory(synthetic, file);
     const ctx: Ctx = { projectId: project(process.cwd()).id, sessionId: null, linked: [] };
     const store: number[] = [];
     for (let i = 0; i < n; i++) {
@@ -75,11 +78,25 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
       context.push(performance.now() - t);
     }
     svc.close();
+    let sourceId = '';
+    const paths = writerPaths(file, synthetic);
+    if (publicView) {
+      // This explicit option prepares/applies only the newly generated, closed temp corpus.
+      fs.chmodSync(dir, 0o700);
+      fs.mkdirSync(path.dirname(paths.view), { mode: 0o700 });
+      fs.mkdirSync(paths.backups, { mode: 0o700 });
+      const plan = planLocalMemoryCutover(synthetic, file);
+      if (plan.state !== 'PLANNED' || !plan.plan || !plan.sourceId) return die('synthetic public-view preparation held', 1);
+      sourceId = plan.sourceId; // independently saved before apply; never learned from the candidate view
+      await applyLocalMemoryCutover(synthetic, { plan: plan.plan, operation: 'apply', clientsStopped: true }, file);
+      await publishLocalMemory(synthetic, file);
+    }
     const wall: number[] = [];
     const mem: number[] = [];
     const outcomes = { injected: 0, 'no-memory': 0, unqualified: 0, failed: 0 };
     const hookMetrics = () => jsonl(path.join(dir, 'metrics.jsonl')).filter((r) => r.op === 'hook');
-    const env = { ...process.env, BOSUN_HOME: dir, ROUTER_URL: 'http://127.0.0.1:1', MEMORY_URL: '', CLAUDE_PROJECT_DIR: process.cwd() };
+    const env = { ...process.env, BOSUN_HOME: dir, ROUTER_URL: 'http://127.0.0.1:1', MEMORY_URL: '', MEMORY_TOKEN: '',
+      MEMORY_VIEW_PATH: '', MEMORY_BACKUP_DIR: '', MEMORY_SOURCE_ID: sourceId, MEMORY_LINKED_PROJECTS: '', CLAUDE_MEM: 'off', CLAUDE_MEM_DB: '', CLAUDE_PROJECT_DIR: process.cwd() };
     for (let i = 0; i <= HOOK_RUNS; i++) {   // run 0 warms the compile cache and is not counted
       const prior = hookMetrics().length;
       const t = performance.now();
@@ -103,6 +120,7 @@ export async function bench(cfg: Cfg, n: number): Promise<number> {
     console.log(mem.length ? `  hook mem ${f(mem)}   (verified injected runs only, ${mem.length} runs)`
       : '  hook mem unqualified: no verified memory injection; no retrieval latency reported');
     console.log(`  db       ${(mb(file) + mb(`${file}-wal`)).toFixed(1)} MB`);
+    if (publicView) console.log(`  public   READY (explicit synthetic apply/publish/binding), view ${mb(paths.view).toFixed(1)} MB; finite-expiry notes omitted`);
     return 0;
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 }

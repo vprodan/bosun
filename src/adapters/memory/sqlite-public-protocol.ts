@@ -31,6 +31,7 @@ export const PUBLIC_SQL = new Map(Object.entries({
 }));
 export const PUBLIC_COLUMNS = 'seq id category project_id session_id title body tags status shared private source source_ref hash created_at updated_at expires_at accessed_at access_count version'.split(' ');
 export const PUBLIC_MAX_ROWS = 10000;
-export const PUBLIC_MAX_BYTES = 4 * 1024 * 1024;
-export const VIEW_MAX_BYTES = 16 * 1024 * 1024;
+// Measured scoped medium-body 10k corpus: ~9.3 MB encoded / ~7.9 MB view. Still finite, independent limits.
+export const PUBLIC_MAX_BYTES = 16 * 1024 * 1024;
+export const VIEW_MAX_BYTES = 64 * 1024 * 1024;
 export const normalize = (sql: unknown) => typeof sql === 'string' ? sql.replace(/\s+/g, ' ').trim() : '';

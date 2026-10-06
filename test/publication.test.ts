@@ -11,9 +11,13 @@ import { sandbox, fresh, gitRepo, bosun, REPO } from './helpers.ts';
 import { load, P } from '../lib/config.ts';
 import { MemoryService, openLocalMemory } from '../lib/memory/service.ts';
 import { Docs } from '../lib/memory/docs.ts';
-import { openDb, openLocalSqlite, writerPaths } from '../lib/memory/sqlite.ts';
+import { openDb, openLocalSqlite, writerPaths, norm } from '../lib/memory/sqlite.ts';
 import { MemoryError, type Ctx } from '../lib/memory/types.ts';
+import { project } from '../lib/memory/project.ts';
+import { hookObservation } from '../lib/memory/bench.ts';
 import { cutoverMemory, publishMemoryView, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
+import { SqlitePublicReadOnly } from '../src/adapters/memory/sqlite-public-readonly.ts';
+import { PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES } from '../src/adapters/memory/sqlite-public-protocol.ts';
 import { footprint } from './read-view-prototype.ts';
 
 const options = (paths: ReturnType<typeof writerPaths>) => ({ paths, now: Date.now, id: crypto.randomUUID });
@@ -286,18 +290,104 @@ test('publication rejects asynchronous inputs before effects and detects late ba
   }
 });
 
-test('10,000-row synthetic capacity observation holds the corpus at the encoded byte limit without claiming useful retrieval or latency', async () => {
+test('10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation', async () => {
   const f = await fixture({ expired: false, floor: false });
+  let reader: SqlitePublicReadOnly | undefined; let writer: MemoryService | undefined;
   try {
-    for (const m of [f.secret, f.unknown, f.proposed]) f.db.prepare('DELETE FROM memories WHERE id=?').run(m.id);
     const body = 'capacitysample '.repeat(35);
-    for (let i = 5; i < 10000; i++) await f.old.store({ category: 'project', title: `Capacity zebra ${i}`, body }, f.ctx);
-    assert.equal(f.db.prepare('SELECT count(*) AS n FROM memories').get()!.n, 10000);
-    await cutoverMemory(options(f.paths));
-    await assert.rejects(publishMemoryView(options(f.paths)), (e: unknown) => e instanceof CutoverError && e.reason === 'state');
-    assert.equal(viewRows(f.paths.view).state.state, 'HOLD'); assert.equal(viewRows(f.paths.view).memories.length, 0);
-    console.log('Public-view capacity qualification:', JSON.stringify({ syntheticRows: 10000, encodedLimitBytes: 4194304, outcome: 'HOLD', usefulRetrieval: 'unqualified' }));
-  } finally { f.close(); }
+    const ctx = { ...f.ctx, projectId: project(f.repo).id }; let sample = f.publicNote;
+    for (let i = 5; i < PUBLIC_MAX_ROWS; i++) sample = (await f.old.store({ category: 'project', title: `Capacity zebra ${i}`, body }, ctx)).memory;
+    assert.equal(f.db.prepare('SELECT count(*) AS n FROM memories').get()!.n, PUBLIC_MAX_ROWS + 3, 'denied canaries do not consume public capacity');
+    const floor = await cutoverMemory(options(f.paths));
+    assert.equal((await publishMemoryView(options(f.paths))).state, 'READY');
+    const published = viewRows(f.paths.view); assert.equal(published.state.state, 'READY'); assert.equal(published.memories.length, PUBLIC_MAX_ROWS);
+    const encodedBytes = published.memories.reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
+    const sourceBytes = fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary + '-wal').size;
+    const viewBytes = fs.statSync(f.paths.view).size;
+    assert.ok(encodedBytes > 4 * 1024 * 1024 && encodedBytes <= PUBLIC_MAX_BYTES);
+    assert.ok(viewBytes <= VIEW_MAX_BYTES && sourceBytes <= 64 * 1024 * 1024);
+    assert.doesNotMatch(JSON.stringify(published.memories), /PRIVATE|UNKNOWN|PROPOSED|audit|backup/);
+    const binding = { primary: f.paths.primary, view: f.paths.view, sourceId: floor.sourceId };
+    const before = { view: footprint(path.dirname(f.paths.view)), backup: footprint(f.paths.backups),
+      source: [f.paths.primary, f.paths.primary+'-wal', f.paths.primary+'-shm'].map((file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')) };
+    const started = performance.now(); reader = new SqlitePublicReadOnly(binding, Date.now);
+    assert.deepEqual(await reader.get(sample.id, ctx), sample);
+    const hits = await reader.search({ text: '9999 capacitysample' }, ctx);
+    assert.equal(hits[0].id, sample.id); assert.equal(hits[0].body, sample.body); assert.equal(hits[0].hash, sample.hash);
+    assert.ok(hits[0].rank < 0 && hits[0].matched! >= 2);
+    for (const note of [f.publicNote, f.secret, f.unknown, f.proposed]) await assert.rejects(reader.get(note.id, { ...ctx, linked: [] }), (e) => e instanceof MemoryError && e.code === 'not_found');
+    assert.deepEqual(await reader.get(f.linked.id, ctx), f.linked); assert.deepEqual(await reader.get(f.shared.id, ctx), f.shared);
+    assert.deepEqual(await reader.get(f.personal.id, ctx), f.personal);
+    reader.close(); reader = undefined;
+    const readMs = performance.now() - started;
+    assert.deepEqual({ view: footprint(path.dirname(f.paths.view)), backup: footprint(f.paths.backups),
+      source: [f.paths.primary, f.paths.primary+'-wal', f.paths.primary+'-shm'].map((file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')) }, before);
+    let delivered = 0;
+    for (const sourceId of [crypto.randomUUID(), floor.sourceId]) {
+      const metricFile = path.join(P.BOSUN, 'metrics.jsonl');
+      const metrics = () => fs.existsSync(metricFile) ? fs.readFileSync(metricFile, 'utf8').trim().split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((r) => r.op === 'hook') : [];
+      const prior = metrics().length;
+      const child = await bosun(['route', '--hook'], { env: f.sb.env({ ROUTER_URL: 'http://127.0.0.1:1', MEMORY_SOURCE_ID: sourceId }), cwd: f.repo,
+        input: JSON.stringify({ prompt: 'Capacity zebra 9999 capacitysample' }) });
+      const ownMetrics = metrics().slice(prior); assert.equal(ownMetrics.length, 1);
+      const observation = hookObservation({ status: child.code, stdout: child.out }, ownMetrics[0]);
+      assert.equal(observation.outcome, sourceId === floor.sourceId ? 'injected' : 'no-memory', child.err);
+      if (observation.outcome === 'injected') { delivered++; assert.match(child.out, new RegExp(sample.id)); assert.match(child.out, /Capacity zebra 9999|capacitysample/); }
+      assert.doesNotMatch(child.out + child.err, /PRIVATE|UNKNOWN|PROPOSED|Session zebra|backup_name|backup_hash/);
+    }
+    assert.equal(delivered, 1); assert.deepEqual(footprint(path.dirname(f.paths.view)), before.view); assert.deepEqual(footprint(f.paths.backups), before.backup);
+    writer = openLocalMemory(f.cfg); reader = new SqlitePublicReadOnly(binding, Date.now);
+    await assert.rejects(writer.update(sample.id, { private: true }, 1, ctx), (e) => e instanceof MemoryError && e.code === 'unavailable');
+    assert.equal(f.db.prepare('SELECT private FROM memories WHERE id=?').get(sample.id)!.private, 0);
+    assert.equal(viewRows(f.paths.view).state.state, 'READY'); reader.close(); reader = undefined;
+    await writer.update(sample.id, { private: true }, 1, ctx); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    assert.throws(() => new SqlitePublicReadOnly(binding, Date.now), MemoryError);
+    console.log('Public-view capacity qualification:', JSON.stringify({ syntheticRows: PUBLIC_MAX_ROWS, encodedBytes, encodedLimitBytes: PUBLIC_MAX_BYTES,
+      sourceBytes, viewBytes, viewLimitBytes: VIEW_MAX_BYTES, outcome: 'READY', verifiedHookInjections: delivered, scopedReadObservationMs: Number(readMs.toFixed(2)), latencyQualification: 'unqualified' }));
+  } finally { reader?.close(); writer?.close(); f.close(); }
+});
+
+test('public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data', async () => {
+  for (const kind of ['rows', 'encoded', 'record', 'view', 'source']) {
+    const f = await fixture({ expired: false, floor: false });
+    try {
+      if (kind === 'rows' || kind === 'encoded') {
+        // One native pre-floor fixture transaction keeps negative limit probes small and avoids repeated 10k owner stores.
+        const base = f.db.prepare('SELECT * FROM memories WHERE id=?').get(f.publicNote.id)!;
+        const keys = Object.keys(base); const insert = f.db.prepare(`INSERT INTO memories(${keys.join(',')}) VALUES(${keys.map(() => '?').join(',')})`);
+        f.db.exec('BEGIN IMMEDIATE');
+        try {
+          const count = kind === 'rows' ? PUBLIC_MAX_ROWS - 4 : 1450;
+          for (let i = 0; i < count; i++) {
+            const title = `Bound zebra ${i}`; const body = kind === 'encoded' ? '漢'.repeat(4000) : 'bounded zebra';
+            const hash = crypto.createHash('sha256').update(norm(`${title}\n${body}`)).digest('hex').slice(0,32);
+            const row: Record<string, any> = { ...base, seq: 100 + i, id: `bounded_${i}`, title, body, hash };
+            insert.run(...keys.map((key) => row[key]));
+          }
+          f.db.exec('COMMIT');
+        } catch (e) { f.db.exec('ROLLBACK'); throw e; }
+        if (kind === 'encoded') {
+          const publicBytes = f.db.prepare("SELECT * FROM memories WHERE typeof(private)='integer' AND private=0 AND status='active'").all().reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
+          assert.ok(publicBytes > PUBLIC_MAX_BYTES, 'valid multibyte rows exceed encoded aggregate while row count stays below limit');
+        }
+      }
+      if (kind === 'record') {
+        const body = 'z'.repeat(4001); const hash = crypto.createHash('sha256').update(`admission zebra ${body}`).digest('hex').slice(0,32);
+        f.db.prepare('UPDATE memories SET body=?,hash=? WHERE id=?').run(body, hash, f.publicNote.id);
+      }
+      const floor = await cutoverMemory(options(f.paths));
+      if (kind === 'encoded') assert.ok(fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary+'-wal').size < 64 * 1024 * 1024, 'encoded limit is reached inside source bounds');
+      if (kind === 'view' || kind === 'source') {
+        await publishMemoryView(options(f.paths));
+        fs.truncateSync(kind === 'view' ? f.paths.view : f.paths.primary, 64 * 1024 * 1024 + 1);
+      }
+      const before = footprint(path.dirname(f.paths.view));
+      await assert.rejects(publishMemoryView(options(f.paths)), (e) => e instanceof CutoverError && !/PRIVATE|UNKNOWN|PROPOSED/.test(e.message + JSON.stringify(e)));
+      if (kind === 'view' || kind === 'source') assert.deepEqual(footprint(path.dirname(f.paths.view)), before, 'unqualified oversized artifact is never repaired');
+      else { const publicView = viewRows(f.paths.view); assert.equal(publicView.state.state, 'HOLD'); assert.equal(publicView.memories.length, 0); }
+      assert.throws(() => new SqlitePublicReadOnly({ primary: f.paths.primary, view: f.paths.view, sourceId: floor.sourceId }, Date.now), MemoryError);
+    } finally { f.close(); }
+  }
 });
 
 test('publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors', async () => {

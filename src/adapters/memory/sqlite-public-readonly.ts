@@ -57,8 +57,8 @@ function identity(file: string): Identity {
   const parent = path.dirname(file);
   if (fs.realpathSync(parent) !== parent || fs.realpathSync(file) !== file) unavailable('path');
   const dir = fs.statSync(parent); const s = fs.lstatSync(file, { bigint: true });
-  if (!dir.isDirectory() || (dir.mode & 0o777) !== 0o700 || !s.isFile() || s.isSymbolicLink() || s.nlink !== 1n
-    || Number(s.mode & 0o777n) !== 0o600 || process.getuid && (dir.uid !== process.getuid() || Number(s.uid) !== process.getuid())) unavailable('path');
+  if (!dir.isDirectory() || (dir.mode & 0o7777) !== 0o700 || !s.isFile() || s.isSymbolicLink() || s.nlink !== 1n
+    || Number(s.mode & 0o7777n) !== 0o600 || process.getuid && (dir.uid !== process.getuid() || Number(s.uid) !== process.getuid())) unavailable('path');
   return { dev: String(s.dev), ino: String(s.ino) };
 }
 function same(file: string, expected: Identity): void {
@@ -72,6 +72,7 @@ export class SqlitePublicReadOnly implements MemoryReader {
   #options: PublicReadOptions;
   #source: Identity;
   #view: Identity;
+  #wal: Identity | undefined;
   #state: Row | undefined;
   #lastTime = 0;
   constructor(options: PublicReadOptions, now: () => number) {
@@ -129,6 +130,26 @@ export class SqlitePublicReadOnly implements MemoryReader {
     // Minimal filesystem header check rejects obvious offline/rollback restoration without opening mutable WAL through SQLite.
     const primarySize = fs.statSync(this.#options.primary).size;
     if (primarySize < 100 || primarySize > 64 * 1024 * 1024 || present(this.#options.primary + '-journal')) unavailable('format');
+    const wal = this.#options.primary + '-wal';
+    if (present(wal)) {
+      const id = identity(wal);
+      if ([this.#source, this.#view].some((other) => other.dev === id.dev && other.ino === id.ino)
+        || this.#wal && (this.#wal.dev !== id.dev || this.#wal.ino !== id.ino)) unavailable('identity');
+      this.#wal = id;
+      const walSize = fs.statSync(wal).size;
+      if (primarySize + walSize > 64 * 1024 * 1024) unavailable('size');
+      // Empty/absent WAL is native housekeeping. Only the minimal header is inspected, never frames or records.
+      if (walSize !== 0) {
+        if (walSize < 32) unavailable('format');
+        const header = Buffer.alloc(32); const fd = fs.openSync(wal, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+        try {
+          const opened = fs.fstatSync(fd, { bigint: true });
+          if (String(opened.dev) !== id.dev || String(opened.ino) !== id.ino || fs.readSync(fd, header, 0, 32, 0) !== 32) unavailable('identity');
+        } finally { fs.closeSync(fd); }
+        if (![0x377f0682, 0x377f0683].includes(header.readUInt32BE(0))) unavailable('format');
+      }
+      same(wal, id);
+    }
     const sourceHeader = Buffer.alloc(20); const sourceFd = fs.openSync(this.#options.primary, 'r');
     try { if (fs.readSync(sourceFd, sourceHeader, 0, 20, 0) !== 20) unavailable('format'); } finally { fs.closeSync(sourceFd); }
     if (sourceHeader.toString('ascii', 0, 16) !== 'SQLite format 3\0' || sourceHeader[18] !== 2 || sourceHeader[19] !== 2) unavailable('format');

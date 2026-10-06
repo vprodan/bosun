@@ -15,6 +15,8 @@ import { MemoryError, type Ctx } from '../lib/memory/types.ts';
 import { cutoverMemory, publishMemoryView } from '../src/adapters/memory/sqlite-cutover.ts';
 import { SqlitePublicReadOnly } from '../src/adapters/memory/sqlite-public-readonly.ts';
 import { openHookMemory } from '../src/adapters/memory/sqlite-readonly.ts';
+import { PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES } from '../src/adapters/memory/sqlite-public-protocol.ts';
+import { norm } from '../lib/memory/sqlite.ts';
 
 const PROMPT = 'rename getCart to fetchCart in cart service';
 const PUBLIC = 'PUBLIC-VIEW-HANDOFF-CANARY';
@@ -183,7 +185,7 @@ test('schema/format/readiness/generation/epoch/publication/time/data mismatch st
 });
 
 test('canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery', POSIX, async () => {
-  for (const kind of ['view-inode', 'source-inode', 'symlink', 'hardlink', 'mode', 'oversized', 'journal', 'dangling', 'wal', 'uri', 'truncate', 'corrupt-source', 'offline-restore']) {
+  for (const kind of ['view-inode', 'source-inode', 'symlink', 'hardlink', 'mode', 'special-mode', 'oversized', 'journal', 'dangling', 'wal', 'uri', 'truncate', 'corrupt-source', 'offline-restore', 'source-wal-size', 'source-wal-header', 'source-wal-mode', 'source-wal-dangling']) {
     const f = await fixture();
     try {
       let candidate = { ...f.readOptions };
@@ -191,7 +193,12 @@ test('canonical paths, aliases, inode replacements, modes, source headers, overs
       if (kind === 'symlink') { const alias = f.paths.view+'.alias'; fs.symlinkSync(f.paths.view, alias); candidate.view = alias; }
       if (kind === 'hardlink') fs.linkSync(f.paths.view, f.paths.view+'.alias');
       if (kind === 'mode') fs.chmodSync(f.paths.view, 0o644);
-      if (kind === 'oversized') fs.truncateSync(f.paths.view, 16*1024*1024+1);
+      if (kind === 'special-mode') fs.chmodSync(f.paths.view, 0o1600);
+      if (kind === 'oversized') fs.truncateSync(f.paths.view, VIEW_MAX_BYTES+1);
+      if (kind === 'source-wal-size') fs.truncateSync(f.paths.primary+'-wal', 64 * 1024 * 1024 - fs.statSync(f.paths.primary).size + 1);
+      if (kind === 'source-wal-header') { const fd = fs.openSync(f.paths.primary+'-wal', 'r+'); try { fs.writeSync(fd, Buffer.alloc(4), 0, 4, 0); } finally { fs.closeSync(fd); } }
+      if (kind === 'source-wal-mode') fs.chmodSync(f.paths.primary+'-wal', 0o644);
+      if (kind === 'source-wal-dangling') { fs.renameSync(f.paths.primary+'-wal', f.paths.primary+'-wal.saved'); fs.symlinkSync(path.join(f.sb.root, 'never-created'), f.paths.primary+'-wal'); }
       if (kind === 'journal' || kind === 'wal') fs.writeFileSync(f.paths.view+(kind === 'journal' ? '-journal' : '-wal'), PRIVATE);
       if (kind === 'dangling') fs.symlinkSync(path.join(f.sb.root, 'never-created'), f.paths.view+'-journal');
       if (kind === 'uri') candidate.view = 'file:'+f.paths.view+'?immutable=1';
@@ -202,6 +209,51 @@ test('canonical paths, aliases, inode replacements, modes, source headers, overs
       assert.deepEqual(footprint(P.BOSUN), before, kind);
     } finally { f.close(); }
   }
+});
+
+test('reader independently enforces encoded and row ceilings inside the physical bound without projecting content', POSIX, async () => {
+  for (const kind of ['encoded', 'rows']) {
+    const f = await fixture();
+    try {
+      mutateView(f.paths.view, (db) => {
+        const base = db.prepare('SELECT * FROM public_memories WHERE id=?').get(f.own.id)!;
+        const keys = Object.keys(base); const insert = db.prepare(`INSERT INTO public_memories(${keys.join(',')}) VALUES(${keys.map(() => '?').join(',')})`);
+        db.exec('BEGIN IMMEDIATE');
+        try {
+          for (let i = 0; i < (kind === 'encoded' ? 1450 : PUBLIC_MAX_ROWS); i++) {
+            const title = `Bound cart ${i}`; const body = kind === 'encoded' ? '漢'.repeat(4000) : 'bounded cart';
+            const hash = crypto.createHash('sha256').update(norm(`${title}\n${body}`)).digest('hex').slice(0,32);
+            const row: Record<string, any> = { ...base, seq: 100 + i, id: `bound_${i}`, title, body, hash };
+            insert.run(...keys.map((key) => row[key]));
+          }
+          db.exec('COMMIT');
+        } catch (e) { db.exec('ROLLBACK'); throw e; }
+        if (kind === 'encoded') {
+          const records = db.prepare('SELECT * FROM public_memories').all();
+          assert.ok(records.length < PUBLIC_MAX_ROWS);
+          assert.ok(records.reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0) > PUBLIC_MAX_BYTES);
+        }
+      });
+      assert.ok(fs.statSync(f.paths.view).size < VIEW_MAX_BYTES, 'logical limits are checked before any scoped DTO/hash');
+      const before = footprint(P.BOSUN); assert.throws(() => new SqlitePublicReadOnly(f.readOptions, Date.now), error());
+      assert.deepEqual(footprint(P.BOSUN), before);
+    } finally { f.close(); }
+  }
+});
+
+test('source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold', POSIX, async () => {
+  const f = await fixture(); let reader: SqlitePublicReadOnly | undefined;
+  try {
+    reader = new SqlitePublicReadOnly(f.readOptions, Date.now);
+    fs.renameSync(f.paths.primary+'-wal', f.paths.primary+'-wal.saved');
+    assert.deepEqual(await reader.get(f.own.id, f.ctx), f.own, 'absent WAL is permitted without opening primary SQLite');
+    fs.writeFileSync(f.paths.primary+'-wal', '', { mode: 0o600 });
+    await assert.rejects(reader.get(f.own.id, f.ctx), error()); reader.close(); reader = undefined;
+    const empty = new SqlitePublicReadOnly(f.readOptions, Date.now); assert.deepEqual(await empty.get(f.own.id, f.ctx), f.own); empty.close();
+    fs.unlinkSync(f.paths.primary+'-wal'); fs.linkSync(f.paths.primary, f.paths.primary+'-wal');
+    assert.throws(() => new SqlitePublicReadOnly(f.readOptions, Date.now), error());
+    fs.unlinkSync(f.paths.primary+'-wal'); fs.renameSync(f.paths.primary+'-wal.saved', f.paths.primary+'-wal');
+  } finally { reader?.close(); f.close(); }
 });
 
 test('malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content', POSIX, async () => {

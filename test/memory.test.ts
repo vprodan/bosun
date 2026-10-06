@@ -320,6 +320,36 @@ test('benchmark hook evidence rejects failed children and mismatched/missing out
   assert.deepEqual(hookObservation({ status: 0, stdout: '' }, { ...metric, n: 0, estTokens: 0 }), { outcome: 'no-memory' });
 });
 
+test('explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats', async () => {
+  const sb = sandbox();
+  try {
+    const repo = gitRepo(sb, 'bench-public', 'git@github.com:org/bench-public.git');
+    const owner = path.join(sb.root, 'owner-storage'); fs.mkdirSync(owner);
+    const primary = path.join(sb.home, '.bosun', 'memory.db'); fs.mkdirSync(path.dirname(primary));
+    const files = [primary, path.join(owner, 'public.db'), path.join(owner, 'claude-mem.db')];
+    for (const file of files) fs.writeFileSync(file, 'OWNER STORAGE CANARY');
+    const backups = path.join(owner, 'backups'); fs.mkdirSync(backups); fs.writeFileSync(path.join(backups, 'untouched'), 'OWNER BACKUP CANARY');
+    const env = sb.env({ MEMORY_VIEW_PATH: files[1], MEMORY_BACKUP_DIR: backups, MEMORY_SOURCE_ID: '55555555-5555-4555-8555-555555555555',
+      MEMORY_URL: 'http://owner.invalid', CLAUDE_MEM_DB: files[2] });
+    const r = await bosun(['memory', 'bench', '--n', '10000', '--public-view'], { env, cwd: repo });
+    assert.equal(r.code, 0, r.err);
+    assert.match(r.out, /10000 memories \(synthetic, seed 42\)/);
+    assert.match(r.out, /outcomes 20 verified memory injections, 0 no-memory\/held, 0 failed, 0 unqualified/);
+    assert.match(r.out, /hook mem\s+p50 [\d.]+ ms\s+p95 [\d.]+ ms\s+\(verified injected runs only, 20 runs\)/);
+    assert.match(r.out, /public\s+READY \(explicit synthetic apply\/publish\/binding\)/);
+    assert.doesNotMatch(r.out + r.err, /OWNER|55555555|owner\.invalid/);
+    for (const file of files) assert.equal(fs.readFileSync(file, 'utf8'), 'OWNER STORAGE CANARY');
+    assert.equal(fs.readFileSync(path.join(backups, 'untouched'), 'utf8'), 'OWNER BACKUP CANARY');
+    assert.ok(!fs.existsSync(path.join(sb.home, '.bosun', 'metrics.jsonl')));
+    assert.deepEqual(fs.readdirSync(path.dirname(primary)).sort(), ['bosun.log', 'config.env', 'memory.db'], 'normal CLI config/content-free logging creates no other owner memory artifacts');
+    assert.doesNotMatch(fs.readFileSync(path.join(path.dirname(primary), 'bosun.log'), 'utf8'), /OWNER|PRIVATE|55555555/);
+    for (const args of [['memory', 'bench', '--n', '10001', '--public-view'], ['memory', 'bench', '--n', '0'], ['memory', 'stats', '--public-view']]) {
+      const invalid = await bosun(args, { env, cwd: repo }); assert.equal(invalid.code, 2, invalid.err);
+    }
+    console.log('Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.');
+  } finally { sb.cleanup(); }
+});
+
 test('memory: an expired session memory leaves search in a long-running process, not only on the next open', async () => {
   const sb = sandbox();
   try {
