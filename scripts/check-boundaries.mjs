@@ -17,15 +17,20 @@ const IO_GLOBALS = new Set(['process', 'fetch', 'console', 'global', 'globalThis
   'XMLHttpRequest', 'WebSocket', 'Worker', 'localStorage', 'sessionStorage', 'navigator', 'performance',
   'setTimeout', 'setInterval', 'setImmediate', 'clearTimeout', 'clearInterval', 'queueMicrotask', 'Date']);
 const CODE_LOADERS = new Set(['require', 'createRequire', 'eval', 'Function']);
+// These extracted helpers receive storage/time/hash/measurement through explicit composition.
+// Keep the exact set narrow: other native adapters legitimately own filesystem/runtime effects.
+const ISOLATED_MEMORY = new Set(['src/contracts/schema.ts', 'src/contracts/memory.ts',
+  ...['sqlite-store', 'sqlite-query', 'sqlite-maintenance', 'sqlite-session'].map((name) => `src/adapters/memory/${name}.ts`)]);
 const LEGACY_FILES = new Set(['bin/bosun', ...[
   'cli', 'config', 'consolidate', 'context', 'exec', 'llm', 'log', 'mcp', 'metrics', 'orca', 'roles', 'route', 'serve', 'services', 'util', 'wire',
   'memory/bench', 'memory/claudemem', 'memory/cli', 'memory/docs', 'memory/project', 'memory/remote', 'memory/service', 'memory/sqlite', 'memory/types',
 ].map((name) => `lib/${name}.ts`)]);
 // Exact compatibility edges; no new src imports lib. Remove these with the corresponding legacy caller before ship.
 const FORWARDING = new Map([
-  ['lib/context.ts', ['src/core/text.ts', 'src/core/memory-policy.ts']], ['lib/log.ts', ['src/core/errors.ts']], ['lib/util.ts', ['src/core/errors.ts']],
+  ['lib/context.ts', ['src/core/text.ts', 'src/core/memory-policy.ts']], ['lib/log.ts', ['src/core/errors.ts']], ['lib/util.ts', ['src/core/errors.ts', 'src/contracts/schema.ts']],
   ['lib/mcp.ts', ['src/core/memory-policy.ts', 'src/core/errors.ts']], ['lib/serve.ts', ['src/core/errors.ts']],
-  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts']],
+  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts', 'src/adapters/memory/sqlite-session.ts']],
+  ['lib/memory/service.ts', ['src/contracts/memory.ts', 'src/adapters/memory/sqlite-store.ts']],
   ['lib/memory/types.ts', ['src/core/domain/memory.ts', 'src/core/domain/context.ts', 'src/core/errors.ts', 'src/core/ports/memory.ts', 'src/core/ports/context-source.ts']],
   ['lib/route.ts', ['src/core/domain/route.ts', 'src/core/use-cases/route-prompt.ts', 'src/core/route-policy.ts', 'src/app/registry.ts', 'src/adapters/memory/sqlite-readonly.ts']],
 ]);
@@ -35,6 +40,8 @@ const ADAPTER_SEAMS = new Map([
   ['src/adapters/memory/sqlite-owner.ts', ['src/adapters/memory/sqlite-cutover.ts']],
   ['src/adapters/memory/sqlite-public-readonly.ts', ['src/adapters/memory/sqlite-public-protocol.ts']],
   ['src/adapters/memory/sqlite-readonly.ts', ['src/adapters/memory/sqlite-public-readonly.ts']],
+  ['src/adapters/memory/sqlite-store.ts', ['src/adapters/memory/sqlite-query.ts', 'src/adapters/memory/sqlite-maintenance.ts', 'src/adapters/memory/sqlite-session.ts']],
+  ['src/adapters/memory/sqlite-maintenance.ts', ['src/adapters/memory/sqlite-session.ts']],
 ]);
 const slash = (p) => p.split(path.sep).join('/');
 const inside = (root, file) => file === root || file.startsWith(root + path.sep);
@@ -53,6 +60,16 @@ function runtimeReference(node) {
     || ((ts.isPropertyAssignment(parent) || ts.isMethodDeclaration(parent) || ts.isPropertyDeclaration(parent)) && parent.name === node)) return false;
   for (let ancestor = node; ancestor; ancestor = ancestor.parent) if (ts.isTypeNode(ancestor)) return false;
   return true;
+}
+function typeOnlyExternal(node) {
+  if (ts.isImportTypeNode(node)) return true;
+  if (ts.isImportDeclaration(node)) {
+    const clause = node.importClause;
+    return !!clause && (clause.isTypeOnly || !clause.name && clause.namedBindings && ts.isNamedImports(clause.namedBindings)
+      && clause.namedBindings.elements.length > 0 && clause.namedBindings.elements.every((entry) => entry.isTypeOnly));
+  }
+  return ts.isExportDeclaration(node) && (node.isTypeOnly || node.exportClause && ts.isNamedExports(node.exportClause)
+    && node.exportClause.elements.length > 0 && node.exportClause.elements.every((entry) => entry.isTypeOnly));
 }
 
 export function checkBoundaries({ root = REPO } = {}) {
@@ -81,6 +98,7 @@ export function checkBoundaries({ root = REPO } = {}) {
     if (relative(file).startsWith('test/')) continue; // fixtures are checked as synthetic roots by the guarded tests
     const source = program.getSourceFile(file) ?? ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
     const fromZone = zone(file);
+    const isolatedMemory = ISOLATED_MEMORY.has(relative(file));
     if (fromZone === 'legacy' && !LEGACY_FILES.has(relative(file))) problem(file, 'Unregistered legacy production file; put new code in src');
     if (fromZone !== 'legacy' && !ZONES.has(fromZone)) problem(file, `Unknown production zone ${fromZone}`);
     for (const diagnostic of source.parseDiagnostics) problem(file, `Invalid syntax: ${ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ')}`);
@@ -100,6 +118,7 @@ export function checkBoundaries({ root = REPO } = {}) {
         }
         if (!resolved || resolved.isExternalLibraryImport) {
           if (fromZone === 'core') problem(file, `Core external dependency ${specifier}`, node);
+          else if (isolatedMemory && !(specifier === 'node:sqlite' && typeOnlyExternal(node))) problem(file, `Isolated memory external dependency ${specifier}`, node);
           else if (!specifier.startsWith('node:') && !resolved) problem(file, `Unresolved dependency ${specifier}`, node);
           return;
         }
@@ -110,6 +129,10 @@ export function checkBoundaries({ root = REPO } = {}) {
       if (!inside(root, target) || !known.has(target)) { problem(file, `Dependency escapes checked production graph: ${specifier}`, node); return; }
       if (relative(target).startsWith('test/')) problem(file, 'Production imports test code', node);
       const toZone = zone(target);
+      if (isolatedMemory && toZone === 'platform') problem(file, `Isolated memory platform dependency (${relative(target)})`, node);
+      if (isolatedMemory && toZone !== 'core' && !ISOLATED_MEMORY.has(relative(target)) && !typeOnlyExternal(node)) {
+        problem(file, `Isolated memory unreviewed dependency (${relative(target)})`, node);
+      }
       if (fromZone === 'legacy' && toZone !== 'legacy' && !FORWARDING.get(relative(file))?.includes(relative(target))) {
         problem(file, `Unregistered compatibility edge (${relative(target)})`, node);
       }
@@ -148,16 +171,16 @@ export function checkBoundaries({ root = REPO } = {}) {
           const directRequire = node.text === 'require' && ts.isCallExpression(node.parent) && node.parent.expression === node;
           if (!directRequire) problem(file, `Indirect/dynamic code loading is forbidden: ${node.text}`, node);
         }
-        if (fromZone === 'core' && (IO_GLOBALS.has(node.text) || node.text === 'Math')) {
+        if ((fromZone === 'core' || isolatedMemory) && (IO_GLOBALS.has(node.text) || node.text === 'Math')) {
           const symbol = checker.getSymbolAtLocation(node);
-          const local = symbol?.declarations?.some((declaration) => inside(path.join(root, 'src/core'), declaration.getSourceFile().fileName)
+          const local = symbol?.declarations?.some((declaration) => inside(fromZone === 'core' ? path.join(root, 'src/core') : path.dirname(file), declaration.getSourceFile().fileName)
             && !(declaration.flags & ts.NodeFlags.Ambient));
           const parent = node.parent;
           const deterministicMath = node.text === 'Math' && (
             ts.isPropertyAccessExpression(parent) && parent.expression === node && parent.name.text !== 'random'
             || ts.isElementAccessExpression(parent) && parent.expression === node && parent.argumentExpression
             && ts.isStringLiteral(parent.argumentExpression) && parent.argumentExpression.text !== 'random');
-          if (!local && !deterministicMath) problem(file, `Core IO/global access is forbidden: ${node.text}`, node);
+          if (!local && !deterministicMath) problem(file, `${isolatedMemory ? 'Isolated memory' : 'Core'} IO/global access is forbidden: ${node.text}`, node);
         }
       }
       ts.forEachChild(node, visit);

@@ -24,7 +24,7 @@ test('production boundary graph passes including the recorded legacy forwarding 
   assert.ok(result.edges > 100);
 });
 
-const cases: { name: string; files: Record<string, string>; expected: RegExp }[] = [
+const cases: { name: string; files: Record<string, string>; expected: RegExp; config?: object }[] = [
   { name: 'type-only static IO import', files: { 'src/core/a.ts': "import type { Stats } from 'node:fs';" }, expected: /Core external/ },
   { name: 'reexport relative bypass', files: { 'src/core/a.ts': "export { value } from '../platform/io.ts';", 'src/platform/io.ts': 'export const value=1;' }, expected: /Forbidden core -> platform/ },
   { name: 'literal dynamic import', files: { 'src/core/a.ts': "void import('../platform/io.ts');", 'src/platform/io.ts': 'export const value=1;' }, expected: /Forbidden core -> platform/ },
@@ -55,10 +55,27 @@ const cases: { name: string; files: Record<string, string>; expected: RegExp }[]
   { name: 'new source cannot import old lib helper', files: { 'src/app/a.ts': "import '../../lib/util.ts';", 'lib/util.ts': 'export const value=1;' }, expected: /Forbidden app -> legacy/ },
   { name: 'unregistered legacy file', files: { 'lib/new.ts': 'export const value=1;' }, expected: /Unregistered legacy/ },
   { name: 'unrecorded forwarding edge', files: { 'lib/route.ts': "import '../src/core/a.ts';", 'src/core/a.ts': 'export const value=1;' }, expected: /Unregistered compatibility edge/ },
+  { name: 'memory adapter cannot reach legacy config', files: { 'src/adapters/memory/sqlite-store.ts': "import '../../../lib/config.ts';", 'lib/config.ts': 'export const value=1;' }, expected: /Forbidden adapters -> legacy/ },
+  { name: 'memory adapter cannot read ambient config', files: { 'src/adapters/memory/sqlite-store.ts': 'export const value=process.env.HOME;' }, expected: /Isolated memory IO\/global.*process/ },
+  { name: 'memory query cannot use an ambient clock', files: { 'src/adapters/memory/sqlite-query.ts': 'export const value=Date.now();' }, expected: /Isolated memory IO\/global.*Date/ },
+  { name: 'memory adapter cannot use an ambient timing source', files: { 'src/adapters/memory/sqlite-store.ts': 'export const value=performance.now();' }, expected: /Isolated memory IO\/global.*performance/ },
+  { name: 'memory adapter cannot create a runtime native connection', files: { 'src/adapters/memory/sqlite-store.ts': "import {DatabaseSync} from 'node:sqlite';" }, expected: /Isolated memory external dependency/ },
+  { name: 'memory adapter cannot alias a runtime native connection', files: { 'src/adapters/memory/sqlite-store.ts': "import {DatabaseSync as Native} from 'node:sqlite';" }, expected: /Isolated memory external dependency/ },
+  { name: 'memory adapter cannot reach a platform clock through a package alias', files: { 'src/adapters/memory/sqlite-store.ts': "import {now} from '#io';", 'src/platform/io.ts': 'export const now=()=>Date.now();' }, expected: /Isolated memory platform dependency/ },
+  { name: 'memory adapter cannot reach a platform sink through a tsconfig alias', files: { 'src/adapters/memory/sqlite-store.ts': "import {record} from '@io';", 'src/platform/io.ts': 'export const record=console.log;' }, expected: /Isolated memory platform dependency/ },
+  { name: 'memory adapter cannot use an ambient measurement sink', files: { 'src/adapters/memory/sqlite-store.ts': 'export const value=globalThis.console.log;' }, expected: /Isolated memory IO\/global.*globalThis/ },
+  { name: 'validation cannot load runtime filesystem', files: { 'src/contracts/schema.ts': "import fs from 'node:fs';" }, expected: /Isolated memory external dependency/ },
+  { name: 'memory isolation cannot reach ambient state through an unreviewed contract helper', files: { 'src/adapters/memory/sqlite-store.ts': "import {now} from '../../contracts/ambient.ts'; export const value=now();", 'src/contracts/ambient.ts': 'export const now=()=>Date.now();' }, expected: /Isolated memory unreviewed dependency/ },
+  { name: 'validation isolation cannot reexport an ambient helper', files: { 'src/contracts/schema.ts': "export {value} from './ambient.ts';", 'src/contracts/ambient.ts': 'export const value=process.env.HOME;' }, expected: /Isolated memory unreviewed dependency/ },
+  { name: 'memory isolation cannot alias an unreviewed contract sink', files: { 'src/adapters/memory/sqlite-store.ts': "import {record} from '@ambient';", 'src/contracts/ambient.ts': 'export const record=console.log;' }, config: { paths: { '@ambient': ['src/contracts/ambient.ts'] } }, expected: /Isolated memory unreviewed dependency/ },
+  { name: 'pure validation cannot reach storage', files: { 'src/contracts/memory.ts': "import '../adapters/memory/sqlite-store.ts';", 'src/adapters/memory/sqlite-store.ts': 'export const value=1;' }, expected: /Forbidden contracts -> adapters/ },
+  { name: 'memory query cannot import maintenance', files: { 'src/adapters/memory/sqlite-query.ts': "import './sqlite-maintenance.ts';", 'src/adapters/memory/sqlite-maintenance.ts': 'export const value=1;' }, expected: /Cross-adapter/ },
+  { name: 'local hook reader cannot import writable store', files: { 'src/adapters/memory/sqlite-readonly.ts': "import './sqlite-store.ts';", 'src/adapters/memory/sqlite-store.ts': 'export const value=1;' }, expected: /Cross-adapter/ },
+  { name: 'service forwarding does not allow unrelated memory internals', files: { 'lib/memory/service.ts': "import '../../src/adapters/memory/sqlite-session.ts';", 'src/adapters/memory/sqlite-session.ts': 'export const value=1;' }, expected: /Unregistered compatibility edge/ },
   { name: 'unknown new production zone', files: { 'src/misc/a.ts': 'export const value=1;' }, expected: /Unknown production zone/ },
 ];
 for (const entry of cases) test(`boundary negative fixture: ${entry.name}`, () => {
-  const sb = fixture(entry.files);
+  const sb = fixture(entry.files, entry.config);
   try { assert.match(checkBoundaries({ root: sb.root }).violations.join('\n'), entry.expected); }
   finally { sb.cleanup(); }
 });
@@ -68,6 +85,15 @@ test('AST parsing ignores fake imports in comments/text and permits local symbol
     'src/core/a.ts': "// import 'node:fs'\nconst text=\"import('node:fs')\";const fetch=()=>1;export const value=Math.max(fetch(),Math['min'](1,2));",
     'src/adapters/hosts/a/index.ts': "import './render.ts';",
     'src/adapters/hosts/a/render.ts': 'export const value=1;',
+  });
+  try { assert.deepEqual(checkBoundaries({ root: sb.root }).violations, []); }
+  finally { sb.cleanup(); }
+});
+
+test('isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins', () => {
+  const sb = fixture({
+    'src/adapters/memory/sqlite-query.ts': "import {type DatabaseSync as Native} from 'node:sqlite'; export type NativeType=import('node:sqlite').DatabaseSync; export function query(deps:{now():number;measure(n:number):void},db:Native) { const process=1; deps.measure(Math.max(process,deps.now())); return db.prepare('SELECT 1').get(); }",
+    'src/contracts/schema.ts': "const performance=()=>1; export const value=Number.isFinite(performance());",
   });
   try { assert.deepEqual(checkBoundaries({ root: sb.root }).violations, []); }
   finally { sb.cleanup(); }

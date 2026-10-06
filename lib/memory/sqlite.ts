@@ -12,6 +12,8 @@ import { MemoryError } from './types.ts';
 import { P, type Cfg } from '../config.ts';
 import { log } from '../log.ts';
 import { record } from '../metrics.ts';
+import { tx, plainSession, type SqliteSession } from '../../src/adapters/memory/sqlite-session.ts';
+export { tx, plainSession, type SqliteSession } from '../../src/adapters/memory/sqlite-session.ts';
 
 export const MIGRATIONS: string[] = [`
 CREATE TABLE memories (
@@ -101,25 +103,6 @@ export function migrate(db: DatabaseSync, migrations: string[] = MIGRATIONS): nu
   return schemaVersion(db);
 }
 
-export function tx<T>(db: DatabaseSync, fn: () => T): T {
-  db.exec('BEGIN IMMEDIATE');
-  try {
-    const r = fn();
-    db.exec('COMMIT');
-    return r;
-  } catch (e) { db.exec('ROLLBACK'); throw e; }
-}
-
-// Internal synchronous SQL lifecycle, not another domain port. Registered native handles remain callback-local.
-export type SqliteSession = {
-  readonly legacyDb?: DatabaseSync;
-  read<T>(fn: (db: DatabaseSync) => T): T;
-  transaction<T>(fn: (db: DatabaseSync) => T): T;
-  close(): void;
-};
-export function plainSession(db: DatabaseSync): SqliteSession {
-  return { legacyDb: db, read: (fn) => fn(db), transaction: (fn) => tx(db, () => fn(db)), close: () => db.close() };
-}
 export function writerPaths(file: string, cfg: Cfg): CutoverPaths {
   return { primary: file, view: cfg.MEMORY_VIEW_PATH || path.join(path.dirname(file), 'memory-view', 'public.db'),
     backups: cfg.MEMORY_BACKUP_DIR || path.join(path.dirname(file), 'memory-backups') };
