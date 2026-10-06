@@ -36,7 +36,7 @@ export type CutoverOptions = {
   now: () => number;
   id: () => string;
   /** Explicit owner workflow only. No native handles are passed; validation must be synchronous. */
-  expectation?: { operation: 'apply' | 'reconcile'; sourceId: string; validate: () => void };
+  expectation?: { operation: 'apply' | 'reconcile' | 'recover'; sourceId: string; validate: () => void };
   /** Owner progress/checkpoint only; no data, artifact hashes or paths are passed. */
   checkpoint?: (phase: CutoverPhase) => void | Promise<void>;
 };
@@ -210,7 +210,8 @@ function validateGate(db: DatabaseSync, p: CutoverPaths, source: Identity, view:
 function bindGate(r: Gate, p: CutoverPaths, source: Identity, view: Identity): void {
   if (r.id !== 1 || r.protocol !== FLOOR || r.state !== 'HOLD' || !['copying', 'backed', 'applied'].includes(r.phase)
     || !UUID.test(r.source_id) || !UUID.test(r.attempt_id) || r.backup_name !== r.attempt_id + '.db'
-    || !integer(r.started_at) || r.started_at > 8_640_000_000_000_000 || r.backup_hash !== null && !/^[a-f0-9]{64}$/.test(r.backup_hash)) fail('state');
+    || !integer(r.started_at) || r.started_at > 8_640_000_000_000_000 || r.backup_hash !== null && !/^[a-f0-9]{64}$/.test(r.backup_hash)
+    || (r.phase === 'copying' ? r.backup_hash !== null : r.backup_hash === null)) fail('state');
   if (r.source_dev !== source.dev || r.source_ino !== source.ino || r.view_dev !== view.dev || r.view_ino !== view.ino) fail('identity');
   same(path.join(p.backups, r.backup_name), { dev: r.backup_dev, ino: r.backup_ino });
 }
@@ -283,7 +284,7 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     if (!options || typeof options.now !== 'function' || typeof options.id !== 'function') fail('input');
     if (options.checkpoint !== undefined && typeof options.checkpoint !== 'function') fail('input');
     const expectation = options.expectation;
-    if (expectation !== undefined && (!expectation || !['apply', 'reconcile'].includes(expectation.operation)
+    if (expectation !== undefined && (!expectation || !['apply', 'reconcile', 'recover'].includes(expectation.operation)
       || typeof expectation.sourceId !== 'string' || !UUID.test(expectation.sourceId) || typeof expectation.validate !== 'function')) fail('input');
     // Validate injected values before any reservation or gate creation.
     const started = time(options.now); const attempt = freshId(options.id); const newEpoch = freshId(options.id);
@@ -305,8 +306,10 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     // Independent owner expectations and filesystem freshness are checked under actual admission,
     // before revocation, artifact reservation, gate changes or floor installation.
     if (expectation) {
-      if (expectation.operation === 'apply' ? !!floor || !!gate
+      if (expectation.operation === 'apply' ? !!floor || !!gate : expectation.operation === 'recover'
+        ? !!floor || !gate || gate.source_id !== expectation.sourceId
         : !floor || !gate || floor.source_id !== expectation.sourceId || gate.source_id !== expectation.sourceId) fail('identity');
+      if (expectation.operation === 'recover') recoveryGate(gate!, p);
       if (expectation.validate() !== undefined) fail('input');
     }
     if (floor) {
@@ -322,6 +325,7 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
       return receipt(gate, final.generation);
     }
     if (gate?.phase === 'applied') fail('state');
+    if (gate) recoveryGate(gate, p);
     const epoch = gate?.source_id ?? newEpoch;
     if (attempt === epoch || attempt === gate?.attempt_id) fail('input');
     const backupFile = path.join(p.backups, attempt + '.db');
@@ -379,6 +383,35 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
 }
 function reconcileBackup(gate: Gate, p: CutoverPaths): void {
   if (!gate.backup_hash || digestBackup(path.join(p.backups, gate.backup_name), { dev: gate.backup_dev, ino: gate.backup_ino }) !== gate.backup_hash) fail('backup');
+}
+function recoveryGate(gate: Gate, p: CutoverPaths): void {
+  if (gate.format !== 1 || !['copying', 'backed'].includes(gate.phase)) fail('state');
+  if (gate.phase === 'backed') reconcileBackup(gate, p);
+  else {
+    if (gate.backup_hash !== null) fail('state');
+    const file = path.join(p.backups, gate.backup_name);
+    // Only a valid gate's exact referenced inode may be incomplete. Never read its unfinished bytes.
+    if (fs.statSync(file).size > MAX_BYTES || ['-wal', '-shm', '-journal'].some((s) => present(file + s))) fail('backup');
+  }
+}
+/** Owner-only reference inspection. Never opens the primary or an unreferenced artifact through SQLite. */
+export function inspectOwnerCutoverReference(p: CutoverPaths, names: readonly string[], sourceId?: string, recover = false): { index: number; phase: 'copying' | 'backed' | 'applied' } {
+  let view: DatabaseSync | undefined;
+  try {
+    if (sourceId !== undefined && (typeof sourceId !== 'string' || !UUID.test(sourceId)) || recover && sourceId === undefined
+      || !Array.isArray(names) || names.length > 32 || names.some((name) => typeof name !== 'string' || !UUID.test(name.slice(0, -3)) || !name.endsWith('.db'))) fail('input');
+    p = paths(p); const source = identity(p.primary); const fixed = viewIdentity(p);
+    view = new DatabaseSync(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+    view.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;');
+    runtime(view);
+    const gate = validateGate(view, p, source, fixed);
+    if (sourceId !== undefined && gate.source_id !== sourceId) fail('identity');
+    const index = names.indexOf(gate.backup_name); if (index < 0) fail('identity');
+    if (recover) recoveryGate(gate, p); else reconcileBackup(gate, p);
+    same(p.primary, source); same(p.view, fixed); paths(p); viewIdentity(p);
+    return { index, phase: gate.phase as 'copying' | 'backed' | 'applied' };
+  } catch (e) { return mapped(e); }
+  finally { if (!closeNative(view)) fail('storage'); }
 }
 function holdPublic(view: DatabaseSync, gate: Gate): void {
   viewTx(view, () => {

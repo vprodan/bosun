@@ -12,7 +12,7 @@ import { makeCtx, project, projectDir } from './project.ts';
 import { bench, evaluate } from './bench.ts';
 import { ClaudeMem } from './claudemem.ts';
 import { MemoryService, cleanTags, openMemory } from './service.ts';
-import { publishLocalMemory, planLocalMemoryCutover, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from './sqlite.ts';
+import { publishLocalMemory, planLocalMemoryCutover, planLocalMemoryRecovery, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from './sqlite.ts';
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
@@ -23,28 +23,33 @@ export const USAGE = `usage: bosun memory <verb>
   consolidate [--since 7d] [--limit 20]   stats   bench [--n 10000]   eval <queries.jsonl>
   cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json]
   cutover prepare --plan TOKEN --clients-stopped [--json]
-  cutover plan [--json]
+  cutover plan [--retain-unreferenced] [--json]
   cutover apply --plan TOKEN --clients-stopped [--json]
-  cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]   (revokes READY to HOLD)
+  cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]   (revokes READY to HOLD)
+  cutover recover-plan --source-id UUID [--retain-unreferenced] [--json]
+  cutover recover --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]
   publish [--json]   (already-applied local floor only)`;
 
-const CUTOVER_USAGE = 'usage: bosun memory cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json] | prepare --plan TOKEN --clients-stopped [--json] | plan [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--json]';
+const CUTOVER_USAGE = 'usage: bosun memory cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json] | prepare --plan TOKEN --clients-stopped [--json] | plan [--retain-unreferenced] [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json] | recover-plan --source-id UUID [--retain-unreferenced] [--json] | recover --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]';
 async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
   const [operation, ...rest] = argv;
-  if (!['prepare-plan', 'prepare', 'plan', 'apply', 'reconcile'].includes(operation)) return die(CUTOVER_USAGE, 2);
+  if (!['prepare-plan', 'prepare', 'plan', 'apply', 'reconcile', 'recover-plan', 'recover'].includes(operation)) return die(CUTOVER_USAGE, 2);
   let parsed;
   try {
     parsed = parseArgs({ args: rest, options: { json: { type: 'boolean' }, plan: { type: 'string' },
       'source-id': { type: 'string' }, 'clients-stopped': { type: 'boolean' },
-      'create-view-directory': { type: 'boolean' }, 'create-backup-directory': { type: 'boolean' } }, allowPositionals: false, tokens: true });
+      'create-view-directory': { type: 'boolean' }, 'create-backup-directory': { type: 'boolean' }, 'retain-unreferenced': { type: 'boolean' } }, allowPositionals: false, tokens: true });
     const names = parsed.tokens.filter((t) => t.kind === 'option').map((t) => t.name);
     if (names.length !== parsed.tokens.length || new Set(names).size !== names.length
-      || names.some((name) => !(operation === 'plan' ? ['json'] : operation === 'prepare-plan' ? ['json', 'create-view-directory', 'create-backup-directory']
-        : operation === 'reconcile' ? ['json', 'plan', 'source-id', 'clients-stopped'] : ['json', 'plan', 'clients-stopped']).includes(name))) return die(CUTOVER_USAGE, 2);
+      || names.some((name) => !(operation === 'plan' ? ['json', 'retain-unreferenced'] : operation === 'prepare-plan' ? ['json', 'create-view-directory', 'create-backup-directory']
+        : operation === 'recover-plan' ? ['json', 'source-id', 'retain-unreferenced']
+        : ['reconcile', 'recover'].includes(operation) ? ['json', 'plan', 'source-id', 'clients-stopped', 'retain-unreferenced'] : ['json', 'plan', 'clients-stopped']).includes(name))) return die(CUTOVER_USAGE, 2);
   } catch { return die(CUTOVER_USAGE, 2); }
   const v = parsed.values;
-  if (operation === 'plan' || operation === 'prepare-plan') {
-    const result = operation === 'plan' ? planLocalMemoryCutover(cfg) : planLocalMemoryPreparation(cfg,
+  if (operation === 'recover-plan' && !v['source-id']) return die(CUTOVER_USAGE, 2);
+  if (operation === 'plan' || operation === 'prepare-plan' || operation === 'recover-plan') {
+    const result = operation === 'recover-plan' ? planLocalMemoryRecovery(cfg, { sourceId: v['source-id']!, retainUnreferenced: v['retain-unreferenced'] })
+      : operation === 'plan' ? planLocalMemoryCutover(cfg, undefined, { retainUnreferenced: v['retain-unreferenced'] }) : planLocalMemoryPreparation(cfg,
       { createViewDirectory: v['create-view-directory'], createBackupDirectory: v['create-backup-directory'] });
     if (v.json) console.log(JSON.stringify(result));
     else {
@@ -52,13 +57,17 @@ async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
       for (const b of result.blockers) console.log(`${b.target}: ${b.reason}${b.requiredMode ? ` (current ${b.currentMode}, required ${b.requiredMode})` : ''}`);
       if ('actions' in result) for (const action of result.actions) console.log(`${action.target}: ${action.action} ${JSON.stringify(action.path)} (${action.currentMode ?? 'absent'} -> ${action.requiredMode})`);
       if ('sourceId' in result && result.sourceId) console.log(`save sourceId independently: ${result.sourceId}`);
+      if ('inventory' in result && result.inventory) {
+        console.log(`View/reference verified; primary schema/floor unverified. Artifacts: ${result.inventory.count}; unreferenced ownership unverified: ${result.inventory.unreferenced.length}.`);
+        for (const artifact of result.inventory.unreferenced) console.log(`retain unreferenced ${artifact.id}: ${JSON.stringify(artifact.metadata)}`);
+      }
       if (result.plan) console.log(`plan: ${result.plan}\nexpires: ${new Date(result.expiresAt!).toISOString()}`);
       for (const requirement of result.requirements) console.log(requirement);
       if (result.operation === 'reconcile') console.log('Explicit reconcile requires your independently saved source ID and revokes READY to HOLD.');
     }
     return result.state === 'PLANNED' ? 0 : 1;
   }
-  if (!v.plan || v['clients-stopped'] !== true || operation === 'reconcile' && !v['source-id']) return die(CUTOVER_USAGE, 2);
+  if (!v.plan || v['clients-stopped'] !== true || ['reconcile', 'recover'].includes(operation) && !v['source-id']) return die(CUTOVER_USAGE, 2);
   if (operation === 'prepare') {
     try {
       const result = prepareLocalMemoryLayout(cfg, { plan: v.plan, clientsStopped: v['clients-stopped'] });
@@ -70,8 +79,8 @@ async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
     }
   }
   try {
-    const result = await applyLocalMemoryCutover(cfg, { operation: operation as 'apply' | 'reconcile', plan: v.plan,
-      sourceId: v['source-id'], clientsStopped: v['clients-stopped'] });
+    const result = await applyLocalMemoryCutover(cfg, { operation: operation as 'apply' | 'reconcile' | 'recover', plan: v.plan,
+      sourceId: v['source-id'], clientsStopped: v['clients-stopped'], retainUnreferenced: v['retain-unreferenced'] });
     console.log(v.json ? JSON.stringify(result) : `${operation} ${result.state}; sourceId ${result.sourceId}\nClients stopped: operator attestation. Reopen every authority. Save/set MEMORY_SOURCE_ID yourself; explicitly publish separately.`);
     return 0;
   } catch (e) {

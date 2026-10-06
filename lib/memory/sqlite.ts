@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { CutoverWriter, CutoverError, publishMemoryView, type CutoverPaths, type PublicationReceipt } from '../../src/adapters/memory/sqlite-cutover.ts';
-import { planOwnerCutover, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout,
+import { planOwnerCutover, planOwnerRecovery, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout,
   type OwnerCutoverPlan, type OwnerCutoverReceipt, type OwnerPreparationPlan, type OwnerPreparationReceipt } from '../../src/adapters/memory/sqlite-owner.ts';
 import { MemoryError } from './types.ts';
 import { P, type Cfg } from '../config.ts';
@@ -124,9 +124,15 @@ export function writerPaths(file: string, cfg: Cfg): CutoverPaths {
   return { primary: file, view: cfg.MEMORY_VIEW_PATH || path.join(path.dirname(file), 'memory-view', 'public.db'),
     backups: cfg.MEMORY_BACKUP_DIR || path.join(path.dirname(file), 'memory-backups') };
 }
-export function planLocalMemoryCutover(cfg: Cfg, file = P.DB): OwnerCutoverPlan {
+export function planLocalMemoryCutover(cfg: Cfg, file = P.DB, input: { retainUnreferenced?: boolean } = {}): OwnerCutoverPlan {
   if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
-  return planOwnerCutover({ paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
+  const request = ownerRequest<typeof input>(input, ['retainUnreferenced']);
+  return planOwnerCutover({ ...request, paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
+}
+export function planLocalMemoryRecovery(cfg: Cfg, input: { sourceId: string; retainUnreferenced?: boolean }, file = P.DB): OwnerCutoverPlan {
+  if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
+  const request = ownerRequest<typeof input>(input, ['sourceId', 'retainUnreferenced']);
+  return planOwnerRecovery({ ...request, paths: writerPaths(file, cfg), now: Date.now });
 }
 function ownerRequest<T>(input: unknown, names: string[]): T {
   try {
@@ -140,9 +146,9 @@ function ownerRequest<T>(input: unknown, names: string[]): T {
     return request as T;
   } catch { throw new MemoryError('invalid', 'invalid owner cutover request'); }
 }
-export async function applyLocalMemoryCutover(cfg: Cfg, input: { plan: string; operation: 'apply' | 'reconcile'; sourceId?: string; clientsStopped: boolean }, file = P.DB): Promise<OwnerCutoverReceipt> {
+export async function applyLocalMemoryCutover(cfg: Cfg, input: { plan: string; operation: 'apply' | 'reconcile' | 'recover'; sourceId?: string; clientsStopped: boolean; retainUnreferenced?: boolean }, file = P.DB): Promise<OwnerCutoverReceipt> {
   if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
-  const request = ownerRequest<typeof input>(input, ['plan', 'operation', 'sourceId', 'clientsStopped']);
+  const request = ownerRequest<typeof input>(input, ['plan', 'operation', 'sourceId', 'clientsStopped', 'retainUnreferenced']);
   return applyOwnerCutover({ ...request, paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
 }
 export function planLocalMemoryPreparation(cfg: Cfg, input: { createViewDirectory?: boolean; createBackupDirectory?: boolean } = {}, file = P.DB): OwnerPreparationPlan {

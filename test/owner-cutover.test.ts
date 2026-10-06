@@ -4,12 +4,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawn } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
-import { sandbox, fresh, bosun } from './helpers.ts';
+import { sandbox, fresh, bosun, REPO } from './helpers.ts';
 import { P, load } from '../lib/config.ts';
-import { openDb, writerPaths, contentHash, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from '../lib/memory/sqlite.ts';
-import { planOwnerCutover, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout, OwnerCutoverError } from '../src/adapters/memory/sqlite-owner.ts';
-import { cutoverMemory, publishMemoryView, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
+import { openDb, writerPaths, contentHash, applyLocalMemoryCutover, planLocalMemoryRecovery, planLocalMemoryPreparation, prepareLocalMemoryLayout } from '../lib/memory/sqlite.ts';
+import { planOwnerCutover, planOwnerRecovery, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout, OwnerCutoverError } from '../src/adapters/memory/sqlite-owner.ts';
+import { cutoverMemory, publishMemoryView, CutoverWriter, inspectOwnerCutoverReference, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
+import { SqlitePublicReadOnly } from '../src/adapters/memory/sqlite-public-readonly.ts';
 
 function fixture(closed = false) {
   const sb = sandbox(); fresh(sb); const cfg = load(); fs.chmodSync(P.BOSUN, 0o700);
@@ -662,4 +665,252 @@ test('preparation descriptor/getter/proxy/dependency errors remain finite and ma
     fs.lstatSync = (() => { throw new Proxy({}, { getPrototypeOf() { throw new Error('PRIVATE error proxy'); } }); }) as typeof fs.lstatSync;
     assert.doesNotMatch(JSON.stringify(planOwnerPreparation({ paths: f.paths, now: Date.now })), /PRIVATE/);
   } finally { fs.lstatSync = lstat; assert.deepEqual(tree(P.BOSUN), before); f.close(); }
+});
+
+async function interrupted(f: ReturnType<typeof fixture>, phase: 'intent' | 'backup' | 'floor' | 'commit') {
+  const initial = plan(f); let generated = 0;
+  await assert.rejects(cutoverMemory({ ...options(f.paths), id: () => ++generated === 2 ? initial.sourceId! : crypto.randomUUID(),
+    checkpoint(at) { if (at === phase) throw Error('synthetic interruption'); } }), CutoverError);
+  return initial.sourceId!;
+}
+function recovery(f: ReturnType<typeof fixture>, sourceId: string, retainUnreferenced = false) {
+  const result = planOwnerRecovery({ paths: f.paths, sourceId, retainUnreferenced, now: Date.now });
+  assert.equal(result.state, 'PLANNED', JSON.stringify(result)); assert.ok(result.plan); return result;
+}
+const recover = (f: ReturnType<typeof fixture>, sourceId: string, value = recovery(f, sourceId), retainUnreferenced = false) =>
+  applyOwnerCutover({ ...options(f.paths), operation: 'recover', sourceId, plan: value.plan!, clientsStopped: true, retainUnreferenced });
+
+async function killedOwner(f: ReturnType<typeof fixture>, sourceId: string, body: string): Promise<void> {
+  const code = `import ${JSON.stringify(pathToFileURL(path.join(REPO, 'test/bootstrap.ts')).href)};
+    import {cutoverMemory} from ${JSON.stringify(pathToFileURL(path.join(REPO, 'src/adapters/memory/sqlite-cutover.ts')).href)};
+    import {DatabaseSync} from 'node:sqlite'; import {randomUUID} from 'node:crypto';
+    const paths=JSON.parse(process.argv[1]); const sourceId=process.argv[2]; let generated=0;
+    ${body}`;
+  const child = spawn(process.execPath, ['--input-type=module', '-e', code, JSON.stringify(f.paths), sourceId], { cwd: f.sb.root, stdio: ['ignore', 'pipe', 'pipe'] });
+  await new Promise<void>((resolve, reject) => {
+    let marker = false; let output = ''; let error = '';
+    const timeout = setTimeout(() => child.kill('SIGKILL'), 5000);
+    child.stdout.on('data', (chunk) => { output += chunk; if (output.includes('OWNER_CHECKPOINT') && !marker) { marker = true; child.kill('SIGKILL'); } });
+    child.stderr.on('data', (chunk) => { error = (error + chunk).slice(-1000); });
+    child.on('error', reject);
+    child.on('exit', (code, signal) => { clearTimeout(timeout); if (marker && signal === 'SIGKILL') resolve(); else reject(Error(`synthetic owner missed checkpoint: ${code}/${signal} ${error}`)); });
+  });
+}
+
+test('explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles', async () => {
+  for (const phase of ['intent', 'backup', 'floor', 'commit'] as const) {
+    const f = fixture(); const initial = plan(f);
+    try {
+      await killedOwner(f, initial.sourceId!, `await cutoverMemory({paths,now:Date.now,id:()=>++generated===2?sourceId:randomUUID(),
+        async checkpoint(at){if(at===${JSON.stringify(phase)}){process.stdout.write('OWNER_CHECKPOINT\\n'); await new Promise(()=>{});}}});`);
+      const [old] = fs.readdirSync(f.paths.backups); const previous = fs.readFileSync(path.join(f.paths.backups, old));
+      if (phase === 'commit') {
+        const p = recovery(f, initial.sourceId!);
+        await assert.rejects(recover(f, initial.sourceId!, p), (e) => e instanceof CutoverError && e.reason === 'identity');
+        assert.equal(fs.readdirSync(f.paths.backups).length, 1);
+        const explicit = plan(f); const result = await applyOwnerCutover({ ...options(f.paths), operation: 'reconcile', sourceId: initial.sourceId!, plan: explicit.plan!, clientsStopped: true });
+        assert.equal(result.attemptId + '.db', old); assert.equal(result.generation, 0);
+      } else {
+        f.db.prepare("UPDATE memories SET body=?,hash=? WHERE id='m_public'").run('Changed after rollback', contentHash('Zebra public', 'Changed after rollback'));
+        const before = tree(P.BOSUN); const p = recovery(f, initial.sourceId!);
+        assert.equal(p.floor, 'unverified'); assert.equal(p.inventory!.reference, 'verified');
+        assert.equal(p.inventory!.phase, phase === 'intent' ? 'copying' : 'backed');
+        assert.deepEqual(tree(P.BOSUN), before);
+        const result = await recover(f, initial.sourceId!, p);
+        assert.equal(result.sourceId, initial.sourceId); assert.equal(result.generation, 0); assert.notEqual(result.attemptId + '.db', old);
+        assert.deepEqual(result.retainedArtifacts, { priorReference: 'preserved', unreferencedCount: 0, unreferencedOwnership: 'unverified' });
+        const copy = new DatabaseSync(path.join(f.paths.backups, result.attemptId + '.db'), { readOnly: true });
+        try { for (const table of ['memories', 'memory_events', 'docs']) assert.deepEqual(rows(copy, table), rows(f.db, table)); } finally { copy.close(); }
+        const reconcile = planOwnerCutover({ ...options(f.paths), retainUnreferenced: true }); assert.equal(reconcile.state, 'PLANNED');
+        const writer = new CutoverWriter(f.paths); try { writer.transaction((db) => db.prepare("UPDATE memories SET title=?,hash=? WHERE id='m_public'").run('Registered', contentHash('Registered', 'Changed after rollback'))); } finally { writer.close(); }
+        const fresh = planOwnerCutover({ ...options(f.paths), retainUnreferenced: true });
+        const again = await applyOwnerCutover({ ...options(f.paths), operation: 'reconcile', sourceId: initial.sourceId!, plan: fresh.plan!, clientsStopped: true, retainUnreferenced: true });
+        assert.equal(again.attemptId, result.attemptId); assert.equal(again.generation, 1); assert.equal(fs.readdirSync(f.paths.backups).length, 2);
+        await publishMemoryView(options(f.paths));
+        const reader = new SqlitePublicReadOnly({ primary: f.paths.primary, view: f.paths.view, sourceId: initial.sourceId! }, Date.now);
+        try { const note = await reader.get('m_public', { projectId: null, sessionId: null, linked: [] }); assert.equal(note.title, 'Registered'); assert.equal(note.body, 'Changed after rollback'); }
+        finally { reader.close(); }
+      }
+      assert.deepEqual(fs.readFileSync(path.join(f.paths.backups, old)), previous, 'prior bytes preserved');
+    } finally { f.close(); }
+  }
+});
+
+test('recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged', async () => {
+  const f = fixture(); const sourceId = await interrupted(f, 'backup'); const before = tree(P.BOSUN);
+  const exec = DatabaseSync.prototype.exec; const prepare = DatabaseSync.prototype.prepare; let settings = false; let leased = false;
+  try {
+    DatabaseSync.prototype.exec = function (sql) {
+      assert.doesNotMatch(sql, /BEGIN IMMEDIATE|COMMIT|UPDATE|INSERT|DELETE|CREATE/);
+      if (sql.includes('query_only=ON') && sql.includes('locking_mode=EXCLUSIVE') && sql.includes('BEGIN')) settings = true;
+      return exec.call(this, sql);
+    };
+    DatabaseSync.prototype.prepare = function (sql) {
+      assert.doesNotMatch(sql, /schema_migrations|FROM memories|FROM docs|bosun_source_floor/);
+      if (sql === 'SELECT * FROM bosun_cutover_gate') {
+        const other = new DatabaseSync(f.paths.view);
+        try { assert.throws(() => exec.call(other, 'BEGIN EXCLUSIVE'), /locked/); leased = true; } finally { other.close(); }
+      }
+      return prepare.call(this, sql);
+    };
+    const p = recovery(f, sourceId); assert.equal(settings, true); assert.equal(leased, true);
+    assert.doesNotMatch(JSON.stringify(p) + JSON.stringify(decode(p.plan!)), /PRIVATE|backup_hash|backup_name/);
+    DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = prepare;
+    const cli = await bosun(['memory', 'cutover', 'recover-plan', '--source-id', sourceId, '--json'], { env: f.sb.env() }); assert.equal(cli.code, 0, cli.err);
+    assert.deepEqual(tree(P.BOSUN), before);
+  } finally { DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = prepare; f.close(); }
+});
+
+test('multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted', async () => {
+  const f = fixture(); const sourceId = await interrupted(f, 'intent'); const extra = path.join(f.paths.backups, crypto.randomUUID() + '.db');
+  const previous = path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]);
+  fs.writeFileSync(previous, 'PRIVATE bounded incomplete copying artifact', { mode: 0o600 });
+  fs.writeFileSync(extra, 'PRIVATE arbitrary bytes without SQLite header', { mode: 0o600 });
+  const before = tree(P.BOSUN); const open = fs.openSync; const read = fs.readFileSync;
+  try {
+    fs.openSync = ((file, ...args) => { assert.notEqual(file, extra, 'unreferenced artifact never opened'); assert.notEqual(file, previous, 'unfinished reference stays unread'); return (open as (...args: unknown[]) => number)(file, ...args); }) as typeof fs.openSync;
+    fs.readFileSync = ((file: fs.PathOrFileDescriptor, ...args: unknown[]) => { assert.notEqual(file, extra, 'unreferenced artifact never hashed/read'); assert.notEqual(file, previous, 'unfinished reference stays unread'); return (read as (...args: unknown[]) => unknown)(file, ...args); }) as typeof fs.readFileSync;
+    const blocked = planOwnerRecovery({ paths: f.paths, sourceId, now: Date.now });
+    assert.equal(blocked.state, 'BLOCKED'); assert.equal(blocked.plan, null); assert.equal(blocked.inventory!.count, 2);
+    assert.equal(blocked.inventory!.unreferenced[0].ownership, 'unverified'); assert.equal(blocked.inventory!.unreferenced[0].metadata.header, undefined);
+    const p = recovery(f, sourceId, true); assert.equal(decode(p.plan!).retainUnreferenced, true);
+    await assert.rejects(recover(f, sourceId, p), (e) => e instanceof OwnerCutoverError && e.blocker.reason === 'input');
+    const forged = encode({ ...decode(p.plan!), retainUnreferenced: false });
+    await assert.rejects(recover(f, sourceId, { ...p, plan: forged }), OwnerCutoverError);
+    const result = await recover(f, sourceId, p, true); assert.equal(result.sourceId, sourceId);
+    assert.deepEqual(result.retainedArtifacts, { priorReference: 'preserved', unreferencedCount: 1, unreferencedOwnership: 'unverified' });
+    fs.openSync = open; fs.readFileSync = read;
+    assert.deepEqual(tree(extra), (before as { entries: Record<string, any> }).entries['memory-backups'].entries[path.basename(extra)]);
+    assert.deepEqual(tree(previous), (before as { entries: Record<string, any> }).entries['memory-backups'].entries[path.basename(previous)]);
+    assert.equal(fs.readdirSync(f.paths.backups).length, 3); assert.equal(planOwnerCutover(options(f.paths)).state, 'BLOCKED');
+    const reconciled = planOwnerCutover({ ...options(f.paths), retainUnreferenced: true }); assert.equal(reconciled.state, 'PLANNED'); assert.equal(reconciled.inventory!.unreferenced.length, 2);
+    await assert.rejects(applyOwnerCutover({ ...options(f.paths), operation: 'reconcile', sourceId, plan: reconciled.plan!, clientsStopped: true }), OwnerCutoverError);
+  } finally { fs.openSync = open; fs.readFileSync = read; f.close(); }
+});
+
+test('wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML', async () => {
+  const f = fixture(); const sourceId = await interrupted(f, 'backup'); const p = recovery(f, sourceId); const before = tree(P.BOSUN);
+  const wrong = crypto.randomUUID(); const open = fs.openSync; let reservations = 0;
+  try {
+    assert.equal(planOwnerRecovery({ paths: f.paths, sourceId: wrong, now: Date.now }).state, 'BLOCKED');
+    fs.openSync = ((file, flags, ...args) => { if (flags === 'wx') reservations++; return (open as (...args: unknown[]) => number)(file, flags, ...args); }) as typeof fs.openSync;
+    const forged = { ...p, plan: encode({ ...decode(p.plan!), sourceId: wrong }) };
+    await assert.rejects(recover(f, wrong, forged), (e) => e instanceof CutoverError && e.reason === 'identity');
+    assert.equal(reservations, 0); assert.deepEqual(tree(P.BOSUN), before);
+  } finally { fs.openSync = open; f.close(); }
+});
+
+test('recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched', async () => {
+  for (const effect of ['unknown', 'link', 'hardlink', 'mode', 'oversize', 'count', 'capacity', 'view-extra', 'backup-sidecar']) {
+    const f = fixture(); const sourceId = await interrupted(f, 'intent');
+    try {
+      const artifact = path.join(f.paths.backups, crypto.randomUUID() + '.db');
+      if (effect === 'unknown') fs.writeFileSync(path.join(f.paths.backups, 'unknown'), '', { mode: 0o600 });
+      else if (effect === 'link') fs.symlinkSync(path.join(f.sb.root, 'missing'), artifact);
+      else if (effect === 'hardlink') fs.linkSync(f.paths.primary, artifact);
+      else if (effect === 'mode') fs.writeFileSync(artifact, '', { mode: 0o644 });
+      else if (effect === 'oversize') { fs.writeFileSync(artifact, '', { mode: 0o600 }); fs.truncateSync(artifact, 64 * 1024 * 1024 + 1); }
+      else if (effect === 'count') for (let i = 0; i < 32; i++) fs.writeFileSync(path.join(f.paths.backups, crypto.randomUUID() + '.db'), '', { mode: 0o600 });
+      else if (effect === 'capacity') for (let i = 0; i < 4; i++) { const a = path.join(f.paths.backups, crypto.randomUUID() + '.db'); fs.writeFileSync(a, '', { mode: 0o600 }); fs.truncateSync(a, 64 * 1024 * 1024); }
+      else if (effect === 'view-extra') fs.writeFileSync(path.join(path.dirname(f.paths.view), 'unknown'), '', { mode: 0o600 });
+      else if (effect === 'backup-sidecar') fs.writeFileSync(path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0] + '-journal'), '', { mode: 0o600 });
+      const names = fs.readdirSync(f.paths.backups); const primary = fs.readFileSync(f.paths.primary); const view = fs.readFileSync(f.paths.view);
+      const result = planOwnerRecovery({ paths: f.paths, sourceId, retainUnreferenced: true, now: Date.now }); assert.equal(result.state, 'BLOCKED', effect);
+      assert.deepEqual(fs.readdirSync(f.paths.backups), names); assert.deepEqual(fs.readFileSync(f.paths.primary), primary); assert.deepEqual(fs.readFileSync(f.paths.view), view);
+    } finally { f.close(); }
+  }
+});
+
+test('recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view', async () => {
+  for (const effect of ['applied', 'schema', 'hash', 'tamper', 'empty']) {
+    const f = fixture(); const sourceId = await interrupted(f, effect === 'tamper' ? 'backup' : 'intent');
+    try {
+      if (effect === 'empty') fs.truncateSync(f.paths.view, 0);
+      else if (effect === 'tamper') fs.appendFileSync(path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]), 'tamper');
+      else {
+        const view = new DatabaseSync(f.paths.view);
+        try { view.exec(effect === 'applied' ? "UPDATE bosun_cutover_gate SET phase='applied'" : effect === 'schema' ? 'CREATE TABLE unknown(id)' : "UPDATE bosun_cutover_gate SET backup_hash='" + 'a'.repeat(64) + "'"); } finally { view.close(); }
+      }
+      const before = tree(P.BOSUN); assert.equal(planOwnerRecovery({ paths: f.paths, sourceId, now: Date.now }).state, 'BLOCKED'); assert.deepEqual(tree(P.BOSUN), before);
+    } finally { f.close(); }
+  }
+});
+
+test('actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects', async () => {
+  for (const dangling of [false, true]) {
+    const f = fixture(); const sourceId = await interrupted(f, 'intent');
+    try {
+      await killedOwner(f, sourceId, `const db=new DatabaseSync(paths.view); db.exec('PRAGMA cache_size=2; PRAGMA synchronous=FULL; BEGIN IMMEDIATE; CREATE TABLE spill(body BLOB);');
+        const put=db.prepare('INSERT INTO spill VALUES(zeroblob(8192))'); for(let i=0;i<50;i++)put.run();
+        process.stdout.write('OWNER_CHECKPOINT\\n'); await new Promise(()=>{});`);
+      const journal = f.paths.view + '-journal'; const bytes = fs.readFileSync(journal); assert.equal(bytes.subarray(0, 8).toString('hex'), 'd9d505f920a163d7');
+      if (dangling) { fs.renameSync(journal, path.join(f.sb.root, 'saved-journal')); fs.symlinkSync(path.join(f.sb.root, 'absent'), journal); }
+      const before = tree(P.BOSUN); const p = planOwnerRecovery({ paths: f.paths, sourceId, now: Date.now }); assert.equal(p.state, 'BLOCKED'); assert.equal(p.blockers[0].reason, 'pending');
+      const cli = await bosun(['memory', 'cutover', 'recover-plan', '--source-id', sourceId, '--json'], { env: f.sb.env() }); assert.equal(cli.code, 1); assert.deepEqual(tree(P.BOSUN), before);
+    } finally { f.close(); }
+  }
+});
+
+test('recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference', async () => {
+  for (const effect of ['late-inventory', 'gate-lease']) {
+    const f = fixture(); const sourceId = await interrupted(f, 'backup'); const p = recovery(f, sourceId);
+    const exec = DatabaseSync.prototype.exec; let admitted = false; let lease: DatabaseSync | undefined;
+    try {
+      const [old] = fs.readdirSync(f.paths.backups); const preserved = fs.readFileSync(path.join(f.paths.backups, old));
+      if (effect === 'gate-lease') { lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('BEGIN'); lease.prepare('SELECT * FROM bosun_cutover_gate').all(); }
+      DatabaseSync.prototype.exec = function (sql) {
+        const result = exec.call(this, sql);
+        if (sql === 'BEGIN IMMEDIATE' && !admitted) {
+          admitted = true; assert.throws(() => f.db.prepare("UPDATE memories SET title='Contender'").run(), /locked/);
+          if (effect === 'late-inventory') fs.writeFileSync(path.join(f.paths.backups, crypto.randomUUID() + '.db'), '', { mode: 0o600 });
+        }
+        return result;
+      };
+      await assert.rejects(recover(f, sourceId, p), CutoverError); assert.equal(admitted, true);
+      DatabaseSync.prototype.exec = exec; lease?.close(); lease = undefined;
+      assert.equal(f.db.prepare("SELECT 1 FROM sqlite_master WHERE name='bosun_source_floor'").get(), undefined);
+      const view = new DatabaseSync(f.paths.view, { readOnly: true }); try { assert.equal(view.prepare('SELECT backup_name FROM bosun_cutover_gate').get()!.backup_name, old); } finally { view.close(); }
+      assert.deepEqual(fs.readFileSync(path.join(f.paths.backups, old)), preserved);
+    } finally { DatabaseSync.prototype.exec = exec; lease?.close(); f.close(); }
+  }
+});
+
+test('real CLI recovery requires strict source/retain/attestation options and completes reviewed native recovery', async () => {
+  const f = fixture(); const sourceId = await interrupted(f, 'intent');
+  fs.writeFileSync(path.join(f.paths.backups, crypto.randomUUID() + '.db'), 'PRIVATE unreferenced bytes', { mode: 0o600 });
+  const p = recovery(f, sourceId, true); const before = tree(P.BOSUN);
+  try {
+    for (const args of [ ['recover-plan'], ['recover-plan', '--source-id', sourceId, '--clients-stopped'], ['recover-plan', '--source-id', sourceId, '--retain-unreferenced', '--retain-unreferenced'],
+      ['recover', '--plan', p.plan!, '--clients-stopped'], ['recover', '--plan', p.plan!, '--source-id', sourceId], ['recover', '--plan', p.plan!, '--source-id', sourceId, '--clients-stopped', 'PRIVATE positional'],
+      ['apply', '--plan', p.plan!, '--clients-stopped', '--retain-unreferenced'] ]) {
+      const result = await bosun(['memory', 'cutover', ...args], { env: f.sb.env() }); assert.equal(result.code, 2, result.err); assert.doesNotMatch(result.out + result.err, /PRIVATE/); assert.deepEqual(tree(P.BOSUN), before);
+    }
+    const remote = await bosun(['memory', 'cutover', 'recover-plan', '--source-id', sourceId, '--json'], { env: f.sb.env({ MEMORY_URL: 'http://127.0.0.1:1' }) }); assert.equal(remote.code, 1); assert.deepEqual(tree(P.BOSUN), before);
+    const noAck = await bosun(['memory', 'cutover', 'recover', '--plan', p.plan!, '--source-id', sourceId, '--clients-stopped', '--json'], { env: f.sb.env() }); assert.equal(noAck.code, 2); assert.deepEqual(tree(P.BOSUN), before);
+    const planned = await bosun(['memory', 'cutover', 'recover-plan', '--source-id', sourceId, '--retain-unreferenced', '--json'], { env: f.sb.env() }); assert.equal(planned.code, 0, planned.err);
+    const result = await bosun(['memory', 'cutover', 'recover', '--plan', JSON.parse(planned.out).plan, '--source-id', sourceId, '--clients-stopped', '--retain-unreferenced', '--json'], { env: f.sb.env() });
+    assert.equal(result.code, 0, result.err); assert.equal(JSON.parse(result.out).sourceId, sourceId); assert.doesNotMatch(result.out + result.err, /PRIVATE|backup_hash|\.db/);
+  } finally { f.close(); }
+});
+
+test('recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures', async () => {
+  const f = fixture(); const sourceId = await interrupted(f, 'intent'); const before = tree(P.BOSUN);
+  const base = { paths: f.paths, sourceId, now: Date.now }; const prepare = DatabaseSync.prototype.prepare;
+  try {
+    const getter = Object.defineProperty({}, 'sourceId', { get() { throw Error('PRIVATE getter'); } });
+    const proxy = new Proxy(base, { ownKeys() { throw Error('PRIVATE proxy'); } });
+    for (const input of [getter, proxy, { ...base, retainUnreferenced: 'PRIVATE invalid' }, { ...base, sourceId: '' }, { ...base, hidden: 'PRIVATE extra' }]) {
+      const result = planOwnerRecovery(input as never); assert.equal(result.state, 'BLOCKED'); assert.doesNotMatch(JSON.stringify(result), /PRIVATE/);
+    }
+    for (const input of [getter, proxy, { sourceId, hidden: 'PRIVATE hidden' }]) assert.throws(() => planLocalMemoryRecovery(f.cfg, input as never), /invalid owner cutover request/);
+    const typed = new CutoverError('identity'); Object.assign(typed, { message: 'PRIVATE message', reason: 'PRIVATE reason' });
+    const hostile = new Proxy({}, { getPrototypeOf() { throw Error('PRIVATE exception proxy'); } });
+    for (const error of [typed, hostile, Object.defineProperty(new CutoverError('storage'), 'reason', { get() { throw Error('PRIVATE reason getter'); } })]) {
+      DatabaseSync.prototype.prepare = function () { throw error; };
+      const result = planOwnerRecovery(base); assert.equal(result.state, 'BLOCKED'); assert.doesNotMatch(JSON.stringify(result), /PRIVATE/);
+    }
+    DatabaseSync.prototype.prepare = prepare;
+    assert.throws(() => inspectOwnerCutoverReference(f.paths, new Proxy([], { get() { throw Error('PRIVATE array proxy'); } }), sourceId, true), (e) => e instanceof CutoverError && !/PRIVATE/.test(e.message));
+    assert.deepEqual(tree(P.BOSUN), before);
+  } finally { DatabaseSync.prototype.prepare = prepare; f.close(); }
 });
