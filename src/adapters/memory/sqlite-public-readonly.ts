@@ -7,7 +7,7 @@ import { CATEGORIES, type Ctx, type Found, type Memory, type Query } from '../..
 import { MemoryError } from '../../core/errors.ts';
 import type { MemoryReader } from '../../core/ports/memory.ts';
 import { ftsQuery, norm } from '../../core/text.ts';
-import { PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, normalize } from './sqlite-public-protocol.ts';
+import { PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, RESTORE_PENDING_SUFFIX, normalize } from './sqlite-public-protocol.ts';
 
 type Row = Record<string, any>;
 type Identity = { dev: string; ino: string };
@@ -126,6 +126,7 @@ export class SqlitePublicReadOnly implements MemoryReader {
   }
   private deadline(started: number): void { if (this.time() - started > BUDGET_MS) unavailable('deadline'); }
   private files(): void {
+    if (present(this.#options.view + RESTORE_PENDING_SUFFIX)) unavailable('state');
     same(this.#options.primary, this.#source); same(this.#options.view, this.#view);
     // Minimal filesystem header check rejects obvious offline/rollback restoration without opening mutable WAL through SQLite.
     const primarySize = fs.statSync(this.#options.primary).size;

@@ -12,7 +12,8 @@ import { makeCtx, project, projectDir } from './project.ts';
 import { bench, evaluate } from './bench.ts';
 import { ClaudeMem } from './claudemem.ts';
 import { MemoryService, cleanTags, openMemory } from './service.ts';
-import { publishLocalMemory, planLocalMemoryCutover, planLocalMemoryRecovery, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout } from './sqlite.ts';
+import { publishLocalMemory, planLocalMemoryCutover, planLocalMemoryRecovery, applyLocalMemoryCutover, planLocalMemoryPreparation, prepareLocalMemoryLayout,
+  planLocalMemoryRestore, applyLocalMemoryRestore } from './sqlite.ts';
 import type { Category, Ctx, Memory, MemoryApi, Status } from './types.ts';
 
 export const USAGE = `usage: bosun memory <verb>
@@ -28,11 +29,16 @@ export const USAGE = `usage: bosun memory <verb>
   cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]   (revokes READY to HOLD)
   cutover recover-plan --source-id UUID [--retain-unreferenced] [--json]
   cutover recover --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]
+  cutover restore-plan --source-id OLD_UUID [--retain-unreferenced] [--json]
+  cutover restore --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json]
+  cutover restore-reconcile-plan --source-id OLD_UUID --new-source-id NEW_UUID [--retain-unreferenced] [--json]
+  cutover restore-reconcile --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json]
   publish [--json]   (already-applied local floor only)`;
 
 const CUTOVER_USAGE = 'usage: bosun memory cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json] | prepare --plan TOKEN --clients-stopped [--json] | plan [--retain-unreferenced] [--json] | apply --plan TOKEN --clients-stopped [--json] | reconcile --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json] | recover-plan --source-id UUID [--retain-unreferenced] [--json] | recover --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]';
 async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
   const [operation, ...rest] = argv;
+  if (['restore-plan', 'restore', 'restore-reconcile-plan', 'restore-reconcile'].includes(operation)) return ownerRestore(operation, rest, cfg);
   if (!['prepare-plan', 'prepare', 'plan', 'apply', 'reconcile', 'recover-plan', 'recover'].includes(operation)) return die(CUTOVER_USAGE, 2);
   let parsed;
   try {
@@ -86,6 +92,48 @@ async function ownerCutover(argv: string[], cfg: Cfg): Promise<number> {
   } catch (e) {
     // A floor may have committed before a native cleanup/receipt error. Never advertise rollback or blind retry.
     console.error('bosun: cutover failed; outcome may be unknown. Save the planned source ID; inspect storage and use a fresh explicit plan before reconciliation.');
+    throw e;
+  }
+}
+
+const RESTORE_USAGE = 'usage: bosun memory cutover restore-plan --source-id OLD_UUID [--retain-unreferenced] [--json] | restore --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json] | restore-reconcile-plan --source-id OLD_UUID --new-source-id NEW_UUID [--retain-unreferenced] [--json] | restore-reconcile --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json]';
+async function ownerRestore(operation: string, argv: string[], cfg: Cfg): Promise<number> {
+  const planning = operation.endsWith('-plan'); const reconciling = operation.startsWith('restore-reconcile');
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: { json: { type: 'boolean' }, plan: { type: 'string' }, 'source-id': { type: 'string' },
+      'new-source-id': { type: 'string' }, 'clients-stopped': { type: 'boolean' }, 'retain-unreferenced': { type: 'boolean' } }, allowPositionals: false, tokens: true });
+    const names = parsed.tokens.filter((t) => t.kind === 'option').map((t) => t.name);
+    const allowed = planning ? ['json', 'source-id', 'retain-unreferenced', ...(reconciling ? ['new-source-id'] : [])]
+      : ['json', 'plan', 'source-id', 'new-source-id', 'clients-stopped', 'retain-unreferenced'];
+    if (names.length !== parsed.tokens.length || new Set(names).size !== names.length || names.some((name) => !allowed.includes(name))) return die(RESTORE_USAGE, 2);
+  } catch { return die(RESTORE_USAGE, 2); }
+  const v = parsed.values;
+  if (!v['source-id'] || (reconciling || !planning) && !v['new-source-id'] || !planning && (!v.plan || !v['clients-stopped'])) return die(RESTORE_USAGE, 2);
+  if (planning) {
+    const result = planLocalMemoryRestore(cfg, { sourceId: v['source-id'], newSourceId: v['new-source-id'], retainUnreferenced: v['retain-unreferenced'] });
+    if (v.json) console.log(JSON.stringify(result));
+    else {
+      console.log(`${result.state}${result.operation ? ` ${result.operation}` : ''}; primary schema, floor and clients unverified`);
+      for (const b of result.blockers) console.log(`${b.target}: ${b.reason}${b.requiredMode ? ` (current ${b.currentMode}, required ${b.requiredMode})` : ''}`);
+      if (result.newSourceId) console.log(`save new sourceId independently: ${result.newSourceId}`);
+      if (result.outcome) console.log(`recorded outcome: ${result.outcome}; primary commit remains unverified until admission`);
+      if (result.inventory) {
+        console.log(`Current view/reference verified; artifacts ${result.inventory.count}; unreferenced ownership unverified ${result.inventory.unreferenced.length}.`);
+        for (const artifact of result.inventory.unreferenced) console.log(`retain unreferenced ${artifact.id}: ${JSON.stringify(artifact.metadata)}`);
+      }
+      if (result.plan) console.log(`plan: ${result.plan}\nexpires: ${new Date(result.expiresAt!).toISOString()}`);
+      for (const requirement of result.requirements) console.log(requirement);
+    }
+    return result.state === 'PLANNED' ? 0 : 1;
+  }
+  try {
+    const result = await applyLocalMemoryRestore(cfg, { operation: reconciling ? 'restore-reconcile' : 'restore', plan: v.plan!,
+      sourceId: v['source-id'], newSourceId: v['new-source-id']!, clientsStopped: true, retainUnreferenced: v['retain-unreferenced'] });
+    console.log(v.json ? JSON.stringify(result) : `${operation} ${result.state}; outcome ${result.outcome}; sourceId ${result.sourceId}\nSet the saved new MEMORY_SOURCE_ID yourself, explicitly publish separately, and reopen every authority.`);
+    return 0;
+  } catch (e) {
+    console.error('bosun: restore outcome may be uncertain. Keep both saved source IDs; use a fresh restore-reconcile-plan and explicit reconciliation before another restore.');
     throw e;
   }
 }

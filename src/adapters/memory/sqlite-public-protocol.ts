@@ -34,4 +34,7 @@ export const PUBLIC_MAX_ROWS = 10000;
 // Measured scoped medium-body 10k corpus: ~9.3 MB encoded / ~7.9 MB view. Still finite, independent limits.
 export const PUBLIC_MAX_BYTES = 16 * 1024 * 1024;
 export const VIEW_MAX_BYTES = 64 * 1024 * 1024;
+// Presence alone revokes audience delivery. Readers never read owner restore metadata.
+export const RESTORE_PENDING_SUFFIX = '.restore';
+export const RESTORE_RECEIPT_SUFFIX = '.restore-receipt';
 export const normalize = (sql: unknown) => typeof sql === 'string' ? sql.replace(/\s+/g, ' ').trim() : '';

@@ -5,9 +5,9 @@ export { terms, ftsQuery, norm, words, jaccard } from '../../src/core/text.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { CutoverWriter, CutoverError, publishMemoryView, type CutoverPaths, type PublicationReceipt } from '../../src/adapters/memory/sqlite-cutover.ts';
-import { planOwnerCutover, planOwnerRecovery, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout,
-  type OwnerCutoverPlan, type OwnerCutoverReceipt, type OwnerPreparationPlan, type OwnerPreparationReceipt } from '../../src/adapters/memory/sqlite-owner.ts';
+import { CutoverWriter, CutoverError, publishMemoryView, hasPendingMemoryRestore, type CutoverPaths, type PublicationReceipt } from '../../src/adapters/memory/sqlite-cutover.ts';
+import { planOwnerCutover, planOwnerRecovery, applyOwnerCutover, planOwnerPreparation, prepareOwnerLayout, planOwnerRestore, applyOwnerRestore,
+  type OwnerCutoverPlan, type OwnerCutoverReceipt, type OwnerPreparationPlan, type OwnerPreparationReceipt, type OwnerRestorePlan, type OwnerRestoreReceipt } from '../../src/adapters/memory/sqlite-owner.ts';
 import { MemoryError } from './types.ts';
 import { P, type Cfg } from '../config.ts';
 import { log } from '../log.ts';
@@ -134,6 +134,17 @@ export function planLocalMemoryRecovery(cfg: Cfg, input: { sourceId: string; ret
   const request = ownerRequest<typeof input>(input, ['sourceId', 'retainUnreferenced']);
   return planOwnerRecovery({ ...request, paths: writerPaths(file, cfg), now: Date.now });
 }
+export function planLocalMemoryRestore(cfg: Cfg, input: { sourceId: string; newSourceId?: string; retainUnreferenced?: boolean }, file = P.DB): OwnerRestorePlan {
+  if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
+  const request = ownerRequest<typeof input>(input, ['sourceId', 'newSourceId', 'retainUnreferenced']);
+  return planOwnerRestore({ ...request, paths: writerPaths(file, cfg), now: Date.now, id: crypto.randomUUID });
+}
+export async function applyLocalMemoryRestore(cfg: Cfg, input: { plan: string; operation: 'restore' | 'restore-reconcile'; sourceId: string;
+  newSourceId: string; clientsStopped: boolean; retainUnreferenced?: boolean }, file = P.DB): Promise<OwnerRestoreReceipt> {
+  if (cfg.MEMORY_URL) throw new MemoryError('unavailable', 'local cutover unavailable (remote)');
+  const request = ownerRequest<typeof input>(input, ['plan', 'operation', 'sourceId', 'newSourceId', 'clientsStopped', 'retainUnreferenced']);
+  return applyOwnerRestore({ ...request, paths: writerPaths(file, cfg), now: Date.now });
+}
 function ownerRequest<T>(input: unknown, names: string[]): T {
   try {
     if (!input || typeof input !== 'object' || Array.isArray(input) || Reflect.ownKeys(input).some((key) => typeof key !== 'string' || !names.includes(key))) throw 0;
@@ -203,6 +214,7 @@ export function openLocalSqlite(file: string, cfg: Cfg): SqliteSession {
   let probe: DatabaseSync | undefined;
   try {
     const p = writerPaths(file, cfg);
+    if (hasPendingMemoryRestore(p.view)) throw new MemoryError('unavailable', 'local memory unavailable');
     let floored = false;
     const pendingGate = present(p.view);
     if (present(file)) {

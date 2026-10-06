@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { BosunError } from '../../core/errors.ts';
-import { cutoverMemory, inspectOwnerCutoverReference, CutoverError, type CutoverPaths, type CutoverReceipt } from './sqlite-cutover.ts';
+import { cutoverMemory, inspectOwnerCutoverReference, inspectOwnerRestore, restoreMemory, RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX,
+  CutoverError, type CutoverPaths, type CutoverReceipt, type RestoreReceipt } from './sqlite-cutover.ts';
 
 const TTL = 5 * 60 * 1000;
 const MAX_BYTES = 64 * 1024 * 1024;
@@ -127,7 +128,8 @@ function header(file: string, target: Target, meta: Meta, wal = false, preparing
     : bytes.toString('ascii', 0, 16) !== 'SQLite format 3\0' || bytes[18] !== (target === 'primary' ? 2 : 1) || bytes[19] !== (target === 'primary' ? 2 : 1)) fail(target, 'format');
   return { ...meta, header: bytes.toString('hex') };
 }
-type Snapshot = { paths: CutoverPaths; directories: Meta[]; primary: Meta; wal: Meta | null; shm: Meta | null; view: Meta | null; backups: { name: string; meta: Meta }[] };
+type Snapshot = { paths: CutoverPaths; directories: Meta[]; primary: Meta; wal: Meta | null; shm: Meta | null; view: Meta | null;
+  restore: { name: string; meta: Meta }[]; backups: { name: string; meta: Meta }[] };
 function inventoryNames(directory: string, target: Target, limit: number): string[] {
   const names: string[] = []; const handle = fs.opendirSync(directory);
   try {
@@ -139,7 +141,7 @@ function inventoryNames(directory: string, target: Target, limit: number): strin
   } finally { handle.closeSync(); }
   return names.sort();
 }
-function scan(p: CutoverPaths, broader = false, recover = false): Snapshot {
+function scan(p: CutoverPaths, broader = false, recover = false, restoring = false): Snapshot {
   runtime();
   // Source-directory times can change when native SQLite creates WAL/SHM; identity/mode stay bound.
   const directories = [metadata(path.dirname(p.primary), 'primary-directory', true, false),
@@ -152,8 +154,14 @@ function scan(p: CutoverPaths, broader = false, recover = false): Snapshot {
   if (Number(primary.size) + Number(wal?.size ?? 0) > MAX_BYTES) fail('primary', 'size');
   if (['-wal', '-shm', '-journal'].some((suffix) => present(p.view + suffix))) fail('view', 'pending');
   const view = present(p.view) ? header(p.view, 'view', metadata(p.view, 'view')) : null;
-  const viewNames = inventoryNames(path.dirname(p.view), 'view-directory', 1);
-  if (JSON.stringify(viewNames) !== JSON.stringify(view ? [path.basename(p.view)] : [])) fail('view-directory', 'layout');
+  const restore = [RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX].filter((suffix) => present(p.view + suffix)).map((suffix) => {
+    if (suffix === RESTORE_PENDING_SUFFIX && !restoring) fail('view', 'pending');
+    const meta = metadata(p.view + suffix, 'view');
+    if (Number(meta.size) < 1 || Number(meta.size) > 16 * 1024) fail('view', 'size');
+    return { name: path.basename(p.view + suffix), meta };
+  });
+  const viewNames = inventoryNames(path.dirname(p.view), 'view-directory', 3);
+  if (JSON.stringify(viewNames) !== JSON.stringify((view ? [path.basename(p.view), ...restore.map((r) => r.name)] : []).sort())) fail('view-directory', 'layout');
   const names = inventoryNames(p.backups, 'backup-directory', MAX_ARTIFACTS);
   if (!broader && names.length !== (view ? 1 : 0) || broader && (!view || !names.length)) fail('backup-directory', 'layout');
   let total = 0;
@@ -168,9 +176,9 @@ function scan(p: CutoverPaths, broader = false, recover = false): Snapshot {
     return { name, meta: broader ? meta : header(file, 'backup', meta) };
   });
   if (recover && (names.length === MAX_ARTIFACTS || total > MAX_INVENTORY_BYTES - MAX_BYTES)) fail('backup-directory', 'size');
-  const identities = [primary, wal, shm, view, ...backups.map((b) => b.meta)].filter((m): m is Meta => !!m);
+  const identities = [primary, wal, shm, view, ...restore.map((r) => r.meta), ...backups.map((b) => b.meta)].filter((m): m is Meta => !!m);
   if (new Set(identities.map((m) => `${m.dev}:${m.ino}`)).size !== identities.length) fail('input', 'path');
-  return { paths: p, directories, primary, wal, shm, view, backups };
+  return { paths: p, directories, primary, wal, shm, view, restore, backups };
 }
 function fingerprint(snapshot: Snapshot): string { return crypto.createHash('sha256').update(JSON.stringify(snapshot)).digest('hex'); }
 type Token = { version: 2; operation: Operation; sourceId: string | null; retainUnreferenced: boolean; issuedAt: number; expiresAt: number; fingerprint: string };
@@ -277,6 +285,94 @@ export async function applyOwnerCutover(input: { paths: CutoverPaths; plan: stri
     });
     return { ...result, operation: approved.operation, clientsStopped: 'attested', restartRequired: true, publicationRequired: true, bindingRequired: true,
       ...(recover ? { retainedArtifacts: { priorReference: 'preserved' as const, unreferencedCount: before.backups.length - 1, unreferencedOwnership: 'unverified' as const } } : {}) };
+  } catch (error) { return mapped(error); }
+}
+
+type RestoreOperation = 'restore' | 'restore-reconcile';
+type RestoreToken = { version: 1; operation: RestoreOperation; sourceId: string; newSourceId: string; attemptId: string;
+  retainUnreferenced: boolean; issuedAt: number; expiresAt: number; fingerprint: string };
+const RESTORE_REQUIREMENTS = [
+  'Stop all owner clients; --clients-stopped is operator attestation, not verified drain.',
+  'Restore selects only the CURRENT verified owner cutover backup, including its recorded privacy, scope, IDs, audit and docs.',
+  'Save both old and independently planned new source IDs before mutation; old bindings and cached authorities will be fenced.',
+  'A fresh native current-source backup and all earlier artifacts are preserved. No arbitrary backup adoption or file restoration occurs.',
+  'The operation leaves HOLD. Set the saved new MEMORY_SOURCE_ID yourself, explicitly publish separately, and reopen every authority.',
+  'An interrupted attempt requires a fresh restore-reconcile-plan and both saved epochs; reconcile never replays restoration data.',
+  'Pending or unknown metadata and incomplete backup sidecars remain refused; process-kill evidence does not qualify power-loss durability.',
+] as const;
+export type OwnerRestorePlan = { state: 'PLANNED' | 'BLOCKED'; operation: RestoreOperation | null; sourceId: string | null;
+  newSourceId: string | null; plan: string | null; expiresAt: number | null; schema: 'unverified'; floor: 'unverified'; clients: 'unverified';
+  blockers: CutoverBlocker[]; requirements: readonly string[]; inventory?: OwnerRecoveryInventory;
+  outcome?: 'committed' | 'rolled_back' | 'uncertain' };
+function restoreToken(input: unknown, now: number): RestoreToken {
+  if (typeof input !== 'string' || input.length > 2048 || !/^[A-Za-z0-9_-]+$/.test(input)) fail('plan', 'input');
+  let r: Record<string, unknown>;
+  try {
+    const bytes = Buffer.from(input, 'base64url'); if (bytes.toString('base64url') !== input) fail('plan', 'input');
+    r = fields(JSON.parse(bytes.toString('utf8')), ['version', 'operation', 'sourceId', 'newSourceId', 'attemptId', 'retainUnreferenced', 'issuedAt', 'expiresAt', 'fingerprint']);
+  } catch { fail('plan', 'input'); }
+  if (r.version !== 1 || !['restore', 'restore-reconcile'].includes(String(r.operation)) || typeof r.retainUnreferenced !== 'boolean'
+    || ![r.sourceId, r.newSourceId, r.attemptId].every((v) => typeof v === 'string' && UUID.test(v))
+    || new Set([r.sourceId, r.newSourceId, r.attemptId]).size !== 3 || !stamp(r.issuedAt) || r.expiresAt !== r.issuedAt + TTL
+    || typeof r.fingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(r.fingerprint)) fail('plan', 'input');
+  if (now < r.issuedAt || now >= Number(r.expiresAt)) fail('plan', 'stale'); return r as RestoreToken;
+}
+export function planOwnerRestore(input: { paths: CutoverPaths; sourceId: string; newSourceId?: string; retainUnreferenced?: boolean;
+  now: () => number; id: () => string }): OwnerRestorePlan {
+  const base = { schema: 'unverified', floor: 'unverified', clients: 'unverified', requirements: RESTORE_REQUIREMENTS } as const;
+  try {
+    const o = fields(input, ['paths', 'sourceId', 'newSourceId', 'retainUnreferenced', 'now', 'id']);
+    const issuedAt = time(o.now); const retain = creation(o.retainUnreferenced);
+    if (typeof o.sourceId !== 'string' || !UUID.test(o.sourceId) || typeof o.id !== 'function'
+      || o.newSourceId !== undefined && (typeof o.newSourceId !== 'string' || !UUID.test(o.newSourceId) || o.newSourceId === o.sourceId)) fail('input', 'input');
+    const reconciling = o.newSourceId !== undefined; const p = configured(o.paths);
+    const snapshot = scan(p, true, !reconciling, reconciling); const before = fingerprint(snapshot);
+    const inspected = inspectOwnerRestore(p, snapshot.backups.map((b) => b.name), o.sourceId, o.newSourceId as string | undefined);
+    if (fingerprint(scan(p, true, !reconciling, reconciling)) !== before) fail('plan', 'stale');
+    const inventory: OwnerRecoveryInventory = { reference: 'verified', phase: 'applied', count: snapshot.backups.length, retainUnreferenced: retain,
+      unreferenced: snapshot.backups.filter((b) => !inspected.ownedNames.includes(b.name)).map((b) => ({ ownership: 'unverified', id: b.name.slice(0, -3), metadata: b.meta })) };
+    if (inventory.unreferenced.length && !retain) return { ...base, state: 'BLOCKED', operation: null, sourceId: null, newSourceId: null,
+      plan: null, expiresAt: null, blockers: [{ target: 'backup-directory', reason: 'layout' }], inventory };
+    const newSourceId = reconciling ? inspected.newSourceId! : uuid(o.id); const attemptId = reconciling ? inspected.attemptId! : uuid(o.id);
+    if (new Set([o.sourceId, newSourceId, attemptId, snapshot.backups[inspected.index].name.slice(0, -3)]).size !== 4
+      || !reconciling && snapshot.backups.some((b) => b.name === attemptId + '.db')) fail('input', 'input');
+    const operation = reconciling ? 'restore-reconcile' : 'restore'; const expiresAt = issuedAt + TTL;
+    const value: RestoreToken = { version: 1, operation, sourceId: o.sourceId, newSourceId, attemptId,
+      retainUnreferenced: retain, issuedAt, expiresAt, fingerprint: before };
+    return { ...base, state: 'PLANNED', operation, sourceId: o.sourceId, newSourceId, plan: Buffer.from(JSON.stringify(value)).toString('base64url'),
+      expiresAt, blockers: [], inventory, ...(reconciling ? { outcome: inspected.outcome ?? 'uncertain' } : {}) };
+  } catch (error) {
+    try { mapped(error); } catch (finite) {
+      if (!(finite instanceof OwnerCutoverError) && !(finite instanceof CutoverError)) throw finite;
+      return { ...base, state: 'BLOCKED', operation: null, sourceId: null, newSourceId: null, plan: null, expiresAt: null,
+        blockers: [finite instanceof OwnerCutoverError ? finite.blocker : nativeBlocker(finite)] };
+    }
+  }
+}
+export type OwnerRestoreReceipt = RestoreReceipt & { operation: RestoreOperation; clientsStopped: 'attested'; restartRequired: true;
+  publicationRequired: true; bindingRequired: true; retainedArtifacts: { selectedReference: 'preserved'; preRestoreArtifact: 'preserved';
+    unreferencedCount: number; unreferencedOwnership: 'unverified' } };
+export async function applyOwnerRestore(input: { paths: CutoverPaths; plan: string; operation: RestoreOperation; sourceId: string;
+  newSourceId: string; clientsStopped: boolean; retainUnreferenced?: boolean; now: () => number }): Promise<OwnerRestoreReceipt> {
+  try {
+    const o = fields(input, ['paths', 'plan', 'operation', 'sourceId', 'newSourceId', 'clientsStopped', 'retainUnreferenced', 'now']);
+    const approved = restoreToken(o.plan, time(o.now)); const p = configured(o.paths); const retain = creation(o.retainUnreferenced);
+    if (o.clientsStopped !== true || o.operation !== approved.operation || o.sourceId !== approved.sourceId || o.newSourceId !== approved.newSourceId
+      || retain !== approved.retainUnreferenced) fail('input', 'input');
+    const reconciling = approved.operation === 'restore-reconcile'; const before = scan(p, true, !reconciling, reconciling);
+    if (fingerprint(before) !== approved.fingerprint) fail('plan', 'stale');
+    const inspected = inspectOwnerRestore(p, before.backups.map((b) => b.name), approved.sourceId, reconciling ? approved.newSourceId : undefined);
+    const unreferencedCount = before.backups.filter((b) => !inspected.ownedNames.includes(b.name)).length;
+    if (unreferencedCount && !retain) fail('backup-directory', 'layout');
+    const result = await restoreMemory({ paths: p, sourceId: approved.sourceId, newSourceId: approved.newSourceId,
+      attemptId: approved.attemptId, operation: approved.operation, now: o.now as () => number, validate() {
+        restoreToken(o.plan, time(o.now)); const admitted = scan(p, true, !reconciling, reconciling);
+        if (!before.wal && !before.shm && admitted.wal?.size === '0' && admitted.wal.header === ''
+          && admitted.shm && fs.statSync(p.primary + '-shm').size === 32768) { admitted.wal = null; admitted.shm = null; }
+        if (fingerprint(admitted) !== approved.fingerprint) throw new CutoverError('identity');
+      } });
+    return { ...result, operation: approved.operation, clientsStopped: 'attested', restartRequired: true, publicationRequired: true, bindingRequired: true,
+      retainedArtifacts: { selectedReference: 'preserved', preRestoreArtifact: 'preserved', unreferencedCount, unreferencedOwnership: 'unverified' } };
   } catch (error) { return mapped(error); }
 }
 

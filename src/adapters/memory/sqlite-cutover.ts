@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { DatabaseSync, StatementSync, backup, constants } from 'node:sqlite';
 import { BosunError, MemoryError } from '../../core/errors.ts';
 import { norm } from '../../core/text.ts';
-import { GATE_SQL, PUBLIC_STATE_SQL, PUBLIC_MEMORY_SQL, PUBLIC_FTS_SQL, PUBLIC_FTS_TRIGGERS, PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, normalize } from './sqlite-public-protocol.ts';
+import { GATE_SQL, PUBLIC_STATE_SQL, PUBLIC_MEMORY_SQL, PUBLIC_FTS_SQL, PUBLIC_FTS_TRIGGERS, PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX, normalize } from './sqlite-public-protocol.ts';
 
 const FLOOR = 1;
 const FN = 'bosun_writer_floor_v1';
@@ -30,6 +30,8 @@ export class CutoverError extends BosunError {
 }
 function fail(reason: CutoverReason): never { throw new CutoverError(reason); }
 export type CutoverPaths = { primary: string; view: string; backups: string };
+export { RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX };
+export function hasPendingMemoryRestore(view: string): boolean { return present(view + RESTORE_PENDING_SUFFIX); }
 export type CutoverPhase = 'intent' | 'backup' | 'floor' | 'commit';
 export type CutoverOptions = {
   paths: CutoverPaths;
@@ -84,7 +86,7 @@ function authoritative(error: unknown): MemoryError | undefined {
 }
 function identity(file: string): Identity {
   const s = fs.lstatSync(file, { bigint: true });
-  if (!s.isFile() || s.isSymbolicLink() || s.nlink !== 1n || Number(s.mode & 0o777n) !== 0o600
+  if (!s.isFile() || s.isSymbolicLink() || s.nlink !== 1n || Number(s.mode & 0o7777n) !== 0o600
     || process.getuid && Number(s.uid) !== process.getuid()) fail('path');
   return { dev: String(s.dev), ino: String(s.ino) };
 }
@@ -107,14 +109,15 @@ function present(file: string): boolean {
     throw error;
   }
 }
-function paths(input: CutoverPaths): CutoverPaths {
+function paths(input: CutoverPaths, ownerRestore = false): CutoverPaths {
   if (!input) fail('input');
   const p = { primary: input.primary, view: input.view, backups: input.backups };
+  if (!ownerRestore && present(p.view + RESTORE_PENDING_SUFFIX)) fail('state');
   canonical(p.primary, true); canonical(p.view, present(p.view));
   if (typeof p.backups !== 'string' || path.resolve(p.backups) !== p.backups || fs.realpathSync(p.backups) !== p.backups) fail('path');
   for (const dir of [p.backups, path.dirname(p.view), path.dirname(p.primary)]) {
     const s = fs.statSync(dir);
-    if (!s.isDirectory() || (s.mode & 0o777) !== 0o700 || process.getuid && s.uid !== process.getuid()) fail('path');
+    if (!s.isDirectory() || (s.mode & 0o7777) !== 0o700 || process.getuid && s.uid !== process.getuid()) fail('path');
   }
   if (p.primary === p.view || path.dirname(p.primary) === p.backups || p.backups === path.dirname(p.view)) fail('path');
   identity(p.primary);
@@ -261,6 +264,7 @@ function freshId(id: () => string): string {
 }
 const receipt = (gate: Gate, generation: number): CutoverReceipt => ({ state: 'HOLD', floor: FLOOR, sourceId: gate.source_id, attemptId: gate.attempt_id, generation });
 function confirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPaths, expected: Gate): { gate: Gate; generation: number } {
+  if (present(p.view + RESTORE_PENDING_SUFFIX)) fail('state');
   const sourceId = { dev: expected.source_dev, ino: expected.source_ino }; const viewId = { dev: expected.view_dev, ino: expected.view_ino };
   same(p.primary, sourceId); same(p.view, viewId);
   const gate = validateGate(view, p, sourceId, viewId);
@@ -421,6 +425,328 @@ function holdPublic(view: DatabaseSync, gate: Gate): void {
       if (view.prepare("UPDATE bosun_public_state SET state='HOLD' WHERE id=1").run().changes !== 1) fail('state');
     }
   });
+}
+
+// Immutable owner-only intent. The reader checks its filename only, never these recovery values.
+const RESTORE_META_BYTES = 16 * 1024;
+const RESTORE_MAX_ROWS = 100_000;
+type CapsuleIdentity = Identity & { hash: string };
+type RestoreIntent = { version: 1; old: Gate; generation: number; newSourceId: string; attemptId: string;
+  backupDev: string; backupIno: string; startedAt: number; priorReceipt: CapsuleIdentity | null };
+type Capsule = { intent: RestoreIntent; identity: CapsuleIdentity };
+export type RestorePhase = 'intent' | 'hold' | 'backup' | 'rows' | 'source-commit' | 'view-commit' | 'receipt';
+export type RestoreReceipt = CutoverReceipt & { outcome: 'committed' | 'rolled_back'; previousSourceId: string };
+export type RestoreOptions = { paths: CutoverPaths; sourceId: string; newSourceId: string; attemptId: string;
+  operation: 'restore' | 'restore-reconcile'; now: () => number; validate: () => void;
+  checkpoint?: (phase: RestorePhase) => void | Promise<void> };
+function exactFields(value: unknown, names: readonly string[]): Row {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Reflect.ownKeys(value).length !== names.length
+    || Reflect.ownKeys(value).some((name) => typeof name !== 'string' || !names.includes(name))) fail('state');
+  const out: Row = {};
+  for (const name of names) {
+    const d = Object.getOwnPropertyDescriptor(value, name); if (!d || !Object.hasOwn(d, 'value')) fail('state');
+    out[name] = d.value;
+  }
+  return out;
+}
+const GATE_FIELDS = ['id', 'protocol', 'state', 'phase', 'source_id', 'attempt_id', 'source_dev', 'source_ino',
+  'view_dev', 'view_ino', 'backup_name', 'backup_dev', 'backup_ino', 'backup_hash', 'started_at'] as const;
+function parseIntent(text: string): RestoreIntent {
+  const r = exactFields(JSON.parse(text), ['version', 'old', 'generation', 'newSourceId', 'attemptId', 'backupDev', 'backupIno', 'startedAt', 'priorReceipt']);
+  if (JSON.stringify(JSON.parse(text)) !== text) fail('state');
+  const old = exactFields(r.old, [...GATE_FIELDS, 'format']) as unknown as Gate;
+  const decimal = (v: unknown) => typeof v === 'string' && /^[0-9]{1,30}$/.test(v);
+  const hash = (v: unknown) => typeof v === 'string' && /^[a-f0-9]{64}$/.test(v);
+  if (r.version !== 1 || !integer(r.generation) || !stamp(r.startedAt) || old.id !== 1 || old.protocol !== 1
+    || old.state !== 'HOLD' || old.phase !== 'applied' || ![1, 2].includes(old.format!) || !stamp(old.started_at)
+    || !UUID.test(old.source_id) || !UUID.test(old.attempt_id) || !hash(old.backup_hash) || old.backup_name !== old.attempt_id + '.db'
+    || ![old.source_dev, old.source_ino, old.view_dev, old.view_ino, old.backup_dev, old.backup_ino, r.backupDev, r.backupIno].every(decimal)
+    || typeof r.newSourceId !== 'string' || !UUID.test(r.newSourceId) || typeof r.attemptId !== 'string' || !UUID.test(r.attemptId)
+    || new Set([old.source_id, old.attempt_id, r.newSourceId, r.attemptId]).size !== 4) fail('state');
+  if (r.priorReceipt !== null) {
+    const prior = exactFields(r.priorReceipt, ['dev', 'ino', 'hash']);
+    if (!decimal(prior.dev) || !decimal(prior.ino) || !hash(prior.hash)) fail('state');
+  }
+  return { ...r, old } as RestoreIntent;
+}
+function readCapsule(file: string): Capsule {
+  canonical(file, true); const fixed = identity(file); const before = fs.lstatSync(file, { bigint: true });
+  if (before.size < 1n || before.size > BigInt(RESTORE_META_BYTES)) fail('state');
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+  let bytes: Buffer;
+  try {
+    const opened = fs.fstatSync(fd, { bigint: true });
+    for (const key of ['dev', 'ino', 'mode', 'uid', 'nlink', 'size', 'mtimeNs', 'ctimeNs'] as const) if (opened[key] !== before[key]) fail('identity');
+    bytes = Buffer.alloc(Number(before.size));
+    let offset = 0;
+    while (offset < bytes.length) {
+      const count = fs.readSync(fd, bytes, offset, bytes.length - offset, offset);
+      if (count === 0) fail('identity');
+      offset += count;
+    }
+    const after = fs.fstatSync(fd, { bigint: true });
+    for (const key of ['dev', 'ino', 'mode', 'uid', 'nlink', 'size', 'mtimeNs', 'ctimeNs'] as const) if (after[key] !== before[key]) fail('identity');
+  } finally { fs.closeSync(fd); }
+  same(file, fixed); const after = fs.lstatSync(file, { bigint: true });
+  for (const key of ['size', 'mtimeNs', 'ctimeNs'] as const) if (after[key] !== before[key]) fail('identity');
+  const intent = parseIntent(bytes.toString('utf8'));
+  return { intent, identity: { ...fixed, hash: crypto.createHash('sha256').update(bytes).digest('hex') } };
+}
+function sameCapsule(file: string, expected: CapsuleIdentity): Capsule {
+  const current = readCapsule(file);
+  if (JSON.stringify(current.identity) !== JSON.stringify(expected)) fail('identity');
+  return current;
+}
+function syncDirectory(directory: string): void {
+  const fd = fs.openSync(directory, fs.constants.O_RDONLY | fs.constants.O_DIRECTORY | fs.constants.O_NOFOLLOW);
+  try { fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+}
+function writeIntent(p: CutoverPaths, intent: RestoreIntent): Capsule {
+  const text = JSON.stringify(intent); parseIntent(text);
+  if (Buffer.byteLength(text) > RESTORE_META_BYTES) fail('state');
+  const file = p.view + RESTORE_PENDING_SUFFIX;
+  const fd = fs.openSync(file, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_NOFOLLOW, 0o600);
+  try { fs.writeFileSync(fd, text); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+  syncDirectory(path.dirname(p.view)); return readCapsule(file);
+}
+function gateEqual(a: Gate, b: Gate): boolean { return [...GATE_FIELDS, 'format'].every((key) => a[key as keyof Gate] === b[key as keyof Gate]); }
+function restoreGate(intent: RestoreIntent, outcome: 'committed' | 'rolled_back', hash?: string): Gate {
+  if (outcome === 'rolled_back') return { ...intent.old, source_id: intent.newSourceId };
+  if (!hash) fail('backup');
+  return { ...intent.old, source_id: intent.newSourceId, attempt_id: intent.attemptId, backup_name: intent.attemptId + '.db',
+    backup_dev: intent.backupDev, backup_ino: intent.backupIno, backup_hash: hash, started_at: intent.startedAt };
+}
+function completedReceipt(p: CutoverPaths, gate: Gate): Capsule | undefined {
+  const file = p.view + RESTORE_RECEIPT_SUFFIX;
+  if (!present(file)) return undefined;
+  const capsule = readCapsule(file); const intent = capsule.intent;
+  const outcome = gate.attempt_id === intent.attemptId ? 'committed' : 'rolled_back';
+  const expected = restoreGate(intent, outcome, gate.backup_hash ?? undefined);
+  // Explicit publication can upgrade the converged store after its receipt was saved.
+  // That changes only the validated protocol format, never the recorded epoch/reference.
+  if (expected.format === 1 && gate.format === 2) expected.format = 2;
+  if (!gateEqual(expected, gate)) fail('identity');
+  // The prior selected backup is still owned and preserved even after the current reference changes.
+  bindGate(intent.old, p, { dev: gate.source_dev, ino: gate.source_ino }, { dev: gate.view_dev, ino: gate.view_ino });
+  reconcileBackup(intent.old, p);
+  const artifact = path.join(p.backups, intent.attemptId + '.db');
+  same(artifact, { dev: intent.backupDev, ino: intent.backupIno });
+  if (fs.statSync(artifact).size > MAX_BYTES || ['-wal', '-shm', '-journal'].some((suffix) => present(artifact + suffix))) fail('backup');
+  return capsule;
+}
+function priorReceipt(p: CutoverPaths, intent: RestoreIntent): void {
+  const file = p.view + RESTORE_RECEIPT_SUFFIX;
+  if (intent.priorReceipt) {
+    sameCapsule(file, intent.priorReceipt); completedReceipt(p, intent.old);
+  } else if (present(file)) fail('identity');
+}
+function intentBinding(intent: RestoreIntent, p: CutoverPaths, source: Identity, view: Identity): void {
+  paths(p, true); same(p.primary, source); same(p.view, view); viewIdentity(p);
+  bindGate(intent.old, p, source, view); reconcileBackup(intent.old, p);
+  same(path.join(p.backups, intent.attemptId + '.db'), { dev: intent.backupDev, ino: intent.backupIno });
+  if (['-wal', '-shm', '-journal'].some((suffix) => present(path.join(p.backups, intent.attemptId + '.db') + suffix))) fail('backup');
+  priorReceipt(p, intent);
+}
+/** Explicit owner planning only: native-opens the rollback view, never primary or backup. */
+export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], sourceId: string, newSourceId?: string): {
+  index: number; ownedNames: string[]; attemptId: string | null; newSourceId: string | null; pending: boolean; outcome: 'committed' | 'rolled_back' | null;
+} {
+  let view: DatabaseSync | undefined;
+  try {
+    if (typeof sourceId !== 'string' || !UUID.test(sourceId) || newSourceId !== undefined && (typeof newSourceId !== 'string' || !UUID.test(newSourceId))
+      || !Array.isArray(names) || names.length > 32) fail('input');
+    p = paths(p, true); const source = identity(p.primary); const fixed = viewIdentity(p);
+    view = new DatabaseSync(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+    view.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;'); runtime(view);
+    const gate = validateGate(view, p, source, fixed); if (gate.phase !== 'applied') fail('state');
+    let intent: RestoreIntent | undefined; let outcome: 'committed' | 'rolled_back' | null = null;
+    const pending = present(p.view + RESTORE_PENDING_SUFFIX);
+    if (newSourceId !== undefined) {
+      intent = readCapsule(p.view + (pending ? RESTORE_PENDING_SUFFIX : RESTORE_RECEIPT_SUFFIX)).intent;
+      if (intent.old.source_id !== sourceId || intent.newSourceId !== newSourceId) fail('identity');
+      if (pending) {
+        intentBinding(intent, p, source, fixed);
+        if (!gateEqual(gate, intent.old) && !gateEqual(gate, restoreGate(intent, 'committed', gate.backup_hash ?? undefined))
+          && !gateEqual(gate, restoreGate(intent, 'rolled_back'))) fail('identity');
+      } else { completedReceipt(p, gate); outcome = gate.attempt_id === intent.attemptId ? 'committed' : 'rolled_back'; }
+    } else {
+      if (pending || gate.source_id !== sourceId) fail('identity');
+      intent = completedReceipt(p, gate)?.intent;
+    }
+    reconcileBackup(gate, p);
+    const index = names.indexOf(newSourceId !== undefined ? intent!.old.backup_name : gate.backup_name); if (index < 0) fail('identity');
+    same(p.primary, source); same(p.view, fixed); viewIdentity(p);
+    return { index, ownedNames: [...new Set([gate.backup_name, ...(intent ? [intent.old.backup_name, intent.attemptId + '.db'] : [])])],
+      attemptId: newSourceId !== undefined ? intent!.attemptId : null, newSourceId: newSourceId !== undefined ? intent!.newSourceId : null, pending, outcome };
+  } catch (e) { return mapped(e); }
+  finally { if (!closeNative(view)) fail('storage'); }
+}
+async function exactBackup(p: CutoverPaths, file: string, fixed: Identity): Promise<string> {
+  let copy: DatabaseSync | undefined;
+  try {
+    copy = open(p.primary, true); await backup(copy, file, { source: 'main', target: 'main', rate: 100 });
+    if (!closeNative(copy)) fail('storage'); copy = undefined;
+    const artifact = open(file);
+    try {
+      if (artifact.prepare('PRAGMA journal_mode=DELETE').get()!.journal_mode !== 'delete'
+        || artifact.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('backup');
+      schema(artifact); sourceFloor(artifact);
+    } finally { if (!closeNative(artifact)) fail('storage'); }
+    const hash = digestBackup(file, fixed); const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+    try { fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
+    syncDirectory(p.backups); return hash;
+  } finally { if (!closeNative(copy)) fail('storage'); }
+}
+function restoreRows(source: DatabaseSync, artifact: DatabaseSync): void {
+  let bytes = 0; let total = 0;
+  // Existing AFTER triggers maintain both external-content FTS indexes. Keep all explicit primary keys.
+  for (const table of TABLES) {
+    const columns = artifact.prepare(`PRAGMA table_info(${table})`).all().map((r) => String(r.name));
+    const select = artifact.prepare(`SELECT ${columns.join(',')} FROM ${table} ORDER BY 1`); select.setReadBigInts(true);
+    const insert = source.prepare(`INSERT INTO ${table}(${columns.join(',')}) VALUES(${columns.map(() => '?').join(',')})`);
+    source.exec(`DELETE FROM ${table}`);
+    for (const row of select.iterate()) {
+      if (++total > RESTORE_MAX_ROWS) fail('state');
+      const values = columns.map((column) => row[column] as string | number | bigint | Uint8Array | null);
+      for (const value of values) bytes += typeof value === 'string' ? Buffer.byteLength(value) : value instanceof Uint8Array ? value.byteLength : 8;
+      if (bytes > MAX_BYTES) fail('state'); insert.run(...values);
+    }
+  }
+  const migration = artifact.prepare('SELECT applied_at FROM schema_migrations WHERE version=1'); migration.setReadBigInts(true);
+  source.prepare('UPDATE schema_migrations SET applied_at=? WHERE version=1').run(migration.get()!.applied_at as bigint);
+  if (source.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('state');
+}
+function rotateFloor(source: DatabaseSync, gate: Gate, generation: number): void {
+  source.prepare(`UPDATE ${META} SET source_id=?,attempt_id=?,generation=?,backup_name=?,backup_dev=?,backup_ino=?,backup_hash=?,started_at=? WHERE id=1`)
+    .run(gate.source_id, gate.attempt_id, generation, gate.backup_name, gate.backup_dev, gate.backup_ino, gate.backup_hash, gate.started_at);
+  if (gate.format === 2) source.prepare(`UPDATE ${PUBLIC_FLOOR} SET source_id=? WHERE id=1`).run(gate.source_id);
+}
+function rotateView(view: DatabaseSync, gate: Gate): void {
+  viewTx(view, () => {
+    view.prepare(`UPDATE bosun_cutover_gate SET source_id=?,attempt_id=?,backup_name=?,backup_dev=?,backup_ino=?,backup_hash=?,started_at=? WHERE id=1`)
+      .run(gate.source_id, gate.attempt_id, gate.backup_name, gate.backup_dev, gate.backup_ino, gate.backup_hash, gate.started_at);
+    if (gate.format === 2) view.prepare("UPDATE bosun_public_state SET state='HOLD',source_id=?,generation=NULL,publication_id=NULL,published_at=NULL,valid_until=NULL WHERE id=1").run(gate.source_id);
+  });
+}
+function restoreConfirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPaths, gate: Gate): number {
+  same(p.primary, { dev: gate.source_dev, ino: gate.source_ino }); same(p.view, { dev: gate.view_dev, ino: gate.view_ino });
+  schema(source); const floor = sourceFloor(source); if (!floor) fail('state');
+  const current = validateGate(view, p, identity(p.primary), viewIdentity(p));
+  if (!gateEqual(gate, current) || floor.format !== current.format) fail('identity'); reconcile(floor, current, p);
+  if (current.format === 2 && publicState(view, current).state !== 'HOLD') fail('state');
+  return Number(floor.generation);
+}
+/** Bounded logical restoration of the CURRENT verified owner reference; no live DB/WAL file copy. */
+export async function restoreMemory(options: RestoreOptions): Promise<RestoreReceipt> {
+  let source: DatabaseSync | undefined; let view: DatabaseSync | undefined; let artifact: DatabaseSync | undefined; let admitted = false;
+  let effected = false;
+  try {
+    if (!options || !['restore', 'restore-reconcile'].includes(options.operation) || typeof options.sourceId !== 'string' || !UUID.test(options.sourceId)
+      || typeof options.newSourceId !== 'string' || !UUID.test(options.newSourceId) || typeof options.attemptId !== 'string' || !UUID.test(options.attemptId)
+      || new Set([options.sourceId, options.newSourceId, options.attemptId]).size !== 3 || typeof options.now !== 'function' || typeof options.validate !== 'function'
+      || options.checkpoint !== undefined && typeof options.checkpoint !== 'function') fail('input');
+    const startedAt = time(options.now); const p = paths(options.paths, true); const primaryId = identity(p.primary); const fixed = viewIdentity(p);
+    source = open(p.primary); runtime(source); source.exec('BEGIN IMMEDIATE'); admitted = true;
+    same(p.primary, primaryId); paths(p, true); schema(source); const floor = sourceFloor(source); if (!floor) fail('state');
+    view = open(p.view); let gate = validateGate(view, p, primaryId, fixed); if (gate.phase !== 'applied' || floor.format !== gate.format) fail('state');
+    let capsule: Capsule; let outcome: 'committed' | 'rolled_back'; let generation: number;
+    if (options.operation === 'restore') {
+      if (hasPendingMemoryRestore(p.view) || floor.source_id !== options.sourceId || gate.source_id !== options.sourceId) fail('identity');
+      reconcile(floor, gate, p); const previous = completedReceipt(p, gate);
+      if (options.validate() !== undefined) fail('input');
+      const target = path.join(p.backups, gate.backup_name); reconcileBackup(gate, p);
+      artifact = new DatabaseSync(target, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+      artifact.exec('PRAGMA query_only=ON; PRAGMA busy_timeout=0; PRAGMA temp_store=MEMORY; PRAGMA locking_mode=EXCLUSIVE; BEGIN;');
+      runtime(artifact); schema(artifact); sourceFloor(artifact);
+      if (artifact.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('backup');
+      const backupId = reserve(path.join(p.backups, options.attemptId + '.db')); effected = true;
+      const intent: RestoreIntent = { version: 1, old: { ...gate, format: gate.format }, generation: Number(floor.generation),
+        newSourceId: options.newSourceId, attemptId: options.attemptId, backupDev: backupId.dev, backupIno: backupId.ino,
+        startedAt, priorReceipt: previous?.identity ?? null };
+      capsule = writeIntent(p, intent); await options.checkpoint?.('intent');
+      intentBinding(intent, p, primaryId, fixed); sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity);
+      holdPublic(view, gate); await options.checkpoint?.('hold');
+      intentBinding(intent, p, primaryId, fixed); sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity);
+      if (!gateEqual(validateGate(view, p, primaryId, fixed), intent.old)
+        || gate.format === 2 && publicState(view, gate).state !== 'HOLD') fail('state');
+      const hash = await exactBackup(p, path.join(p.backups, intent.attemptId + '.db'), backupId);
+      await options.checkpoint?.('backup');
+      sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity); intentBinding(intent, p, primaryId, fixed);
+      reconcileBackup(gate, p);
+      if (!gateEqual(validateGate(view, p, primaryId, fixed), intent.old)
+        || gate.format === 2 && publicState(view, gate).state !== 'HOLD') fail('state');
+      // This UDF is private to the explicit operation and returns only after independent durable HOLD.
+      source.function(gate.format === 2 ? FN2 : FN, { directOnly: false }, () => {
+        if (!admitted || !source?.isTransaction) fail('state');
+        same(p.primary, primaryId); same(p.view, fixed);
+        same(p.view + RESTORE_PENDING_SUFFIX, capsule.identity);
+        return 1;
+      });
+      restoreRows(source, artifact); await options.checkpoint?.('rows');
+      intentBinding(intent, p, primaryId, fixed); sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity);
+      if (!gateEqual(validateGate(view, p, primaryId, fixed), intent.old)
+        || gate.format === 2 && publicState(view, gate).state !== 'HOLD') fail('state');
+      if (!closeNative(artifact)) fail('storage'); artifact = undefined;
+      gate = restoreGate(intent, 'committed', hash); rotateFloor(source, gate, 0); outcome = 'committed'; generation = 0;
+    } else {
+      const pending = hasPendingMemoryRestore(p.view);
+      capsule = readCapsule(p.view + (pending ? RESTORE_PENDING_SUFFIX : RESTORE_RECEIPT_SUFFIX)); const intent = capsule.intent;
+      if (intent.old.source_id !== options.sourceId || intent.newSourceId !== options.newSourceId || intent.attemptId !== options.attemptId) fail('identity');
+      if (!pending) {
+        completedReceipt(p, gate); reconcile(floor, gate, p);
+        if (floor.source_id !== intent.newSourceId) fail('identity');
+        if (options.validate() !== undefined) fail('input');
+        generation = Number(floor.generation); outcome = gate.attempt_id === intent.attemptId ? 'committed' : 'rolled_back';
+        holdPublic(view, gate);
+        paths(p, true); same(p.primary, primaryId); same(p.view, fixed);
+        sameCapsule(p.view + RESTORE_RECEIPT_SUFFIX, capsule.identity);
+        restoreConfirmed(source, view, p, gate);
+        source.exec('COMMIT'); admitted = false;
+        generation = restoreConfirmed(source, view, p, gate);
+        return { ...receipt(gate, generation), outcome, previousSourceId: intent.old.source_id };
+      }
+      intentBinding(intent, p, primaryId, fixed);
+      if (options.validate() !== undefined) fail('input');
+      effected = true;
+      if (floor.source_id === intent.old.source_id) {
+        if (!gateEqual(gate, intent.old)) fail('identity'); reconcile(floor, gate, p);
+        if (floor.generation !== intent.generation) fail('identity');
+        holdPublic(view, gate); gate = restoreGate(intent, 'rolled_back'); generation = intent.generation; outcome = 'rolled_back';
+        rotateFloor(source, gate, generation);
+      } else if (floor.source_id === intent.newSourceId) {
+        outcome = floor.attempt_id === intent.attemptId ? 'committed' : 'rolled_back';
+        gate = restoreGate(intent, outcome, String(floor.backup_hash));
+        reconcile(floor, gate, p); if (floor.format !== gate.format) fail('identity');
+        generation = Number(floor.generation);
+        const current = validateGate(view, p, primaryId, fixed);
+        if (!gateEqual(current, intent.old) && !gateEqual(current, gate)) fail('identity');
+        holdPublic(view, current);
+      } else fail('identity');
+    }
+    const intent = capsule.intent;
+    sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity); intentBinding(intent, p, primaryId, fixed);
+    const preparedFloor = sourceFloor(source); if (!preparedFloor || preparedFloor.format !== gate.format) fail('identity');
+    reconcile(preparedFloor, gate, p);
+    source.exec('COMMIT'); admitted = false;
+    await options.checkpoint?.('source-commit');
+    // Pending filename fences other registered authorities during the two-database commit gap.
+    const committed = sourceFloor(source); if (!committed || committed.format !== gate.format) fail('identity'); reconcile(committed, gate, p);
+    intentBinding(intent, p, primaryId, fixed); sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity);
+    rotateView(view, gate); await options.checkpoint?.('view-commit');
+    generation = restoreConfirmed(source, view, p, gate);
+    sameCapsule(p.view + RESTORE_PENDING_SUFFIX, capsule.identity); priorReceipt(p, intent);
+    fs.renameSync(p.view + RESTORE_PENDING_SUFFIX, p.view + RESTORE_RECEIPT_SUFFIX); syncDirectory(path.dirname(p.view));
+    sameCapsule(p.view + RESTORE_RECEIPT_SUFFIX, capsule.identity); completedReceipt(p, gate);
+    await options.checkpoint?.('receipt');
+    generation = restoreConfirmed(source, view, p, gate);
+    return { ...receipt(gate, generation), outcome, previousSourceId: intent.old.source_id };
+  } catch (e) { if (effected) fail('receipt_unknown'); return mapped(e); }
+  finally {
+    let clean = closeNative(artifact);
+    if (admitted) try { source?.exec('ROLLBACK'); } catch { clean = false; }
+    const sourceClosed = closeNative(source); const viewClosed = closeNative(view);
+    if (!clean || !sourceClosed || !viewClosed) fail(effected ? 'receipt_unknown' : 'storage');
+  }
 }
 export type PublicationPhase = 'view-upgrade' | 'format' | 'format-commit' | 'hold' | 'rows' | 'ready';
 export type PublicationOptions = { paths: CutoverPaths; now: () => number; id: () => string;
