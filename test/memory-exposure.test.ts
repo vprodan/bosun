@@ -10,6 +10,9 @@ import { curated, retrieve } from '../lib/context.ts';
 import { memoryServer, listen } from '../lib/serve.ts';
 import { MemoryError, type Memory, type MemoryApi, type Found, type Ctx } from '../lib/memory/types.ts';
 import { mayExposeMemory } from '../src/core/memory-policy.ts';
+import { MemoryService } from '../lib/memory/service.ts';
+import { openDb } from '../lib/memory/sqlite.ts';
+import { project } from '../lib/memory/project.ts';
 
 const CTX: Ctx = { projectId: 'p_fixture', sessionId: null, linked: [] };
 const O = { budgetTokens: 400, minScore: 0, itemChars: 400 };
@@ -314,4 +317,101 @@ test('owner CLI retains private IDs/content/provenance/events and mutations; MCP
       if (fs.existsSync(file)) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /PRIVATE-CONTENT-CANARY|private-canary-tag/);
     }
   } finally { sb.cleanup(); }
+});
+
+test('guarded local stdio MCP protects malformed SQLite flags through get/duplicate/update/delete and curated context', async () => {
+  const sb = sandbox(); fresh(sb);
+  const repo = gitRepo(sb, 'legacy-flags');
+  const ctx: Ctx = { projectId: project(repo).id, sessionId: null, linked: [], source: 'owner-fixture' };
+  const owner = new MemoryService(openDb(P.DB), load());
+  const protectedNotes: Memory[] = [];
+  try {
+    for (const [i, flag] of ['', 'false', -1, 2, 0.5, new Uint8Array(), new Uint8Array([48])].entries()) {
+      const note = (await owner.store({ category: 'project', title: `${CANARY}-legacy-title-${i}`, body: `${CANARY}-legacy-body-${i} constellation`,
+        tags: ['private-canary-tag'], source: `${CANARY}-source`, sourceRef: `${CANARY}-ref` }, ctx)).memory;
+      // Include canaries in record derivatives as well as payload; only the owner sees them.
+      owner.db.prepare('UPDATE memories SET id=?, private=?, shared=?, hash=?, version=987654321, created_at=987654321, updated_at=987654321 WHERE id=?')
+        .run(`${CANARY}-id-${i}`, flag, flag, `${CANARY}-hash-${i}`, note.id);
+      owner.db.prepare('UPDATE memory_events SET memory_id=?, source=?, hash_after=? WHERE memory_id=?')
+        .run(`${CANARY}-id-${i}`, `${CANARY}-event-source`, `${CANARY}-event-hash`, note.id);
+      // Keep the actual dedupe hash after proving it is also denied in get replies below.
+      protectedNotes.push({ ...note, id: `${CANARY}-id-${i}`, version: 987654321 });
+    }
+    const publicNote = (await owner.store({ category: 'project', title: 'Constellation public', body: 'Constellation public fixture', tags: ['public'] }, ctx)).memory;
+    const flags = (id: string) => owner.db.prepare('SELECT typeof(private) AS privacyType, hex(private) AS privacyBytes, typeof(shared) AS sharingType, hex(shared) AS sharingBytes FROM memories WHERE id=?').get(id)!;
+    const session = mcpSession(sb.env(), repo);
+    try {
+      for (const note of protectedNotes) {
+        const before = flags(note.id);
+        const get = await session.call('memory_get', { id: note.id });
+        assert.deepEqual(get.result.structuredContent, OPAQUE); noCanary(get); assert.doesNotMatch(JSON.stringify(get), /987654321/);
+        owner.db.prepare('UPDATE memories SET hash=? WHERE id=?').run(note.hash, note.id);
+        const duplicate = await session.call('memory_store', { category: 'project', title: note.title, body: note.body, private: false, shared: true });
+        assert.deepEqual(duplicate.result.structuredContent, OPAQUE); noCanary(duplicate);
+        const ownerDuplicate = await owner.get(note.id, ctx, { events: true });
+        assert.equal(ownerDuplicate.version, note.version); assert.equal(ownerDuplicate.events!.length, 1); assert.deepEqual(flags(note.id), before);
+        const prohibited = await session.call('memory_update', { id: note.id, expectedVersion: note.version, private: false });
+        assert.equal(prohibited.result.isError, true); noCanary(prohibited);
+        const update = await session.call('memory_update', { id: note.id, expectedVersion: note.version, body: `${note.body} edited` });
+        assert.deepEqual(update.result.structuredContent, OPAQUE); noCanary(update); assert.deepEqual(flags(note.id), before);
+        const edited = await owner.get(note.id, ctx, { events: true });
+        assert.equal(edited.id, note.id); assert.equal(edited.private, true); assert.equal(edited.version, note.version + 1);
+        assert.equal(edited.body, `${note.body} edited`); assert.deepEqual(edited.events!.map((e) => e.op), ['store', 'update']);
+      }
+      const search = await session.call('memory_search', { query: 'constellation', limit: 50 });
+      assert.deepEqual(search.result.structuredContent.hits.map((h: any) => h.id), [publicNote.id]); noCanary(search);
+      const context = await session.call('context_retrieve', { task: 'constellation', sources: ['curated'] });
+      assert.deepEqual(context.result.structuredContent.ids, [publicNote.id]); noCanary(context);
+      const packed = await retrieve('constellation', [curated(owner)], ctx, O);
+      assert.deepEqual(packed.items.map((item) => item.id), [publicNote.id]); noCanary(packed);
+      for (const note of protectedNotes) {
+        const before = flags(note.id);
+        for (let i = 0; i < 2; i++) {
+          const deleted = await session.call('memory_delete', { id: note.id });
+          assert.deepEqual(deleted.result.structuredContent, OPAQUE); noCanary(deleted);
+        }
+        const archived = await owner.get(note.id, ctx, { events: true });
+        assert.equal(archived.status, 'archived'); assert.equal(archived.version, note.version + 2); assert.deepEqual(flags(note.id), before);
+        assert.deepEqual(archived.events!.map((e) => e.op), ['store', 'update', 'archive']);
+      }
+      const valid = await session.call('memory_store', { category: 'project', title: publicNote.title, body: publicNote.body });
+      assert.equal(valid.result.structuredContent.duplicate, true); assert.equal(valid.result.structuredContent.memory.id, publicNote.id);
+      const publicEdit = await session.call('memory_update', { id: publicNote.id, expectedVersion: 1, body: 'Constellation public edited' });
+      assert.equal(publicEdit.result.structuredContent.memory.version, 2);
+      assert.deepEqual((await session.call('memory_delete', { id: publicNote.id })).result.structuredContent, { id: publicNote.id, status: 'archived' });
+      const reclassified = await owner.update(protectedNotes[0].id, { private: false, status: 'active' }, protectedNotes[0].version + 2, ctx);
+      const exposed = await session.call('memory_get', { id: reclassified.id });
+      assert.equal(exposed.result.structuredContent.memory.id, reclassified.id); assert.equal(exposed.result.structuredContent.memory.private, false);
+      assert.equal(exposed.result.structuredContent.memory.body, reclassified.body, 'explicit owner reclassification restores public behavior');
+    } finally { assert.equal((await session.close()).code, 0); }
+    for (const name of ['bosun.log', 'metrics.jsonl', 'llm-usage.jsonl']) {
+      const file = path.join(P.BOSUN, name);
+      if (fs.existsSync(file)) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /PRIVATE-CONTENT-CANARY|private-canary-tag|987654321/);
+    }
+  } finally { owner.close(); sb.cleanup(); }
+});
+
+test('local MCP mutation replies retain classification captured inside synchronous SQLite admission', async () => {
+  const sb = sandbox(); fresh(sb);
+  const repo = gitRepo(sb, 'admitted-flags');
+  const ctx: Ctx = { projectId: project(repo).id, sessionId: null, linked: [] };
+  const owner = new MemoryService(openDb(P.DB), load());
+  const root = tools(load(), repo, () => owner);
+  try {
+    for (const name of ['memory_store', 'memory_update', 'memory_delete']) {
+      const input = { category: 'project' as const, title: `${CANARY}-${name}`, body: `${CANARY}-${name}-body` };
+      const note = (await owner.store(input, ctx)).memory;
+      owner.db.prepare("UPDATE memories SET private='' WHERE id=?").run(note.id);
+      const args = name === 'memory_store' ? input : name === 'memory_update' ? { id: note.id, expectedVersion: 1, body: `${input.body} edited` } : { id: note.id };
+      const pending = call(root.list, name, args);
+      // The local transaction and its DTO completed synchronously before the MCP await continuation.
+      const after = owner.db.prepare('SELECT status, version FROM memories WHERE id=?').get(note.id)!;
+      assert.equal(after.version, name === 'memory_store' ? 1 : 2);
+      assert.equal(after.status, name === 'memory_delete' ? 'archived' : 'active');
+      owner.db.prepare('UPDATE memories SET private=0 WHERE id=?').run(note.id);
+      const reply = await pending;
+      assert.deepEqual(reply.structuredContent, OPAQUE); noCanary(reply);
+      assert.equal((await owner.get(note.id, ctx)).private, false);
+    }
+  } finally { root.close(); sb.cleanup(); }
 });

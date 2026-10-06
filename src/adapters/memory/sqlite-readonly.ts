@@ -12,7 +12,7 @@ const MAX_BYTES = 16 * 1024 * 1024;
 const BUDGET_MS = 250;
 const COLUMNS = 'seq id category project_id session_id title body tags status shared private source source_ref hash created_at updated_at expires_at accessed_at access_count version'.split(' ');
 const READ = `((m.category = 'personal' AND m.project_id IS NULL) OR (m.category IN ('project','session') AND typeof(m.project_id) = 'text'
-    AND (m.project_id = :pid OR m.shared = 1 OR m.project_id IN (SELECT value FROM json_each(:linked)))))
+    AND (m.project_id = :pid OR (typeof(m.shared) = 'integer' AND m.shared = 1) OR m.project_id IN (SELECT value FROM json_each(:linked)))))
   AND typeof(m.private) = 'integer' AND m.private = 0 AND m.status = 'active'
   AND (m.expires_at IS NULL OR (typeof(m.expires_at) = 'integer' AND m.expires_at > :now))
   AND (:permanent=0 OR m.expires_at IS NULL)`;

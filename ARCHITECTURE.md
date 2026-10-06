@@ -128,7 +128,8 @@ sequenceDiagram
 `~/.bosun/memory.db`: `memories` (+ `memories_fts`, porter unicode61, external content kept in sync by triggers), `memory_events` (the audit trail), `docs` (+ `docs_fts`), and `schema_migrations`.
 
 - **Keys and dedupe:** `id` is `m_<time base32><random hex>`. `hash` is sha256 of the normalized title and body (lowercase, collapsed whitespace). A partial unique index on `(project, category, hash)` over non-archived rows makes exact duplicates impossible; `store` returns the existing memory instead.
-- **Scope:** readable means personal, this project, `shared`, or a project in `MEMORY_LINKED_PROJECTS`. Writable means personal or this project. Ids out of scope are "not found", never "forbidden".
+- **Scope:** readable means personal, this project, stored integer `shared=1`, or a project in `MEMORY_LINKED_PROJECTS`. Writable means personal or this project. Ids out of scope are "not found", never "forbidden". Other stored sharing values do not grant cross-project access.
+- **Legacy classification:** only stored integer `private=0` is public. The INTEGER-affinity legacy schema permits empty/text/blob/nonzero flags; their DTOs remain protected, and public search filters them in SQL before payload/tag projection. Owner inspection and `includePrivate` still expose in-scope content. Duplicate requests and edits with omitted flags retain the exact stored flags, IDs, versions and audit behavior; only an explicit owner patch reclassifies a record as public.
 - **Versions:** `update` needs the version you read (optimistic concurrency). A mismatch returns `conflict` with the current version.
 - **Retention:** session memories expire after `MEMORY_SESSION_TTL_DAYS` (7), applied when the database opens, each with an `expire` event. `prune` purges archived memories older than `MEMORY_PURGE_AFTER_DAYS` (90). Events outlive a purge.
 - **Migrations:** each one runs with its version row inside one `BEGIN IMMEDIATE`; a failure rolls back and leaves the database as it was. The version is re-read inside the transaction, so processes opening a new database at the same time migrate it once.
@@ -170,6 +171,7 @@ Then:
 
 - **Inputs:** every schema has `additionalProperties: false`, so a tool argument can't set the project.
 - **Errors:** validation and business errors come back as `isError` results. Memory errors expose only fixed text and a closed `structuredContent.error.code`, never provider messages, private duplicate IDs or current-version details. The HTTP context endpoint applies the same finite mapping; owner memory API transport is unchanged. Output is capped at `MCP_MAX_CHARS` (20,000).
+- **Local mutation replies:** store/duplicate, update and delete classify the current SQLite row and construct their reply DTO inside synchronous write admission. MCP projects that captured DTO; private and malformed flags yield opaque receipts while existing private edits/deletes remain supported. This is transaction-time classification, without a delivery-time revocation or retained MCP transport lease guarantee.
 - **Protocol errors:** unknown method (including `server/discover`) → `-32601`, batch → `-32600`, parse error → `-32700`, unknown tool → `-32602`.
 - **Registration:** `bosun install` registers the server with `claude mcp add --scope user`, and with `codex mcp add` in each Codex home (Orca's too). Uninstall removes them, and `bosun doctor` checks them.
 

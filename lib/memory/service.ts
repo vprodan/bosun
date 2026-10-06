@@ -42,13 +42,15 @@ export const cleanTags = (tags: unknown): string[] => (Array.isArray(tags)
   : []);
 
 // Readable: personal, this project, shared, linked projects. Writable: personal and this project only.
-const READ = '(m.project_id IS NULL OR m.project_id = :pid OR m.shared = 1 OR m.project_id IN (SELECT value FROM json_each(:linked)))';
+const READ = "(m.project_id IS NULL OR m.project_id = :pid OR (typeof(m.shared) = 'integer' AND m.shared = 1) OR m.project_id IN (SELECT value FROM json_each(:linked)))";
 type Row = Record<string, any>;
 const scope = (ctx: Ctx) => ({ pid: ctx.projectId, linked: JSON.stringify(ctx.linked) });
 const newId = () => `m_${Date.now().toString(32).padStart(9, '0')}${crypto.randomBytes(4).toString('hex')}`;
 const toMemory = (r: Row): Memory => ({
   id: r.id, category: r.category, projectId: r.project_id, sessionId: r.session_id, title: r.title, body: r.body, tags: JSON.parse(r.tags),
-  status: r.status, shared: !!r.shared, private: !!r.private, source: r.source, sourceRef: r.source_ref, hash: r.hash,
+  // SQLite INTEGER affinity normalizes numeric 0/1; every other stored value stays protected/unshared.
+  // Classification does not rewrite legacy flags, including on duplicate or ordinary update/delete replies.
+  status: r.status, shared: r.shared === 1, private: r.private !== 0, source: r.source, sourceRef: r.source_ref, hash: r.hash,
   createdAt: r.created_at, updatedAt: r.updated_at, expiresAt: r.expires_at, accessedAt: r.accessed_at, accessCount: r.access_count, version: r.version,
 });
 
@@ -129,7 +131,7 @@ export class MemoryService implements MemoryApi {
         const params = { ...scope(ctx), statuses: JSON.stringify(q.status?.length ? q.status : ['active']), category: q.category ?? null,
           private: q.includePrivate ? 1 : 0, tags: q.tags?.length ? JSON.stringify(q.tags) : null, limit: q.limit ?? 10 };
         const filter = `${READ} AND m.status IN (SELECT value FROM json_each(:statuses)) AND (:category IS NULL OR m.category = :category)
-          AND (:private = 1 OR m.private = 0)
+          AND (:private = 1 OR (typeof(m.private) = 'integer' AND m.private = 0))
           AND (:tags IS NULL OR EXISTS (SELECT 1 FROM json_each(m.tags) t WHERE t.value IN (SELECT value FROM json_each(:tags))))`;
         const rows = (match
           ? db.prepare(`SELECT m.*, bm25(memories_fts) AS rank FROM memories_fts JOIN memories m ON m.seq = memories_fts.rowid

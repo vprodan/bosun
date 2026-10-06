@@ -97,6 +97,75 @@ test('memory: isolation — own project, personal, shared and linked are readabl
   } finally { sb.cleanup(); }
 });
 
+test('memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags', async () => {
+  const sb = sandbox(); const s = svc(sb);
+  const values = [0, 1, '', ' ', 'false', -1, 2, 0.5, new Uint8Array(), new Uint8Array([48]), '0', '1'];
+  try {
+    for (const [i, flag] of values.entries()) {
+      const input = { category: 'project' as const, title: `Legacy flag ${i}`, body: `Legacy constellation fixture ${i}`, tags: ['legacy'], source: 'owner-fixture', sourceRef: 'fixture-ref' };
+      const m = (await s.store(input, A)).memory;
+      s.db.prepare('UPDATE memories SET private=?, shared=? WHERE id=?').run(flag, flag, m.id);
+      const raw = () => s.db.prepare('SELECT typeof(private) AS privacyType, hex(private) AS privacyBytes, typeof(shared) AS sharingType, hex(shared) AS sharingBytes FROM memories WHERE id=?').get(m.id)!;
+      const flags = raw();
+      const publicFlag = flags.privacyType === 'integer' && flags.privacyBytes === '30';
+      const sharedFlag = flags.sharingType === 'integer' && flags.sharingBytes === '31';
+      const owner = await s.get(m.id, A, { events: true });
+      assert.equal(owner.private, !publicFlag, `private ${i}/${flags.privacyType}`);
+      assert.equal(owner.shared, sharedFlag, `shared ${i}/${flags.sharingType}`);
+      assert.equal(owner.id, m.id); assert.equal(owner.body, input.body); assert.equal(owner.sourceRef, input.sourceRef);
+      const dup = await s.store({ ...input, private: false, shared: true }, A);
+      assert.equal(dup.duplicate, true); assert.equal(dup.memory.id, m.id); assert.equal(dup.memory.version, 1);
+      assert.equal(dup.memory.private, !publicFlag); assert.equal(dup.memory.shared, sharedFlag);
+      assert.deepEqual(raw(), flags, 'duplicate does not adopt requested public/shared flags');
+      const edited = await s.update(m.id, { body: `${input.body} edited` }, 1, A);
+      assert.equal(edited.id, m.id); assert.equal(edited.version, 2); assert.equal(edited.private, !publicFlag); assert.equal(edited.shared, sharedFlag);
+      assert.notEqual(edited.hash, m.hash); assert.deepEqual(raw(), flags, 'omitted flags preserve exact SQLite storage');
+      const archived = await s.delete(m.id, A);
+      assert.equal(archived.id, m.id); assert.equal(archived.version, 3); assert.equal(archived.private, !publicFlag);
+      assert.equal((await s.delete(m.id, A)).version, 3); assert.deepEqual(raw(), flags);
+      assert.deepEqual((await s.get(m.id, A, { events: true })).events!.map((e) => e.op), ['store', 'update', 'archive']);
+      const reclassified = await s.update(m.id, { status: 'active', private: false, shared: false }, 3, A);
+      assert.equal(reclassified.id, m.id); assert.equal(reclassified.version, 4); assert.equal(reclassified.private, false); assert.equal(reclassified.shared, false);
+      assert.equal(raw().privacyType, 'integer'); assert.equal(raw().privacyBytes, '30');
+      assert.equal((await s.search({ includePrivate: false, touch: false, limit: 50 }, A)).find((hit) => hit.id === m.id)?.id, m.id);
+    }
+  } finally { s.close(); sb.cleanup(); }
+});
+
+test('memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one', async () => {
+  const sb = sandbox(); const s = svc(sb);
+  try {
+    const publicNote = (await s.store({ category: 'project', title: 'Constellation public', body: 'Constellation public scope' }, A)).memory;
+    const protectedIds: string[] = []; const sharedIds: string[] = []; const unsharedIds: string[] = [];
+    for (const [i, flag] of ['', 'false', -1, 2, 0.5, new Uint8Array(), new Uint8Array([48])].entries()) {
+      const note = (await s.store({ category: 'project', title: `Constellation protected ${i}`, body: `Constellation protected scope ${i}` }, A)).memory;
+      s.db.prepare('UPDATE memories SET private=? WHERE id=?').run(flag, note.id); protectedIds.push(note.id);
+      assert.equal((await s.get(note.id, A)).private, true);
+      const foreign = (await s.store({ category: 'project', title: `Constellation foreign ${i}`, body: `Constellation foreign scope ${i}` }, B)).memory;
+      s.db.prepare('UPDATE memories SET shared=? WHERE id=?').run(flag, foreign.id); unsharedIds.push(foreign.id);
+      assert.equal((await s.get(foreign.id, B)).shared, false);
+      await assert.rejects(s.get(foreign.id, A), code('not_found'));
+      assert.equal((await s.get(foreign.id, { ...A, linked: ['p_b'] })).id, foreign.id);
+      await assert.rejects(s.update(foreign.id, { body: 'foreign edit' }, 1, { ...A, linked: ['p_b'] }), code('invalid'));
+    }
+    for (const flag of [1, '1']) {
+      const note = (await s.store({ category: 'project', title: `Constellation shared ${sharedIds.length}`, body: `Constellation shared scope ${sharedIds.length}` }, B)).memory;
+      s.db.prepare('UPDATE memories SET shared=? WHERE id=?').run(flag, note.id); sharedIds.push(note.id);
+      assert.equal(s.db.prepare('SELECT typeof(shared) AS type FROM memories WHERE id=?').get(note.id)!.type, 'integer', 'INTEGER affinity normalizes numeric text');
+      assert.equal((await s.get(note.id, A)).shared, true);
+    }
+    const ids = async (text?: string, includePrivate = false, ctx = A) => (await s.search({ text, includePrivate, touch: false, limit: 50 }, ctx)).map((h) => h.id).sort();
+    for (const text of [undefined, 'constellation']) {
+      assert.deepEqual(await ids(text), [publicNote.id, ...sharedIds].sort());
+      assert.deepEqual(await ids(text, true), [publicNote.id, ...sharedIds, ...protectedIds].sort(), 'owner can inspect protected records');
+      assert.deepEqual(await ids(text, false, { ...A, linked: ['p_b'] }), [publicNote.id, ...sharedIds, ...unsharedIds].sort());
+    }
+    // Payload parsing is forbidden for records rejected by the public SQL query.
+    s.db.prepare('UPDATE memories SET tags=? WHERE id IN (SELECT value FROM json_each(?))').run('PRIVATE-LEGACY-TAG-PROJECTION-CANARY', JSON.stringify(protectedIds));
+    for (const text of [undefined, 'constellation']) assert.deepEqual(await ids(text), [publicNote.id, ...sharedIds].sort());
+  } finally { s.close(); sb.cleanup(); }
+});
+
 test('project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote', () => {
   const sb = sandbox();
   try {
