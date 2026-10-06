@@ -8,7 +8,7 @@ The first v1.0 extraction is implemented while package metadata remains 0.2.0. `
 
 The registry contains literal lazy router factories; constructing it does no adapter import/probe/inference. New inference requests carry `public/private/unknown`; routing and its adapters require an own data-property public classification before sending text. Inherited/getter classifications fail closed. The legacy entry alone retains its documented unmarked-input compatibility. Router metadata uses a trusted configured label, never a provider response field. Managed telemetry/admission/quiescence/fresh-start/seed/readiness controls are typed contracts with fail-closed selection policy; no native host is qualified by these definitions.
 
-`lib/memory/types.ts` forwards domain/port aliases (including the MemoryReader read subset) and MemoryError class; `lib/util.ts` forwards BosunError with its legacy constructor overload and the exact validation functions/types from `src/contracts/schema.ts`. `lib/memory/sqlite.ts` forwards pure text and synchronous session/transaction helpers, retaining crypto/hash/open/migration work. Stored IDs/hashes and owner writer/MCP/remote scope/expiry/write semantics remain compatible. The local hook's storage branch now uses the qualified reader below. Legacy context scoring retains only its existing explicitly allowlisted source metadata and rejects mismatched hit identities. New source IDs remain open in core; adding one does not make it trusted.
+`lib/memory/types.ts` forwards domain/port aliases (including the MemoryReader read subset) and MemoryError class; `lib/util.ts` forwards BosunError with its legacy constructor overload and the exact validation functions/types from `src/contracts/schema.ts`. `lib/memory/sqlite.ts` forwards pure text, the unchanged platform content hash and synchronous session/transaction helpers, retaining native open/migration work. Stored IDs/hashes and owner writer/MCP/remote scope/expiry/write semantics remain compatible. The local hook's storage branch now uses the qualified reader below. Legacy context composition delegates scoring to the core use case with only its existing explicitly allowlisted source metadata. New source IDs remain open in core; adding one does not make it trusted.
 
 The model-audience memory policy is wired into MCP memory replies/search and curated context before content access. Only a record with an own boolean `private: false` is eligible; private/missing/malformed classification fails closed, including throwing getters. Denied get/store/update/delete replies are the constant `{memory:{private:true}}`, without duplicate/status or other derivatives. Public replies project known fields into fresh objects/arrays instead of serializing adapter extras, events or `toJSON` hooks. Model-facing memory/context errors use finite text/codes, omitting unverified current-version details. Owner CLI reads and storage mutations remain compatible. Safe WAL fallback, atomic private mutation authorization/races and delivery-time eligibility/revocation qualification, hook snapshot/lean closure, daemon query/maintenance/index caller migration and scheduling, broader error transport migration, full generation/runner screening and remaining port implementations are not finished.
 
@@ -17,6 +17,28 @@ The model-audience memory policy is wired into MCP memory replies/search and cur
 Legacy exceptions are exact in the checker and [ADR 0001](docs/adr/0001-compatible-core-extraction.md): existing 25 lib files retain their old internal dependency zone, ten callers have recorded forwarding edges, and `bin/bosun` may import only `enableCompileCache` from `node:module`. [ADR 0010](docs/adr/0010-writable-memory-adapter.md) records the added exact memory/validation/docs seams. New legacy files/edges and new-source imports of lib fail. These seams must be removed as their callers migrate before v1.0 ships. No compiled hook/bundle enforcement result is claimed.
 
 Guarded `core`/`contracts` tests exercise routing/privacy/error identity, capability denial, lazy construction, Router acceptance, actual native SQLite writable/read MemoryStore acceptance and the implemented docs ContextSource. `memoryadapter` selects direct and compatibility MemoryStore fixtures, both plain and registered; `docsadapter` selects direct snapshot queries and explicit/compatible index fixtures. `boundaries` contains positive/negative AST and resolution fixtures. Other port acceptance suites await actual adapters. Every group goes through the mandatory Node containment launcher; Bun runs remain prohibited.
+
+## Context ranking and compatible composition (2026-10-06)
+
+`src/core/use-cases/retrieve-context.ts` owns actual task-term admission, retrieval orchestration, relevance/recency/usage scores, stable ordering, hash/Jaccard dedupe and greedy rendering. Construction snapshots and freezes verified ContextSource metadata/callbacks and injected semantic/monotonic clocks, hash, UTC date label and measurement. It imports only core modules and uses no ambient clock, filesystem, native SQL, network, config or telemetry. Explicit source callbacks own their effects and keep their method receiver. Unsupported/unverified sources are skipped before search acquisition; trusted metadata is a composition contract, not authentication of hostile adapter objects. Mismatched hit identities and insufficient matched counts are discarded before payload access. Output projects only declared Hit fields.
+
+`lib/context.ts` retains `retrieve`, `curated`, Item/Result aliases and the exact forwarded `estTokens` function. Real hook, MCP, authoritative HTTP and owner benchmark callers use this delegation. Its fixed reviewed metadata remains curated 1/60 days, docs 0.8/90 days and claude-mem 0.6/30 days; curated sessions retain a one-day half-life. Unknown/new/prototype legacy names cannot acquire a search callback. Curated classification still precedes every denied record metadata/body getter. The unchanged normalized SHA-256/32-hex hash now lives in `src/platform/content-hash.ts` and is reexported with exact function identity by `lib/memory/sqlite.ts`; context composition no longer imports the writer closure.
+
+```mermaid
+flowchart TD
+  CALL[Existing hook / MCP / HTTP / bench] --> COMP[lib/context compatible composition]
+  COMP --> CORE[Ambient-free context use case]
+  COMP --> DEPS[Explicit clocks / hash / UTC day / metrics]
+  DEPS --> CORE
+  CORE --> PORT[Reviewed ContextSource callbacks]
+  PORT --> CUR[Curated exposure guard and supplied reader]
+  PORT --> DOC[Compatible docs query and index]
+  PORT --> CM[Read-only claude-mem source]
+```
+
+Trusted caller scope/options and verified source metadata validate before callbacks. Composition allows at most 64 verified callbacks; a response above 1000 hits holds before hit access, while genuine sources still request 20. Finite rank/usage, Date-range timestamps (including fractional docs mtime), declared strings and optional match/hash fields validate before scoring. Semantic clock/hash/date failures produce finite unavailable errors; provider-domain errors retain their original identity. Monotonic/sink failures cannot change a completed result or domain error; durations are finite nonnegative numbers, and measurements contain only the existing operation/count/character/token fields. Empty-term retrieval retains its unmeasured fast path. These count bounds do not establish provider payload byte bounds or a hard latency deadline.
+
+`contextpipeline` and `contracts` select direct deterministic/dependency/policy fixtures; `context` selects existing real context/hook regressions and retains legacy-suite coverage. [ADR 0012](docs/adr/0012-context-ranking-and-composition.md) records compatibility and malformed-input limits. Reader lifetime through stdout acceptance, HOLD/cancellation and finite-expiry exclusion remain unchanged. Legacy metrics/config, docs indexing and MemoryService expiry/touch still own effects outside core. Hook JSON/config snapshots and full lean closure, daemon scheduling, central COMMIT growth, artifact disposition/drain and every native/Clef/handoff/graph/dashboard/remote/release gate remain unfinished.
 
 ## Writable memory adapter and maintenance composition (2026-10-06)
 
@@ -112,7 +134,8 @@ flowchart TD
 | `lib/memory/remote.ts` | `RemoteStore`: the same `MemoryApi` over HTTP to `MEMORY_URL` |
 | `lib/memory/claudemem.ts` | read-only provider over claude-mem: this repo's observations and session summaries |
 | `lib/memory/docs.ts` | compatible search-triggered index composition; direct scoped queries/indexing live in `src/adapters/memory/sqlite-docs*.ts` |
-| `lib/context.ts` | `retrieve()`: rank, dedupe, fit a token budget, format |
+| `lib/context.ts` | compatible `retrieve()`/`curated()` composition and forwards |
+| `src/core/use-cases/retrieve-context.ts` | injected retrieval, rank, dedupe, token budget and format |
 | `lib/llm.ts` | `generate()`: Ollama → OpenAI-compatible → (opt-in) `claude -p`, retries, JSON validation, usage log |
 | `lib/consolidate.ts` | claude-mem summaries → proposed memories |
 | `lib/mcp.ts` | `bosun mcp`: JSON-RPC 2.0 over stdio, 7 tools |

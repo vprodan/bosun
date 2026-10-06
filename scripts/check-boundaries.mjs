@@ -27,9 +27,9 @@ const LEGACY_FILES = new Set(['bin/bosun', ...[
 ].map((name) => `lib/${name}.ts`)]);
 // Exact compatibility edges; no new src imports lib. Remove these with the corresponding legacy caller before ship.
 const FORWARDING = new Map([
-  ['lib/context.ts', ['src/core/text.ts', 'src/core/memory-policy.ts']], ['lib/log.ts', ['src/core/errors.ts']], ['lib/util.ts', ['src/core/errors.ts', 'src/contracts/schema.ts']],
+  ['lib/context.ts', ['src/core/use-cases/retrieve-context.ts', 'src/core/memory-policy.ts', 'src/platform/content-hash.ts']], ['lib/log.ts', ['src/core/errors.ts']], ['lib/util.ts', ['src/core/errors.ts', 'src/contracts/schema.ts']],
   ['lib/mcp.ts', ['src/core/memory-policy.ts', 'src/core/errors.ts']], ['lib/serve.ts', ['src/core/errors.ts']],
-  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts', 'src/adapters/memory/sqlite-session.ts']],
+  ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/platform/content-hash.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts', 'src/adapters/memory/sqlite-session.ts']],
   ['lib/memory/service.ts', ['src/contracts/memory.ts', 'src/adapters/memory/sqlite-store.ts']],
   ['lib/memory/docs.ts', ['src/adapters/memory/sqlite-docs.ts', 'src/adapters/memory/sqlite-docs-index.ts', 'src/adapters/memory/docs-filesystem.ts']],
   ['lib/memory/types.ts', ['src/core/domain/memory.ts', 'src/core/domain/context.ts', 'src/core/errors.ts', 'src/core/ports/memory.ts', 'src/core/ports/context-source.ts']],

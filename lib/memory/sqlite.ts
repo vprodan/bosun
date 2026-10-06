@@ -1,7 +1,7 @@
 // SQLite through node:sqlite: open (0600, WAL), ordered migrations in transactions, FTS5 query building, text hashing.
 import crypto from 'node:crypto';
-import { norm } from '../../src/core/text.ts';
 export { terms, ftsQuery, norm, words, jaccard } from '../../src/core/text.ts';
+export { contentHash } from '../../src/platform/content-hash.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -236,7 +236,3 @@ export function inspectMemorySchema(file: string): { state: 'missing' | 'wal-hel
   } catch { return { state: 'unavailable' }; }
   finally { try { db?.close(); } catch {} }
 }
-
-// ── Text: deterministic query terms (user text never becomes FTS syntax), hashing, word-set overlap ──
-export const contentHash = (title: string, body: string): string =>
-  crypto.createHash('sha256').update(norm(`${title}\n${body}`)).digest('hex').slice(0, 32);
