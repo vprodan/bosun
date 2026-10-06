@@ -9,7 +9,7 @@ const { environment, PRELOAD, cleanupRun } = require('./test-env.cjs');
 const repo = path.resolve(import.meta.dirname, '..');
 let suite = 'all';
 const GROUPS = { publicreader: ['public-reader.test.ts'], publication: ['publication.test.ts'], writer: ['writer-lifecycle.test.ts'], memory: ['memory.test.ts', 'mcp.test.ts', 'serve.test.ts', 'context.test.ts'], cutover: ['sqlite-cutover.test.ts'], hooklease: ['hook-delivery.test.ts'], readview: ['read-view-qualification.test.ts'], benchmark: ['memory.test.ts'], privacy: ['privacy.test.ts'], exposure: ['memory-exposure.test.ts'], readonly: ['sqlite-readonly.test.ts'], core: ['core.test.ts'],
-  memoryadapter: ['memory-store.test.ts'], contracts: ['core.test.ts', 'router.test.ts', 'sqlite-readonly.test.ts', 'memory-store.test.ts'], router: ['router.test.ts'], opencode: ['opencode.test.ts'], boundaries: ['boundaries.test.ts'], owner: ['owner-cutover.test.ts', 'owner-restore.test.ts'] };
+  docsadapter: ['docs-adapter.test.ts'], memoryadapter: ['memory-store.test.ts'], contracts: ['core.test.ts', 'router.test.ts', 'sqlite-readonly.test.ts', 'memory-store.test.ts', 'docs-adapter.test.ts'], router: ['router.test.ts'], opencode: ['opencode.test.ts'], boundaries: ['boundaries.test.ts'], owner: ['owner-cutover.test.ts', 'owner-restore.test.ts'] };
 let selectedGroups;
 try {
   if (process.versions.bun || Number(process.versions.node.split('.')[0]) < 24) throw new Error('Node >=24 is required; Bun tests are prohibited');

@@ -20,7 +20,7 @@ const CODE_LOADERS = new Set(['require', 'createRequire', 'eval', 'Function']);
 // These extracted helpers receive storage/time/hash/measurement through explicit composition.
 // Keep the exact set narrow: other native adapters legitimately own filesystem/runtime effects.
 const ISOLATED_MEMORY = new Set(['src/contracts/schema.ts', 'src/contracts/memory.ts',
-  ...['sqlite-store', 'sqlite-query', 'sqlite-maintenance', 'sqlite-session'].map((name) => `src/adapters/memory/${name}.ts`)]);
+  ...['sqlite-store', 'sqlite-query', 'sqlite-maintenance', 'sqlite-session', 'sqlite-docs', 'sqlite-docs-index'].map((name) => `src/adapters/memory/${name}.ts`)]);
 const LEGACY_FILES = new Set(['bin/bosun', ...[
   'cli', 'config', 'consolidate', 'context', 'exec', 'llm', 'log', 'mcp', 'metrics', 'orca', 'roles', 'route', 'serve', 'services', 'util', 'wire',
   'memory/bench', 'memory/claudemem', 'memory/cli', 'memory/docs', 'memory/project', 'memory/remote', 'memory/service', 'memory/sqlite', 'memory/types',
@@ -31,6 +31,7 @@ const FORWARDING = new Map([
   ['lib/mcp.ts', ['src/core/memory-policy.ts', 'src/core/errors.ts']], ['lib/serve.ts', ['src/core/errors.ts']],
   ['lib/memory/sqlite.ts', ['src/core/text.ts', 'src/adapters/memory/sqlite-cutover.ts', 'src/adapters/memory/sqlite-owner.ts', 'src/adapters/memory/sqlite-session.ts']],
   ['lib/memory/service.ts', ['src/contracts/memory.ts', 'src/adapters/memory/sqlite-store.ts']],
+  ['lib/memory/docs.ts', ['src/adapters/memory/sqlite-docs.ts', 'src/adapters/memory/sqlite-docs-index.ts', 'src/adapters/memory/docs-filesystem.ts']],
   ['lib/memory/types.ts', ['src/core/domain/memory.ts', 'src/core/domain/context.ts', 'src/core/errors.ts', 'src/core/ports/memory.ts', 'src/core/ports/context-source.ts']],
   ['lib/route.ts', ['src/core/domain/route.ts', 'src/core/use-cases/route-prompt.ts', 'src/core/route-policy.ts', 'src/app/registry.ts', 'src/adapters/memory/sqlite-readonly.ts']],
 ]);
@@ -42,6 +43,9 @@ const ADAPTER_SEAMS = new Map([
   ['src/adapters/memory/sqlite-readonly.ts', ['src/adapters/memory/sqlite-public-readonly.ts']],
   ['src/adapters/memory/sqlite-store.ts', ['src/adapters/memory/sqlite-query.ts', 'src/adapters/memory/sqlite-maintenance.ts', 'src/adapters/memory/sqlite-session.ts']],
   ['src/adapters/memory/sqlite-maintenance.ts', ['src/adapters/memory/sqlite-session.ts']],
+  ['src/adapters/memory/sqlite-docs.ts', ['src/adapters/memory/sqlite-session.ts']],
+  ['src/adapters/memory/sqlite-docs-index.ts', ['src/adapters/memory/sqlite-docs.ts', 'src/adapters/memory/sqlite-session.ts']],
+  ['src/adapters/memory/docs-filesystem.ts', ['src/adapters/memory/sqlite-docs.ts', 'src/adapters/memory/sqlite-docs-index.ts']],
 ]);
 const slash = (p) => p.split(path.sep).join('/');
 const inside = (root, file) => file === root || file.startsWith(root + path.sep);
