@@ -609,7 +609,7 @@ All checked 2026-10-01 unless a date is given.
 - `launchd.plist(5)`: `Sockets`, `SockPathName`, `SockPathMode`, `SecureSocketWithKey`
 
 **bosun code read**
-- [lib/serve.ts](../../lib/serve.ts) · [lib/mcp.ts](../../lib/mcp.ts) · [lib/route.ts](../../lib/route.ts) · [lib/memory/remote.ts](../../lib/memory/remote.ts) · [lib/memory/types.ts](../../lib/memory/types.ts) · [ARCHITECTURE.md](../../ARCHITECTURE.md) (split setup) · [HANDOFF.md](../../HANDOFF.md) · [config.default.env](../../config.default.env)
+- [lib/serve.ts](../../lib/serve.ts) · [lib/mcp.ts](../../lib/mcp.ts) · [lib/route.ts](../../lib/route.ts) · [lib/memory/remote.ts](../../lib/memory/remote.ts) · [lib/memory/types.ts](../../lib/memory/types.ts) · [ARCHITECTURE.md](../../ARCHITECTURE.md) (split setup) · HANDOFF.md (`../../HANDOFF.md`; historical citation, recover via `21d5dc6:PATH`) · [config.default.env](../../config.default.env)
 
 **Local evidence** (session scratchpad, `research-02/`)
 - Harness: `bench.c` (from topic 1), `server.mjs`, `client.mjs`, `tc/*.mjs` (thin clients) and `tc/bin-*` (compiled)

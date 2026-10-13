@@ -7,7 +7,7 @@ Checked 2026-10-05. JSON fixtures are compact **invented public test data**, not
 Owner explicitly approved better-sqlite313.0.3, node-addon-api8.0.0 and Node22.16.0
 headers as project-local native build inputs, not a Node runtime. Immutable
 archive URLs/integrities, maintained authorizer/URI/control/owned-close patch,
-binary and CLT fingerprints are in `scripts/sqlite-native-inputs.mjs`.
+binary and CLT fingerprints are in `scripts/sqlite-native-inputs.mts`.
 The fork loads only `bosun_sqlite.node`; Bun1.4.3's historical filename rejection
 does not justify using a stock prebuild or weakening API/lock assertions.
 App-free qualification covers real close/FTS rollback, retained cursor rejection,

@@ -13,11 +13,11 @@ Preserve an explicitly selected model. For an unspecified model, propose a task-
 
 For a migration:
 
-1. Inspect the relevant defaults, overrides, executor arguments, and tests. In bosun, start at `src/core/domain/config.ts`, `src/platform/config.ts`, `src/core/roles.ts`, `src/app/native-runners.ts`, and the selected host runner. `config.default.env` is the historical upgrade template, not the final runtime's defaults.
+1. Inspect the relevant defaults, overrides, executor arguments, and tests. In bosun, start at `src/core/domain/config.ts`, `src/platform/config.ts`, `src/core/roles.ts`, `src/app/native-runners.ts`, and the selected host runner. Legacy environment-file migration uses `src/core/legacy-config.ts`; it preserves original explicit selections rather than treating historical template defaults as current configuration.
 2. Verify the exact model ID and supported effort in the target client/provider. API parameters, Codex config values, and ChatGPT UI labels are separate contracts. Report a conflict instead of inventing a translation.
 3. Change only the requested role/provider and associated documentation. Preserve effective effort where supported. Do not bulk-replace historical research results or user overrides.
 4. Validate argument/config rendering offline. If live comparisons are authorized, use the same representative task and acceptance criteria; record model, effort, surface, latency, and usage. Report quality failures as well as cost.
 
 Subscription credits and API token prices are different measurements. Check current pricing when requested; never estimate included Codex tasks from API dollars. Context length and compaction thresholds must come from the active host/model configuration, not an API catalog alone.
 
-While working on this repository, follow `RESUME.md`: Node tooling, no Bun tests, no installation or personal configuration writes unless explicitly requested. This skill provides guidance; it does not change the running session's model.
+While working on this repository, follow root `AGENTS.md` and `docs/maintenance.md`: Bun-only tooling and guarded checks; no installs, live calls or personal configuration writes unless explicitly authorized. This skill provides guidance; it does not change the running session's model.

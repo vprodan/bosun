@@ -2,19 +2,19 @@
 
 ## Start here
 
-- Follow the current user request. Read current [HANDOFF.md](HANDOFF.md) and [RESUME.md](RESUME.md), then the [direct-delivery plan](docs/plans/2026-10-06-bosun-v1.0-direct-delivery.md) for accepted scope. Current housekeeping/local-release amendments supersede stale cleanup/version restrictions in dated plans. Archived instructions are history, not permission to restart pending work; archive links resolve from their original repository-root location.
-- Use [ARCHITECTURE.md](ARCHITECTURE.md) for boundaries and [CONTRIBUTING.md](CONTRIBUTING.md) for extension and verification patterns. Resolve stale version/status prose against the latest handoff and actual package metadata.
+- Follow the current user request. Read current [maintenance guidance](docs/maintenance.md) for accepted scope, permissions, qualification limits and recovery. Archived instructions and retired plans/specs are history, not permission to restart pending work; use the recorded immutable Git recovery paths for their originals.
+- Use [ARCHITECTURE.md](ARCHITECTURE.md) for boundaries and [CONTRIBUTING.md](CONTRIBUTING.md) for extension and verification patterns. Resolve stale version/status prose against maintained guidance and actual package metadata.
 - Preserve user changes and reconcile the actual working tree before edits. The owner approved committing the cleaned 1.0.0 implementation locally; restore stashes and ignored artifacts remain separate from Git HEAD. Never overwrite unrelated changes or assume untracked files are disposable.
 - Read applicable project skills before changing their subsystem. Canonical product assets live in `roles/`, `skills/` and `policy.md`.
 
 ## Current release and permissions
 
-- Package version is **1.0.0**. The artifact is `dist/bosun-1.0.0-darwin-arm64-cleanup/`; the original release remains retained. Final precommit verification passed 1,190/1,190 tests across 94 guarded files and 35/35 containment. Cleanup typecheck, boundaries, static source/artifact and actual contained compiled minimum safety passed. No complete production qualification is claimed.
+- Package version is **1.0.0**. The final local artifact is `dist/bosun-1.0.0-darwin-arm64-bun-only/`. Strict source/tooling typecheck, boundaries, 1,188/1,188 tests across 94 guarded files and 35/35 containment passed after the typed tooling cutover; 50/50 affected tests and typecheck passed after lock/template removal, with final static and actual compiled safety proof. `bun.lock` is the sole dependency lock. No complete production qualification is claimed.
 - **OMP is primary for new configuration.** OpenCode 2, Codex and Claude Code remain supported. Preserve explicit host, model, effort, cwd and access selections.
 - **Bun only; no Node fallback.** The currently qualified source/build environment is Bun 1.4.3 on macOS arm64. Native compatibility APIs and Node headers do not authorize execution of the Node runtime.
-- Complete housekeeping/code cleanup, canonical asset reconciliation and a fresh local rebuild/requalification are authorized. Preserve owner changes and historical evidence; only reviewed disposable/obsolete outputs and proven dead code may be removed. Retained stash `b830c5c24baa84d5b30895598cfaf94bb2d7205d` was reapplied identically; never pop/drop or reapply it over newer edits. HANDOFF records the external verified 24,635-file backup, archive SHA256 and isolated-worktree recovery instructions. Keep that external backup and `RESTORE.txt` when transferring machines.
+- Complete housekeeping/code cleanup, canonical asset reconciliation and a fresh local rebuild/requalification are authorized. Preserve owner changes and historical evidence; only reviewed disposable/obsolete outputs and proven dead code may be removed. Retained stash `b830c5c24baa84d5b30895598cfaf94bb2d7205d` was reapplied identically; never pop/drop or reapply it over newer edits. [Maintenance guidance](docs/maintenance.md#restore-and-transfer-safeguards) records the external verified 24,635-file backup, archive SHA256 and isolated-worktree recovery instructions. Keep that external backup and `RESTORE.txt` when transferring machines.
 - The owner explicitly authorized staging reviewed files and creating one local commit of the cleaned 1.0.0 repository to leave the working tree clean. This does not authorize pushing, publishing, history rewriting, installs, personal configuration/auth/database changes, service activation or live host/model calls. Preserve the restore stash and external backup.
-- Fresh local-release rebuilding and contained checking are authorized and were exercised by the coordinator. They do not authorize old pending compiled/corpus proposals or their mains. Real-model quality, live-host controls, designated-machine performance and broader reproducibility remain deferred; unverified automatic controls stay gated.
+- Fresh local rebuilding and contained checking are exercised and recorded in maintenance guidance. GitHub CI is configured but remote execution remains unobserved; qualified checks require a dedicated provisioned runner and owner-approved environment. Neither authorizes old proposals or retired mains. Real-model quality, live-host controls, designated-machine performance and broader reproducibility remain deferred; unverified automatic controls stay gated.
 
 ## Architecture and implementation
 
@@ -54,7 +54,7 @@ sh scripts/bun-check.sh typecheck
 sh scripts/bun-check.sh boundaries
 ```
 
-Choose affected existing suites from `scripts/run-tests.mjs`; unknown selectors fail closed. Keep meaningful behavior/privacy/selection/CAS/nonreplay assertions, not wording, source-copy or incidental-version pins. For behavioral changes, exercise the actual changed source or compiled path in disposable contained roots; tests alone do not prove surface behavior. Never use a live personal runtime as a smoke fixture.
+Choose affected existing suites from `scripts/run-tests.mts`; unknown selectors fail closed. Keep meaningful behavior/privacy/selection/CAS/nonreplay assertions, not wording, source-copy or incidental-version pins. For behavioral changes, exercise the actual changed source or compiled path in disposable contained roots; tests alone do not prove surface behavior. Never use a live personal runtime as a smoke fixture.
 
 For a release artifact, static verification does not execute the product; the separate checker exercises contained compiled safety:
 
@@ -68,5 +68,5 @@ Do not overwrite retained original outputs; fresh builds require an absent `--ou
 ## Delivery and handoff
 
 - Report exactly what changed, checks actually exercised, and remaining limits. Distinguish local artifact readiness from installation, publication and full live qualification.
-- Update existing documentation for permanent behavior changes. Record continuation decisions/evidence in the existing handoff rather than adding another competing status document.
-- Preserve exact original HANDOFF/RESUME archives and useful historical receipts. Current root guides should remain concise; dated histories and their root-relative links stay intact. Preserve the external backup/restore record and retained stash, and distinguish reviewed disposable outputs from user changes/evidence before any further deletion.
+- Update existing documentation for permanent behavior changes. Record continuation decisions/evidence in [maintenance guidance](docs/maintenance.md) rather than adding another competing status document.
+- Preserve original HANDOFF/RESUME archives and useful historical receipts. Current root guides should remain concise; dated histories stay evidence, with retired paths recovered from the recorded base commit rather than new copied ledgers. Preserve the external backup/restore record and retained stash, and distinguish reviewed disposable outputs from user changes/evidence before further deletion.

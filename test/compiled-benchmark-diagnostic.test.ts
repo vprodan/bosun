@@ -2,10 +2,9 @@ import './bootstrap.ts';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
-import { diagnosticProbe, failureDiagnostic, finiteCliError, RELAY } from '../scripts/check-compiled-benchmark-diagnostic.mjs';
-import { cleanupAllowed, prepareIsolation } from '../scripts/check-compiled-current.mjs';
+import { diagnosticProbe, failureDiagnostic, finiteCliError, RELAY } from '../scripts/qualification-diagnostics.mts';
+import { cleanupAllowed, prepareIsolation } from '../scripts/qualification.mts';
 import { REPO, sandbox } from './helpers.ts';
 
 function fixture() {
@@ -87,16 +86,5 @@ test('a child close frame cannot substitute for positive relay original/group co
     assert.equal(finiteCliError('{"error":{"code":"invented","message":"Service unavailable"}}'), null);
     assert.equal(failureDiagnostic(JSON.stringify({ benchmarkFailure: { ...fixture(), phase: 'store' } })
       + '\n' + JSON.stringify({ error: { code: 'unavailable', message: 'Service unavailable' } })), null);
-  } finally { sb.cleanup(); }
-});
-
-test('new diagnostic rejects an unapproved invocation before artifact or compiled execution', () => {
-  const sb = sandbox();
-  try {
-    const result = spawnSync(process.execPath, [path.join(REPO, 'scripts/check-compiled-benchmark-diagnostic.mjs'), '--unapproved'],
-      { cwd: sb.root, env: sb.env(), encoding: 'utf8' });
-    assert.equal(result.status, 1); const report = JSON.parse(result.stdout);
-    assert.equal(report.failure, 'admission'); assert.equal(report.compiledRootInvocationsAttempted, 0);
-    assert.equal(report.relayNodeInvocationsAttempted, 0); assert.equal(report.retainedPrivateTree, null);
   } finally { sb.cleanup(); }
 });

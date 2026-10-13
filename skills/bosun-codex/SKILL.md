@@ -5,7 +5,7 @@ description: Inspect or change bosun's Codex integration, including CLI executio
 
 # Codex integration
 
-Start with `RESUME.md` and `HANDOFF.md` when present and inspect the final integration before changing configuration. Respect saved authorization limits: if native calls are prohibited, read installed package metadata or existing source/help fixtures and report version qualification as incomplete. Otherwise establish the selected CLI version and relevant help without starting an agent. Fetch current official documentation and compare it with that version. A hosted Codex tool does not establish CLI support.
+Start with root `AGENTS.md` and `docs/maintenance.md` when working in this repository, and inspect the final integration before changing configuration. Respect saved authorization limits: if native calls are prohibited, read installed package metadata or existing source/help fixtures and report version qualification as incomplete. Otherwise establish the selected CLI version and relevant help without starting an agent. Fetch current official documentation and compare it with that version. A hosted Codex tool does not establish CLI support.
 
 ## Repository map
 
@@ -16,7 +16,7 @@ Start with `RESUME.md` and `HANDOFF.md` when present and inspect the final integ
 - `src/app/host-install.ts` and `src/platform/manifest.ts`: reviewable owner plans, manifest-owned generated profiles and exact checked undo. The old global wire installer has been removed; these version-bound plans are the final setup path.
 - `src/app/host-launch.ts`: explicit foreground native launch with reviewed receipt/hash, profile/workspace rechecks and exact native-version inspection. Preview starts no process; this does not establish managed-session controls.
 - `src/core/use-cases/handoff.ts` and `src/core/ports/host.ts`: durable ownership transfer and qualified managed-control requirements.
-- `test/host-installation.test.ts`, `test/native-runners.test.ts` and `test/quota.test.ts`: isolated profile, native-protocol and admission checks. Use guarded Node only.
+- `test/host-installation.test.ts`, `test/native-runners.test.ts` and `test/quota.test.ts`: isolated profile, native-protocol and admission checks. Use the guarded Bun launcher only.
 
 ## Configuration and discovery
 

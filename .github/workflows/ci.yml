@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      qualified_checks:
+        description: Run approved checks on the preprovisioned qualified macOS arm64 runner
+        type: boolean
+        required: true
+        default: false
+      release_build:
+        description: Also build and check a fresh local artifact (no publish or install)
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  source-hygiene:
+    name: Changed active-source hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check changed active paths for whitespace errors
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == pull_request ]]; then
+            base=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
+            tip=$PR_HEAD_SHA
+          elif [[ "$EVENT_NAME" == push && -n "$BEFORE_SHA" && "$BEFORE_SHA" != 0000000000000000000000000000000000000000 ]]; then
+            base=$BEFORE_SHA
+            tip=$GITHUB_SHA
+          else
+            # A new branch/manual dispatch checks the latest commit, not historical evidence.
+            tip=$GITHUB_SHA
+            if git rev-parse --verify "$tip^" >/dev/null 2>&1; then
+              base=$(git rev-parse "$tip^")
+            else
+              base=$(git hash-object -t tree /dev/null)
+            fi
+          fi
+          git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab diff --check "$base" "$tip" -- \
+            src scripts test bin .github roles skills \
+            package.json bun.lock tsconfig.json install.sh policy.md
+
+  qualified-checks:
+    name: Opt-in qualified Bun and native checks
+    # No PR event can reach this runner. Both the original and rerun actor must be the owner.
+    if: >-
+      github.event_name == 'workflow_dispatch' && inputs.qualified_checks &&
+      github.actor == github.repository_owner && github.triggering_actor == github.repository_owner &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      github.ref_protected
+    runs-on: [self-hosted, macOS, ARM64, bosun-qualified]
+    environment: qualified-native
+    timeout-minutes: 90
+    concurrency:
+      group: bosun-qualified-native
+      cancel-in-progress: false
+    env:
+      QUALIFIED_BUN: ${{ vars.BOSUN_CI_BUN }}
+      QUALIFIED_INPUTS: ${{ vars.BOSUN_CI_INPUTS_ROOT }}
+      TMPDIR: /private/tmp
+    steps:
+      - name: Check out approved protected-branch source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          clean: true
+      - name: Stage existing reviewed inputs without installing or rebuilding
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ $(uname -s) == Darwin && $(uname -m) == arm64 ]]
+          [[ -x /usr/bin/sandbox-exec ]]
+          case "$QUALIFIED_BUN" in /*) ;; *) echo 'Set BOSUN_CI_BUN to an approved absolute Bun path' >&2; exit 1 ;; esac
+          case "$QUALIFIED_INPUTS" in /*) ;; *) echo 'Set BOSUN_CI_INPUTS_ROOT to an approved absolute input-bundle path' >&2; exit 1 ;; esac
+          [[ -x "$QUALIFIED_BUN" && -d "$QUALIFIED_INPUTS" ]]
+          # The provisioned bundle belongs outside the disposable checkout, never to a cache action.
+          case "$QUALIFIED_INPUTS/" in "$GITHUB_WORKSPACE/"*) echo 'Inputs must be provisioned outside the checkout' >&2; exit 1 ;; esac
+          for file in package.json bun.lock; do
+            cmp "$file" "$QUALIFIED_INPUTS/$file"
+          done
+          [[ ! -e node_modules && ! -e .omp/tooling/sqlite-native-13.0.3 ]]
+          cp -R "$QUALIFIED_INPUTS/node_modules" node_modules
+          mkdir -p .omp/tooling/sqlite-native-13.0.3
+          for archive in better-sqlite3.tgz node-addon-api.tgz node-api-headers.tgz; do
+            cp "$QUALIFIED_INPUTS/sqlite-native-13.0.3/$archive" .omp/tooling/sqlite-native-13.0.3/
+          done
+          printf '%s\n' "$(dirname "$QUALIFIED_BUN")" >> "$GITHUB_PATH"
+      - name: Admit exact native bytes, provenance and installed toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This metadata-only admission imports no application or native module.
+          # Use the same clean startup/no-autoload/no-install policy as the wrapper.
+          root=$(mktemp -d /private/tmp/bosun-ci-admission.XXXXXX)
+          trap 'rm -r -- "$root"' EXIT
+          mkdir -m 700 "$root/home" "$root/cache"
+          env -i HOME="$root/home" TMPDIR=/private/tmp TMP=/private/tmp TEMP=/private/tmp \
+            XDG_CONFIG_HOME="$root/home/.config" XDG_DATA_HOME="$root/home/.local/share" \
+            XDG_STATE_HOME="$root/home/.local/state" XDG_CACHE_HOME="$root/cache" \
+            BUN_INSTALL_CACHE_DIR="$root/cache" BUN_RUNTIME_TRANSPILER_CACHE_PATH="$root/cache/transpiler" \
+            DO_NOT_TRACK=1 PATH="$(dirname "$QUALIFIED_BUN"):/usr/bin:/bin" LANG=C LC_ALL=C TZ=UTC \
+            "$QUALIFIED_BUN" --no-env-file --no-install --eval '
+              import fs from "node:fs";
+              import { assertRuntime, verifyNativeBuild, QUALIFIED_NATIVE_BUILD, regularBytes, sha256 } from "./scripts/sqlite-native-inputs.mts";
+              assertRuntime();
+              verifyNativeBuild(process.cwd());
+              for (const input of QUALIFIED_NATIVE_BUILD.toolchain) {
+                if (fs.realpathSync(input.path) !== input.realpath || sha256(regularBytes(input.realpath, 256 * 1024 * 1024)) !== input.sha256)
+                  throw new Error("Installed native toolchain differs from fixed qualification: " + input.path);
+              }
+              console.log("Existing native inputs and toolchain match fixed admission; no acquisition or rebuild performed.");
+            '
+      - name: Prove wrapper containment
+        run: sh scripts/bun-check.sh containment
+      - name: Typecheck with existing qualified tooling
+        run: sh scripts/bun-check.sh typecheck
+      - name: Check architecture boundaries
+        run: sh scripts/bun-check.sh boundaries
+      - name: Run all guarded source tests
+        run: sh scripts/bun-check.sh tests --runtime bun --suite all
+      - name: Build and verify optional fresh local artifact
+        if: inputs.release_build
+        shell: bash
+        run: |
+          set -euo pipefail
+          # An absent child of a unique temporary parent preserves all retained outputs.
+          parent=$(mktemp -d /private/tmp/bosun-ci-release.XXXXXX)
+          trap 'rm -r -- "$parent"' EXIT
+          output="$parent/artifact"
+          sh scripts/bun-check.sh build --bun "$QUALIFIED_BUN" --out "$output"
+          sh scripts/bun-check.sh verify "$output" --source .
+          sh scripts/bun-check.sh release-check "$output"

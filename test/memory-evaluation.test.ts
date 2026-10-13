@@ -386,7 +386,7 @@ test('standalone guarded memory evaluation implements the roadmap FTS interface'
     const child = spawnSync(
       process.execPath,
       [
-        path.join(REPO, 'scripts/eval-memory.mjs'),
+        path.join(REPO, 'scripts/eval-memory.mts'),
         '--fixture',
         'test/fixtures/memory-eval.json',
         '--baseline',

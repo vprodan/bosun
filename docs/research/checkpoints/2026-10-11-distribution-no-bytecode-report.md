@@ -2,7 +2,7 @@
 
 Two independent builds of the frozen current input snapshot produced identical raw files after removing only `--bytecode` from a private copy of the distribution tool. The binary, compressed archive, metadata and checksum file each have zero differing bytes. This bounded pair supplies static evidence for a candidate build configuration; neither generated executable was run, and compiled runtime and hook performance remain unqualified. The production build flags remain unchanged.
 
-The exact [experiment driver](2026-10-11-distribution-no-bytecode-experiment.mjs), [execution log](2026-10-11-distribution-no-bytecode-experiment.log), [machine-readable record](2026-10-11-distribution-no-bytecode-record.json) and [copied variant tool](2026-10-11-distribution-no-bytecode-tool.txt) preserve the actual commands, complete input inventories, flags, compiler identity, private environments, terminal statuses, cleanup and raw comparisons. These are experimental artifacts, without release selection or publication.
+The exact [experiment driver snapshot](2026-10-11-distribution-no-bytecode-experiment.mjs.txt), [execution log](2026-10-11-distribution-no-bytecode-experiment.log), [machine-readable record](2026-10-11-distribution-no-bytecode-record.json) and [copied variant tool](2026-10-11-distribution-no-bytecode-tool.txt) preserve the actual commands, complete input inventories, flags, compiler identity, private environments, terminal statuses, cleanup and raw comparisons. These are experimental artifacts, without release selection or publication. The driver bytes are preserved as text; paths in original logs/records describe the historical checkout.
 
 ## Inputs and commands
 

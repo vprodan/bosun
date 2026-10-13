@@ -14,14 +14,14 @@ import {
   verifyMachO,
   homebrewFormula,
   binaryArchive,
-} from "../scripts/distribution.mjs";
-import { parseBunLock, productionPackages } from "../scripts/bun-lock-inputs.mjs";
+} from "../scripts/distribution.mts";
+import { parseBunLock, productionPackages } from "../scripts/bun-lock-inputs.mts";
 import {
   INPUTS as NATIVE_INPUTS,
   PATCH,
   RUNTIME,
   verifyNativeBuild,
-} from "../scripts/sqlite-native-inputs.mjs";
+} from "../scripts/sqlite-native-inputs.mts";
 
 const hash = (value: Buffer) =>
   crypto.createHash("sha256").update(value).digest("hex");
@@ -53,7 +53,7 @@ function fixture() {
   // Copy only public reviewed inputs. Never copy the tooling tree, owner state,
   // stock prebuilds or a synthetic native provenance record.
   const native = verifyNativeBuild(REPO);
-  for (const name of ["package.json", "package-lock.json", "bun.lock", PATCH])
+  for (const name of ["package.json", "bun.lock", PATCH])
     copy(name);
   for (const input of NATIVE_INPUTS)
     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
@@ -81,20 +81,20 @@ function fixture() {
     "tsconfig.json",
     "bin/bosun",
     "policy.md",
-    "scripts/build.mjs",
-    "scripts/distribution.mjs",
-    "scripts/generate-assets.mjs",
-    "scripts/verify-distribution.mjs",
-    "scripts/generate-homebrew.mjs",
+    "scripts/build.mts",
+    "scripts/distribution.mts",
+    "scripts/generate-assets.mts",
+    "scripts/verify-distribution.mts",
+    "scripts/generate-homebrew.mts",
   ])
     copy(name);
   for (const name of [
     "scripts/bun-check.sh",
-    "scripts/build-sqlite-native.mjs",
-    "scripts/acquire-sqlite-native.mjs",
-    "scripts/prepare-sqlite-native.mjs",
-    "scripts/sqlite-native-inputs.mjs",
-    "scripts/bun-lock-inputs.mjs",
+    "scripts/build-sqlite-native.mts",
+    "scripts/acquire-sqlite-native.mts",
+    "scripts/prepare-sqlite-native.mts",
+    "scripts/sqlite-native-inputs.mts",
+    "scripts/bun-lock-inputs.mts",
     "src/platform/canonical-path.cjs",
     "src/platform/canonical-path.d.cts",
   ])
@@ -510,7 +510,7 @@ test("distribution Bun CLIs verify without execution and refuse to overwrite a f
         env: f.sb.env(),
         encoding: "utf8",
       });
-    const verify = run("verify-distribution.mjs", [
+    const verify = run("verify-distribution.mts", [
       f.output,
       "--source",
       f.root,
@@ -519,17 +519,17 @@ test("distribution Bun CLIs verify without execution and refuse to overwrite a f
     assert.equal(JSON.parse(verify.stdout).runtimeQualification, "unverified");
     const formula = path.join(f.sb.root, "bosun.rb");
     assert.equal(
-      run("generate-homebrew.mjs", [f.output, "--out", formula]).status,
+      run("generate-homebrew.mts", [f.output, "--out", formula]).status,
       0,
     );
     const original = fs.readFileSync(formula);
     assert.equal(
-      run("generate-homebrew.mjs", [f.output, "--out", formula]).status,
+      run("generate-homebrew.mts", [f.output, "--out", formula]).status,
       1,
     );
     assert.ok(fs.readFileSync(formula).equals(original));
-    assert.equal(run("build.mjs", []).status, 1);
-    assert.equal(run("verify-distribution.mjs", [f.output, "--bad"]).status, 1);
+    assert.equal(run("build.mts", []).status, 1);
+    assert.equal(run("verify-distribution.mts", [f.output, "--bad"]).status, 1);
   } finally {
     f.sb.cleanup();
   }

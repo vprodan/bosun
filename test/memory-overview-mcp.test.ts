@@ -219,7 +219,7 @@ test('guarded standalone MCP surface uses actual pinned protocol and never start
     const child = spawnSync(
       process.execPath,
       [
-        path.join(REPO, 'scripts/eval-memory.mjs'),
+        path.join(REPO, 'scripts/eval-memory.mts'),
         '--fixture',
         'test/fixtures/memory-eval.json',
         '--baseline',

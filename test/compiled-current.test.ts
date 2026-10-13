@@ -2,10 +2,9 @@ import './bootstrap.ts';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 import { classifyBenchmark, cleanupAllowed, currentRpc, entryCases, foregroundDaemon, isolatedConfig,
-  prepareIsolation, runBenchmarkProbe, runEntryProbe, runSqliteRequests } from '../scripts/check-compiled-current.mjs';
+  prepareIsolation, runBenchmarkProbe, runEntryProbe, runSqliteRequests } from '../scripts/qualification.mts';
 import { parseRuntimeConfig, renderRuntimeConfig } from '../src/platform/config.ts';
 import { runtimePaths } from '../src/platform/paths.ts';
 import { streamProcess, type ProcessSpec } from '../src/platform/process.ts';
@@ -157,16 +156,4 @@ test('current benchmark validator requires successful report and root join; fail
     assert.equal(rejected.receipt.joined, true); assert.equal(rejected.passed, false); f.assertGone();
     assert.equal(cleanupAllowed({ rootsJoined: rejected.receipt.joined, benchmarkAttempted: true, benchmarkVerified: rejected.passed }), false);
   } finally { f.sb.cleanup(); }
-});
-
-test('current driver refuses an unapproved scope before artifact or product runtime operations', () => {
-  const sb = sandbox();
-  try {
-    const result = spawnSync(process.execPath, [path.join(REPO, 'scripts/check-compiled-current.mjs'), '--not-approved',
-      path.join(REPO, 'dist/bosun-0.2.0-darwin-arm64-current-candidate')], { env: sb.env(), cwd: sb.root, encoding: 'utf8', timeout: 15000 });
-    assert.equal(result.status, 1, result.stderr);
-    const report = JSON.parse(result.stdout); assert.equal(report.failure, 'admission');
-    assert.equal(report.compiledRootInvocationsAttempted, 0); assert.equal(report.privateTreeRemoved, null);
-    assert.equal(report.qualifiedForThisScope, false);
-  } finally { sb.cleanup(); }
 });

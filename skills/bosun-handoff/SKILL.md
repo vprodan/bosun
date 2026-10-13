@@ -11,7 +11,7 @@ Distinguish a manual resume document, a bosun artifact, native host compaction a
 
 Read the existing resume/handoff document first. Preserve owner decisions and machine-specific history that still matters. Inspect the current branch, commit, working diff, relevant untracked files, and verification results; do not turn pre-existing user changes into your own completed work.
 
-Write to the user's chosen destination, or the existing project `RESUME.md`. Include:
+Write to the user's chosen destination, or update the existing continuation guide (in this repository, `docs/maintenance.md`). Include:
 
 - Current objective and the latest user steering.
 - Completed work with file paths, decisions, and reasons.

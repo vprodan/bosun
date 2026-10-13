@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkBoundaries } from '../scripts/check-boundaries.mjs';
+import { checkBoundaries } from '../scripts/check-boundaries.mts';
 import { sandbox, REPO } from './helpers.ts';
 
 function fixture(files: Record<string, string>, config: object = {}) {

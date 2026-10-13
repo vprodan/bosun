@@ -20,7 +20,7 @@ const facts = (): HandoffFacts => ({ objective: 'Deliver the approved v1.0', lat
   progress: { completed: ['Public runtime flow'], remaining: ['Qualify live adapters'], nextAction: 'Inspect native capabilities' },
   source: { hostId: 'opencode', sessionId: 'ses_source', model: 'selected/model:exact', effort: 'high', generation: 2, access: 'edit', completedEventCursor: 'event_23', uncertainEffects: ['Write receipt needs reconciliation'] },
   repository: { projectId: PROJECT, branch: 'main', commit: 'a'.repeat(40), files: [{ path: 'src/app/daemon.ts', state: 'unstaged', sha256: 'b'.repeat(64) }] },
-  verification: [{ command: 'node scripts/run-tests.mjs', outcome: 'passed', revision: 'a'.repeat(40), detail: 'Synthetic fixture only' }],
+  verification: [{ command: 'sh scripts/bun-check.sh tests --runtime bun', outcome: 'passed', revision: 'a'.repeat(40), detail: 'Synthetic fixture only' }],
   runningJobs: [{ id: 'job_a', state: 'unknown', reconcile: 'Inspect native result; do not replay' }], parentId: null });
 const manifest = (): HandoffManifest => ({ schemaVersion: 1, privacy: 'public', id: 'artifact_a', createdAt: 100000, facts: facts(), summary: null });
 function fixture() {

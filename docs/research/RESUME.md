@@ -1,6 +1,6 @@
 # Resume: bosun v1.0 research (saved 2026-10-01; completed 2026-10-04)
 
-All eight topics and [the roadmap](../plans/2026-10-01-bosun-v1.0-roadmap.md) are complete. On a new machine, read this file, [the root resume](../../RESUME.md), [the decision register](README.md) and the roadmap, then follow the current user request. The prompts below are archived research inputs; do not restart completed topics.
+All eight topics and the roadmap (`../plans/2026-10-01-bosun-v1.0-roadmap.md`; historical citation, recover via `21d5dc6:PATH`) are complete. On a new machine, read this file, the root resume (`../../RESUME.md`; historical citation, recover via `21d5dc6:PATH`), [the decision register](README.md) and the roadmap, then follow the current user request. The prompts below are archived research inputs; do not restart completed topics.
 
 **Current owner release policy (2026-10-04):** everything selected ships together as one v1.0. Use internal implementation phases and one full-scope ship gate; no feature assignments to later versions or pre-ship package-version bumps. Graph enrichment, dashboard and remote support are included. This policy supersedes the earlier staging in the archived inputs below.
 
@@ -21,11 +21,11 @@ All eight topics and [the roadmap](../plans/2026-10-01-bosun-v1.0-roadmap.md) ar
 | 7 | Graph memory | ✅ [07-graph-memory.md](07-graph-memory.md), completed 2026-10-04 |
 | 8 | Features | ✅ [08-features.md](08-features.md), completed 2026-10-04 |
 | 9 | Host/router design revision | ✅ [09-opencode-clef.md](09-opencode-clef.md), checked 2026-10-04; current OpenCode/Clef steering |
-| — | Roadmap | ✅ [2026-10-01-bosun-v1.0-roadmap.md](../plans/2026-10-01-bosun-v1.0-roadmap.md), completed 2026-10-04 |
+| — | Roadmap | ✅ 2026-10-01-bosun-v1.0-roadmap.md (`../plans/2026-10-01-bosun-v1.0-roadmap.md`; historical citation, recover via `21d5dc6:PATH`), completed 2026-10-04 |
 
 All decisions and the result of each topic are in [README.md](README.md) under "Owner answers". That section is the source of truth, and every agent reads it.
 
-**Preparation checked 2026-10-03:** auto-handoff is still a required design, with no v0.2 implementation. Repository skills for OpenAI models, Codex, ChatGPT, and manual handoff are listed in [the root resume](../../RESUME.md). For topic 8, the current [Codex app-server docs](https://learn.chatgpt.com/docs/app-server) document `thread/tokenUsage/updated` and `thread/compact/start`; verify them against the installed client and session ownership. Native compaction does not by itself provide the external-model summary and fresh-session handoff requested here. That preparation did not start topics 6–8; the status table tracks the subsequent continuation.
+**Preparation checked 2026-10-03:** auto-handoff is still a required design, with no v0.2 implementation. Repository skills for OpenAI models, Codex, ChatGPT, and manual handoff are listed in the root resume (`../../RESUME.md`; historical citation, recover via `21d5dc6:PATH`). For topic 8, the current [Codex app-server docs](https://learn.chatgpt.com/docs/app-server) document `thread/tokenUsage/updated` and `thread/compact/start`; verify them against the installed client and session ownership. Native compaction does not by itself provide the external-model summary and fresh-session handoff requested here. That preparation did not start topics 6–8; the status table tracks the subsequent continuation.
 
 Validation of notes 6–8/roadmap: Mermaid syntax (existing 11.17.2 parser), required sections, fences, relative links and whitespace passed. Topic 8's 29 unique external URLs returned HTTP 200. No implementation, tests, models or installs were run for these notes. Automatic handoff remains unimplemented; live Claude/Codex/session ownership, tool isolation and summary/recovery qualification are implementation gates. Next planning starts with enforced test homes and capability probes, without host installation.
 

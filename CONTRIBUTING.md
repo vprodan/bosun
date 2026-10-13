@@ -3,9 +3,10 @@
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
 Package metadata is `1.0.0`. The owner-approved fresh cleanup artifact is
 `dist/bosun-1.0.0-darwin-arm64-cleanup/`, with the original local release retained.
-It passed the coordinator's exercised contained minimum safety; real-model
-tuning/quality, live-host and broader physical qualification remain deferred.
-Unverified controls stay gated. [HANDOFF.md](HANDOFF.md) records candidate-bound
+It passed the coordinator's exercised contained minimum safety before the typed-tooling
+migration; migration verification is pending. Real-model tuning/quality, live-host
+and broader physical qualification remain deferred. Unverified controls stay gated.
+[Maintenance guidance](docs/maintenance.md) records candidate-bound
 evidence, retained-stash/external-backup recovery and current permissions. Complete
 housekeeping/code cleanup, a fresh rebuild/requalification and one local commit
 of the cleaned repository were authorized; no push, installs, live calls,
@@ -42,7 +43,7 @@ through its seven ports and injected dependencies:
 | [Router](src/core/ports/router.ts) | Public-input routing advice |
 
 Implement effects in `src/adapters` and runtime primitives in `src/platform`.
-The [boundary checker](scripts/check-boundaries.mjs) enforces layer imports,
+The [boundary checker](scripts/check-boundaries.mts) enforces layer imports,
 declared cross-adapter seams, literal module loading, cycles and core effect
 exclusion. Preserve these boundaries when extracting or sharing helpers.
 
@@ -84,7 +85,7 @@ indexing, expiry maintenance, writes and remote network dependencies belong
 outside this path. Preserve deadline omissions and producer-owned read leases.
 
 Edit canonical [roles](roles), [skills](skills) and [policy.md](policy.md).
-[generate-assets.mjs](scripts/generate-assets.mjs) embeds these and the package
+[generate-assets.mts](scripts/generate-assets.mts) embeds these and the package
 version into [generated-assets.ts](src/platform/generated-assets.ts); regenerate
 with `sh scripts/bun-check.sh assets` after changing canonical inputs rather
 than editing generated literals. Host bundles consume the same shared assets.
@@ -92,17 +93,17 @@ than editing generated literals. Host bundles consume the same shared assets.
 ## Meaningful verification
 
 All ordinary application tests use pinned Bun1.4.3/darwin-arm64 through the mandatory
-[launcher](scripts/run-tests.mjs), invoked by `sh scripts/bun-check.sh tests`.
+[launcher](scripts/run-tests.mts), invoked by `sh scripts/bun-check.sh tests`.
 Containment runs before imports, with per-file startup-isolated homes, explicit
 child preloads, guarded paths/SQLite, stub effects, registered mock endpoints
 and an OS barrier. Keep meaningful privacy, exact-selection, stale-CAS and unknown
 nonreplay assertions. Direct `bun test` and Node fallback are prohibited.
 The previous integrated Bun candidate passed 1,179/1,179 across 91 files plus
 35/35 containment, typecheck, native probes and source-hook/10k/capture smokes.
-Cleanup verification passed selected **13/13 guarded source suite files**,
-**35/35 containment**, typecheck, boundaries and fresh static/compiled minimum
-safety. Final precommit verification passed **1,190/1,190 tests across94 files**
-plus **35/35 containment**. See HANDOFF for
+Historical pre-migration cleanup verification passed selected **13/13 guarded source suite files**,
+**35/35 containment**, typecheck, boundaries and static/compiled minimum
+safety. Its final precommit verification passed **1,190/1,190 tests across94 files**
+plus **35/35 containment**. See [maintenance guidance](docs/maintenance.md) for
 candidate hashes and limits. Keep the original 10,000-note contract, positive
 producer joins and fresh metadata checks, without cached identities. Historical
 Node/older compiled receipts are not qualification of the selected product.
@@ -115,7 +116,7 @@ Explicit `sqlite-native-acquire` downloads only integrity-pinned build inputs;
 lifecycle scripts or Node execution. `sqlite-library-probe` qualifies disposable
 native behavior. Builds/checks never acquire inputs implicitly. Source/header,
 patch, native binary and toolchain admission are bound by
-`scripts/sqlite-native-inputs.mjs`; different bytes/toolchains require review and
+`scripts/sqlite-native-inputs.mts`; different bytes/toolchains require review and
 requalification. A successful native rebuild is not compiled-product proof.
 Use metadata-only `realpathWithoutOpen` for SQLite identity checks: Bun's
 ordinary realpath can release POSIX locks while transactions remain reachable.
@@ -139,8 +140,64 @@ references before changing shared contracts. See the provenance in
 `.omp/tooling/install.json` and the current README for verification limits.
 
 During delegated edits, workers skip tests/builds/linters/formatters; the integration
-coordinator verifies once after all changes land. Keep the exact full HANDOFF/RESUME
-histories in `docs/research/archive/`; their original root-relative links are
-historical, not archive-relative. Never delete evidence or owner changes merely
-to make the tree look clean, and never reapply the retained stash over newer edits.
+coordinator verifies once after all changes land. Keep the original HANDOFF/RESUME
+histories in `docs/research/archive/`; their original root-relative citations are
+historical, not archive-relative. Recover retired plans/specs/diagnostics from the
+[recorded base commit](docs/maintenance.md#retired-plans-specs-and-diagnostic-proposals).
+Never delete evidence or owner changes merely to make the tree look clean, and
+never reapply the retained stash over newer edits.
+
+## GitHub CI
+
+[CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml) runs hosted
+**changed active-source whitespace hygiene** on pushes and pull requests. It checks
+the event's diff, not all historical files, and excludes archived research/evidence.
+It installs no application dependencies and runs no application code. A green
+workflow badge alone does **not** mean Bun/native or compiled qualification passed.
+
+The `qualified-checks` job is opt-in through **Run workflow** with
+`qualified_checks=true`. Only the repository owner's original dispatch/rerun on the
+**protected default branch** can select the self-hosted runner; pull requests never
+do. Before enabling this job, the owner must:
+
+- Configure the `qualified-native` GitHub environment with required reviewers,
+  prevent self-review, disallow administrator bypass where supported, and restrict
+  deployment to the protected default branch. Review the exact commit before
+  approving; environment approval is required infrastructure, not supplied by YAML.
+- Restrict a dedicated runner/runner group to this repository and trusted workflows,
+  with labels `self-hosted`, `macOS`, `ARM64`, `bosun-qualified`. Use a disposable CI
+  account/workspace with no personal runtime, auth, databases or live host services.
+  Untrusted PR jobs must never share this machine. Checkout cleans its disposable
+  workspace; serialize use of the provisioned runner and do not store owner files there.
+- Preprovision Bun **1.4.3**, macOS arm64, `/usr/bin/sandbox-exec`, existing Git and
+  the exact reviewed CLT toolchain. Set environment variables (GitHub **Variables**)
+  `BOSUN_CI_BUN` to the absolute approved Bun executable and `BOSUN_CI_INPUTS_ROOT`
+  to an owner-reviewed input bundle outside the checkout. The bundle contains
+  matching `package.json` and `bun.lock`, the already installed
+  locked `node_modules` (including TypeScript and the patched SQLite binding), and
+  `sqlite-native-13.0.3/{better-sqlite3.tgz,node-addon-api.tgz,node-api-headers.tgz}`.
+  Keep the provisioning master read-only to the CI account; the job copies inputs
+  into its disposable checkout and fails when dependency metadata differs.
+- Preserve the exact `bosun_sqlite.node`, its `bosun_sqlite.provenance.json`, patched
+  package sources, archive/patch digests and toolchain paths/hashes admitted by
+  [native input policy](scripts/sqlite-native-inputs.mts). The job checks existing
+  bytes/provenance and actual toolchain hashes before running the wrapper's
+  containment, typecheck, boundaries and **all** guarded source tests. A new machine
+  or locally rebuilt binary is not automatically qualified: mismatches require
+  separate owner review/requalification, never relaxed pins or an automatic rebuild.
+
+Provisioning/acquisition/install/build of native inputs remains a separate explicit
+permission-gated owner operation. CI never installs Bun/packages, executes package
+lifecycle scripts, acquires native inputs, rebuilds SQLite, or calls live hosts/models.
+Checks use isolated startup homes and the existing mandatory containment wrapper.
+GitHub's pinned checkout action is runner infrastructure, not a Node application
+runtime fallback. This workflow is configuration, not a receipt that it has run.
+
+For an explicitly approved local artifact check, also select `release_build=true`
+in the same manual dispatch. After source checks, CI runs wrapper `build`, `verify
+--source .` and `release-check` in a fresh absent output directory under a unique
+temporary parent, then removes only that disposable parent. It does not overwrite
+retained releases, upload/publish/install an artifact, or start a personal runtime.
+Contained minimum safety does not qualify live controls/model quality or broader
+machines; distribution metadata remains `runtimeQualification: unverified`.
 

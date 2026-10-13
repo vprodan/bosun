@@ -2,6 +2,7 @@
   "name": "bosun",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "OMP-first agent orchestration with OpenCode 2, Codex, Claude Code, Orca and shared memory.",
   "bin": {

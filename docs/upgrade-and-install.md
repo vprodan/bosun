@@ -1,17 +1,19 @@
 # Upgrade, installation and onboarding
 
-Local bosun1.0.0 is available at `dist/bosun-1.0.0-darwin-arm64/`. The owner approved shipping a local artifact after compiled minimum safety checks, deferring tuning/real-quality and broader live qualification. Actual compiled startup/MCP, storage/privacy, shutdown/reacquisition and10000-note public-view hook delivery pass in disposable contained roots. OMP is primary; OpenCode2/Codex/Claude and explicit selections remain. Unverified native automatic controls remain held. No personal installation/service activation, live-model call, publication or Git change follows from this artifact or these examples.
+The retained cleanup bosun1.0.0 artifact is `dist/bosun-1.0.0-darwin-arm64-cleanup/`; the original local release remains separately retained at `dist/bosun-1.0.0-darwin-arm64/`. The owner approved shipping a local artifact after compiled minimum safety checks, deferring tuning/real-quality and broader live qualification. Its pre-migration compiled startup/MCP, storage/privacy, shutdown/reacquisition and10000-note public-view hook delivery passed in disposable contained roots. OMP is primary; OpenCode2/Codex/Claude and explicit selections remain. Unverified native automatic controls stay held. No personal installation/service activation, live-model call, publication or Git change follows from the artifact or these examples.
 
-Final source evidence:1179/1179 tests across91 files +35/35 containment, typecheck0, extended native close/backup/UDF/authorizer probes, portable preparation, identical local native builds and actual retained hook/10k source/capture smokes. Prepare the source/native dependency using the reviewed maintainer recipe. See [the latest checkpoint](../HANDOFF.md#native-sqlite-library-admission-2026-10-13). Explicit checks remain trusted owner commands; Bun startup flags are selected literally, not silently rewritten.
+Historical source/native evidence includes1179/1179 tests across91 files +35/35 containment, typecheck0, extended native close/backup/UDF/authorizer probes, portable preparation, identical local native builds and retained hook/10k source/capture smokes. Later pre-migration cleanup/precommit evidence is in [maintenance guidance](maintenance.md#fresh-cleanup-artifact). None verifies the typed-tooling migration, whose checks are pending. Prepare the source/native dependency using the reviewed maintainer recipe and [native admission guidance](maintenance.md#native-sqlite-library-admission-2026-10-13). Explicit checks remain trusted owner commands; Bun startup flags are selected literally, not silently rewritten.
 
-The standalone release executable is
-`/Users/edge/Developer/bosun/dist/bosun-1.0.0-darwin-arm64/bosun` on this checkout;
-use the actual absolute path after moving it. It needs no external Node runtime
-or source dependencies. Archive SHA256:
-`40aa844643f03fae467494dfc0583031981d866c97b50e6388eff31e58d6df0c`.
-To install later, select that executable in the reviewed `install plan` flow
-below; review the returned hash before apply. Existing homes use upgrade first.
-This local-release continuation deliberately performs neither operation.
+The selected retained cleanup executable is
+`dist/bosun-1.0.0-darwin-arm64-cleanup/bosun` in this checkout;
+use its actual absolute path after moving it. It needs no external Node runtime
+or source dependencies. Its retained archive SHA256 is
+`573d45a151c3b3ded1a6e4c6231cb0499c4b856110306ca9df4ceafe5d5a9a80`.
+For a later rebuilt candidate, select its own `build.json`, `SHA256SUMS` and matching
+qualification receipt rather than reusing these historical hashes. To install
+later, select that exact executable in the reviewed `install plan` flow below;
+review the returned hash before apply. Existing homes use upgrade first.
+Documentation maintenance performs neither operation.
 
 Examples use `bun bin/bosun` from the checkout with existing project dependencies; there is no Node fallback. Execute storage/install flows only after the Bun runtime is qualified. The intended compiled spelling is `bosun …`, or the absolute selected executable path. Replace uppercase placeholders with exact returned plan/receipt fields. Choose a qualified release executable before installing; the source script depends on its checkout and is not the standalone release asset.
 

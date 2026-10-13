@@ -2,23 +2,23 @@
 # Start Bun with a fresh HOME/cache before any JavaScript can run. No installs.
 set -eu
 case "${1:-}" in
-  tests) driver=scripts/run-tests.mjs ;;
-  containment) driver=scripts/check-containment.mjs ;;
-  typecheck) driver=scripts/run-typecheck.mjs ;;
-  boundaries) driver=scripts/check-boundaries.mjs ;;
-  build) driver=scripts/build.mjs ;;
-  verify) driver=scripts/verify-distribution.mjs ;;
-  formula) driver=scripts/generate-homebrew.mjs ;;
-  assets) driver=scripts/generate-assets.mjs ;;
-  eval-router) driver=scripts/eval-router.mjs ;;
-  eval-memory) driver=scripts/eval-memory.mjs ;;
-  sqlite-probe) driver=scripts/check-bun-sqlite.mjs ;;
-  sqlite-library-probe) driver=scripts/check-sqlite-library.mjs ;;
-  sqlite-native-acquire) driver=scripts/acquire-sqlite-native.mjs ;;
-  sqlite-native-prepare) driver=scripts/prepare-sqlite-native.mjs ;;
-  sqlite-native-build) driver=scripts/build-sqlite-native.mjs ;;
-  release-check) driver=scripts/check-release.mjs ;;
-  lsp) driver=scripts/run-lsp.mjs ;;
+  tests) driver=scripts/run-tests.mts ;;
+  containment) driver=scripts/check-containment.mts ;;
+  typecheck) driver=scripts/run-typecheck.mts ;;
+  boundaries) driver=scripts/check-boundaries.mts ;;
+  build) driver=scripts/build.mts ;;
+  verify) driver=scripts/verify-distribution.mts ;;
+  formula) driver=scripts/generate-homebrew.mts ;;
+  assets) driver=scripts/generate-assets.mts ;;
+  eval-router) driver=scripts/eval-router.mts ;;
+  eval-memory) driver=scripts/eval-memory.mts ;;
+  sqlite-probe) driver=scripts/check-bun-sqlite.mts ;;
+  sqlite-library-probe) driver=scripts/check-sqlite-library.mts ;;
+  sqlite-native-acquire) driver=scripts/acquire-sqlite-native.mts ;;
+  sqlite-native-prepare) driver=scripts/prepare-sqlite-native.mts ;;
+  sqlite-native-build) driver=scripts/build-sqlite-native.mts ;;
+  release-check) driver=scripts/check-release.mts ;;
+  lsp) driver=scripts/run-lsp.mts ;;
   *) echo 'Usage: sh scripts/bun-check.sh tests|containment|typecheck|boundaries|build|verify|formula|assets|eval-router|eval-memory|sqlite-probe|sqlite-library-probe|sqlite-native-acquire|sqlite-native-prepare|sqlite-native-build|release-check|lsp [arguments]' >&2; exit 2 ;;
 esac
 shift

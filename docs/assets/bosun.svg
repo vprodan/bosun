@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="title">
+  <title id="title">Bosun anchor</title>
+  <style>@media (prefers-color-scheme: dark) { svg { filter: invert(1); } }</style>
+  <circle cx="32" cy="11" r="5"/>
+  <path d="M32 16v39M22 26h20M12 37c0 10 9 18 20 18s20-8 20-18M9 43l3-6 6 3M46 40l6-3 3 6"/>
+</svg>

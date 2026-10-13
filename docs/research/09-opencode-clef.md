@@ -17,7 +17,7 @@ Can OpenCode be the main experience while all three native coding agents remain 
 
 ## 3. Constraints and evidence
 
-The [owner decisions](README.md), [root resume](../../RESUME.md) and [roadmap](../plans/2026-10-01-bosun-v1.0-roadmap.md) still apply: no installs or personal configuration writes during this work, no Bun test suite, no inference on the hook, no model use of private data, no unknown-effect replay and no hidden model substitution. Existing explicitly selected role/host models remain selected.
+The [owner decisions](README.md), root resume (`../../RESUME.md`; historical citation, recover via `21d5dc6:PATH`) and roadmap (`../plans/2026-10-01-bosun-v1.0-roadmap.md`; historical citation, recover via `21d5dc6:PATH`) still apply: no installs or personal configuration writes during this work, no Bun test suite, no inference on the hook, no model use of private data, no unknown-effect replay and no hidden model substitution. Existing explicitly selected role/host models remain selected.
 
 Local checks: Codex CLI **0.160.0** exists; `opencode` and `ollama` are absent from this shell's PATH. No live host, Clef inference or resource benchmark ran. Existing measurements refer to the original Mac.
 
