@@ -1,0 +1,73 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ buildRun: the four executor paths (6.3095ms)
+✔ buildReview + hostNow: other vendor, read-only (4.163583ms)
+✖ run (inline): exact call, token stripped, stdin spec, guards (216.696ms)
+✔ run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns (1040.971958ms)
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (229.73325ms)
+✔ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (690.752333ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2396.581458
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:71:1
+✖ run (inline): exact call, token stripped, stdin spec, guards (216.696ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:80:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:134:1
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (229.73325ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /nothing to review/. Input:
+  
+  ''
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:143:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /nothing to review/,
+    operator: 'match',
+    diff: 'simple'
+  }

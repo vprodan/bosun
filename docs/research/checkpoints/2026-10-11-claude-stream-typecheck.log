@@ -1,0 +1,3 @@
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts(45,10): error TS2542: Index signature in type 'Readonly<Record<string, string | undefined>>' only permits reading.
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts(45,33): error TS2542: Index signature in type 'Readonly<Record<string, string | undefined>>' only permits reading.
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts(45,59): error TS2542: Index signature in type 'Readonly<Record<string, string | undefined>>' only permits reading.

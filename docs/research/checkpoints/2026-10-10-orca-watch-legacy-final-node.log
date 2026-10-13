@@ -1,0 +1,111 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ buildRun: the four executor paths (6.726792ms)
+✔ buildReview + hostNow: other vendor, read-only (4.486542ms)
+✖ run (inline): exact call, token stripped, stdin spec, guards (215.844709ms)
+✔ run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns (1051.584792ms)
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (232.251875ms)
+✖ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (665.846875ms)
+✔ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (657.014ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (527.218083ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (529.344834ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (524.302458ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (478.040167ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (804.488709ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (129.412958ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (356.59975ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (567.868583ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (398.627083ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (428.749958ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (387.804292ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (859.480583ms)
+✔ observer entry drift during async terminal preflight holds the pane before the native effect (613.328375ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (651.172708ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (328.26075ms)
+✔ spin keeps the literal task and selected model in its owned daemon job when an Orca pane cannot bind the new worktree (588.130084ms)
+✔ revision-bound review uses the same metadata observer and original read-only selected job (807.612792ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 21
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12228.026958
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:71:1
+✖ run (inline): exact call, token stripped, stdin spec, guards (215.844709ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:80:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:134:1
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (232.251875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /nothing to review/. Input:
+  
+  ''
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:143:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /nothing to review/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:176:1
+✖ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (665.846875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /continues under daemon control/. Input:
+  
+  '{"error":{"code":"timeout","message":"Request timed out"}}\n'
+  
+      at file:///Users/edge/Developer/bosun/test/exec.test.ts:193:45
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:184:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{"error":{"code":"timeout","message":"Request timed out"}}\n',
+    expected: /continues under daemon control/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -3,7 +3,7 @@ export type Status = 'active' | 'proposed' | 'archived';
 export const CATEGORIES: Category[] = ['personal', 'project', 'session'];
 export const STATUSES: Status[] = ['active', 'proposed', 'archived'];
 // Caller scope comes from the environment, never model-facing arguments.
-export type Ctx = { projectId: string | null; sessionId: string | null; linked: string[]; source?: string };
+export type Ctx = { projectId: string | null; sessionId: string | null; linked: string[]; source?: string; audience?: 'owner' | 'model' };
 export type Memory = {
   id: string; category: Category; projectId: string | null; sessionId: string | null;
   title: string; body: string; tags: string[]; status: Status; shared: boolean; private: boolean;

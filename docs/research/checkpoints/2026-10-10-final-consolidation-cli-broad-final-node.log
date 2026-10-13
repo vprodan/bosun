@@ -1,0 +1,105 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ external ClaudeMem ContextSource constructor is inert and native rollback queries leave every byte unchanged (15.829375ms)
+✔ external public classification and exact project/native-session scope precede payload; unreviewed and stale references stay held (18.355041ms)
+✔ external readOnly/query_only denies DML and avoids unclassified external FTS derivatives (11.434375ms)
+✔ external bounded approved payload, malformed storage and reference overflow stay excluded before projection (13.026125ms)
+✔ external source revision changes during native query hold the result without changing the external body (12.133ms)
+✔ optional external source holds missing with no repair, personal discovery or file changes (10.320042ms)
+✔ optional external source holds corrupt with no repair, personal discovery or file changes (11.291333ms)
+✔ optional external source holds version with no repair, personal discovery or file changes (11.660958ms)
+✔ optional external source holds unknown-version with no repair, personal discovery or file changes (13.008375ms)
+✔ optional external source holds schema with no repair, personal discovery or file changes (11.864ms)
+✔ optional external source holds view with no repair, personal discovery or file changes (11.646583ms)
+✔ optional external source holds journal with no repair, personal discovery or file changes (10.768833ms)
+✔ optional external source holds wal with no repair, personal discovery or file changes (11.641125ms)
+✔ optional external source holds symlink with no repair, personal discovery or file changes (11.916875ms)
+✔ optional external source holds oversized with no repair, personal discovery or file changes (66.890959ms)
+✔ optional external source holds locked with no repair, personal discovery or file changes (12.054125ms)
+✔ optional external source holds deadline with no repair, personal discovery or file changes (12.670708ms)
+✔ final memory composition retrieves external references without copying observations, and optional failures retain curated/docs (111.951292ms)
+✔ consolidation source classification, full credential screening and native-plan policy precede provider access (1.422208ms)
+✔ one bounded generation produces source-version/hash citations and exact selected-model provenance, without accepted fact mutation (0.63325ms)
+✔ invented quote/reference/parent/authority, extra fields, model substitution and malformed output remain unknown with no retry (0.775042ms)
+✔ reviewed merge/duplicate suggestions cite two sources and preserve both source versions rather than modifying originals (0.149209ms)
+✔ late cancellation discards provider output and missing native usage stays unknown (0.180708ms)
+✔ real queued consolidation persists only references, publishes before generation, and atomically stores proposals/cursor without changing L1 facts (214.215583ms)
+✔ cursor progress is oldest-first/bounded, skips denied payloads, and processed versions do not starve newer public facts (170.6525ms)
+✔ atomic output/backpressure races roll back all proposals and cursor progress, retaining the exact owner-visible reservation (241.274417ms)
+✔ lost native COMMIT preserves one batch/cursor with unknown receipt; restart never replays the reserved source window (116.991625ms)
+✔ retained source reservations survive a fresh memory runtime; explicit abandon skips unknown work without modifying accepted facts (142.84675ms)
+✔ source privacy changes during HTTP invalidate the entire batch atomically and retain a sticky reservation without replay (487.591333ms)
+✔ invented output retains reservations, default20 backlog prevents generation, and empty output advances known completed sources (473.632667ms)
+✔ native HTTP cancellation is unknown with a retained source reservation and no late publication or automatic retry (129.653208ms)
+✔ local model metadata rejects cloud aliases and disabled scheduling enqueues nothing; idle checks and close wait for the pending enqueue callback (1.275208ms)
+✔ configured native-plan providers are refused; compatible API needs explicit opt-in and independent positive admission (137.185541ms)
+✔ source changes between publication and provider dispatch are rechecked without sending any model payload (124.221708ms)
+✔ final external registry is inert; exact owner review metadata enables source context without observation copies and later source edits revoke it (162.992042ms)
+✔ final graph schema fingerprint (1.798917ms)
+✔ same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes (126.946125ms)
+✔ complete source versions are required and source changes revoke all levels inside the memory mutation transaction (111.151542ms)
+✔ legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact (50.64925ms)
+✔ scope, linked/shared eligibility and session/expiry are checked on every source and derived read (111.297084ms)
+✔ review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes (70.213167ms)
+✔ bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic (97.159959ms)
+✔ schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes (33.39125ms)
+✔ dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal (2475.445458ms)
+✔ parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants (91.375458ms)
+✔ graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay (44.620625ms)
+✔ canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads (124.114791ms)
+✔ llm: Ollama success sends the schema and context size and reads token counts (18.263709ms)
+✔ llm: timeout, retry then success, bad JSON and schema violations fail without retrying (846.389916ms)
+✔ llm: fallback chain; the remote provider only when opted in, allowed, and not private; the usage log has no content (274.159625ms)
+✔ consolidate: proposals with provenance; exact and near duplicates are skipped; invalid output writes nothing; review accepts (20.023292ms)
+✔ final memory CLI queues cited proposals and public title/tag jobs while retaining source IDs, explicit fields and external data (344.049125ms)
+✔ final memory CLI preserves duplicates, versions, private flags, purge audit, explicit proposal review and scoped stats (550.707958ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.768333ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.748917ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (211.034583ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (229.641958ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (223.394791ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (140.919541ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (143.131959ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (280.509208ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (568.226792ms)
+✔ privacy: direct private generate blocks every provider before config/messages/schema access (8.750834ms)
+✔ privacy: private suggestions use only the first line and no model tags (5.503375ms)
+✔ privacy: route flags/private or malformed hook markers skip inference and remote retrieval (854.407542ms)
+✔ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (145.710041ms)
+✔ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (620.608208ms)
+✔ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (123.880583ms)
+✔ privacy: nested log objects, toJSON hooks, errors/causes and unknown metadata never serialize (4.875542ms)
+✔ privacy: LLM usage ignores echoed model/token content and emits fixed error kinds (7.726125ms)
+✔ privacy: metrics reports never redisplay malformed historical metadata and leave files unchanged (3.958083ms)
+✔ summary policy screens every event before provider access, including late-window credentials and denied throwing content (1.142084ms)
+✔ bounded chunked summaries retain exact source hashes/cursors and aggregate only known usage without a hidden model switch (1.417708ms)
+✔ invented quotes, missing references, extra authority fields, duplicates and empty selections never become a summary or trigger retries (0.263959ms)
+✔ actual CLI/UDS/daemon/provider summary job publishes immutable cited artifacts, preserves authority and supports one incremental public window (229.550209ms)
+✔ invented provider output leaves the durable job unknown with no artifact, and private evidence is refused before enqueue or HTTP (142.730375ms)
+✔ cancellation during generation persists unknown without publishing late output, replaying or losing shutdown authority (141.035083ms)
+ℹ tests 77
+ℹ suites 0
+ℹ pass 77
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16078.825125

@@ -1,0 +1,95 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ config: defaults, then config.env, then env; partial config keeps defaults; setKey (6.186833ms)
+✔ config: spec, role, hosts, harness (5.248208ms)
+✔ config: paths follow HOME at call time, so tests switch sandboxes without reloading modules (7.663833ms)
+✔ config: HOME takes precedence over the runtime homedir implementation (3.564083ms)
+✔ context: relevance and recency both count; sources are weighted (2.517875ms)
+✔ context: dedupe across sources keeps the higher score (0.192709ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (3.024625ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.100833ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (908.012875ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (468.53475ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (594.292167ms)
+✔ final hook with missing memory creates nothing and runs no model/service (103.511458ms)
+✔ core errors and deterministic Unicode text behavior (2.236166ms)
+✔ coded errors preserve causes and legacy exits while constraining untyped codes and details (0.175667ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.20425ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.2335ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.13675ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.242209ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.164875ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.070875ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (4.912ms)
+✔ MemoryStore acceptance: plain direct adapter (13.686417ms)
+✔ MemoryStore acceptance: plain legacy composition (8.891542ms)
+✔ MemoryStore acceptance: registered direct adapter (95.867834ms)
+✔ MemoryStore acceptance: registered legacy composition (96.814084ms)
+✔ direct plain query/projection has unchanged storage footprint, scope/flags and deterministic expiry (10.535458ms)
+✔ direct registered query/projection has unchanged storage footprint, scope/flags and deterministic expiry (96.256333ms)
+✔ direct plain explicit retention/touch/prune uses frozen policy and injected timestamps (7.599875ms)
+✔ direct registered explicit retention/touch/prune uses frozen policy and injected timestamps (45.746959ms)
+✔ direct plain semantic clock/expiry failures leave existing rows/events/generation unchanged (7.223083ms)
+✔ direct registered semantic clock/expiry failures leave existing rows/events/generation unchanged (72.558375ms)
+✔ direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held (57.505459ms)
+✔ legacy composition retains constructor/read expiry and best-effort touch on an actual SQLite session (6.912708ms)
+✔ direct plain post-commit sink/timing failures preserve result, events and generation (6.813959ms)
+✔ direct registered post-commit sink/timing failures preserve result, events and generation (44.852334ms)
+✔ direct dependencies fail before DML, transactions roll back and lifecycle cleanup preserves the original error (5.831542ms)
+✔ validation schemas and native session helpers retain source identity and validate inputs (0.158042ms)
+✔ direct adapter imports and works under a synthetic HOME with unusable ambient config and no owner filesystem effects (71.822667ms)
+✔ direct plain expired session restore renews the current default and survives reopen until the new boundary (7.280916ms)
+✔ direct registered expired session restore renews the current default and survives reopen until the new boundary (42.805833ms)
+✔ direct plain restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (10.092792ms)
+✔ direct registered restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (143.37675ms)
+✔ direct plain zero session TTL disables expiry for creation and explicit expired restore (6.380875ms)
+✔ direct registered zero session TTL disables expiry for creation and explicit expired restore (37.393125ms)
+✔ direct plain restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (8.4285ms)
+✔ direct registered restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (117.717083ms)
+✔ memory: store/get/search round trip, FTS ranking, tags filter, limit cap, access counted (22.80125ms)
+✔ memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all (7.35425ms)
+✔ memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key (5.973042ms)
+✔ memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope (7.207125ms)
+✔ memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags (17.578291ms)
+✔ memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one (11.396834ms)
+✔ project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote (102.85225ms)
+✔ memory: session memories expire into archived on open; prune purges old archived ones (8.323833ms)
+✔ memory: validation limits, and error messages never quote content (6.841208ms)
+✔ memory: user text never becomes FTS syntax (7.661042ms)
+✔ memory: concurrent writers wait instead of failing; a new database opened by three processes at once migrates once (640.914875ms)
+✔ migrations: fresh → latest; v1 → v2; a failing migration rolls back and leaves the database as it was; file mode 0600 (8.541084ms)
+✔ memory: private memories stay out of search unless asked (6.979375ms)
+✔ memory bench: measured numbers, no owner files or unsupported retrieval timings (5060.083875ms)
+✔ benchmark requires a successful child, valid envelope and exact synthetic note identities (0.348875ms)
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+✔ explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats (62612.303042ms)
+✔ memory: an expired session memory leaves search in a long-running process, not only on the next open (6.723916ms)
+✔ final routing retains lane/risk policy while hooks stay silent without notes and perform no inference for any host (1571.29575ms)
+✔ final router evaluation reports frozen development thresholds and keeps corrupt historical labels separate from held-out evidence (123.503791ms)
+✔ final router evaluation rejects an insufficient corpus and documents the complete required split (110.840334ms)
+ℹ tests 66
+ℹ suites 0
+ℹ pass 66
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74221.077333

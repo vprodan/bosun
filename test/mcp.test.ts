@@ -1,147 +1,297 @@
-import "./bootstrap.ts";
+import './bootstrap.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { sandbox, fresh, bosun, gitRepo, mcpSession as session, BIN } from './helpers.ts';
-import { load, P } from '../lib/config.ts';
-import { MemoryService } from '../lib/memory/service.ts';
-import { openDb } from '../lib/memory/sqlite.ts';
-import * as wire from '../lib/wire.ts';
+import { Client } from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import { gitRepo, BIN } from './helpers.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
 
-const names = ['context_retrieve', 'memory_delete', 'memory_get', 'memory_search', 'memory_store', 'memory_update', 'project_knowledge_search'];
-
-test('mcp: initialize echoes supported versions and falls back; tools/list schemas; ping; protocol errors; stdout carries only JSON', async () => {
-  const sb = sandbox();
+async function connect(f: Awaited<ReturnType<typeof runtimeFixture>>) {
+  const transport = new StdioClientTransport({
+    command: process.execPath,
+    args: [BIN, 'mcp'],
+    cwd: f.workspace,
+    env: f.env,
+    stderr: 'pipe',
+    maxBufferSize: 1048576,
+  });
+  let stderr = '';
+  transport.stderr?.on('data', (value) => {
+    stderr += value;
+  });
+  const client = new Client(
+    { name: 'bosun-mcp-regression', version: '1.0.0' },
+    { versionNegotiation: { mode: { pin: '2026-07-28' } } },
+  );
   try {
-    const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
-    const s = session(sb.env(), repo);
-    let r = await s.rpc(0, 'initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 't', version: '1' } });
-    assert.equal(r.id, 0, 'id 0 is echoed');
-    assert.equal(r.result.protocolVersion, '2025-06-18');
-    assert.deepEqual(r.result.capabilities, { tools: {} });
-    assert.equal(r.result.serverInfo.name, 'bosun');
-    assert.match(r.result.instructions, /memory_search/);
-    s.send({ jsonrpc: '2.0', method: 'notifications/initialized' });
-    r = await s.rpc('a-1', 'initialize', { protocolVersion: '2024-01-01' });
-    assert.deepEqual([r.id, r.result.protocolVersion], ['a-1', '2025-11-25']);
-    assert.deepEqual((await s.rpc(2, 'ping')).result, {});
-    const tools = (await s.rpc(3, 'tools/list')).result.tools;
-    assert.deepEqual(tools.map((t: any) => t.name).sort(), names);
-    for (const t of tools) {
-      assert.ok(t.description.length < 300, t.name);
-      assert.equal(t.inputSchema.type, 'object');
-      assert.equal(t.inputSchema.additionalProperties, false);
-      assert.equal(t.annotations.openWorldHint, false);
+    await client.connect(transport);
+  } catch (error) {
+    await client.close();
+    await transport.close();
+    throw error;
+  }
+  return {
+    client,
+    transport,
+    stderr: () => stderr,
+    async close() {
+      try {
+        await client.close();
+      } finally {
+        await transport.close();
+      }
+    },
+    async call(name: string, args: Record<string, unknown>) {
+      return client.callTool({ name, arguments: args });
+    },
+  };
+}
+const structured = (value: { structuredContent?: unknown }): any => value.structuredContent;
+
+test('final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations', async () => {
+  const f = await runtimeFixture();
+  let s: Awaited<ReturnType<typeof connect>> | undefined;
+  try {
+    s = await connect(f);
+    assert.equal(s.client.getNegotiatedProtocolVersion(), '2026-07-28');
+    assert.equal(s.client.getProtocolEra(), 'modern');
+    assert.equal(s.client.getServerVersion()!.name, 'bosun');
+    await assert.rejects(
+      s.client.ping(),
+      (error: any) => error.code === 'METHOD_NOT_SUPPORTED_BY_PROTOCOL_VERSION',
+    );
+    const tools = (await s.client.listTools()).tools;
+    const names = tools.map((tool) => tool.name);
+    for (const name of [
+      'memory_store',
+      'memory_search',
+      'memory_get',
+      'memory_update',
+      'memory_delete',
+      'context_retrieve',
+      'graph_get',
+      'graph_query',
+      'graph_explain',
+      'job_submit',
+      'job_get',
+      'job_result',
+      'job_cancel',
+    ])
+      assert.ok(names.includes(name), name);
+    for (const name of [
+      'memory_accept',
+      'memory_purge',
+      'memory_stats',
+      'docs_index',
+      'graph_create',
+      'consolidation_run',
+      'quota_refresh',
+      'handoff_import',
+    ])
+      assert.equal(names.includes(name), false, name);
+    for (const tool of tools) {
+      assert.ok(tool.description && tool.description.length < 300);
+      assert.equal(tool.inputSchema.type, 'object');
+      assert.equal(tool.inputSchema.additionalProperties, false);
+      assert.equal(
+        tool.annotations!.readOnlyHint,
+        [
+          'memory_search',
+          'memory_get',
+          'context_retrieve',
+          'graph_get',
+          'graph_query',
+          'graph_explain',
+          'job_get',
+          'job_result',
+        ].includes(tool.name),
+      );
     }
-    const ann = Object.fromEntries(tools.map((t: any) => [t.name, t.annotations]));
-    for (const n of ['memory_search', 'memory_get', 'context_retrieve', 'project_knowledge_search']) assert.equal(ann[n].readOnlyHint, true, n);
-    assert.deepEqual([ann.memory_store.readOnlyHint, ann.memory_store.destructiveHint], [false, false]);
-    for (const n of ['memory_update', 'memory_delete']) assert.deepEqual([ann[n].destructiveHint, ann[n].idempotentHint], [true, true], n);
-    assert.equal((await s.rpc(4, 'server/discover')).error.code, -32601);
-    assert.equal((await s.rpc(5, 'resources/list')).error.code, -32601);
-    s.send('[{"jsonrpc":"2.0","id":6,"method":"ping"}]');
-    r = await s.next();
-    assert.deepEqual([r.id, r.error.code], [null, -32600]);
-    s.send('{not json');
-    r = await s.next();
-    assert.deepEqual([r.id, r.error.code], [null, -32700]);
-    assert.equal((await s.rpc(7, 'tools/call', { name: 'nope', arguments: {} })).error.code, -32602);
-    const done = await s.close();
-    assert.equal(done.code, 0);
-    for (const l of done.lines) JSON.parse(l);
-  } finally { sb.cleanup(); }
+    const query = tools.find((tool) => tool.name === 'memory_search')!.inputSchema;
+    const privacy = query.properties!.includePrivate as any;
+    assert.equal(privacy.const ?? privacy.enum?.[0], false);
+    await assert.rejects(s.call('unknown_tool', {}));
+    assert.equal(f.calls(), 0);
+    assert.deepEqual(f.sb.calls(), []);
+  } finally {
+    await s?.close();
+    await f.close();
+  }
 });
 
-test('mcp: every tool works, before initialize too; isError paths; private redaction; arguments cannot change the project; output cap', async () => {
-  const sb = sandbox();
+test('final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs', async () => {
+  const f = await runtimeFixture();
+  let s: Awaited<ReturnType<typeof connect>> | undefined;
   try {
-    const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
-    fs.writeFileSync(path.join(repo, 'README.md'), '# Shop\n\nThe checkout page lives in web/checkout.\n');
-    fresh(sb);
-    const other = new MemoryService(openDb(P.DB), load());
-    const foreign = (await other.store({ category: 'project', title: 'Other repo', body: 'pnpm elsewhere' }, { projectId: 'p_other', sessionId: null, linked: [] })).memory;
-    other.close();
-    const s = session(sb.env(), repo);
-    let r = await s.call('memory_store', { category: 'project', title: 'Use pnpm', body: 'pnpm only; npm breaks the lockfile', tags: ['tooling'] });
-    const m = r.result.structuredContent.memory;
-    assert.equal(r.result.isError, undefined);
-    assert.deepEqual(JSON.parse(r.result.content[0].text), r.result.structuredContent);
-    assert.equal((await s.call('memory_search', { query: 'lockfile' })).result.structuredContent.hits[0].id, m.id);
-    assert.match((await s.call('memory_get', { id: m.id })).result.structuredContent.memory.body, /lockfile/);
-    assert.equal((await s.call('memory_update', { id: m.id, expectedVersion: 1, body: 'pnpm only.' })).result.structuredContent.memory.version, 2);
-    r = await s.call('memory_update', { id: m.id, expectedVersion: 1, body: 'x' });
-    assert.equal(r.result.isError, true);
-    assert.equal(r.result.content[0].text, 'memory version conflict');
-    assert.deepEqual(r.result.structuredContent, { error: { code: 'conflict' } });
-    assert.match((await s.call('context_retrieve', { task: 'pnpm lockfile install' })).result.structuredContent.text, /Use pnpm/);
-    assert.match(JSON.stringify((await s.call('project_knowledge_search', { query: 'checkout page' })).result.structuredContent.hits), /README\.md/);
-    assert.equal((await s.call('memory_delete', { id: m.id })).result.structuredContent.status, 'archived');
-    assert.equal((await s.call('memory_delete', { id: m.id })).result.structuredContent.status, 'archived', 'idempotent');
-    r = await s.call('memory_store', { category: 'project', title: '', body: 'SECRET-VALUE' });
-    assert.equal(r.result.isError, true);
-    assert.doesNotMatch(r.result.content[0].text, /SECRET-VALUE/);
-    assert.equal((await s.call('memory_get', { id: foreign.id })).result.isError, true, 'another project\'s id is not found');
-    r = await s.call('memory_search', { query: 'pnpm', projectId: 'p_other' });
-    assert.equal(r.result.isError, true);
-    assert.match(r.result.content[0].text, /unknown field/);
-    r = await s.call('memory_store', { category: 'project', title: 'Secret', body: 'PRIVATE-BODY token', private: true });
-    assert.deepEqual(r.result.structuredContent, { memory: { private: true } });
-    const p = JSON.parse((await bosun(['memory', 'search', 'token', '--json'], { env: sb.env(), cwd: repo })).out)[0];
-    assert.deepEqual((await s.call('memory_get', { id: p.id })).result.structuredContent, { memory: { private: true } });
-    assert.equal((await s.call('memory_search', { query: 'token' })).result.structuredContent.hits.length, 0);
-    assert.doesNotMatch((await s.call('context_retrieve', { task: 'private body token' })).result.structuredContent.text, /PRIVATE-BODY/);
-    await s.close();
-    const small = session(sb.env({ MCP_MAX_CHARS: '400' }), repo);
-    for (let i = 0; i < 5; i++) await small.call('memory_store', { category: 'project', title: `cap ${i}`, body: `capped result number ${i} ${'x'.repeat(80)}` });
-    r = await small.call('memory_search', { query: 'capped result' });
-    assert.equal(r.result.structuredContent.truncated, true);
-    assert.ok(r.result.content[0].text.length <= 400);
-    await small.close();
-  } finally { sb.cleanup(); }
+    const other = gitRepo(f.sb, 'other');
+    const foreign = (
+      await f.rpc(
+        'memory.store',
+        { category: 'project', title: 'Foreign note', body: 'FOREIGN_CANARY elsewhere' },
+        { ...f.scope, workspace: other },
+      )
+    ).memory;
+    fs.writeFileSync(
+      path.join(f.workspace, 'README.md'),
+      '# Shop\nThe checkout page lives in web/checkout.\n',
+    );
+    const indexing = (await f.rpc('docs.index', {})).job;
+    for (
+      let n = 0;
+      n < 100 &&
+      ['queued', 'running'].includes((await f.rpc('job.get', { id: indexing.id })).state);
+      n++
+    )
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    assert.equal((await f.rpc('job.get', { id: indexing.id })).state, 'succeeded');
+    s = await connect(f);
+    const stored = await s.call('memory_store', {
+      category: 'project',
+      title: 'Use pnpm',
+      body: 'pnpm only; npm breaks the lockfile',
+      tags: ['tooling'],
+    });
+    assert.equal(stored.isError, undefined);
+    const memory = structured(stored).memory;
+    assert.deepEqual(JSON.parse((stored.content[0] as any).text), structured(stored));
+    assert.equal(
+      structured(await s.call('memory_search', { text: 'lockfile' })).hits[0].id,
+      memory.id,
+    );
+    assert.match(structured(await s.call('memory_get', { id: memory.id })).memory.body, /lockfile/);
+    const updated = await s.call('memory_update', {
+      id: memory.id,
+      expectedVersion: memory.version,
+      patch: { body: 'pnpm only.' },
+    });
+    assert.equal(structured(updated).memory.version, memory.version + 1);
+    const conflict = await s.call('memory_update', {
+      id: memory.id,
+      expectedVersion: memory.version,
+      patch: { body: 'PRIVATE_ERROR_CANARY' },
+    });
+    assert.equal(conflict.isError, true);
+    assert.equal(structured(conflict).error.code, 'conflict');
+    assert.equal(structured(conflict).error.details, undefined);
+    assert.equal(JSON.stringify(conflict).includes('CANARY'), false);
+    const context = structured(await s.call('context_retrieve', { task: 'pnpm package install' }));
+    assert.match(context.text, /Use pnpm/);
+    const docs = structured(
+      await s.call('context_retrieve', { task: 'checkout page', sources: ['docs'] }),
+    );
+    assert.match(docs.text, /README\.md/);
+    assert.equal((await s.call('memory_get', { id: foreign.id })).isError, true);
+    for (const args of [
+      { text: 'FOREIGN_CANARY', projectId: foreign.projectId },
+      { text: 'FOREIGN_CANARY', includePrivate: true },
+    ]) {
+      const denied = await s.call('memory_search', args);
+      assert.equal(denied.isError, true);
+      assert.equal(JSON.stringify(denied).includes('FOREIGN_CANARY'), false);
+    }
+    const invalid = await s.call('memory_store', {
+      category: 'project',
+      title: '',
+      body: 'PRIVATE_ERROR_CANARY',
+    });
+    assert.equal(invalid.isError, true);
+    assert.equal(JSON.stringify(invalid).includes('CANARY'), false);
+    assert.equal(
+      structured(await s.call('memory_delete', { id: memory.id })).memory.status,
+      'archived',
+    );
+    assert.equal(
+      structured(await s.call('memory_delete', { id: memory.id })).memory.status,
+      'archived',
+    );
+    assert.equal(s.stderr().includes('CANARY'), false);
+    assert.deepEqual(f.sb.calls(), []);
+  } finally {
+    await s?.close();
+    await f.close();
+  }
 });
 
-test('wire: registers the MCP server with Claude and every Codex home; unwire removes it; doctor checks it', async () => {
-  const sb = sandbox();
+test('final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt', async () => {
+  const f = await runtimeFixture();
+  let s: Awaited<ReturnType<typeof connect>> | undefined;
   try {
-    const orcaHome = path.join(sb.home, 'Library/Application Support/orca/codex-runtime-home/home');
-    fs.mkdirSync(orcaHome, { recursive: true });
-    fresh(sb);
-    const cfg = load();
-    wire.wireClaude(cfg);
-    wire.wireCodex(cfg);
-    const add = sb.calls().find((c) => c.bin === 'claude' && c.argv[1] === 'add');
-    assert.deepEqual(add!.argv, ['mcp', 'add', '--scope', 'user', 'bosun', '--', process.execPath, BIN, 'mcp']);
-    const cx = sb.calls().filter((c) => c.bin === 'codex' && c.argv[1] === 'add');
-    assert.deepEqual(cx.map((c) => c.env.CODEX_HOME), [path.join(sb.home, '.codex'), orcaHome]);
-    assert.deepEqual(cx[0].argv, ['mcp', 'add', 'bosun', '--', process.execPath, BIN, 'mcp']);
-    sb.reset();
-    wire.unwire();
-    const rm = sb.calls().map((c) => `${c.bin} ${c.argv.join(' ')}`);
-    assert.ok(rm.includes('claude mcp remove --scope user bosun'));
-    assert.equal(rm.filter((c) => c === 'codex mcp remove bosun').length, 2);
-    assert.match((await bosun(['doctor'], { env: sb.env({ OLLAMA_URL: 'http://127.0.0.1:1', ROUTER_PORT: '1' }) })).out, /bosun MCP server in Claude Code/);
-    const missing = await bosun(['doctor'], { env: sb.env({ OLLAMA_URL: 'http://127.0.0.1:1', ROUTER_PORT: '1', STUB_MAP: JSON.stringify({ 'claude mcp': { code: 1 }, 'codex mcp': { code: 1 } }) }) });
-    assert.match(missing.out, /MCP server missing in Claude Code: bosun install/);
-    assert.match(missing.out, /memory database absent: .*memory\.db/);
-    assert.equal(fs.existsSync(path.join(sb.home, '.bosun', 'memory.db')), false, 'doctor never creates the memory store');
-  } finally { sb.cleanup(); }
-});
-
-test('mcp: memory_update cannot make a private memory public; private updates return only an opaque receipt', async () => {
-  const sb = sandbox();
-  try {
-    const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
-    const s = session(sb.env(), repo);
-    try {
-    assert.deepEqual((await s.call('memory_store', { category: 'project', title: 'Bank', body: 'my PIN hint is PRIVATE-XYZ', private: true })).result.structuredContent, { memory: { private: true } });
-    const p = JSON.parse((await bosun(['memory', 'search', 'PRIVATE-XYZ', '--json'], { env: sb.env(), cwd: repo })).out)[0];
-    const r = await s.call('memory_update', { id: p.id, expectedVersion: 1, private: false });
-    assert.equal(r.result.isError, true);
-    assert.doesNotMatch(JSON.stringify(r), /PRIVATE-XYZ/);
-    assert.deepEqual((await s.call('memory_get', { id: p.id })).result.structuredContent, { memory: { private: true } });
-    const t = await s.call('memory_update', { id: p.id, expectedVersion: 1, title: 'Bank hint' });
-    assert.deepEqual(t.result.structuredContent, { memory: { private: true } });
-    } finally { await s.close(); }
-  } finally { sb.cleanup(); }
+    const privateNote = (
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: 'Bank',
+        body: 'Private note PRIVATE_CANARY',
+        private: true,
+      })
+    ).memory;
+    const before = await f.rpc('memory.get', { id: privateNote.id, events: true });
+    s = await connect(f);
+    const secret = await s.call('memory_get', { id: privateNote.id });
+    assert.deepEqual(structured(secret), { memory: { private: true } });
+    for (const patch of [{ private: false }, { title: 'Guess PRIVATE_CANARY' }]) {
+      const denied = await s.call('memory_update', {
+        id: privateNote.id,
+        expectedVersion: privateNote.version,
+        patch,
+      });
+      assert.equal(denied.isError, true);
+      assert.equal(JSON.stringify(denied).includes('CANARY'), false);
+    }
+    assert.deepEqual(await f.rpc('memory.get', { id: privateNote.id, events: true }), before);
+    assert.deepEqual(
+      structured(await s.call('memory_search', { text: 'PRIVATE_CANARY' })).hits,
+      [],
+    );
+    for (const sources of [['curated'], ['lexical'], ['graph'], ['overview']]) {
+      const inspected = structured(
+        await s.call('context_retrieve', {
+          task: 'Private note PRIVATE_CANARY',
+          sources,
+          includeCandidates: true,
+        }),
+      );
+      assert.deepEqual(inspected.candidates, []);
+      assert.deepEqual(inspected.items, []);
+      assert.equal(JSON.stringify(inspected).includes(privateNote.id), false);
+      assert.equal(JSON.stringify(inspected).includes('PRIVATE_CANARY'), false);
+    }
+    assert.equal(
+      JSON.stringify(
+        await s.call('context_retrieve', { task: 'Private note PRIVATE_CANARY' }),
+      ).includes('PRIVATE_CANARY'),
+      false,
+    );
+    const body = 'Bounded public note ' + '\u0001'.repeat(3900);
+    const created = await s.call('memory_store', {
+      category: 'project',
+      title: 'Large public receipt',
+      body,
+    });
+    assert.equal(created.isError, undefined);
+    assert.equal(structured(created).truncated, true);
+    assert.equal(structured(created).memory.version, 1);
+    assert.equal(structured(created).memory.body, undefined);
+    assert.ok(Buffer.byteLength((created.content[0] as any).text) <= 20000);
+    assert.equal(
+      (await f.rpc('memory.get', { id: structured(created).memory.id })).memory.body,
+      body,
+    );
+    for (let n = 0; n < 10; n++)
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: 'Capped public batch ' + n,
+        body: 'Bounded corpus ' + n + ' ' + 'x'.repeat(3500),
+      });
+    const batch = await s.call('memory_search', { text: 'Bounded corpus', limit: 20 });
+    assert.equal(batch.isError, undefined);
+    assert.equal(structured(batch).truncated, true);
+    assert.ok(structured(batch).hits.length > 0 && structured(batch).hits.length < 10);
+    assert.ok(Buffer.byteLength((batch.content[0] as any).text) <= 20000);
+    assert.equal(s.stderr().includes('CANARY'), false);
+  } finally {
+    await s?.close();
+    await f.close();
+  }
 });

@@ -1,0 +1,99 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (5.682709ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (237.096208ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.866834ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (135.736875ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (525.056458ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (274.030417ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (157.167833ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (143.138458ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (132.924083ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (305.053958ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.487875ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (108.996583ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (557.008833ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (371.65075ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (262.311875ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (141.286916ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (153.816ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (169.653166ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (171.563625ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (198.097792ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (159.873334ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (362.838208ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (178.743ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (142.163292ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (268.657083ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (330.333125ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.865375ms)
+✔ native OpenCode 2 HTTP run binds an explicit root, model colons, cwd/variant and deny-all permissions; V2 step usage is exclusive (27.038125ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (11.958875ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (10.8965ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (16.60675ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (6.219416ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (12.288375ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (59.677459ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (18.079416ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (14.60275ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (250.493ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (26.344875ms)
+✔ V2 inbox admission is not completion; changed ID/session/text/delivery/attachments remain unknown without replay (37.926958ms)
+✔ lost V2 root receipt never adopts an arbitrary root, sends input, deletes history or retries creation (1.592125ms)
+✔ V2 server identity, native catalog/variant overlay and owned session bindings repeat immediately before effects (11.919917ms)
+✔ V2 complete history reaches an empty terminal page and follows only encoded body cursors at the original endpoint (19.737667ms)
+✔ V2 native inactivity without the original terminal remains unknown, even with completed assistant/tool records (156.918667ms)
+✔ V2 hidden native inputs/control changes and unallowed code-mode/MCP/shell tools cannot produce completion (65.658292ms)
+✔ V2 repeated completed history catches native content drift before yielding any result (7.450375ms)
+✔ V2 interruption never targets a changed server process or native ownership binding (9.270792ms)
+✔ OpenCode 2 source/version pin and V2 metadata projections omit native content, paths and billing (1.510417ms)
+✔ OpenCode 2 does not accept a V1 health, session or WithParts message envelope (0.747291ms)
+✔ OpenCode 2 malformed metadata, counts, message types, cursors and duplicate IDs fail closed (1.856ms)
+✔ OpenCode 2 idle marker binds a completed turn; latest inference input is a candidate, never active occupancy (0.290625ms)
+✔ OpenCode 2 pending, streaming, failed, incomplete and inactive-without-idle turns remain unknown (0.702625ms)
+✔ OpenCode 2 stale/future, explicit model/variant drift and resets stay held without reordering native sequence (0.604542ms)
+✔ OpenCode 2 native inactive scope is only this process foreground, never tool or background quiescence (0.069875ms)
+✔ OpenCode 2 opaque body cursors remain metadata, not followable URLs or evidence completeness (0.100375ms)
+✔ OpenCode 2 fresh-root and parked seed recipes use only V2 fields and prove no readiness (0.606791ms)
+✔ OpenCode 2 private/unclassified codecs and recipes reject before record, model and text access (0.168ms)
+✔ OpenCode 2 repeated session/process bindings hold read-only observations on drift with no retry (44.742166ms)
+✔ OpenCode 2 a server-supplied cursor or connection URL is never followed by the metadata probe (3.223916ms)
+✔ OpenCode 2 response/deadline/page limits stop a single attempt without exposing endpoint diagnostics (56.789416ms)
+✔ OpenCode 2 successful metadata fixtures cannot authorize automatic handoff or any control method (0.168959ms)
+✔ OpenCode pinned v1 codecs retain model/variant and omit content, paths, cost and accumulated tokens (1.02875ms)
+✔ OpenCode exact version/metadata mismatches fail with fixed actual coded errors (0.801417ms)
+✔ OpenCode latest completed step is only an input candidate, never cumulative billed usage or verified occupancy (0.6735ms)
+✔ OpenCode stale/future/pending/model-switch/reset samples are unknown rather than zero or safe to hand off (0.200459ms)
+✔ OpenCode pure fresh-root/noReply recipes preserve explicit selections without proving readiness or sending HTTP (0.56775ms)
+✔ OpenCode private/unknown recipes and codecs reject before text/selection/record property access (0.153917ms)
+✔ OpenCode SSE fixture uses pinned global envelope and message.updated properties sessionID/info, with no content replay (0.3695ms)
+✔ OpenCode explicitly selected probe performs only GET metadata reads and never becomes native Codex/Claude (17.037083ms)
+✔ OpenCode probe rejects private/unknown/malformed selection and generation before config/HTTP (0.211792ms)
+✔ OpenCode probe version/errors/foreign sessions/abort hold without retries or raw diagnostic echoes (11.069041ms)
+✔ OpenCode fixture success leaves every managed capability held with no automatic handoff or control calls (0.128083ms)
+ℹ tests 71
+ℹ suites 0
+ℹ pass 71
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6883.111542

@@ -1,0 +1,68 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (120.044833ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (101.791875ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (148.449917ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (87.516791ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (3.892667ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (16.148125ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.506625ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (8.366542ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (12.282667ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (1.645ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.177916ms)
+✔ final graph schema fingerprint (1.691292ms)
+✔ same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes (140.737875ms)
+✔ complete source versions are required and source changes revoke all levels inside the memory mutation transaction (120.783291ms)
+✔ legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact (51.217333ms)
+✔ scope, linked/shared eligibility and session/expiry are checked on every source and derived read (108.715209ms)
+✔ review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes (67.889791ms)
+✔ bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic (94.868917ms)
+✔ schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes (33.66275ms)
+✔ dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal (2499.997292ms)
+✔ parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants (87.978875ms)
+✔ graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay (43.972875ms)
+✔ canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads (119.712583ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.113791ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (43.12725ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (117.339875ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (169.75725ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (114.178125ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (109.211708ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (31.230375ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (30.694875ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.109666ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (30.692334ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (30.656209ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (105.280292ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (32.791208ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (33.885167ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (68.588417ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (62.344791ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (109.061792ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5551.059417

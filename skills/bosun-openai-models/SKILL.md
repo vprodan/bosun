@@ -13,7 +13,7 @@ Preserve an explicitly selected model. For an unspecified model, propose a task-
 
 For a migration:
 
-1. Inspect the relevant defaults, overrides, executor arguments, and tests. In bosun, start at `config.default.env`, `lib/config.ts`, `lib/roles.ts`, and `lib/exec.ts`.
+1. Inspect the relevant defaults, overrides, executor arguments, and tests. In bosun, start at `src/core/domain/config.ts`, `src/platform/config.ts`, `src/core/roles.ts`, `src/app/native-runners.ts`, and the selected host runner. `config.default.env` is the historical upgrade template, not the final runtime's defaults.
 2. Verify the exact model ID and supported effort in the target client/provider. API parameters, Codex config values, and ChatGPT UI labels are separate contracts. Report a conflict instead of inventing a translation.
 3. Change only the requested role/provider and associated documentation. Preserve effective effort where supported. Do not bulk-replace historical research results or user overrides.
 4. Validate argument/config rendering offline. If live comparisons are authorized, use the same representative task and acceptance criteria; record model, effort, surface, latency, and usage. Report quality failures as well as cost.

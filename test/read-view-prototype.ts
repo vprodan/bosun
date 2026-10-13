@@ -3,17 +3,18 @@ import './bootstrap.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { DatabaseSync, constants } from 'node:sqlite';
-import { openDb, MIGRATIONS } from '../lib/memory/sqlite.ts';
+import { SqliteDatabase, sqliteConstants } from '../src/platform/sqlite.ts';
+import { openSchemaOneMemory } from './memory-store-fixture.ts';
+import { MEMORY_MIGRATIONS } from '../src/adapters/memory/sqlite-schema.ts';
 import type { Ctx } from '../src/core/domain/memory.ts';
 
 export const FLOOR_FN = 'bosun_read_view_floor_v1';
 export const NOW = 100;
-const admitted = new WeakSet<DatabaseSync>();
-export function beginAdmission(source: DatabaseSync): void {
+const admitted = new WeakSet<SqliteDatabase>();
+export function beginAdmission(source: SqliteDatabase): void {
   source.exec('BEGIN IMMEDIATE'); admitted.add(source);
 }
-export function endAdmission(source: DatabaseSync, commit: boolean): void {
+export function endAdmission(source: SqliteDatabase, commit: boolean): void {
   try { source.exec(commit ? 'COMMIT' : 'ROLLBACK'); } finally { admitted.delete(source); }
 }
 export function patchedVersion(version: string): boolean {
@@ -31,14 +32,14 @@ export function footprint(dir: string): Record<string, object> {
         mode: String(s.mode), mtime: String(s.mtimeNs), ctime: String(s.ctimeNs) }];
     })) };
 }
-const connectionSettings = (db: DatabaseSync) => db.exec('PRAGMA busy_timeout=0; PRAGMA synchronous=FULL; PRAGMA wal_autocheckpoint=0;');
-export function hold(view: DatabaseSync): void {
+const connectionSettings = (db: SqliteDatabase) => db.exec('PRAGMA busy_timeout=0; PRAGMA synchronous=FULL; PRAGMA wal_autocheckpoint=0;');
+export function hold(view: SqliteDatabase): void {
   try {
     view.exec('BEGIN IMMEDIATE; UPDATE view_gate SET state=\'HOLD\'; COMMIT;');
   } catch (error) { try { view.exec('ROLLBACK'); } catch { /* no transaction */ } throw error; }
 }
-export function qualified(file: string, view: DatabaseSync, counter?: { calls: number }): DatabaseSync {
-  const db = new DatabaseSync(file);
+export function qualified(file: string, view: SqliteDatabase, counter?: { calls: number }): SqliteDatabase {
+  const db = new SqliteDatabase(file);
   connectionSettings(db);
   db.function(FLOOR_FN, { directOnly: false }, () => {
     if (counter) counter.calls++;
@@ -47,7 +48,7 @@ export function qualified(file: string, view: DatabaseSync, counter?: { calls: n
   });
   return db;
 }
-export function installFloor(source: DatabaseSync): void {
+export function installFloor(source: SqliteDatabase): void {
   source.exec(`BEGIN IMMEDIATE;
     CREATE TABLE source_gate(id INTEGER PRIMARY KEY CHECK(id=1),source_id TEXT NOT NULL,generation INTEGER NOT NULL,floor INTEGER NOT NULL);
     INSERT INTO source_gate VALUES(1,'synthetic-source',0,1);
@@ -55,12 +56,12 @@ export function installFloor(source: DatabaseSync): void {
       SELECT ${FLOOR_FN}(); UPDATE source_gate SET generation=generation+1 WHERE id=1; END;`).join('\n')}
     COMMIT;`);
 }
-export function sourceGeneration(source: DatabaseSync): number { return Number(source.prepare('SELECT generation FROM source_gate WHERE id=1').get()!.generation); }
-export function gate(view: DatabaseSync) {
+export function sourceGeneration(source: SqliteDatabase): number { return Number(source.prepare('SELECT generation FROM source_gate WHERE id=1').get()!.generation); }
+export function gate(view: SqliteDatabase) {
   const row = view.prepare('SELECT state,source_id,generation,floor FROM view_gate WHERE id=1').get()!;
   return { state: String(row.state), sourceId: String(row.source_id), generation: Number(row.generation), floor: Number(row.floor) };
 }
-export function buildUnderAdmission(source: DatabaseSync, view: DatabaseSync, now = NOW, beforeReady?: () => void): number {
+export function buildUnderAdmission(source: SqliteDatabase, view: SqliteDatabase, now = NOW, beforeReady?: () => void): number {
   // Marker comes only from this test helper's BEGIN IMMEDIATE wrapper. isTransaction alone is insufficient.
   if (!admitted.has(source) || !source.isTransaction) throw Error('primary_admission_required');
   const generation = sourceGeneration(source);
@@ -77,7 +78,7 @@ export function buildUnderAdmission(source: DatabaseSync, view: DatabaseSync, no
     return generation;
   } catch (error) { try { view.exec('ROLLBACK'); } catch { /* already rolled back */ } throw error; }
 }
-export function publish(source: DatabaseSync, view: DatabaseSync): number {
+export function publish(source: SqliteDatabase, view: SqliteDatabase): number {
   beginAdmission(source);
   try { const generation = buildUnderAdmission(source, view); endAdmission(source, true); return generation; }
   catch (error) { try { endAdmission(source, false); } catch { /* admission failed */ } throw error; }
@@ -86,7 +87,7 @@ export function fixture(root: string, floor = true) {
   const primaryDir = path.join(root, 'primary'); const viewDir = path.join(root, 'view');
   fs.mkdirSync(primaryDir); fs.mkdirSync(viewDir);
   const primaryFile = path.join(primaryDir, 'memory.db'); const viewFile = path.join(viewDir, 'public.db');
-  const source = openDb(primaryFile); connectionSettings(source);
+  const source = openSchemaOneMemory(primaryFile); connectionSettings(source);
   const add = source.prepare(`INSERT INTO memories(id,category,project_id,title,body,tags,shared,private,source,hash,created_at,updated_at,expires_at)
     VALUES(?,?,?,?,?,'[]',?,?,'fixture',?,1,1,?)`);
   add.run('m_personal', 'personal', null, 'Personal', 'PUBLIC personal body', 0, 0, 'hash-personal', null);
@@ -97,8 +98,8 @@ export function fixture(root: string, floor = true) {
   add.run('m_expired', 'session', 'p_a', 'Expired', 'EXPIRED body', 0, 0, 'hash-expired', 99);
   source.exec("INSERT INTO memory_events(memory_id,op,at,source,hash_after) VALUES('m_private','store',1,'PRIVATE audit','PRIVATE-hash')");
   fs.closeSync(fs.openSync(viewFile, 'wx', 0o600));
-  const view = new DatabaseSync(viewFile); view.exec('PRAGMA synchronous=FULL; PRAGMA busy_timeout=0;');
-  view.exec(MIGRATIONS[0]);
+  const view = new SqliteDatabase(viewFile); view.exec('PRAGMA synchronous=FULL; PRAGMA busy_timeout=0;');
+  view.exec(MEMORY_MIGRATIONS[0]);
   view.exec(`CREATE TABLE view_gate(id INTEGER PRIMARY KEY CHECK(id=1),state TEXT NOT NULL,source_id TEXT NOT NULL,generation INTEGER NOT NULL,floor INTEGER NOT NULL);
     INSERT INTO view_gate VALUES(1,'HOLD','synthetic-source',0,1);`);
   const counter = { calls: 0 };
@@ -113,7 +114,7 @@ export function openLease(file: string) {
   const header = Buffer.alloc(100); const fd = fs.openSync(file, 'r');
   try { fs.readSync(fd, header, 0, 100, 0); } finally { fs.closeSync(fd); }
   if (header[18] !== 1 || header[19] !== 1) throw Error('view_journal_unqualified');
-  const db = new DatabaseSync(file, { readOnly: true, defensive: true, allowExtension: false });
+  const db = new SqliteDatabase(file, { readOnly: true, defensive: true, allowExtension: false });
   try {
     db.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA locking_mode=EXCLUSIVE; PRAGMA busy_timeout=0; BEGIN;');
     const admitted = gate(db);
@@ -132,13 +133,13 @@ export function openLease(file: string) {
     };
   } catch (error) { db.close(); throw error; }
 }
-export function protectSchema(source: DatabaseSync): void {
-  source.setAuthorizer((action) => [constants.SQLITE_DROP_TRIGGER, constants.SQLITE_DROP_TABLE, constants.SQLITE_ALTER_TABLE].includes(action)
-    ? constants.SQLITE_DENY : constants.SQLITE_OK);
+export function protectSchema(source: SqliteDatabase): void {
+  source.setAuthorizer((action) => [sqliteConstants.SQLITE_DROP_TRIGGER, sqliteConstants.SQLITE_DROP_TABLE, sqliteConstants.SQLITE_ALTER_TABLE].includes(action)
+    ? sqliteConstants.SQLITE_DENY : sqliteConstants.SQLITE_OK);
 }
 
 export function crashPhase(primaryFile: string, viewFile: string, phase: string): void {
-  const view = new DatabaseSync(viewFile); view.exec('PRAGMA synchronous=FULL; PRAGMA busy_timeout=0;');
+  const view = new SqliteDatabase(viewFile); view.exec('PRAGMA synchronous=FULL; PRAGMA busy_timeout=0;');
   const source = qualified(primaryFile, view);
   if (phase === 'after-hold') { source.exec('BEGIN IMMEDIATE'); hold(view); }
   else if (phase === 'after-primary-commit') source.exec("UPDATE memories SET private=1 WHERE id='m_project'");

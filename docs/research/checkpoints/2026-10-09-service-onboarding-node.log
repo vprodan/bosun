@@ -1,0 +1,56 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.873125ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2167.823125ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1203.1135ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1190.784375ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1745.175625ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1529.15ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1200.972958ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1218.323791ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2588.172083ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (440.001ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1285.109ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1278.36825ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1504.902292ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.351291ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (318.369834ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (277.892375ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (285.541292ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (260.351584ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1080.471458ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (253.689167ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (260.721917ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (279.230875ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (798.646875ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (397.255083ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (434.506667ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (272.114333ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (256.693292ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (145.211875ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23076.26575

@@ -1,0 +1,152 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view (134.630084ms)
+✔ final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance (111.508333ms)
+✔ final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only (146.187459ms)
+✔ curated final source rejects private/unclassified payload getters before projection (0.209625ms)
+✔ expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive (123.378208ms)
+✔ lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently (68.961458ms)
+✔ native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay (67.648208ms)
+✔ startup dependency failure closes both registered handles without releasing shared daemon authority (69.104625ms)
+✔ explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage (82.895666ms)
+✔ explicit format1 publication retains cached writer fencing and requires explicit runtime restart (81.523791ms)
+✔ explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes (73.0025ms)
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (113.713958ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (92.249167ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (134.53825ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (76.638375ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (4.031083ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (14.53975ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.505916ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (7.167792ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (12.023541ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (1.639958ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.177583ms)
+✔ final graph schema fingerprint (1.689833ms)
+✔ same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes (126.207042ms)
+✔ complete source versions are required and source changes revoke all levels inside the memory mutation transaction (105.83175ms)
+✔ legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact (48.943708ms)
+✔ scope, linked/shared eligibility and session/expiry are checked on every source and derived read (111.8655ms)
+✔ review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes (69.47875ms)
+✔ bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic (95.908959ms)
+✔ schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes (32.805459ms)
+✔ dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal (2409.013334ms)
+✔ parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants (85.372667ms)
+✔ graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay (42.08075ms)
+✔ canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads (119.368791ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (5.595292ms)
+✔ all public classifications precede any export/query/label payload getters (0.313416ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (5.190833ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.321416ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2599.013875ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2545.798208ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2699.272709ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (67.604416ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (495.900709ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2925.614542ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2584.564958ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2627.6025ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (2.066666ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (21.802875ms)
+✔ final model policy rejects malformed/inherited/throwing classifications before payload getters (0.769375ms)
+✔ final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters (0.199ms)
+✔ explicit private requests never inspect a buggy public adapter reply or duplicate state (0.213916ms)
+✔ final public projection retains declared ID/hash/version and ignores serialization or derivative hooks (0.388333ms)
+✔ curated and model search classify first and ignore array species/toJSON during real packing (1.566167ms)
+✔ finite storage errors never inspect messages, versions, causes or serialization hooks (0.125917ms)
+✔ modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests (591.125917ms)
+✔ modern remote MCP normalizes content-bearing errors and excludes failed context derivatives (553.567542ms)
+✔ owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows (695.313875ms)
+✔ native malformed flags remain opaque, immutable to models and byte-preserved through owner edits (1279.289458ms)
+✔ native scoped context rejects caller project claims and keeps owner-only data out of model tools (573.983375ms)
+✔ completed mutation DTO retains captured privacy when later owner state becomes public (0.130541ms)
+✔ native L3/L4 overview is explicit, keeps current parent lineage and revokes with original source privacy (362.287167ms)
+✔ E independently measures reviewed summaries/profiles over C, preserving original quotes and holding weak gain (3844.129208ms)
+✔ actual MCP stdio evaluates the same100-case E corpus with separate budget and no owner footprint/models (21887.045ms)
+✔ guarded standalone MCP surface uses actual pinned protocol and never starts model tooling (16516.001292ms)
+✔ generative construction is inert and denied classification precedes content/config/schema getters (0.736625ms)
+✔ Ollama wire preserves explicit model/schema/context/output bounds and projects validated text/JSON/usage (17.303916ms)
+✔ explicit model override is preserved; metadata health does not generate, download or switch models (5.3145ms)
+✔ mismatched/unfinished/truncated/tool-bearing/bad-schema responses never become summaries or retries (6.124333ms)
+✔ input/model/schema bounds and explicit loopback policy fail before HTTP with finite errors (0.535458ms)
+✔ timeout preserves one finite unknown generation; absent native token counters remain unknown (12.3695ms)
+✔ deterministic credential screening withholds explicitly public inputs before any generation (0.330458ms)
+✔ configured compatible provider sends one tool-free schema request with only the declared credential and exact model (2.049292ms)
+✔ compatible refusals, truncation, tools, model drift and invalid outputs are finite unknown and never retried (3.107834ms)
+✔ compatible denied input precedes credential access; missing credentials never silently become anonymous or borrowed authentication (0.1945ms)
+✔ final provider registry is inert, loads only configured selection and refuses unqualified native summary isolation (0.243417ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (545.970792ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (804.582083ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (571.22525ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (766.851334ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (526.702834ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (527.582084ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (535.690916ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (733.487541ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.41625ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (637.05375ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (459.681208ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (644.77575ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (462.669416ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (683.723458ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (488.889334ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (533.324708ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (487.099125ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.399417ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.06ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.414042ms)
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+✔ qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures (26.632917ms)
+✔ read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied (15.517792ms)
+✔ read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events (12.188709ms)
+✔ read-only bounds and escaped query text use finite diagnostics with zero file changes (10.893917ms)
+✔ unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects (18.718625ms)
+✔ missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files (13.668291ms)
+✔ read-only reader checks injected deadlines and safely holds corrupt required schemas without writes (10.584375ms)
+✔ read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history (13.508583ms)
+✔ read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension (25.04525ms)
+✔ final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference (288.916375ms)
+✔ final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls (226.050541ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.168ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (44.139375ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (119.313208ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (169.705708ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (112.211958ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (110.166333ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (31.400459ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (39.595042ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (32.78ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (30.82ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (30.3525ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (106.696791ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (32.702542ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (34.665167ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (71.920834ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (62.396791ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (111.986125ms)
+ℹ tests 123
+ℹ suites 0
+ℹ pass 123
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80720.958792

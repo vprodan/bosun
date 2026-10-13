@@ -1,0 +1,271 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 15 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 16 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 17 - real credential/config reads fail
+ok 18 - git and plutil external/config mutations fail
+ok 19 - fetch external and unregistered loopback endpoints fail
+ok 20 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 21 - registered ephemeral HTTP mocks remain usable
+ok 22 - only registered synthetic local sockets can be connected
+ok 23 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 24 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 25 - native fetch cannot follow a registered mock redirect into a real service
+ok 26 - OS barrier contains native files and SQLite even without the JS preload
+ok 27 - OS process barrier refuses an external shell even without the JS preload
+ok 28 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 29 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 30 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 31 - unknown suites/options and prohibited runtimes fail closed
+Containment: 31/31 probes passed; application suites not imported.
+Guarded Bun file 1/4: owner-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:
+(pass) native owner plan reads only filesystem/header metadata; retired CLI preserves live and closed WAL footprints [194.17ms]
+(pass) native owner apply uses independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer [19.05ms]
+(pass) closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects [13.75ms]
+(pass) stale source or WAL identity plans fail before native open without further footprint changes [23.11ms]
+(pass) filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them [28.38ms]
+(pass) plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers [51.10ms]
+(pass) plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation [9.26ms]
+(pass) owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects [564.62ms]
+(pass) native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified [10.27ms]
+(pass) admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused [2226.47ms]
+(pass) READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply [133.49ms]
+(pass) saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked [26.48ms]
+(pass) owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text [6.41ms]
+(pass) owner dependency getters and proxies reject before filesystem inspection or private error serialization [6.04ms]
+(pass) non-synchronous owner validation is refused under native admission before any artifact or floor mutation [6597.18ms]
+(pass) native preparation reviews absent leaves and legacy modes without SQLite, then applies a fresh strict candidate [40.18ms]
+(pass) preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched [24.23ms]
+(pass) preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects [162.28ms]
+(pass) a real existing READY view stays blocked before any preparation permission action [104.33ms]
+(pass) preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths [51.57ms]
+(pass) preparation pins all actionable and creation-parent descriptors before any permission effect [7.36ms]
+(pass) all pinned source, WAL and SHM metadata is rechecked before the first fchmod [19.47ms]
+(pass) descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes [13.28ms]
+(pass) partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan [46.11ms]
+(pass) created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening [30.59ms]
+(pass) owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release [15.61ms]
+(pass) preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields [8.78ms]
+(pass) retired preparation CLI rejects flags, positionals, duplicate options and remote without storage effects [624.96ms]
+(pass) native preparation preserves exact action paths containing spaces/control characters and retired CLI changes no storage [91.24ms]
+(pass) preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem [7.71ms]
+(pass) explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles [275.82ms]
+(pass) recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged [99.14ms]
+(pass) multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted [28.86ms]
+(pass) wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML [17.46ms]
+(pass) recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched [78.10ms]
+(pass) recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view [53.19ms]
+(pass) actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects [229.73ms]
+(pass) recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference [4486.92ms]
+(pass) retired recovery CLI has no effects; native recovery requires bound source, retain acknowledgement and attestation [595.94ms]
+(pass) recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures [14.83ms]
+
+ 40 pass
+ 0 fail
+Ran 40 tests across 1 file. [17.08s]
+Guarded Bun file 2/4: owner-restore.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:
+(pass) native restore plan saves independent new epoch and opens only leased rollback view; retired CLI makes no storage effects [128.22ms]
+(pass) actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities [135.09ms]
+(pass) retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority [53.47ms]
+(pass) readers observe only pending filename and never open retained owner JSON or backup bytes [51.55ms]
+(pass) pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes [275.73ms]
+(pass) unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage [1360.17ms]
+(pass) stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery [1201.46ms]
+(pass) native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML [133.24ms]
+(pass) explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss [337.82ms]
+(pass) seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival [840.89ms]
+(pass) fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles [277.51ms]
+(pass) owner capsule reads stay bounded and reject growth between metadata validation and descriptor use [67.67ms]
+(pass) post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay [58.04ms]
+(pass) retired restore CLI and independently bound native tokens refuse missing attestation, extra inputs and wrong epochs without effects [480.93ms]
+(pass) completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup [194.44ms]
+(pass) pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data [248.86ms]
+(pass) restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps [71.13ms]
+
+ 17 pass
+ 0 fail
+Ran 17 tests across 1 file. [5.96s]
+Guarded Bun file 3/4: public-reader.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:
+(pass) public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint [78.08ms]
+(pass) public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only [112.72ms]
+(pass) independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade [96.50ms]
+(pass) schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged [703.85ms]
+(pass) canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery [1007.36ms]
+(pass) reader independently enforces encoded and row ceilings inside the physical bound without projecting content [424.23ms]
+(pass) source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold [55.88ms]
+(pass) malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content [60.12ms]
+(pass) encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters [63.40ms]
+(pass) retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation [71.37ms]
+(pass) lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot [154.16ms]
+913 |         viewBefore,
+914 |         'real CLI reading retains zero view footprint',
+915 |       );
+916 |       child = hook(f.sb, f.repo, router.url, f.floor.sourceId);
+917 |       await child.phase('queued');
+918 |       await assert.rejects(writer.update(f.own.id, { private: true }, 1, f.ctx), writerBusy);
+                         ^
+AssertionError: Missing expected rejection (writerBusy).
+ generatedMessage: false,
+     actual: undefined,
+   expected: [Function: writerBusy],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at innerFail (node:assert:50:27)
+      at expectsError (node:assert:385:14)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/public-reader.test.ts:918:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization [171.51ms]
+983 |           }),
+984 |         ]);
+985 |       } finally {
+986 |         clearTimeout(timer);
+987 |       }
+988 |       assert.equal(receipt.code, 0, stderr);
+                   ^
+AssertionError: Expected values to be strictly equal:
+
+null !== 0
+
+ generatedMessage: true,
+     actual: null,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/public-reader.test.ts:988:14
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) final binary hook handles a closed stdout pipe without late EPIPE errors or a retained public-view lease [116.73ms]
+1027 |           router.url,
+1028 |           f.floor.sourceId,
+1029 |           cause === 'backpressure' ? cause : 'gate',
+1030 |         );
+1031 |         await child.phase('queued');
+1032 |         await assert.rejects(writer.update(f.own.id, { private: true }, 1, f.ctx), writerBusy);
+                            ^
+AssertionError: Missing expected rejection (writerBusy).
+ generatedMessage: false,
+     actual: undefined,
+   expected: [Function: writerBusy],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at innerFail (node:assert:50:27)
+      at expectsError (node:assert:385:14)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/public-reader.test.ts:1032:22
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory [90.74ms]
+1057 |   try {
+1058 |     const before = footprint(path.dirname(f.paths.view));
+1059 |     child = hook(f.sb, f.repo, router.url, f.floor.sourceId, 'fd-gate');
+1060 |     await child.phase('queued');
+1061 |     assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
+1062 |     await assert.rejects(writer.update(f.own.id, { private: true }, 1, f.ctx), writerBusy);
+                        ^
+AssertionError: Missing expected rejection (writerBusy).
+ generatedMessage: false,
+     actual: undefined,
+   expected: [Function: writerBusy],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at innerFail (node:assert:50:27)
+      at expectsError (node:assert:385:14)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/public-reader.test.ts:1062:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) explicit native fs hook write retains the real reader through its original callback [92.62ms]
+1076 |     const f = await fixture(), router = await mock(), writer = openTestLocalMemory(f.paths);
+1077 |     let child: ReturnType<typeof hook> | undefined;
+1078 |     try {
+1079 |       child = hook(f.sb, f.repo, router.url, f.floor.sourceId, cause === 'backpressure' ? 'fd-backpressure' : 'fd-gate');
+1080 |       await child.phase('queued');
+1081 |       await assert.rejects(writer.update(f.own.id, { private: true }, 1, f.ctx), writerBusy);
+                          ^
+AssertionError: Missing expected rejection (writerBusy).
+ generatedMessage: false,
+     actual: undefined,
+   expected: [Function: writerBusy],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at innerFail (node:assert:50:27)
+      at expectsError (node:assert:385:14)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/public-reader.test.ts:1081:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) uncertain explicit fs hook writes hold their lease until the original producer is killed and joined [92.00ms]
+270 |       await Promise.race([
+271 |         messages.includes(name)
+272 |           ? Promise.resolve()
+273 |           : new Promise<void>((resolve) => waiters.push({ name, resolve })),
+274 |         exited.then(() => {
+275 |           throw Error(`hook exited before ${name}: ${err}`);
+                      ^
+error: hook exited before returned: 
+      at <anonymous> (/Users/edge/Developer/bosun/test/public-reader.test.ts:275:17)
+(fail) local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop [1851.70ms]
+(pass) actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes [94.01ms]
+
+ 12 pass
+ 6 fail
+Ran 18 tests across 1 file. [5.38s]
+Guarded Bun file 4/4: publication.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:
+(pass) production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS [64.13ms]
+(pass) v2 publication fences cached memory/docs writers and old prepared statements; reopened writers revoke until explicit republish [107.10ms]
+(pass) same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view [58.91ms]
+(pass) multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup [517.54ms]
+(pass) final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects [291.38ms]
+(pass) publication preserves established non-generator IDs and excludes malformed private flags before reading public content [45.99ms]
+(pass) completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission [227.92ms]
+(pass) explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them [489.39ms]
+(pass) actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher [498.85ms]
+(pass) publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY [155.17ms]
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14458768,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":24.6,"latencyQualification":"unqualified"}
+(pass) 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation [1674.39ms]
+(pass) public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data [1016.59ms]
+(pass) publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors [199.82ms]
+(pass) post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD [106.25ms]
+(pass) publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired [235.14ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [5.76s]
+Guarded Bun files: 3/4 passed; 1 failed.

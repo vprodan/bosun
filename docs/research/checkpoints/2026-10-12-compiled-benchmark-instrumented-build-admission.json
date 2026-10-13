@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-12T09:28:45.377Z",
+  "status": "one existing-authorized static build prepared; no product runtime execution",
+  "originalNodeFocusedSession": 64033,
+  "focusedExit": 0,
+  "focusedTests": 22,
+  "containment": 19,
+  "focusedDurationMs": 75281.876042,
+  "typecheckSession": 18328,
+  "typecheckExit": 0,
+  "sourceDigest": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+  "changedSourceInputs": [
+    "src/app/cli.ts",
+    "src/app/memory-benchmark.ts"
+  ],
+  "sourceHashes": {
+    "src/app/cli.ts": "ff66ef2f834ec26034cc3aa74148accab83e85c8f27e9197a4c57dce43a1143d",
+    "src/app/memory-benchmark.ts": "57142230a51f02e5891d4042c903a5e3b0f088b546d131ba78ecba1e444bb83a"
+  },
+  "wrapper": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumented-build.mjs",
+  "wrapperSha256": "22dd86093ded8fac590a057937354078122159d79f08572f719c134e10c36ebe",
+  "compilerSha256": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5",
+  "logs": {
+    "focused": {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-final-node.log",
+      "sha256": "ea72f0823ac2d3d28b819c2fd739f1c7f7a33d6354ba3e0a42b48b011afb4a01"
+    },
+    "typecheck": {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "boundaries": {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-boundaries.log",
+      "sha256": "adcbe777bb3e789e865dfb29c38ab2bc76e79e5564bfc5fe826d12d945015362"
+    }
+  }
+}

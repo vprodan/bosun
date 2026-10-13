@@ -1,0 +1,68 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ ACP profiles round-trip without changing native hosts/defaults; names, cardinality, selectors and protocol are bounded (9.894542ms)
+✔ ACP construction, private/access/secret/unsupported requests do not inspect environment or discover a command (4.363334ms)
+✔ one ACP v1 process receives exact identity/model/effort/cwd/literal prompt and joins before done (37.729292ms)
+✔ ACP denies client permissions and filesystem calls while discarding tool arguments/results/reasoning (35.050042ms)
+✔ ACP protocol2 fails before the original prompt; no retry or replay (31.4685ms)
+✔ ACP identity-name fails before the original prompt; no retry or replay (31.56625ms)
+✔ ACP identity-version fails before the original prompt; no retry or replay (30.469208ms)
+✔ ACP missing-selector fails before the original prompt; no retry or replay (30.706959ms)
+✔ ACP missing-value fails before the original prompt; no retry or replay (34.309041ms)
+✔ ACP duplicate-selector fails before the original prompt; no retry or replay (31.028291ms)
+✔ ACP duplicate-value fails before the original prompt; no retry or replay (31.310583ms)
+✔ ACP boolean-selector fails before the original prompt; no retry or replay (31.025084ms)
+✔ ACP missing-ack fails before the original prompt; no retry or replay (31.256041ms)
+✔ ACP dependent-drift fails before the original prompt; no retry or replay (31.568333ms)
+✔ ACP interleaved-drift fails before the original prompt; no retry or replay (31.267334ms)
+✔ ACP incomplete-config fails before the original prompt; no retry or replay (30.707833ms)
+✔ ACP lost-config fails before the original prompt; no retry or replay (31.41075ms)
+✔ ACP history fails before the original prompt; no retry or replay (31.34525ms)
+✔ ACP wrong-id remains unknown without publishing completion or replaying (34.183291ms)
+✔ ACP duplicate-id remains unknown without publishing completion or replaying (33.325875ms)
+✔ ACP malformed remains unknown without publishing completion or replaying (30.217084ms)
+✔ ACP missing-jsonrpc remains unknown without publishing completion or replaying (31.106334ms)
+✔ ACP oversize remains unknown without publishing completion or replaying (30.175041ms)
+✔ ACP session-drift remains unknown without publishing completion or replaying (31.785416ms)
+✔ ACP config-drift remains unknown without publishing completion or replaying (32.766333ms)
+✔ ACP tool-update-without-call remains unknown without publishing completion or replaying (31.240084ms)
+✔ ACP pending-tool remains unknown without publishing completion or replaying (31.794375ms)
+✔ ACP lost-tool-receipt remains unknown without publishing completion or replaying (31.345583ms)
+✔ ACP reopened-tool remains unknown without publishing completion or replaying (31.766333ms)
+✔ ACP invalid-tool-status remains unknown without publishing completion or replaying (31.993291ms)
+✔ ACP lost-prompt remains unknown without publishing completion or replaying (32.081ms)
+✔ ACP stop-unknown remains unknown without publishing completion or replaying (31.280791ms)
+✔ ACP nonzero-close remains unknown without publishing completion or replaying (35.481666ms)
+✔ ACP hang-close remains unknown without publishing completion or replaying (1039.152459ms)
+✔ ACP known refusal returns a finite non-success receipt only after original process close (38.154291ms)
+✔ ACP cancel waits for original prompt receipt and process termination; notification alone is not completion (42.410791ms)
+✔ ACP cancel-ignored waits for original prompt receipt and process termination; notification alone is not completion (1045.282875ms)
+✔ ACP cancel-end-turn waits for original prompt receipt and process termination; notification alone is not completion (48.699708ms)
+✔ ACP registry stays lazy, disabled profiles are absent, quota stays unknown and read-only jobs never spawn (45.066792ms)
+✔ configured ACP CLI run uses the selected lazy adapter through daemon contracts and preserves original job identity (198.615291ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3668.794917

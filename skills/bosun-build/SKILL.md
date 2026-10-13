@@ -5,7 +5,7 @@ description: Use to execute a bosun plan or a single spec - dispatches each task
 
 # bosun-build
 
-For each task, in order, set `bosun card in-progress "task <i>/<n>: <title>"`, then:
+For each task, in order, an owner session inside Orca can set `bosun card in-progress "task <i>/<n>: <title>" --public --request-id <checkpoint-id>`, then:
 
 1. Dispatch it by lane:
    - **local**: `bosun run -f - <<'SPEC'`, then the task spec, then `SPEC`. In Claude Code, run it in the background; in Codex, give it a 30-minute timeout.

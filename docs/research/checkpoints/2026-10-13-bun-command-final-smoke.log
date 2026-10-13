@@ -1,0 +1,17 @@
+{
+  "runtime": "1.4.3",
+  "literalArguments": true,
+  "isolatedVerificationHome": true,
+  "credentialsAbsent": true,
+  "verificationExecutions": 1,
+  "verificationJoined": true,
+  "observerQualification": "source-bun",
+  "originalJobExecutions": 1,
+  "paneEffects": 1,
+  "observerMethods": [
+    "job.get"
+  ],
+  "metadataOnlyOutput": "{\"id\":\"5ab03ba3-a74a-4014-b84f-9b1ae0fc24a3\",\"state\":\"succeeded\",\"version\":4,\"reason\":null}\n{\n  \"id\": \"5ab03ba3-a74a-4014-b84f-9b1ae0fc24a3\",\n  \"projectId\": \"p_bad774eb6b452738\",\n  \"requestId\": \"original_smoke\",\n  \"taskId\": \"task_original_smoke\",\n  \"runnerId\": \"codex\",\n  \"state\": \"succeeded\",\n  \"version\": 4,\n  \"createdAt\": 1791877600253,\n  \"updatedAt\": 1791877600534,\n  \"cancelRequested\": false,\n  \"reason\": null,\n  \"ownerOnly\": false,\n  \"allowUnknownQuota\": false\n}",
+  "liveOrcaQualified": false,
+  "sqliteMemoryQualified": false
+}

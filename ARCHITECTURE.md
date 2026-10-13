@@ -1,306 +1,141 @@
-# bosun architecture: memory and context
+# bosun architecture
 
-This covers the memory layer added on 2026-09-29, and the TypeScript port that came with it. The design and its decisions (M1–M13) are in `docs/specs/2026-09-29-bosun-memory-design.md`; the build record, with every ruling, is in `docs/plans/2026-09-29-bosun-memory-ledger.md`. The roles, skills, executors and Orca parts are described in [README.md](README.md).
+The working tree implements the v1.0 architecture directly. Package metadata is `1.0.0`; the owner-approved fresh cleanup artifact is `dist/bosun-1.0.0-darwin-arm64-cleanup/`, with the original local release retained separately. It passed the coordinator's exercised contained minimum safety, not complete production qualification. The [delivery plan](docs/plans/2026-10-06-bosun-v1.0-direct-delivery.md) and [roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md) retain accepted scope and dated evidence; current cleanup/local-release permissions supersede their stale cleanup/version restrictions. Live-host/model quality, designated-machine performance and broader reproducibility remain deferred. Exact evidence, native pins, retained-stash/external-backup recovery and current permissions are in [HANDOFF.md](HANDOFF.md).
 
-## Compatible core extraction (2026-10-04)
+One daemon owns each prepared `BOSUN_HOME`. CLI, MCP, the dashboard and authenticated remote clients share its contracts, jobs and memory authority. The hook has a separate lean entry and a bound read-only fallback. Clients never start a daemon implicitly.
 
-The first v1.0 extraction is implemented while package metadata remains 0.2.0. `src/core/` owns memory/context/task/session/route domain types, deterministic text, coded errors, inference/privacy/capability policy and seven typed ports. Routing has a migrated use case and adapter: `lib/route.ts` calls `createRoutePrompt` through `src/app/registry.ts` and the temporary `src/adapters/routers/legacy-kev.ts`. The writable MemoryStore now has a native SQLite adapter behind compatible owner composition, described below. Existing Kev endpoint/model/config/service selection and advisory risk/confidence behavior remain active. The opt-in Clef adapter and OpenCode protocol prototype below do not replace that lifecycle.
+## Source boundaries
 
-The registry contains literal lazy router factories; constructing it does no adapter import/probe/inference. New inference requests carry `public/private/unknown`; routing and its adapters require an own data-property public classification before sending text. Inherited/getter classifications fail closed. The legacy entry alone retains its documented unmarked-input compatibility. Router metadata uses a trusted configured label, never a provider response field. Managed telemetry/admission/quiescence/fresh-start/seed/readiness controls are typed contracts with fail-closed selection policy; no native host is qualified by these definitions.
+| Directory | Responsibility | Dependencies |
+|---|---|---|
+| `src/core` | Domain types, seven ports, policies and use cases | Core only; effects are supplied as dependencies |
+| `src/contracts` | Closed RPC, model-tool and artifact schemas | Contracts and core |
+| `src/platform` | Paths, native processes, filesystem ownership, hashes and transport primitives | Platform and core |
+| `src/adapters` | SQLite, native hosts, providers, transport and workspace implementations | Core, contracts, platform and declared adapter seams |
+| `src/app` | Composition, lifecycle, service wiring and surface entry points | The layers above |
 
-`lib/memory/types.ts` forwards domain/port aliases (including the MemoryReader read subset) and MemoryError class; `lib/util.ts` forwards BosunError with its legacy constructor overload and the exact validation functions/types from `src/contracts/schema.ts`. `lib/memory/sqlite.ts` forwards pure text, the unchanged platform content hash and synchronous session/transaction helpers, retaining native open/migration work. Stored IDs/hashes and owner writer/MCP/remote scope/expiry/write semantics remain compatible. The local hook's storage branch now uses the qualified reader below. Legacy context composition delegates scoring to the core use case with only its existing explicitly allowlisted source metadata. New source IDs remain open in core; adding one does not make it trusted.
+[The boundary checker](scripts/check-boundaries.mjs) resolves TypeScript dependencies and rejects undeclared edges, cycles and core runtime effects. All old `lib` composition roots and their forwarding exceptions are removed. Final runtime code and executable test consumers use the final `src` APIs. Synthetic forbidden legacy-edge tests remain as regression guards.
 
-The model-audience memory policy is wired into MCP memory replies/search and curated context before content access. Only a record with an own boolean `private: false` is eligible; private/missing/malformed classification fails closed, including throwing getters. Denied get/store/update/delete replies are the constant `{memory:{private:true}}`, without duplicate/status or other derivatives. Public replies project known fields into fresh objects/arrays instead of serializing adapter extras, events or `toJSON` hooks. Model-facing memory/context errors use finite text/codes, omitting unverified current-version details. Owner CLI reads and storage mutations remain compatible. Safe WAL fallback, atomic private mutation authorization/races and delivery-time eligibility/revocation qualification, hook snapshot/lean closure, daemon query/maintenance/index caller migration and scheduling, broader error transport migration, full generation/runner screening and remaining port implementations are not finished.
+The seven ports are HostAdapter, AgentRunner, ModelProvider, MemoryStore, ContextSource, Workspace and Router. Supporting storage contracts and workspace/card/watch facets compose those responsibilities; they do not create another public orchestration system.
 
-`scripts/check-boundaries.mjs` checks every production `src`, existing `lib` and binary entry file using the local TypeScript 6 parser/resolver/type checker. Core imports only core; other new layers obey inward zone rules; adapters cannot import peers; source imports cannot reach tests or legacy lib. Static/type imports, reexports, import-type queries, literal dynamic imports and existing direct require calls enter the graph. Unresolved/local aliases outside the graph, computed/indirect loaders, unknown zones, source symlinks and cycles fail. Ambient core IO, Date and randomness are rejected; deterministic direct Math operations are allowed. The exact eight extracted memory/contracts files also reject ambient IO/clocks, runtime external imports, platform aliases and unreviewed internal runtime helpers, permitting checked core/reviewed isolation dependencies and type-only node:sqlite, including named type specifiers. Docs query cannot import indexing or its effectful filesystem helper. Other native adapters retain their explicit effects. This is a constrained source gate, not a universal purity/security verifier; isolated typechecking remains separate. TS7 needs a supported parser replacement or a retained dev-only TS6 checker.
+## Composition and lifecycle
 
-Legacy exceptions are exact in the checker and [ADR 0001](docs/adr/0001-compatible-core-extraction.md): existing 25 lib files retain their old internal dependency zone, ten callers have recorded forwarding edges, and `bin/bosun` may import only `enableCompileCache` from `node:module`. [ADR 0010](docs/adr/0010-writable-memory-adapter.md) records the added exact memory/validation/docs seams. New legacy files/edges and new-source imports of lib fail. These seams must be removed as their callers migrate before v1.0 ships. No compiled hook/bundle enforcement result is claimed.
+[bin/bosun](bin/bosun) and the compiled build share [one lazy entry](src/app/entry.ts), which selects the hook before importing CLI/schema/SDK libraries and admits private hooks before configuration. Other commands enter [the CLI](src/app/cli.ts); MCP enters [the stdio bridge](src/app/mcp.ts), and the dashboard uses [its application composition](src/app/dashboard.ts). MCP retains the event loop until input closes. All ordinary operations address the existing daemon through the same method table.
 
-Guarded `core`/`contracts` tests exercise routing/privacy/error identity, capability denial, lazy construction, Router acceptance, actual native SQLite writable/read MemoryStore acceptance and the implemented docs ContextSource. `memoryadapter` selects direct and compatibility MemoryStore fixtures, both plain and registered; `docsadapter` selects direct snapshot queries and explicit/compatible index fixtures. `boundaries` contains positive/negative AST and resolution fixtures. Other port acceptance suites await actual adapters. Every group goes through the mandatory Node containment launcher; Bun runs remain prohibited.
+[Setup](src/app/setup.ts) prepares a new absent private layout. [Upgrade](src/app/upgrade.ts) is the explicit one-time route for the documented legacy layout. It validates before effects, retains a SQLite-aware backup, preserves original data and explicit models, and records uncertain outcomes. Ordinary reads and daemon startup never initialize, migrate, adopt permissions or repair an unknown layout.
 
-## Context ranking and compatible composition (2026-10-06)
+[Kev retirement](src/app/upgrade-router.ts) is part of that supported upgrade. The selected user home, exact legacy template, native argv, inode/hash and explicit adoption bind its plan. An explicit new router endpoint replaces an old endpoint only through owner review; old credentials and confidence do not enter the final selection. Apply regenerates the review from current inputs, records original intent, saves a private exact plist backup, observes/stops only the reviewed label, confirms absence and archives only matching bytes. Original config/repository remain available. Lost native or archive returns hold the upgrade and cannot replay. This adds no installer, service recovery programme or model startup.
 
-`src/core/use-cases/retrieve-context.ts` owns actual task-term admission, retrieval orchestration, relevance/recency/usage scores, stable ordering, hash/Jaccard dedupe and greedy rendering. Construction snapshots and freezes verified ContextSource metadata/callbacks and injected semantic/monotonic clocks, hash, UTC date label and measurement. It imports only core modules and uses no ambient clock, filesystem, native SQL, network, config or telemetry. Explicit source callbacks own their effects and keep their method receiver. Unsupported/unverified sources are skipped before search acquisition; trusted metadata is a composition contract, not authentication of hostile adapter objects. Mismatched hit identities and insufficient matched counts are discarded before payload access. Output projects only declared Hit fields.
+[The daemon](src/app/daemon.ts) validates the manifest/configuration and acquires [native ownership](src/platform/daemon-owner.ts) before opening storage. Directories and local sockets use owner-only permissions. Startup/recovery observes existing receipts; it never blindly dispatches a previously running or uncertain operation. Shutdown cancels and joins active work, then closes the shared resources.
 
-`lib/context.ts` retains `retrieve`, `curated`, Item/Result aliases and the exact forwarded `estTokens` function. Real hook, MCP, authoritative HTTP and owner benchmark callers use this delegation. Its fixed reviewed metadata remains curated 1/60 days, docs 0.8/90 days and claude-mem 0.6/30 days; curated sessions retain a one-day half-life. Unknown/new/prototype legacy names cannot acquire a search callback. Curated classification still precedes every denied record metadata/body getter. The unchanged normalized SHA-256/32-hex hash now lives in `src/platform/content-hash.ts` and is reexported with exact function identity by `lib/memory/sqlite.ts`; context composition no longer imports the writer closure.
+## Durable jobs and native execution
 
-```mermaid
-flowchart TD
-  CALL[Existing hook / MCP / HTTP / bench] --> COMP[lib/context compatible composition]
-  COMP --> CORE[Ambient-free context use case]
-  COMP --> DEPS[Explicit clocks / hash / UTC day / metrics]
-  DEPS --> CORE
-  CORE --> PORT[Reviewed ContextSource callbacks]
-  PORT --> CUR[Curated exposure guard and supplied reader]
-  PORT --> DOC[Compatible docs query and index]
-  PORT --> CM[Read-only claude-mem source]
-```
+[Jobs](src/app/jobs.ts) compose [the sequential executor](src/core/use-cases/jobs.ts) with [its owned SQLite store](src/adapters/jobs/sqlite-jobs.ts). Project/request IDs deduplicate submission, versions guard state changes, and finite metadata events are separate from owner-only task/results. Explicit model, effort, cwd and access reach the selected runner unchanged.
 
-Trusted caller scope/options and verified source metadata validate before callbacks. Composition allows at most 64 verified callbacks; a response above 1000 hits holds before hit access, while genuine sources still request 20. Finite rank/usage, Date-range timestamps (including fractional docs mtime), declared strings and optional match/hash fields validate before scoring. Semantic clock/hash/date failures produce finite unavailable errors; provider-domain errors retain their original identity. Monotonic/sink failures cannot change a completed result or domain error; durations are finite nonnegative numbers, and measurements contain only the existing operation/count/character/token fields. Empty-term retrieval retains its unmeasured fast path. These count bounds do not establish provider payload byte bounds or a hard latency deadline.
+An uncertain native effect or COMMIT receipt is durable `unknown`. Reopen, release, late replies and duplicate requests cannot authorize another attempt. Known completion remains known even when cancellation was requested. Retention can retire settled payloads while keeping permanent links and uncertain receipts.
 
-`contextpipeline` and `contracts` select direct deterministic/dependency/policy fixtures; `context` selects existing real context/hook regressions and retains legacy-suite coverage. [ADR 0012](docs/adr/0012-context-ranking-and-composition.md) records compatibility and malformed-input limits. Reader lifetime through stdout acceptance, HOLD/cancellation and finite-expiry exclusion remain unchanged. Legacy metrics/config, docs indexing and MemoryService expiry/touch still own effects outside core. Hook JSON/config snapshots and full lean closure, daemon scheduling, explicit owner-operation final allocation/recovery, artifact disposition/drain and every native/Clef/handoff/graph/dashboard/remote/release gate remain unfinished.
+[The lazy native registry](src/app/native-runners.ts) loads only the selected OMP, OpenCode 2, Codex or Claude adapter. OMP is primary for new configuration; explicit existing choices survive. Native login/provider configuration stays with that harness. OpenCode running an OpenAI/Claude provider is still OpenCode. Unsupported read-only/tool or managed-session controls stay held; an OS sandbox alone is not evidence that configured tools, plugins or MCP cannot cause effects.
 
-## Writable memory adapter and maintenance composition (2026-10-06)
+The same registry lazily loads [the ACP runner](src/adapters/hosts/acp/runner.ts) for an enabled, bounded `acp` profile, independent of the four native host IDs. Its one ACP v1 stdio process initializes a pinned agent identity, creates a fresh exact-cwd session with no injected MCP servers, acknowledges literal model/effort selector values and receives one prompt. Client permissions are denied and filesystem/terminal capabilities are absent; this does not constrain the agent's own tools, so read-only and native managed controls remain unverified. Only an original prompt receipt with terminal observed tool states and a joined successful process can complete. Uncertainty stays unknown without retry, fallback, installation or automatic handoff.
 
-`src/adapters/memory/sqlite-store.ts` implements the existing MemoryStore port with real SQL validation, dedupe, scope, mutations, audit events and owner inspection. `sqlite-query.ts` owns SELECT/projection/FTS matching; `sqlite-maintenance.ts` owns explicit expiry, access touch and prune writes; `sqlite-session.ts` owns the internal synchronous SQL callback lifecycle. The adapter receives a caller-owned plain or registered session plus explicit semantic/monotonic clocks, copied/frozen retention settings, ID/hash functions and a measurement sink. It imports no legacy config, log or metrics globals and reads no HOME. IDs and normalized SHA-256 hashes stay compatible. Semantic time and computed TTL expiry must be integer Date milliseconds within 0–8,640,000,000,000,000 before DML; telemetry failures never change a committed result or the original operation error. Measurements contain only fixed operations and finite numeric timing/count/character metadata plus success flags.
+[Quota admission](src/core/use-cases/quota.ts) shares Codex short and weekly windows across model selections. Known exhausted windows stay latched until newer complete matching evidence clears them. Unknown telemetry is distinct from exhaustion. Owner opt-in bypasses only unknown evidence; it resets no upstream allowance.
 
-Direct construction performs no retention. Direct `search` performs no expiry/access/index writes, even with `touch: true`; it filters unarchived finite expiry at the injected clock and omits malformed non-integer/out-of-Date-range expiry before projection. Explicit archived searches remain owner inspection. Direct `get` returns the persisted in-scope owner row and events: an expired active row stays active until explicit `expire` archives it. This distinction supports the final query/maintenance split; it is not a model-delivery lease or a safe new hook reader. Registered callbacks and native handles remain private, synchronous and subject to existing admission/HOLD/fencing.
+## Memory, publication and hook delivery
 
-`lib/memory/service.ts` remains compatible owner composition for CLI, MCP, context and HTTP callers. It archives expiry on construction and before `get/search`, includes expiry events/version changes in owner `get`, and best-effort touches successful FTS hits. It binds config/time/IDs/hash/metrics only at composition; retention changes require reopening. `openMemory/openLocalMemory`, `FIELDS/PATCH/cleanTags`, `.cfg`, plain `.db`, maintenance and owner cutover helpers remain available. These legacy reads remain writable. The focused fixtures prove unchanged storage footprints for queries using established synthetic sessions, not zero native WAL/SHM effects from arbitrary opens, a zero-IO whole CLI closure, hostile-sameUID isolation or power-loss durability.
+[The memory composition](src/app/memory.ts) borrows one private registered writer session under daemon ownership. Scope/eligibility checks repeat before, within and after native operations. Lost native confirmation fences further work. Expiry, purge, docs indexing and publication are explicit owner/admin jobs, not read-side maintenance.
 
-Owner add/update map `--unshared` to the existing `shared: false` field; conflicting sharing flags fail before project discovery, input/model work or storage opens. Update also forwards its existing `--status active|archived` option, making status-only restores available. Inside the admitted update callback, exact scope/version/duplicate checks precede one injected operation timestamp. Only an explicit archived-to-active session transition with a valid expired deadline renews expiry, using the current frozen configured session TTL; zero removes expiry. Creation and renewal share the same Date-ms overflow check before DML. The unchanged schema cannot recover a prior selected custom TTL. Future/null deadlines, other categories and normal edits retain their existing TTL semantics; omitted raw private/shared flags and audit/hash/ID behavior remain compatible. Malformed session expiry refuses explicit restore, while ordinary edits preserve it. Legacy constructor/get expiry can advance the version before CLI update selects its expected version. Private or malformed-private MCP restores still return opaque receipts.
-
-Daemon caller migration and explicit retention/access/index scheduling, hook snapshot/lean closure and all remaining one-v1.0 roadmap gates remain tracked. See [ADR 0010](docs/adr/0010-writable-memory-adapter.md).
-
-`sqlite-docs.ts` is the actual docs ContextSource and compatible MemoryProvider: construction and established-session search receive a fixed canonical root/project, optional excluded nested roots and a synchronous SqliteSession. SELECT binds root and project, authorizes that configured project only through trusted caller context or its explicit linked-project policy, and preserves relative IDs, title/snippet/BM25/mtime projection. It imports no filesystem, Git, clock, telemetry or index code. The persisted snapshot is not a live filesystem or model-delivery revocation lease; a newly nested repository requires a freshly validated exclusion scope.
-
-`sqlite-docs-index.ts` explicitly preflights complete successful enumeration and source dispositions before any admitted DML. Initial read-only storage admission failures return held before source inspection; transaction/COMMIT failures stay separate, and core unknown-outcome errors retain only fixed unavailable text and the unknown flag through indexing. `docs-filesystem.ts` resolves the actual canonical Git root, bounds NUL-terminated listing output to 2 MiB/2000 Markdown paths and descriptor reads to 256 KiB per regular single-link file. Symlink leaves/ancestors, dangling links, directories, oversize and removed/ignored owned files are rejected without reading outside source bytes; transient/partial/racing sources hold the whole attempt. Root/ancestor/file stamps are checked after reads, under admission before DML and again after DML. Unrelated projects/worktrees keep their rows; nested .git presence is checked through metadata only. Because the unchanged schema cannot prove which same-project indexer owns a nested descendant, ambiguous rows remain stored and outer queries exclude them.
-
-Indexing bounds total docs to 10,000 rows/16 MiB encoded, using conservative string byte upper bounds for new content. Native storage checks retain the existing source-plus-WAL 64 MiB limit, reserve eight times the new encoded upper bound plus 12 KiB per changed/deleted row before DML, and recheck actual physical bytes after DML. This encoded estimate alone does not prove final-COMMIT/FTS allocation; registered sessions additionally use the central native page/WAL reservation below. Plain sessions and explicit owner-operation allocation/recovery remain storage gates. Telemetry contains fixed operation/finite numeric count/timing/success only and is best effort after commit.
-
-`lib/memory/docs.ts` composes those APIs and preserves default search-triggered indexing until daemon migration. Those legacy MCP/context reads still write. Failed/incomplete/overflow/source-held attempts return no compatible docs for that search and retain existing rows; direct snapshot queries stay separate. Native registered handle privacy, admission, same-inode HOLD and cached-writer fencing remain unchanged. No filesystem deletion/adoption/chmod, schema migration, eighth port or delivery-lease claim is added. Listed files are compared by content/title/mtime, so timestamp-preserving edits refresh and identical snapshots avoid writes. Uncertain descriptor cleanup holds the attempt with an identity-bound retry. [ADR 0011](docs/adr/0011-scoped-docs-query-and-index.md) records exact scope, bounds and qualification.
-
-## Offline native protocol prototypes (2026-10-05)
-
-`src/adapters/routers/ollama-clef.ts` implements the explicitly selected `ollama-clef` Router factory, independently of generative ModelProvider. It defaults its trusted model label to `clef-flash:9b` and accepts explicit model/URL/deadline settings. Private/unknown/unclassified input fails before config/payload/HTTP access. Lane/risk questions put main/high first for ties; typed answers, exact question/probability keys, finite distributions/confidence, usage and response-model equality are validated. Provider echoes are discarded. Input is rejected above 24,000 characters or a full serialized UTF-8 request of 64 KiB; response bodies are capped at 64 KiB, with bounded deadlines, cancellation, no redirects/retries/fallback/pulls and finite error messages. Probability-sum tolerance is a bosun policy for rounded values. The existing deterministic risk fence remains authoritative.
-
-Clef qualification markers remain unverified/unsupported and are not a calibrated dispatcher gate. The adapter is reachable only through explicit factory/API selection; no legacy hook/CLI/default/model/service selection was changed. Confidence is concentration, not correctness. Live model wire/residency, held-out calibration, thresholds, latency and complete Kev lifecycle replacement remain unverified or unfinished.
-
-`src/adapters/hosts/opencode/{protocol,probe}.ts` is a bounded native **v1.18.34 metadata prototype**, not a completed HostAdapter or eighth core port. Construction does no discovery/start/install/auth/model probe. An explicit public-session request can read only loopback health/session/messages via GET. Basic-auth support and managed wiring are absent; 401 holds with no credential discovery/retry. Codecs follow the actual pinned v1 route/schema sources, not their older generated SDK or separate v2 examples. They preserve explicit provider/model/variant choices, project no transcript/title/path/cost/session-total data, reject mismatched versions/identities, and decode one bounded global SSE message frame; no live SSE subscription is implemented.
-
-Latest completed-message/step input plus cache counts form a diagnostic candidate only. ContextSample remains unknown with null used/window tokens; stale, pending, changed-model, reset, failed and absent observations do not become zero/full-window estimates. Pure fresh-root/noReply request recipes send no requests and successful decoding proves no seed acknowledgement, ownership, admission fence, tool quiescence or readiness. Every managed capability remains unverified, so existing capability selection rejects automatic control. Codex/Claude parity, native process/config wiring and the controller remain pending. [ADR 0002](docs/adr/0002-offline-native-protocol-prototypes.md) and [fixture provenance](test/fixtures/native-protocol-provenance.md) record the exact source/qualification boundaries.
-
-## Qualified local read-only memory (2026-10-05)
-
-**Ordinary default WAL installs remain held. Explicitly prepared READY views with independent owner `MEMORY_SOURCE_ID` binding supply qualified non-expiring local notes, including the demonstrated 10,000-row medium-body corpus. Strict owner plan/apply/reconcile and reviewed initial permission/layout preparation are available; verified process drain/restart, broader interrupted-storage recovery, durability, finite-expiry handoff and performance remain same-v1.0 ship gates.** Guarded Node 24.16.0 probes show `readOnly:true` creates/leaves sidecars for closed WAL and changes existing sidecars for live WAL. Exclusive connection mode avoids those effects but safely fails WAL reads. No immutable primary, automatic conversion/checkpoint/copy or snapshot design is introduced here.
-
-`src/adapters/memory/sqlite-readonly.ts` implements only `search/get/close` from the existing MemoryStore port. It uses explicit canonical paths, an injected clock, compatible schema-v1 checks, readonly/defensive native open and connection-only PRAGMAs before schema/content SQL. Qualified rollback-journal fixtures have unchanged bytes/mode/mtime/ctime/directory footprint before, while open and after close, with a closed or idle open writer. Reader imports exclude writer/config/log/metrics/model/services; no retained writes, migrations, expiry/events/access/mode updates, temp files or extension loading occur. Ordinary read access-time updates are outside the comparison.
-
-SQL binds bounded terms/limits/scope/tags, applies personal/own/shared/linked visibility plus public/active/unexpired filters before projection, validates numeric/nullable metadata and preserves IDs/hashes/BM25/matched counts. Audit requests are rejected because history can derive from earlier private versions; owner writer API history stays available. Legacy rollback files cap at 16 MiB and query limits at 50. Missing, corrupt, stale/unknown schema, pending journal, locked, oversized or exhausted-budget reads fail with finite errors. The 250 ms injected-clock check brackets synchronous work and cannot interrupt native CPU work; no strict deadline/designated-Mac latency is claimed. Exclusive rollback reads can hold writer locks until close; concurrent commit throughput is not qualified.
-
-`lib/route.ts` lazily calls its local selector: present/pending/explicit view or source binding requires the strict public reader, while absent default view plus blank binding retains unactivated rollback reading/WAL hold. Invalid bindings never downgrade to primary rows. Both local handoff paths omit finite-expiry records in SQL before packing; ordinary read APIs retain query-time expiry. Public-view schema/identity/READY/generation metadata stays pinned under a retained native transaction through stdout acceptance. The primary is inspected only through filesystem identity/minimal WAL-header checks, never mutable-primary SQLite; backup recovery values are never selected. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records the exact lifetime and restore limits. Remote storage and owner CLI/MCP mutation paths remain compatible. Curated packing accepts a search subset. Positive hook fixtures explicitly prepare rollback mode, while unchanged default-WAL negatives expose the hold. Legacy inference and route/context/hook metadata writes remain outside the reader: the entire hook is not zero-IO or a completed lean closure. [ADR 0003](docs/adr/0003-qualified-local-readonly-memory.md) records exact qualification, compatibility edge and remaining gates.
-
-The explicit `sqlite-cutover` adapter holds primary admission through native backup/floor commit and binds source/view/backup identities and epochs. Actual local MemoryService/owner CLI, MCP docs and authoritative serve select registered admission for an applied floor before legacy chmod/migration; synchronous writes, expiry/touch and docs indexing use it. `memory cutover plan/apply/reconcile` provides a strict prepared-layout owner workflow: filesystem-only unverified plans, independent planned source UUID, bounded metadata freshness and exact absent-floor/source-epoch expectations checked under admission before DML. Separate `prepare-plan/prepare` commands review initial absent-view layout actions, pin finite canonical owner descriptors before mutation, narrow only known legacy modes and create only explicitly requested 0700 leaves. They open no SQLite, reject any existing view/unknown inventory and leave conservative partial changes on failure, requiring a new plan. Explicit `recover-plan/recover` adds independently bound incomplete-attempt recovery: planning opens only a journal-free rollback view read-only with a retained native lease, verifies its exact gate/reference and bounds metadata inventory; primary schema/floor remain unverified. Recover requires an absent floor and same-epoch copying/backed gate before effects, then makes a fresh current-source backup under continuous admission and preserves the prior reference. Already-committed floors require reconcile without generation reset. Unreferenced UUID artifacts remain unread with ownership unverified, require retain acknowledgement at both steps and are never adopted/deleted. Reconcile, including explicitly retained multi-artifact inventory, revokes READY to HOLD. `--clients-stopped` is operator attestation; there is no process drain/restart. The default binding remains blank, and no ordinary opener/hook/MCP/server installs or recovers a floor. `memory publish` separately upgrades the same rollback inode with a v2 public schema/marker, commits public rows/FTS/READY and fences cached v1 writers. Mutations commit HOLD before source DML; publication is never automatic. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md), [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) and [ADR 0008](docs/adr/0008-strict-owner-memory-cutover.md) record authority/recovery/receipt/capacity limits; broader interrupted-storage recovery/orphan disposition, durability, performance and finite-expiry handoff remain gates.
-
-Explicit owner `restore-plan/restore` and `restore-reconcile-plan/restore-reconcile` restore only the current verified referenced backup, with independently saved old/new UUIDs. Immutable owner-only `.restore` presence fences public reading, ordinary opens and cached registered writes; hooks never read capsule/receipt JSON. Under continuous primary admission, same-inode HOLD precedes a fresh current-source native backup and bounded logical memories/events/docs restore, preserving explicit keys and recorded privacy/scope/expiry. Source floor rotates first, then view converges to the new epoch/HOLD before an atomic `.restore-receipt` rename. Reconcile distinguishes exact old/new native floors without replay, preserving current rows and generation; repeated completed reconciliation survives explicit format upgrade and intervening writes. Bounded capsule reads and actual source/view/path/mode/sidecar checks guard fallible checkpoints and pre-COMMIT admission. A pending view journal switches reconciliation planning to capsule/filesystem checks with zero native SQLite opens and an unverified view/reference label. Explicit mutation must prove the independently bound exact old/new floor and reference under primary admission before writable view open/native recovery, then validate recovered schema/gate. Recovery failures retain pending fencing and report uncertain effects. [ADR 0009](docs/adr/0009-owned-memory-restore.md) records the real hot-spill/SIGKILL evidence and trusted-application limits. Referenced mid-backup sidecars, receipt-only journals, arbitrary backup selection, drain/restart and storage/power-loss durability remain gates.
-
-Public publisher/reader share the IO-free format-2 schema and limits: 10,000 rows, 16 MiB encoded projection and 64 MiB physical view. Source plus WAL stays at 64 MiB; canonical owner-only single-link WAL metadata and only its empty/minimal 32-byte header are inspected through read-only filesystem calls. A present WAL inode is retained for replacement checks, while absent/empty housekeeping is permitted. No mutable-primary native open, frame/body hash or backup read occurs. Legacy rollback reading retains its separate 16 MiB file cap. The medium 10k fixture (~9.3 MB encoded/~7.9 MB view) proves READY, scoped IDs/body/hash, zero-write reads, actual useful hook output and native lease/revocation. The former 4 MiB HOLD remains historical evidence, not a current capacity result; finite byte/record/row/physical limits still reject oversized corpora. Synchronous aggregate/query work still has only clock checks around it, without hard interruption or a designated-Mac p95 guarantee.
-
-Registered `CutoverWriter` reads and admitted callbacks repeat canonical path/mode/sidecar/size checks. Connection-local cache_spill OFF and exact private max_page_count controls bound admitted protected source DML, including pending native FTS COMMIT allocation. The conservative 64 MiB reservation charges the larger of current primary length or capped logical pages, the entire existing WAL extent, all capped pages as pending frames, the WAL header and 64 KiB sector padding plus one frame. It covers qualified later checkpoint/last-close file lengths; no source checkpoint/truncation or reclamation assumption is used. Eligible larger legacy stores retain reads/no-DML maintenance while floor checks hold protected DML. Callback PRAGMAs and transaction/schema controls remain denied. An attempted COMMIT without positive rollback evidence, or failed confirmation after native COMMIT, yields finite receipt_unknown/outcome unknown and discards the cached handle without replay. Domain identity/current version survives only a positive uncommitted rollback. [ADR 0013](docs/adr/0013-registered-writer-capacity-and-receipts.md) records the equation, useful capacity, native evidence and trusted-application/apparent-file-length limits. Explicit owner cutover/restore/publication final allocation and recovery, artifact disposition/drain and all remaining v1.0 gates remain required.
-
-`memory bench --public-view` uses existing legacy SQLite owner wrappers to explicitly prepare/apply/publish only its disposable seeded corpus, with the expected epoch saved from the initial plan. Configured owner storage/binding/remote/claude-mem selections are cleared in both generation and child hook environment. Twenty actual native child deliveries at 10k pass output/metric parity; failed/held/unqualified arms never produce retrieval timings. Default bench retains the WAL hold. This adds one legacy `bench → sqlite` edge and no adapter seam or core port; daemon scheduling, Clef/native-host integration and automatic handoff remain unfinished.
-
-## Overview
-
-Everything runs in-process. There's no daemon, except `bosun serve` on a server Mac in the optional split setup.
-
-```mermaid
-flowchart TD
-  HOOK["prompt hook<br/>bosun route --hook"] --> CTX
-  MCP["bosun mcp<br/>stdio MCP server"] --> SVC
-  MCP --> CTX
-  CLI["bosun memory …"] --> SVC
-  CLI --> CONS["consolidate"]
-  CTX["context manager<br/>rank · dedupe · budget"] -->|"owner/MCP/remote"| SVC
-  CTX -->|"local hook"| RO["qualified read-only reader<br/>bound READY view / rollback / WAL hold"]
-  RO --> STORE
-  SVC["memory service<br/>validate · dedupe · isolate · retain"] --> STORE[("SQLite ~/.bosun/memory.db<br/>memories + FTS5 + events")]
-  CTX --> DOCS[("project docs index<br/>FTS5, by mtime")]
-  CTX --> CM[("claude-mem.db<br/>read-only")]
-  CONS --> CM
-  CONS --> LLM["LLM router"]
-  CONS --> SVC
-  LLM --> OL["ollama (local)"]
-  LLM --> OA["openai-compatible<br/>MLX / LM Studio (local)"]
-  LLM -.->|opt-in| CC["claude-cli (remote)"]
-  HOOK --> KEV["Kev router (existing)"]
-```
-
-## Modules
-
-| Module | Does |
+| Owned file | Purpose |
 |---|---|
-| `lib/memory/types.ts` | Memory, Category, Status, Ctx, Query, Hit, `MemoryApi`, `MemoryProvider`, `MemoryError` |
-| `lib/memory/sqlite.ts` | `openDb` (0600, WAL, `busy_timeout=2000`), ordered migrations, `tx`, query terms, hashing, Jaccard |
-| `lib/memory/service.ts` | compatibility composition binds dependencies and legacy expiry/touch; `openMemory` picks local or remote |
-| `src/contracts/schema.ts`, `memory.ts` | exact shared validator and memory schemas; legacy imports forward unchanged |
-| `src/adapters/memory/sqlite-store.ts` | actual writable MemoryStore adapter with explicit dependencies and owner query API |
-| `src/adapters/memory/sqlite-query.ts` | query/projection/FTS helpers with no maintenance DML |
-| `src/adapters/memory/sqlite-maintenance.ts`, `sqlite-session.ts` | explicit expiry/touch/prune and internal synchronous SQL lifecycle |
-| `src/adapters/memory/sqlite-readonly.ts` | qualified rollback `search/get/close` and local public-view selector; no writer imports/effects; ordinary WAL held |
-| `src/adapters/memory/sqlite-public-readonly.ts` | independent expected epoch, exact public schema/identity/READY and scoped projection; same-inode native lease retained through delivery |
-| `src/adapters/memory/sqlite-public-protocol.ts` | IO-free exact schema/column/bound literals shared by publisher and public reader |
-| `src/adapters/memory/sqlite-cutover.ts` | explicit native cutover/recovery/reconciliation/publication; view-only owner reference inspection; admitted expectations; registered v1/v2 admission/revocation |
-| `src/adapters/memory/sqlite-owner.ts` | filesystem/header-only unverified plans; reviewed initial layout preparation; independently planned UUID; strict explicit owner apply/reconcile; no drain/restart/restore automation |
-| `lib/memory/project.ts` | project identity from the git `origin` URL (read from `.git/config`, no git spawn) |
-| `lib/memory/remote.ts` | `RemoteStore`: the same `MemoryApi` over HTTP to `MEMORY_URL` |
-| `lib/memory/claudemem.ts` | read-only provider over claude-mem: this repo's observations and session summaries |
-| `lib/memory/docs.ts` | compatible search-triggered index composition; direct scoped queries/indexing live in `src/adapters/memory/sqlite-docs*.ts` |
-| `lib/context.ts` | compatible `retrieve()`/`curated()` composition and forwards |
-| `src/core/use-cases/retrieve-context.ts` | injected retrieval, rank, dedupe, token budget and format |
-| `lib/llm.ts` | `generate()`: Ollama → OpenAI-compatible → (opt-in) `claude -p`, retries, JSON validation, usage log |
-| `lib/consolidate.ts` | claude-mem summaries → proposed memories |
-| `lib/mcp.ts` | `bosun mcp`: JSON-RPC 2.0 over stdio, 7 tools |
-| `lib/serve.ts` | `bosun serve memory|kev`: bind, allowlist, the `/v1` API, a Kev forwarder, the `authorize()` point |
-| `lib/memory/cli.ts`, `bench.ts` | the `bosun memory` verbs; bench and eval |
-| `lib/log.ts`, `lib/metrics.ts` | a JSON-lines log with redaction; op timings and the stats report |
+| `memory.db` | Original L1 notes, FTS, audit and scoped graph/embedding derivatives |
+| `state.db` | Jobs, usage, quota, workspaces, reviews, cards, watches and managed-session receipts |
+| `memory-view/public.db` | Fixed-inode rollback publication, independently bound to the source epoch and readiness |
+| `run/hook-config.json` | Validated lean projection of paths, source identity and retrieval limits |
+| `manifest.json` | Prepared runtime identity and owned installation/upgrade/profile receipts |
 
-## A prompt, end to end
+Stored IDs, versions, hashes, raw legacy flags and audit remain authoritative. Private and unknown flags are denied before model projection or content retrieval; owner reads retain original data. New mutations record the trusted RPC audience rather than accepting a caller-supplied audit identity.
 
-```mermaid
-sequenceDiagram
-  participant U as You
-  participant H as bosun route --hook
-  participant K as Kev
-  participant C as context manager
-  participant S as SQLite
-  U->>H: prompt (hook JSON)
-  par routing
-    H->>K: lane + risk (1.5 s timeout)
-    K-->>H: hint or nothing
-  and memory
-    H->>C: retrieve(prompt, 400 tok, curated)
-    C->>S: FTS in scope (personal + project + shared)
-    S-->>C: hits
-    C-->>H: block or nothing (below threshold)
-  end
-  H-->>U: additionalContext = memory block + router hint
-```
+Publication copies only validated current public records. Native source/view identity, generation, readiness, schema, physical/encoded capacity and retained leases fence readers and writers. Private edits, expiry, deletion and lineage changes revoke derivatives before reuse. These are trusted-application guarantees, not hostile-sameUID or universal power-loss claims.
 
-- The existing skip rules still apply: `/` commands, `!` shell escapes, prompts under 3 words, `#noroute`, and `BOSUN_DEPTH` inside executors.
-- Any failure in the memory part leaves it out (fail open) and logs `hook.memory`. The router hint still arrives.
-- `bin/bosun` has a fast path for `route --hook`: it loads only the hook's modules (6 ms of imports against 16 ms for the full CLI). Until a first memory exists, the hook opens no database and loads no memory modules.
-- `bin/bosun` flushes and exits when a command is done: an aborted request to a host that drops packets would otherwise keep the process alive for ~10 s (the OS connect timeout), past Claude's 5 s hook timeout.
+[The owning SQLite contract](src/platform/sqlite.ts) uses the explicitly approved
+pinned better-sqlite313.0.3 Node-API fork. Its native authorizer, URI/control and
+owned-handle close changes preserve UDF/error identity, exact integers, online
+backup and unfinished-write rollback. No node:sqlite/Node fallback, GC or private
+pointer finalization is admitted. Metadata-only
+[canonicalization](src/platform/canonical-path.cjs) keeps native POSIX locks
+intact through filesystem identity checks; ordinary Bun realpath is unsafe there.
 
-## Storage
+[The hook](src/app/hook.ts) reads bounded input and its validated snapshot, makes one bounded local metadata request, then uses [the read-only selector](src/adapters/memory/sqlite-readonly.ts). It performs no model/embedding calls, remote network dependency, indexing, expiry, touch or telemetry writes. Wrong bindings, unavailable storage or exhausted deadlines omit context.
 
-`~/.bosun/memory.db`: `memories` (+ `memories_fts`, porter unicode61, external content kept in sync by triggers), `memory_events` (the audit trail), `docs` (+ `docs_fts`), and `schema_migrations`.
+On qualified Bun1.4.3/macOS-arm64 pipe/socket output, the native lease remains held through explicit fs.write acceptance. Failed writes, cancellation or uncertain producer state retain it until OS producer teardown; destroying a JavaScript stream is not proof of permanent cancellation. Finite-expiry notes are omitted from fallback delivery. TTY/file/unsupported-runtime behavior and compiled timing have separate qualification.
 
-- **Keys and dedupe:** `id` is `m_<time base32><random hex>`. `hash` is sha256 of the normalized title and body (lowercase, collapsed whitespace). A partial unique index on `(project, category, hash)` over non-archived rows makes exact duplicates impossible; `store` returns the existing memory instead.
-- **Scope:** readable means personal, this project, stored integer `shared=1`, or a project in `MEMORY_LINKED_PROJECTS`. Writable means personal or this project. Ids out of scope are "not found", never "forbidden". Other stored sharing values do not grant cross-project access.
-- **Legacy classification:** only stored integer `private=0` is public. The INTEGER-affinity legacy schema permits empty/text/blob/nonzero flags; their DTOs remain protected, and public search filters them in SQL before payload/tag projection. Owner inspection and `includePrivate` still expose in-scope content. Duplicate requests and edits with omitted flags retain the exact stored flags, IDs, versions and audit behavior; only an explicit owner patch reclassifies a record as public.
-- **Versions:** `update` needs the version you read (optimistic concurrency). A mismatch returns `conflict` with the current version.
-- **Retention:** session memories expire after `MEMORY_SESSION_TTL_DAYS` (7), applied when the database opens, each with an `expire` event. `prune` purges archived memories older than `MEMORY_PURGE_AFTER_DAYS` (90). Events outlive a purge.
-- **Migrations:** each one runs with its version row inside one `BEGIN IMMEDIATE`; a failure rolls back and leaves the database as it was. The version is re-read inside the transaction, so processes opening a new database at the same time migrate it once.
-- **Concurrency:** WAL plus `busy_timeout=2000`. The switch to WAL retries on `SQLITE_BUSY`, because SQLite skips the busy handler for that lock upgrade (two processes creating the database at once used to fail).
+## Graph, extraction and evaluation
 
-## Ranking
+[The graph adapter](src/adapters/memory/sqlite-graph.ts) binds L2-L4 artifacts to current original note IDs, versions and hashes. Reviewed proposals, parent lineage and privacy/scope invalidation govern retrieval. Graph traversal/overview is explicit and its activation stays gated by measured benefit.
 
-For each source (curated, docs, claude-mem), the context manager fetches up to 20 hits and scores each one:
+[Consolidation](src/app/consolidation.ts), [public title/tag suggestions](src/app/memory-suggestions.ts) and [summaries](src/app/summary.ts) use bounded explicitly permitted sources through the separate generative ModelProvider. Outputs propose supported excerpts/artifacts; they cannot change permissions or make unreviewed facts authoritative. Claude-mem remains an external reviewed read-only reference, with no automatic observation copying. Optional Graphify/CodeGraph sources stay disabled when absent.
 
-```
-score = bm25_norm × weight + 0.3 × 2^(−age / halfLife) + 0.05 × ln(1 + access_count)
-```
+[Embedding jobs](src/app/embeddings.ts) screen public source windows before provider access and pin model/digest/dimensions/transform. [Storage](src/adapters/memory/sqlite-embedding.ts) commits derivatives with source CAS and revokes them on source changes. Explicit query/cache paths repeat current scope and generation checks. The diagnostic reference backend and [optional sqlite-vec distance adapter](src/adapters/memory/sqlite-vec.ts) share existing eligible ordinary vectors. The native selection binds owner-reviewed canonical file/bytes, macOS arm64 metadata and stable0.1.9 protocol, uses one disposable in-memory connection and disables further SQL extension loading. No new authority tables/indexes or extension-enabled authority/hook connection exist. Privacy/source validation precedes every distance; cache entries commit only after successful ranking/close/revalidation. Missing/rejected/unsupported native selection returns no vector candidates before provider access. Source fixtures override only the selected distance connection's load method; no physical library is loaded, and physical/Bun/benefit/budget qualification remains open.
 
-- **bm25_norm:** FTS5 `bm25()` divided by the best hit of that source (0–1).
-- **weight:** curated 1.0, docs 0.8, claude-mem 0.6.
-- **halfLife:** session memories 1 day, other curated 60, docs 90 (by file mtime), claude-mem 30.
+[Memory evaluation](src/app/memory-evaluation.ts) measures curated, stronger lexical, reviewed graph, vector and overview arms over frozen disjoint datasets. Actual MCP evaluation uses disposable authority replicas; labels are never provider inputs. Synthetic scores establish composition, not real retrieval/model quality. Weak gains remain held, with no silent configuration activation.
 
-Then:
-- **Dedupe:** same hash, or a word-set Jaccard ≥ 0.8. The higher score wins.
-- **Gate:** a hit must contain at least `minMatched` distinct words of the task (counted by FTS5's own `highlight()`, so stemming counts; the hook uses `CONTEXT_HOOK_MIN_TERMS`, 2). Normalizing by a source's best hit gives that hit a relevance of 1.0 however weak the match, so without this gate one shared common word ("first", "uses") would inject a note.
-- **Budget:** greedy by score. Each line is at most `CONTEXT_ITEM_CHARS` (400) characters; the whole block fits `budgetTokens`, estimated as characters ÷ 4 and always shown as `~`. Nothing below `minScore` (the hook uses 0.35).
-- **Query:** stop words go; identifiers are kept and split (`fetchCart` → `fetchcart fetch cart`); at most 24 terms, each quoted, OR-joined. User text never becomes FTS syntax, and a 50 KB prompt is still a small query.
+[Router advice/evaluation](src/app/router-evaluation.ts) is separate from generative work. Clef replaces the selected Kev/Python lifecycle; [its decision adapter](src/adapters/routers/ollama-clef.ts) preserves exact model and public-input screening. Reviewed legacy retirement is implemented through the supported upgrade. Automatic delegation still requires actual readiness/calibration/outcome evidence; live service and owner-task qualification are not implied by mock protocol tests.
 
-**Known limit:** `minScore` still mostly prunes the tail; the word gate does the real filtering. Use `bosun memory eval` with your own labelled queries before tuning either.
+## Workspaces, review and handoff
 
-## MCP
+[Owned workspaces](src/app/workspaces.ts) bind canonical repository/worktree identity to durable operations. Creation uses a clean committed base, not an implicit dirty copy. Prune/reconcile acts only on known ownership and uncertain effects remain sticky.
 
-`bosun mcp` speaks newline-delimited JSON-RPC 2.0 on stdio, with protocol `2025-11-25`; it echoes `2025-06-18` and `2025-03-26` when asked for them. stdout carries protocol messages only.
+[Revision-bound review](src/app/review.ts) captures the declared public checkout, including staged/working/untracked changes. Native read-only admission repeats that revision. Findings stay proposals for owner verification; [explicit checks](src/app/checks.ts) attach command/revision evidence without treating model claims as verified results.
 
-| Tool | Hints | Notes |
-|---|---|---|
-| `memory_search` | read-only | private memories left out |
-| `memory_get` | read-only | private/unclassified records return only an opaque private placeholder |
-| `memory_store` | not destructive | public duplicate returned instead of a second copy; private receipt hides duplicate state |
-| `memory_update` | destructive, idempotent | `expectedVersion` required; `status: active` accepts a proposal |
-| `memory_delete` | destructive, idempotent | archives (soft); private receipt hides ID/status |
-| `context_retrieve` | read-only | curated + docs + claude-mem, default budget ~1000 tokens |
-| `project_knowledge_search` | read-only | docs + claude-mem |
+[Cards](src/app/cards.ts) and [watches](src/app/watches.ts) use bounded permanent receipts. Orca preflight binds an inspected local worktree/terminal contract, and ownership/entry identity is repeated before effects. A pane only observes an existing job via metadata `job wait`; pane closure/failure never submits, releases, cancels or reruns that job. Exact job cwd is separate from the canonical pane root.
 
-- **Inputs:** every schema has `additionalProperties: false`, so a tool argument can't set the project.
-- **Errors:** validation and business errors come back as `isError` results. Memory errors expose only fixed text and a closed `structuredContent.error.code`, never provider messages, private duplicate IDs or current-version details. The HTTP context endpoint applies the same finite mapping; owner memory API transport is unchanged. Output is capped at `MCP_MAX_CHARS` (20,000).
-- **Local mutation replies:** store/duplicate, update and delete classify the current SQLite row and construct their reply DTO inside synchronous write admission. MCP projects that captured DTO; private and malformed flags yield opaque receipts while existing private edits/deletes remain supported. This is transaction-time classification, without a delivery-time revocation or retained MCP transport lease guarantee.
-- **Protocol errors:** unknown method (including `server/discover`) → `-32601`, batch → `-32600`, parse error → `-32700`, unknown tool → `-32602`.
-- **Registration:** `bosun install` registers the server with `claude mcp add --scope user`, and with `codex mcp add` in each Codex home (Orca's too). Uninstall removes them, and `bosun doctor` checks them.
+The source observer is [createBunJobObserver](src/platform/watch-command.ts), with a named `JobObserver` contract shared by composition and watch consumers. It pins Bun1.4.3/darwin-arm64, repeats executable/entry identity and emits `--no-env-file --no-install`; no Node alias remains. Explicit checks admit Bun executables/shebangs while retaining fd identity/hash/race checks, literal arguments, filtered inherited environment, private HOME and permanent unknown/nonreplay outcomes. They remain trusted owner commands (`sandbox: none`), not universal dependency/configuration isolation. Process dispatch reads the mutable builtin object because Bun does not synchronize patched named exports; this preserves the existing fixture environment envelope without changing the containment guard.
 
-## LLM router and consolidation
+[Manual handoff](src/app/handoff.ts) stores bounded checksum/scope-bound factual artifacts. [Managed transfer](src/core/use-cases/handoff.ts) uses the existing executor to fence/quiesce/capture, summarize permitted evidence, seed a fresh idle root, require exact model/permissions acknowledgement and transfer durable ownership. Unknown tool/transfer effects stay held. Production controls, effective occupancy, retention quality and UI switching remain qualification gates; arbitrary existing UI sessions use manual transfer.
 
-- **Chain:** `LLM_PROVIDERS` (default `ollama`; `openai` means an OpenAI-compatible server such as `mlx_lm.server` or LM Studio).
-- **Timeouts and retries:** each attempt times out after `LLM_TIMEOUT_S` (60). Timeouts and connection errors are retried `LLM_RETRIES` (1) times, with backoff. Bad or schema-invalid JSON counts as a failure, is not retried, and moves on to the next provider.
-- **Remote:** `claude -p --restricted` (haiku) is added only when `LLM_REMOTE=claude`, the caller allows remote, and the content isn't private.
-- **Usage log:** each attempt writes one line to `~/.bosun/llm-usage.jsonl`, with no content.
+[The OMP driver](src/adapters/hosts/omp/control.ts) owns one pinned18.10.3 custom JSONL RPC process and exact trusted lifecycle extension, not JSON-RPC2 or the in-place `/handoff` command. Correlated original receipts, repeated native state/history, explicit builtin provenance, request-local public policy, no-inference seed/readiness and distinct fresh roots bind its lifecycle. Captured control/admission records must match locally admitted hashes; foreign/private/altered entries and unsolicited selection events hold. Complete original-turn evidence stays buffered through tool/async settlement and process join. All six production controls remain unverified; native occupancy is estimated/unknown, so automatic handoff stays disabled by admission.
 
-```mermaid
-flowchart LR
-  A["claude-mem session_summaries<br/>(this project, since last run)"] --> B["local LLM<br/>JSON schema: candidates"]
-  B --> C{"valid?"}
-  C -->|no| X["report, write nothing"]
-  C -->|yes| D["dedupe: hash + Jaccard<br/>vs active + proposed"]
-  D --> E[("status = proposed<br/>source = consolidate:ollama/model<br/>source_ref = summary id")]
-  E --> F["bosun memory review<br/>or MCP memory_update"]
-  F -->|accept| G[("active")]
-  F -->|reject| H[("archived")]
-```
+[OMP input extensions](src/adapters/hosts/omp/hook-extension.ts) and the [OpenCode2 Promise plugin](src/adapters/hosts/opencode/hook-plugin.ts) require a leading per-turn public marker because the native input contracts have no trusted public classification. Retrieved context is consumed once by the exact original input/session; newer/private input invalidates pending context. Profiles reuse shared policy/skills, retain native account selection and never infer another host's model. OpenCode2 uses canonical V2 `agents`, ordered `permissions`, structured model/variant selection, `mcp.servers`, a local plugin directory and a standalone child with the exact owned config overlay.
 
-## Split setup
 
-```mermaid
-flowchart LR
-  subgraph LAPTOP["laptop (client)"]
-    HOST["Claude Code / Codex"] --> B["bosun hook · MCP · CLI"]
-    B --> LOC[("local: claude-mem.db<br/>docs index")]
-  end
-  subgraph STUDIO["server Mac (bosun install --serve …)"]
-    OLL["Ollama :11434<br/>bound to SERVE_BIND"]
-    KF["bosun serve kev :8009<br/>allowlist → Kev on 127.0.0.1"]
-    MS["bosun serve memory :8788<br/>/v1 API · allowlist"]
-    MS --> DB[("memory.db")]
-  end
-  B -->|"OLLAMA_URL"| OLL
-  B -->|"ROUTER_URL"| KF
-  B -->|"MEMORY_URL"| MS
-```
+[The Codex managed driver](src/adapters/hosts/codex/control.ts) owns a fresh root and persistent pinned app-server through the existing host facet. Exact configured command/home, model/effort/cwd, approval and sandbox acknowledgements bind startup. Inference-free injection uses an empty native reply plus [independent bounded rollout readback](src/adapters/hosts/codex/rollout.ts) of only its returned fresh private transcript. Linked, replaced, foreign, malformed or unsupported history stays held. Original turns require correlated terminal/tool receipts and independently idle fully hydrated history, including empty native background-terminal inventory. [Capture](src/adapters/hosts/codex/evidence.ts) binds only admitted public user text, screened assistant text and finite native references; tool payloads and reasoning stay in source history. Cancellation, lost receipts and daemon restart retain unknown ownership without replay; process close joins before daemon teardown. Six capability flags and current-step occupancy remain unverified. This fixture-tested implementation does not qualify live automatic takeover or Claude's unresolved fresh seed/readiness protocol.
 
-- **API:** `GET /v1/health`; `POST /v1/memory/{store,search,get,update,delete,accept,reject}`; `POST /v1/context/retrieve`.
-- **Requests and replies:** every request carries `ctx`, and every reply is `{ ok, data | error: { code, message } }` with `not_found`, `conflict`, `invalid` or `unavailable`.
-- **Limits:** JSON only, bodies ≤ 64 KB.
-- **Client ranking:** the client ranks curated hits from `/v1/memory/search` together with its own local docs and claude-mem hits.
-- **Safety:** the bind address (Tailscale by default, never `0.0.0.0` unless you set it) plus a source-IP allowlist. There are no tokens in v1; clients already send `MEMORY_TOKEN` as a Bearer header, and `authorize()` is where checking it goes.
+## Remote authority and installation
 
-## Measured numbers
+[Authenticated remote transport](src/adapters/transport/remote-rpc-server.ts) registers canonical project roots and separate owner/model credentials, enforces CIDRs and requires TLS outside loopback. Authority/protocol/source/clock identity is verified before mutation payload dispatch. Errors are finite and raw parser/provider text is not a transport contract.
 
-All on this machine: Apple M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4. Only these measurements, and the spec's §2 baseline, are quoted anywhere.
+The client forwards to one authority; it never merges a local L1 or queues offline writes. [Permitted local views](src/app/remote-views.ts) are explicitly refreshed public snapshots with bounded leases/expiry and revocation. Hook reads stay local. Two isolated daemon/TLS tests establish composition; live device deployment remains separately authorized.
 
-| What | Number | How |
-|---|---|---|
-| store | p50 0.15 ms, p95 0.32 ms | `bosun memory bench`, 10,000 synthetic memories (seed 42), one transaction each |
-| search (FTS5, limit 10, with matched-word counts) | p50 3.83 ms, p95 5.53 ms | same, 200 queries |
-| context retrieve (curated, ~400 tokens) | p50 5.11 ms, p95 7.22 ms | same |
-| budget adherence | 200/200 within ~400 tokens (max ~398, average ~315) | same |
-| hook, memory part | p50 30.6 ms, p95 40.1 ms | same corpus, 20 hook runs, Kev unreachable |
-| hook, wall clock | p50 75 ms, p95 94 ms | same |
-| hook wall clock by store | no memory yet 51 ms, 10k store 73 ms; pre-memory JS 48 ms; bare `node -e 0` 24 ms | 30 runs each, compile cache warm |
-| `bosun help` | 51 ms (TS port before memory: 39 ms; JS baseline §2: 58 ms) | 20 runs |
-| test suite | 87 tests, 13.8 s (baseline: 43 tests, 12.8 s) | `npm test` |
-| type stripping cost | cold 67 ms vs plain JS 32 ms for ~3,000 lines; with the compile cache 33 ms | synthetic module graph |
+[Installation](src/app/installation.ts), [host profiles](src/app/host-install.ts), [foreground launch](src/app/host-launch.ts) and [owned service control](src/app/installation-service.ts) use reviewed hashes/versions, exact roots/files and durable receipts. Undo removes or restores only matching owned paths. Unknown/drifted ownership is held. Planning, copying a binary and preparing a dormant plist do not authorize native trust, login, model pulls or service activation.
 
-**The spec target is missed at 10,000 memories.** The memory part of the hook was to stay under a p95 of 30 ms; it measured 36.6–40.1 ms across runs (this machine's run-to-run noise is several ms).
-- **What was fixed:** project identity no longer spawns `git` (that was 17 ms), the hook no longer loads every CLI module (10 ms), and with no memories yet it costs about 3 ms over the pre-memory hook.
-- **What's left:** a cold-process SQLite open, plus bm25 over the thousands of rows each synthetic query matches (the generated vocabulary has no stop words).
-- **Next steps if it matters:** a long-lived memory process, or capping FTS matches.
+## Verification and remaining work
 
-No token savings are claimed: the stats report shows estimated tokens injected per prompt, and nothing has been measured before and after.
+**Latest cleanup/release evidence (2026-10-13):** the owner authorized complete
+housekeeping/code cleanup, asset reconciliation and a fresh local rebuild and
+guarded requalification. The owner subsequently approved one local commit of
+the cleaned repository, without push, installs, live calls, personal-state
+changes or history rewriting. The fresh artifact is
+`dist/bosun-1.0.0-darwin-arm64-cleanup/`; its binary/archive hashes are in HANDOFF.
+Coordinator verification passed selected **13/13 guarded source suite files**,
+**35/35 containment**, typecheck, boundaries **250 files / 1,359 edges / zero
+violations**, static source/artifact verification and the actual compiled
+version/help/private hook/private route/MCP, seven storage/privacy RPCs,
+shutdown/owner-lock reacquisition and **10,000-note/21-hook** delivery with all
+original/group joins. No live hosts/models or personal runtime were used.
+Final precommit verification passed **1,190/1,190 tests across 94 guarded files**
+plus **35/35 containment**; the full log is linked from HANDOFF. Static
+`runtimeQualification: unverified` remains appropriate: minimum local safety
+does not qualify live native controls, quality, physical vectors, designated
+performance, TTY behavior, broader reproducibility or personal installation.
+No automatic capability was promoted.
 
-## Limitations and future work
+[The Bun build driver](scripts/build.mjs) targets macOS arm64 with already installed Bun 1.4.3 and no runtime download. Its source snapshot includes the authoritative Bun lock, exact installed production dependency bytes, reviewed native archives/patch/source and the fixed admitted native binary/toolchain receipt. Compiler HOME/cache/temp are isolated, automatic installs and runtime config autoload disabled. [Static verification](scripts/verify-distribution.mjs) checks checksums, Mach-O commands and archive framing without executing the product. [Homebrew generation](scripts/generate-homebrew.mjs) remains an uninstalled review candidate. The cleaned local 1.0.0 product passed its exercised minimum safety; native binding reproducibility is established only for the pinned historical local toolchain. Broader product reproducibility, designated-machine performance and live installation remain unqualified.
 
-- **Deferred by design (spec §9):**
-  - Cognee: re-evaluate if `bosun memory eval` shows a gap on multi-hop questions.
-  - Embeddings and vectors: add them only if eval shows a full-text gap.
-  - Rust.
-  - MCP protocol `2026-07-28`.
-  - For the split setup: tokens and TLS, an offline queue and sync, multiple users, a Linux server.
-- **Not verified here (needs the real install):** `claude mcp add`/`codex mcp add` argument formats on your versions; whether Codex starts MCP servers in the project directory (the project id comes from the server's cwd when `CLAUDE_PROJECT_DIR` is absent); `claude -p --output-format json` usage fields; Ollama's handling of `format` with every schema keyword we send; a real Tailscale bind.
-- **Git edge cases:** project identity reads `.git` directly, so an origin set through `includeIf` or a `GIT_DIR` override falls back to a path-based id.
-- **Docs index:** Markdown only, files over 256 KB are skipped, and repos without git aren't indexed.
-- **Consolidation:** it skips near-duplicates rather than proposing them. The report lists each one, with the memory it resembles.
+Ink's exact optional `react-devtools-core` peer is declared external in the compiled flags. The shared entry sets `DEV=false` under Bun before lazy product imports for source and compiled candidates, so Ink's imported `node:process` binding observes the disabled debugger gate. The compiler define alone does not fold that imported binding. Build metadata records this disposition; the debugger is not a supported runtime feature and Node development is no longer the selected runtime.
+
+The original Bun1.4.2 bytecode builds had equal sizes and Mach-O UUIDs but262 differing bytes; [their comparison](docs/research/checkpoints/2026-10-11-distribution-build-comparison.log) remains a failed reproducibility result. A later [private no-bytecode pair](docs/research/checkpoints/2026-10-11-distribution-no-bytecode-report.md) produced byte-identical binaries, archives and metadata for its frozen inputs. Production flags remain unchanged, and that pair does not prove every future build reproducible. The [JavaScript witness](docs/research/checkpoints/2026-10-11-distribution-production-js-policy-witness.log) records the debugger gate before lazy imports.
+
+All application tests use [the mandatory Bun launcher](scripts/run-tests.mjs), explicit preloads and per-file startup-isolated HOME/cache, with contained SQLite/path/stub effects, registered mocks and an inherited OS barrier. The previous integrated candidate passed **1,179/1,179 across 91 files + 35/35 containment**, typecheck, installed native edges and source-hook/10k/capture smokes; these are historical candidate receipts, not a fresh full-suite result after cleanup. Fresh selected-suite and compiled evidence is summarized above. Checked metadata resolution preserves fresh component permissions and inode identity without opening leased files or caching identities. Physical vector support, live/corpus quality, broader performance/reproducibility and installation/ship qualification remain separate; no supported-host removal is planned.
+
+Historical [Node source evidence](docs/research/checkpoints/2026-10-12-current-full-node.log), [an earlier partially passing compiled batch](docs/research/checkpoints/2026-10-12-compiled-current-result.json) and [the unexecuted benchmark diagnostic proposal](docs/plans/2026-10-12-compiled-benchmark-diagnostic.md) remain preserved. They are not the selected runtime, current qualification or permission to execute old proposals. The original 1.0 release and cleaned candidate subsequently passed their own 10k public-hook/producer-join minimum-safety checks; these do not retroactively qualify old binaries or remove native-control/quality/designated-performance/reproducibility gates. Full pre-cleanup root histories are archived exactly and linked from HANDOFF/RESUME; their relative links resolve from the original repository-root location.
+
+The [exact previous architecture document](docs/research/archive/2026-10-10-architecture-legacy.md) retains historical foundation descriptions. Its relative links refer to the old repository-root location; its retired runtime/interface claims are historical.

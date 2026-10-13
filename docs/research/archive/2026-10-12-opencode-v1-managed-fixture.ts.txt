@@ -1,0 +1,247 @@
+import './bootstrap.ts';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import http from 'node:http';
+import { once } from 'node:events';
+import { BosunError } from '../src/core/errors.ts';
+import {
+  createOpenCodeControl,
+  type OpenCodeControlSettings,
+  type OpenCodeControlDependencies,
+} from '../src/adapters/hosts/opencode/control.ts';
+export const fixture = JSON.parse(
+  fs.readFileSync(new URL('./fixtures/opencode-v1.18.34.json', import.meta.url), 'utf8'),
+);
+const hash = (text: string) => crypto.createHash('sha256').update(text).digest('hex');
+function deferred() {
+  let resolve!: () => void;
+  const promise = new Promise<void>((r) => {
+    resolve = r;
+  });
+  return { promise, resolve };
+}
+type Options = {
+  version?: string;
+  modifyCreate?: (value: any, index: number) => void;
+  modifySeed?: (row: any) => void;
+  modifyReadback?: (row: any) => void;
+  modifyHistory?: (rows: any[]) => void;
+  modifyCompletion?: (row: any) => void;
+  createFault?: boolean;
+  seedFault?: boolean;
+  turnFault?: boolean;
+  holdTurn?: boolean;
+  holdAbort?: boolean;
+  busyAfterSeed?: boolean;
+  nextCursor?: string;
+  hideCursor?: boolean;
+};
+export async function nativeOpenCodeFixture(options: Options = {}) {
+  const requests: { method: string; path: string; body: any }[] = [];
+  const sessions = new Map<string, { value: any; messages: any[]; busy: boolean }>();
+  const started = deferred();
+  const aborted = deferred();
+  const status = deferred();
+  let serial = 0;
+  let currentGeneration = 5;
+  const server = http.createServer((req, res) => {
+    let source = '';
+    req.on('data', (chunk) => {
+      source += chunk;
+    });
+    req.on('end', () => {
+      const body = source ? JSON.parse(source) : undefined;
+      const route = (req.url ?? '').split('?')[0];
+      requests.push({ method: req.method!, path: req.url!, body });
+      const send = (value: unknown, code = 200) => {
+        if (!res.destroyed) {
+          res.writeHead(code, { 'content-type': 'application/json' });
+          res.end(JSON.stringify(value));
+        }
+      };
+      if (route === '/global/health')
+        return send({ healthy: true, version: options.version ?? '1.18.34' });
+      if (route === '/provider')
+        return send({
+          all: [
+            {
+              id: 'openai',
+              models: {
+                'gpt-6.1-sol': {
+                  id: 'gpt-6.1-sol',
+                  providerID: 'openai',
+                  variants: { high: {} },
+                  limit: { context: 1000000 },
+                },
+              },
+            },
+          ],
+          connected: ['openai'],
+        });
+      if (route === '/session' && req.method === 'POST') {
+        const id = `ses_owned_${sessions.size + 1}`;
+        const value = {
+          ...structuredClone(fixture.session),
+          id,
+          directory: new URL(req.url!, 'http://fixture').searchParams.get('directory'),
+          agent: body.agent,
+          model: body.model,
+          permission: body.permission,
+          metadata: body.metadata,
+        };
+        options.modifyCreate?.(value, sessions.size + 1);
+        sessions.set(id, { value, messages: [], busy: false });
+        if (options.createFault) return req.socket.destroy();
+        return send(value);
+      }
+      if (route === '/session/status') {
+        status.resolve();
+        return send(
+          Object.fromEntries(
+            [...sessions.entries()].filter(([, s]) => s.busy).map(([id]) => [id, { type: 'busy' }]),
+          ),
+        );
+      }
+      const [, , sessionID, action, messageID] = route.split('/');
+      const session = sessions.get(sessionID);
+      if (!session) return send({ error: 'SECRET-FOREIGN-SESSION' }, 404);
+      if (!action) return send(session.value);
+      if (action === 'abort') {
+        aborted.resolve();
+        if (!options.holdAbort) finish(sessionID);
+        return send(true);
+      }
+      if (action === 'message' && req.method === 'GET') {
+        if (messageID) {
+          const row = structuredClone(session.messages.find((m) => m.info.id === messageID));
+          options.modifyReadback?.(row);
+          return send(row);
+        }
+        const rows = structuredClone(session.messages);
+        options.modifyHistory?.(rows);
+        const query = new URL(req.url!, 'http://fixture').searchParams;
+        if (query.has('limit')) {
+          const limit = Number(query.get('limit')),
+            offset = Number((query.get('before') ?? 'c_0').slice(2));
+          const end = rows.length - offset,
+            start = Math.max(0, end - limit);
+          if (start > 0 && !options.hideCursor)
+            res.setHeader('x-next-cursor', options.nextCursor ?? 'c_' + (offset + end - start));
+          return send(rows.slice(start, end));
+        }
+        return send(rows);
+      }
+      if (action === 'message' && req.method === 'POST') {
+        const user = {
+          info: {
+            id: body.messageID,
+            sessionID,
+            role: 'user',
+            agent: body.agent,
+            time: { created: 90000 },
+            model: { ...body.model, variant: body.variant },
+          },
+          parts: body.parts.map((p: any) => ({ ...p, sessionID, messageID: body.messageID })),
+        };
+        session.messages.push(user);
+        if (body.noReply === true) {
+          options.modifySeed?.(user);
+          if (options.seedFault) return req.socket.destroy();
+          session.busy = options.busyAfterSeed ?? false;
+          return send(user);
+        }
+        session.busy = true;
+        started.resolve();
+        if (options.turnFault) return req.socket.destroy();
+        const row = structuredClone(fixture.messages.at(-1));
+        row.info.id = `msg_assistant_${session.messages.length}`;
+        row.info.sessionID = sessionID;
+        row.info.parentID = body.messageID;
+        row.info.modelID = body.model.modelID;
+        row.info.providerID = body.model.providerID;
+        row.info.variant = body.variant;
+        row.info.agent = body.agent;
+        row.info.mode = body.agent;
+        row.info.path = { cwd: session.value.directory, root: session.value.directory };
+        row.parts = row.parts.map((p: any, i: number) => ({
+          ...p,
+          id: `prt_response_${session.messages.length}_${i}`,
+          sessionID,
+          messageID: row.info.id,
+        }));
+        row.parts.push({
+          id: `prt_tool_${session.messages.length}`,
+          sessionID,
+          messageID: row.info.id,
+          type: 'tool',
+          tool: 'read',
+          state: {
+            status: options.holdTurn ? 'running' : 'completed',
+            input: { secret: 'SECRET-TOOL-INPUT' },
+            output: 'SECRET-TOOL-OUTPUT',
+          },
+        });
+        options.modifyCompletion?.(row);
+        session.messages.push(row);
+        if (options.holdTurn) return;
+        session.busy = false;
+        return send(row);
+      }
+      return send({ error: 'SECRET-UNSUPPORTED-ROUTE' }, 404);
+    });
+  });
+  function finish(id?: string) {
+    for (const [sessionID, s] of sessions)
+      if (!id || id === sessionID) {
+        s.busy = false;
+        for (const row of s.messages)
+          for (const p of row.parts) if (p.type === 'tool') p.state.status = 'completed';
+      }
+  }
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  const url = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
+  const deps = {
+    assertOwner(expected: { ownerId: string; generation: number }) {
+      if (expected.ownerId !== 'owner_fixture' || expected.generation !== currentGeneration)
+        throw new BosunError('unverified', 'Owner unavailable');
+    },
+    hash,
+    now: () => 100001,
+    id: () => `fixture_${++serial}`,
+  };
+  const driver = (
+    extra: Partial<OpenCodeControlSettings> = {},
+    injected: Partial<OpenCodeControlDependencies> = {},
+  ) =>
+    createOpenCodeControl(
+      {
+        url,
+        requestTimeoutMs: 1000,
+        runTimeoutMs: 2000,
+        abortTimeoutMs: 1000,
+        pollIntervalMs: 5,
+        ...extra,
+      },
+      { ...deps, ...injected },
+    );
+  return {
+    url,
+    requests,
+    sessions,
+    options,
+    driver,
+    deps,
+    started: started.promise,
+    aborted: aborted.promise,
+    status: status.promise,
+    finish,
+    changeOwner() {
+      currentGeneration++;
+    },
+    async close() {
+      server.closeAllConnections();
+      await new Promise<void>((r) => server.close(() => r()));
+    },
+  };
+}

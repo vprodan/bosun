@@ -1,0 +1,50 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cli: help exits 0, unknown command exits 2 (385.947375ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (200.899584ms)
+✔ cli: install rejects a bad option before touching anything (194.772917ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (394.034167ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (201.278875ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (506.289416ms)
+synthetic compilation failure
+✔ distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence (23.976125ms)
+✔ distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths (27.176208ms)
+✔ distribution static verification rejects binary/checksum and metadata/inventory tampering (18.0225ms)
+✔ distribution static verification rejects changed current assets or installed dependency bytes (22.275833ms)
+✔ distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands (19.007666ms)
+✔ distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls (17.10425ms)
+✔ distribution build/compiler failure removes temporary source and leaves no candidate output (15.994458ms)
+✔ distribution Node CLIs verify without execution and refuse to overwrite a formula (176.583708ms)
+✔ shared source entry admits a private hook before configuration or malformed input (111.367708ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (566.273667ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (770.476ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (904.040458ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.636917ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (150.130875ms)
+✔ roles: bosun roles --json prints the resolved table (204.439125ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5516.166667

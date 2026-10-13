@@ -1,0 +1,144 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - OS process barrier refuses an external shell even without the JS preload
+ok 26 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 27 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 28 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 29 - unknown suites/options and prohibited runtimes fail closed
+Containment: 29/29 probes passed; application suites not imported.
+Guarded Bun file 1/4: claude-client.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-client.test.ts:
+(pass) native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness [113.10ms]
+(pass) private/malformed/secret bootstrap input refuses before content access or native delivery [110.85ms]
+(pass) native bootstrap lost-append joins the original process and never retries or reports readiness [46.55ms]
+(pass) native bootstrap wrong-seed joins the original process and never retries or reports readiness [107.29ms]
+(pass) native bootstrap wrong-user joins the original process and never retries or reports readiness [109.05ms]
+(pass) native bootstrap wrong-session joins the original process and never retries or reports readiness [108.25ms]
+(pass) native bootstrap model-turn joins the original process and never retries or reports readiness [109.22ms]
+(pass) native bootstrap extra-content joins the original process and never retries or reports readiness [111.10ms]
+(pass) native control timeout holds until original producer termination and hides raw errors [150.27ms]
+(pass) native control error holds until original producer termination and hides raw errors [109.75ms]
+(pass) native control foreign-id holds until original producer termination and hides raw errors [110.97ms]
+(pass) native permission and hook requests are explicitly denied without reading or exposing their payloads [117.33ms]
+(pass) selection validation and unsupported native version precede stream startup [23.43ms]
+(pass) native text-block replay and versioned session-state notifications stay exact without becoming readiness claims [219.84ms]
+(pass) managed Claude removes inherited transcript suppression rather than setting a false-looking string [434.35ms]
+(pass) Claude diagnostics distinguish accepted initialization from a later read failure without native payloads [107.17ms]
+(pass) Claude failed initialization diagnostics retain only fixed phases and finite native exits [400.60ms]
+(pass) throwing or rejecting Claude diagnostic observers do not change append, read, denial or positive join [221.89ms]
+(pass) Claude closed callback never claims join when synthetic group termination remains uncertain after the real parent exited [112.41ms]
+
+ 19 pass
+ 0 fail
+Ran 19 tests across 1 file. [2.84s]
+Guarded Bun file 2/4: claude-transcript.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-transcript.test.ts:
+(pass) Claude assigned transcript is independently retained and content hashes do not claim readiness [7.62ms]
+(pass) Claude private/unclassified binding and seed requests reject before consulting path or text getters [4.90ms]
+(pass) Claude root readback rejects foreign identities, ancestry, synthetic histories and seed changes finitely [79.89ms]
+(pass) Claude fresh seed readback accepts one exact text block and rejects extra user/assistant or metadata rows [29.24ms]
+(pass) Claude reader only uses the assigned namespace and refuses symlink, hardlink and nonprivate files [29.20ms]
+(pass) Claude binding repeats directory, cwd and file identities before each independently retained read [23.21ms]
+(pass) Claude retained reads reject write/replacement/parent races while the original descriptor is open [19.98ms]
+(pass) Claude append-only linear history extends a binding, while prior accepted rows remain immutable [34.37ms]
+(pass) Claude unknown, partial, overbound and invalid-encoding JSONL stays held without exposing raw content [39.05ms]
+(pass) Claude public evidence admits exact users and completed exact-model assistants and keeps native private metadata local [6.71ms]
+(pass) Claude public evidence refuses unadmitted user text, changed models, uncompleted frames and foreign completion claims [38.23ms]
+(pass) Claude private text/block classifications, credentials and tool results are held before public evidence can escape [35.39ms]
+(pass) Claude evidence validates the full source after a cursor and keeps UTF-8 bounded windows incremental [19.46ms]
+(pass) Claude evidence rejects private request/user classification before disk access and binds cursors to the original inode [7.12ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [394.00ms]
+Guarded Bun file 3/4: native-runners.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/native-runners.test.ts:
+(pass) Codex constructor is inert and privacy screening precedes content, options and executable discovery [4.01ms]
+(pass) Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution [41.44ms]
+(pass) Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes [2.62ms]
+(pass) Codex native version mismatch never starts an agent or substitutes an older protocol [40.50ms]
+(pass) Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry [251.13ms]
+(pass) Codex native completion followed by a stuck process times out and awaits actual termination [196.50ms]
+(pass) Codex cancellation stops native work before the iterator and queued ownership can drain [70.16ms]
+(pass) Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout [43.64ms]
+(pass) Claude edit jobs expose file editing only; native aliases resolve without changing model families [39.71ms]
+(pass) Claude preserves native overflow protection and explicit native context/compaction choices [73.60ms]
+(pass) Claude public classification and unsupported controls are checked before content, env and native probes [2.95ms]
+(pass) Claude native version mismatch holds the requested host without fallback or execution [22.22ms]
+(pass) Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt [288.33ms]
+(pass) Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry [185.26ms]
+(pass) Claude cancellation after native text awaits process termination and never claims a successful result [61.20ms]
+(pass) final native registry loads only the selected host, preserves explicit native home and performs no probes [42.51ms]
+(pass) actual durable job dispatcher executes the selected native Codex once and persists the positive result [52.78ms]
+(pass) native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio [65.01ms]
+(pass) Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials [65.38ms]
+(pass) Codex native app-server malformed/foreign response loss closes the process and never retries [82.42ms]
+(pass) Codex native metadata errors are finite and discarded without token or provider message exposure [42.23ms]
+(pass) Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored [237.66ms]
+(pass) Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state [65.32ms]
+(pass) native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches [43.69ms]
+(pass) native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance [121.73ms]
+(pass) actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery [168.17ms]
+
+ 26 pass
+ 0 fail
+Ran 26 tests across 1 file. [2.33s]
+Guarded Bun file 4/4: opencode-runner.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-runner.test.ts:
+(pass) OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters [1.34ms]
+(pass) native OpenCode 2 HTTP run binds an explicit root, model colons, cwd/variant and deny-all permissions; V2 step usage is exclusive [10.91ms]
+(pass) edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable [5.21ms]
+(pass) Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite [6.10ms]
+(pass) completed native message remains buffered until idle; early consumer return leaves no active native request [11.45ms]
+(pass) unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP [6.71ms]
+(pass) fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session [8.85ms]
+(pass) missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped [33.63ms]
+(pass) lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes [10.83ms]
+(pass) abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown [11.70ms]
+(pass) timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort [250.43ms]
+(pass) actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen [26.62ms]
+(pass) V2 inbox admission is not completion; changed ID/session/text/delivery/attachments remain unknown without replay [28.29ms]
+(pass) lost V2 root receipt never adopts an arbitrary root, sends input, deletes history or retries creation [1.40ms]
+(pass) V2 server identity, native catalog/variant overlay and owned session bindings repeat immediately before effects [7.36ms]
+(pass) V2 complete history reaches an empty terminal page and follows only encoded body cursors at the original endpoint [12.60ms]
+(pass) V2 native inactivity without the original terminal remains unknown, even with completed assistant/tool records [153.52ms]
+(pass) V2 hidden native inputs/control changes and unallowed code-mode/MCP/shell tools cannot produce completion [57.66ms]
+(pass) V2 repeated completed history catches native content drift before yielding any result [5.47ms]
+(pass) V2 interruption never targets a changed server process or native ownership binding [4.69ms]
+(pass) actual durable job executes V2 once, retains the selected model/variant and positive result, and deduplicates after restart [18.41ms]
+(pass) V2 useful multi-page history remains bounded; duplicate IDs and excessive source windows never truncate into success [16.98ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [713.00ms]
+Guarded Bun files: 4/4 passed; 0 failed.

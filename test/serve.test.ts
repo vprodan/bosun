@@ -1,234 +1,538 @@
-import "./bootstrap.ts";
+import './bootstrap.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
-import { sandbox, fresh, bosun, mock, gitRepo, mcpSession, BIN } from './helpers.ts';
-import { load, parse } from '../lib/config.ts';
-import { RemoteStore } from '../lib/memory/remote.ts';
-import { MemoryService } from '../lib/memory/service.ts';
-import { openDb } from '../lib/memory/sqlite.ts';
-import { MemoryError, type Ctx, type MemoryApi } from '../lib/memory/types.ts';
-import { DEFAULT_ALLOW, allowed, bindAddress, kevServer, listen, memoryServer } from '../lib/serve.ts';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
+import { bosun, mock, mcpSession, gitRepo } from './helpers.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
+import { remoteFixture, OWNER } from './remote-fixture.ts';
+import { remoteNetwork, remoteEndpoint } from '../src/platform/remote-policy.ts';
+import { parseRuntimeConfig } from '../src/platform/config.ts';
+import { RPC_LIMITS } from '../src/contracts/rpc.ts';
+import { serveRemoteRpc } from '../src/adapters/transport/remote-rpc-server.ts';
+import { BosunError } from '../src/core/errors.ts';
+import { project } from '../src/platform/project.ts';
+import { createClefRouter } from '../src/adapters/routers/ollama-clef.ts';
+import { readInstallationPlan } from '../src/app/installation.ts';
+import { version } from '../src/platform/assets.ts';
 
-const A: Ctx = { projectId: 'p_a', sessionId: 's1', linked: [] };
-// Servers close in finally, so a failing assertion can't leave the test process hanging on an open socket.
-const cleanups: (() => void)[] = [];
-const cleanup = () => { for (const f of cleanups.splice(0)) f(); };
-const B: Ctx = { projectId: 'p_b', sessionId: null, linked: [] };
-
-// The same script against any MemoryApi; ids and timestamps are left out so two stores compare equal.
-async function script(api: MemoryApi) {
-  const out: unknown[] = [];
-  const err = async (p: Promise<unknown>) => { try { await p; return 'no error'; } catch (e) { return e instanceof MemoryError ? e.code : String(e); } };
-  const a = await api.store({ category: 'project', title: 'Use pnpm', body: 'pnpm only; npm breaks the lockfile', tags: ['tooling'] }, A);
-  out.push(['store', a.duplicate, a.memory.version, a.memory.status]);
-  out.push(['dup', (await api.store({ category: 'project', title: 'Use pnpm', body: 'pnpm only; npm breaks the lockfile' }, A)).duplicate]);
-  out.push(['search', (await api.search({ text: 'lockfile' }, A)).map((h) => h.title)]);
-  out.push(['get', (await api.get(a.memory.id, A, { events: true })).events!.map((e) => e.op)]);
-  out.push(['update', (await api.update(a.memory.id, { body: 'pnpm only.' }, 1, A)).version]);
-  out.push(['conflict', await err(api.update(a.memory.id, { body: 'x' }, 1, A))]);
-  out.push(['scope', await err(api.get(a.memory.id, B))]);
-  out.push(['invalid', await err(api.store({ category: 'nope' } as never, A))]);
-  const p = (await api.store({ category: 'project', title: 'Proposal', body: 'a proposal', status: 'proposed' }, A)).memory;
-  out.push(['accept', (await api.accept(p.id, A)).status]);
-  const q = (await api.store({ category: 'project', title: 'Other', body: 'another proposal', status: 'proposed' }, A)).memory;
-  out.push(['reject', (await api.reject(q.id, A)).status]);
-  out.push(['delete', (await api.delete(a.memory.id, A)).status]);
-  return out;
-}
-
-test('split: bosun serve memory + RemoteStore give the same results as the local store, operation by operation', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const cfg = load();
-    const server = new MemoryService(openDb(path.join(sb.root, 'server.db')), cfg);
-    const srv = memoryServer(cfg, server, ['127.0.0.1/32']);
-    const local = new MemoryService(openDb(path.join(sb.root, 'local.db')), cfg);
-    cleanups.push(() => { srv.closeAllConnections(); srv.close(); server.close(); local.close(); });
-    const port = await listen(srv, 0, '127.0.0.1');
-    const remote = new RemoteStore({ ...cfg, MEMORY_URL: `http://127.0.0.1:${port}` });
-    assert.deepEqual(await script(remote), await script(local));
-    const h = await remote.health();
-    assert.equal(h.memory, true);
-    const ctxRes = await fetch(`http://127.0.0.1:${port}/v1/context/retrieve`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ctx: A, task: 'another proposal' }) });
-    assert.equal((await ctxRes.json()).ok, true);
-    const big = await fetch(`http://127.0.0.1:${port}/v1/memory/search`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ctx: A, query: { text: 'x'.repeat(70000) } }) });
-    assert.equal(big.status, 413);
-    const form = await fetch(`http://127.0.0.1:${port}/v1/memory/search`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'x' });
-    assert.equal(form.status, 415);
-  } finally { cleanup(); sb.cleanup(); }
-});
-
-test('split: the allowlist rejects other sources (403); bind never defaults to 0.0.0.0; CIDR matching', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const cfg = load();
-    const svc = new MemoryService(openDb(path.join(sb.root, 's.db')), cfg);
-    const srv = memoryServer(cfg, svc, ['10.0.0.0/8']);
-    cleanups.push(() => { srv.closeAllConnections(); srv.close(); svc.close(); });
-    const port = await listen(srv, 0, '127.0.0.1');
-    const r = await fetch(`http://127.0.0.1:${port}/v1/health`);
-    assert.equal(r.status, 403);
-    assert.deepEqual((await r.json()).ok, false);
-    assert.ok(allowed('100.101.102.103', DEFAULT_ALLOW));
-    assert.ok(allowed('::ffff:127.0.0.1', DEFAULT_ALLOW));
-    assert.ok(allowed('::1', DEFAULT_ALLOW));
-    assert.ok(!allowed('8.8.8.8', DEFAULT_ALLOW));
-    assert.ok(!allowed('fe80::1', DEFAULT_ALLOW));
-    assert.ok(!allowed(undefined, DEFAULT_ALLOW));
-    assert.ok(allowed('192.168.1.77', ['192.168.1.5/24']) && !allowed('192.168.2.77', ['192.168.1.5/24']));
-    assert.throws(() => bindAddress({ ...cfg, SERVE_BIND: '' }), /never binds 0\.0\.0\.0/);
-    fresh(sb, { STUB_MAP: JSON.stringify({ 'tailscale ip': { out: '100.101.102.103\n' } }) });
-    fs.writeFileSync(path.join(sb.bin, 'tailscale'), fs.readFileSync(path.join(sb.bin, 'claude')), { mode: 0o755 });
-    assert.equal(bindAddress({ ...cfg, SERVE_BIND: '' }), '100.101.102.103');
-    assert.equal(bindAddress({ ...cfg, SERVE_BIND: '0.0.0.0' }), '0.0.0.0', 'only when you set it');
-    // Model unavailable Tailscale through its default stub; PATH never falls back to a real installation.
-    const cli = await bosun(['serve', 'memory'], { env: sb.env({ STUB_MAP: JSON.stringify({ 'tailscale ip': { code: 1 } }) }) });
-    assert.equal(cli.code, 1);
-    assert.match(cli.err, /set SERVE_BIND/);
-  } finally { cleanup(); sb.cleanup(); }
-});
-
-test('split: an unreachable, hanging or foreign memory server — the hook fails open in time, CLI and MCP say unavailable', async () => {
-  const sb = sandbox();
-  const kev = await mock();
-  const html = await mock({ '/v1/memory/search': () => ({ status: 502, text: '<html>bad gateway</html>' }), '/v1/memory/store': () => ({ status: 502, text: '<html>bad gateway</html>' }) });
-  const hang = http.createServer(() => { /* never answers */ });
-  try {
-    const hangPort = await listen(hang, 0, '127.0.0.1');
-    const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
-    const hook = (url: string) => bosun(['route', '--hook'], { env: sb.env({ ROUTER_URL: kev.url, MEMORY_URL: url }), cwd: repo, input: JSON.stringify({ prompt: 'rename getCart to fetchCart in cart-service' }) });
-    for (const url of ['http://127.0.0.1:1', `http://127.0.0.1:${hangPort}`, html.url]) {
-      const t = Date.now();
-      const r = await hook(url);
-      assert.equal(r.code, 0);
-      const c = JSON.parse(r.out).hookSpecificOutput.additionalContext;
-      assert.doesNotMatch(c, /bosun memory/);
-      assert.match(c, /suggests: local/, url);
-      assert.ok(Date.now() - t < 2500, `${url}: ${Date.now() - t} ms`);
-    }
-    for (const url of ['http://127.0.0.1:1', html.url]) {
-      const r = await bosun(['memory', 'search', 'x'], { env: sb.env({ MEMORY_URL: url }), cwd: repo });
-      assert.equal(r.code, 1);
-      assert.match(r.err, /memory server (unreachable at|at .* sent no bosun reply)/);
-    }
-    const s = mcpSession(sb.env({ MEMORY_URL: html.url }), repo);
+type Rpc = (method: string, params: Record<string, unknown>, foreign?: boolean) => Promise<any>;
+async function operations(rpc: Rpc) {
+  const result: unknown[] = [];
+  async function error(method: string, params: Record<string, unknown>, foreign = false) {
     try {
-      const res = await s.call('memory_store', { category: 'project', title: 't', body: 'b' });
-      assert.equal(res.result.isError, true);
-      assert.equal(res.result.content[0].text, 'memory unavailable');
-      assert.deepEqual(res.result.structuredContent, { error: { code: 'unavailable' } });
-    } finally { await s.close(); }
-  } finally { hang.closeAllConnections(); hang.close(); await kev.close(); await html.close(); sb.cleanup(); }
-});
-
-test('split: doctor checks the memory server and warns on a version mismatch; the remote model is checked via /api/tags', async () => {
-  const sb = sandbox();
-  const m = await mock({ '/v1/health': () => ({ json: { ok: true, data: { version: '0.0.1', schema: 1, memory: true } } }) });
-  try {
-    const r = await bosun(['doctor'], { env: sb.env({ MEMORY_URL: m.url, OLLAMA_URL: m.url, ROUTER_URL: 'http://127.0.0.1:1' }) });
-    assert.match(r.out, /memory server http:\/\/127\.0\.0\.1:\d+ \(bosun 0\.0\.1, schema v1\)/);
-    assert.match(r.out, /memory server runs bosun 0\.0\.1, this is 0\.2\.0/);
-    assert.match(r.out, /model \S+ missing on http:\/\/127\.0\.0\.1:\d+/);
-    assert.match(r.out, /kev down/);
-  } finally { await m.close(); sb.cleanup(); }
-});
-
-test('split: bosun serve kev forwards to Kev and applies the allowlist', async () => {
-  const sb = sandbox();
-  const kev = await mock();
-  try {
-    fresh(sb);
-    const cfg = { ...load(), ROUTER_PORT: new URL(kev.url).port };
-    const px = kevServer(cfg, ['127.0.0.1/32']);
-    const deny = kevServer(cfg, ['10.0.0.0/8']);
-    cleanups.push(() => { px.closeAllConnections(); px.close(); deny.closeAllConnections(); deny.close(); });
-    const port = await listen(px, 0, '127.0.0.1');
-    const body = JSON.stringify({ state: { request: 'rename a to b' } });
-    const r = await fetch(`http://127.0.0.1:${port}/v1/systemone`, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
-    assert.equal((await r.json()).answers.lane.choice, 'local');
-    assert.equal(kev.requests.length, 1);
-    const dport = await listen(deny, 0, '127.0.0.1');
-    assert.equal((await fetch(`http://127.0.0.1:${dport}/v1/systemone`, { method: 'POST', body })).status, 403);
-    assert.equal(kev.requests.length, 1, 'nothing reached Kev');
-  } finally { cleanup(); await kev.close(); sb.cleanup(); }
-});
-
-test('install --remote writes the URLs, skips local Ollama and Kev, registers MCP; uninstall restores the config; bad options change nothing', async () => {
-  const sb = sandbox({ stubs: ['claude', 'codex', 'brew', 'launchctl', 'ollama'] });
-  try {
-    const env = sb.env({ BOSUN_OLLAMA_APP: path.join(sb.root, 'no-app') });
-    for (const bad of [['--serve', 'bogus'], ['--remote', 'kev=ftp://x'], ['--remote', 'nope=http://x'], ['--serve', 'kev', '--remote', 'llm=http://x']]) {
-      const r = await bosun(['install', ...bad], { env });
-      assert.equal(r.code, 2, bad.join(' '));
+      await rpc(method, params, foreign);
+      return 'no error';
+    } catch (value) {
+      assert.ok(value instanceof BosunError);
+      return value.code;
     }
-    assert.ok(!fs.existsSync(path.join(sb.home, '.claude')), 'nothing touched');
-    const url = 'http://127.0.0.1:1';
-    const r = await bosun(['install', '--host', 'claude', '--remote', `kev=${url},llm=${url},memory=${url}`], { env });
-    assert.equal(r.code, 0, r.err);
-    const cfg = parse(path.join(sb.home, '.bosun', 'config.env'));
-    assert.deepEqual([cfg.ROUTER_URL, cfg.OLLAMA_URL, cfg.MEMORY_URL], [url, url, url]);
-    const calls = sb.calls();
-    assert.ok(!calls.some((c) => c.bin === 'ollama' && c.argv[0] === 'pull'), 'no model pull for a remote llm');
-    assert.ok(!calls.some((c) => c.bin === 'launchctl' && c.argv[0] === 'bootstrap'), 'no local services');
-    assert.ok(calls.some((c) => c.bin === 'claude' && c.argv.slice(0, 2).join(' ') === 'mcp add'));
-    assert.equal((await bosun(['uninstall'], { env })).code, 0);
-    const after = parse(path.join(sb.home, '.bosun', 'config.env'));
-    assert.deepEqual([after.ROUTER_URL, after.OLLAMA_URL, after.MEMORY_URL], ['', 'http://127.0.0.1:11434', '']);
-  } finally { sb.cleanup(); }
+  }
+  const input = {
+    category: 'project',
+    title: 'Use pnpm',
+    body: 'pnpm only; npm breaks the lockfile',
+    tags: ['tooling'],
+  };
+  const created = await rpc('memory.store', input),
+    id = created.memory.id;
+  result.push(['store', created.duplicate, created.memory.version, created.memory.status]);
+  result.push(['duplicate', (await rpc('memory.store', input)).duplicate]);
+  result.push([
+    'search',
+    (await rpc('memory.search', { text: 'lockfile' })).hits.map((row: any) => row.title),
+  ]);
+  result.push([
+    'audit',
+    (await rpc('memory.get', { id, events: true })).memory.events.map((row: any) => row.op),
+  ]);
+  result.push([
+    'update',
+    (await rpc('memory.update', { id, expectedVersion: 1, patch: { body: 'pnpm only.' } })).memory
+      .version,
+  ]);
+  result.push([
+    'conflict',
+    await error('memory.update', { id, expectedVersion: 1, patch: { body: 'stale' } }),
+  ]);
+  const denied = await error('memory.get', { id }, true);
+  assert.ok(['not_found', 'unsupported', 'unavailable'].includes(denied), denied);
+  result.push(['scope', 'denied']);
+  result.push([
+    'invalid',
+    await error('memory.store', { category: 'nope', title: 'Invalid', body: 'Invalid' }),
+  ]);
+  for (const action of ['accept', 'reject']) {
+    const proposal = await rpc('memory.store', {
+      category: 'project',
+      title: action + ' proposal',
+      body: action + ' public proposal',
+      status: 'proposed',
+    });
+    result.push([
+      action,
+      (await rpc('memory.' + action, { id: proposal.memory.id })).memory.status,
+    ]);
+  }
+  result.push(['delete', (await rpc('memory.delete', { id })).memory.status]);
+  return result;
+}
+function rows(file: string) {
+  const db = new SqliteDatabase(file, { readOnly: true });
+  try {
+    return db.prepare('SELECT id,private,shared,version,hash,body FROM memories ORDER BY id').all();
+  } finally {
+    db.close();
+  }
+}
+const headers = (f: Awaited<ReturnType<typeof remoteFixture>>) => ({
+  authorization: 'Bearer ' + OWNER,
+  'x-bosun-project': project(f.clientWorkspace).id,
+  'x-bosun-authority': f.manifest.installationId,
+  'content-type': 'application/json',
+});
+async function installFixture(side: 'client' | 'server' = 'client') {
+  const f = await remoteFixture(
+    false,
+    undefined,
+    '[roles.worker.codex]\nmodel="owner-server-model"\neffort="high"\n',
+    '[roles.worker.codex]\nmodel="owner-client-model"\neffort="high"\n',
+  );
+  try {
+    const original = (
+      await f.rpc('client', 'memory.store', {
+        category: 'project',
+        title: 'Retained original',
+        body: 'Original authority note.',
+        private: true,
+      })
+    ).memory;
+    await f.client.close();
+    await f.server.close();
+    const env = side === 'client' ? f.clientEnv : f.serverEnv;
+    const paths = side === 'client' ? f.clientPaths : f.serverPaths;
+    const workspace = side === 'client' ? f.clientWorkspace : f.serverWorkspace;
+    const binary = path.join(f.sb.root, 'synthetic-bosun-release');
+    fs.writeFileSync(
+      binary,
+      '#!/usr/bin/env node\nif(process.argv.slice(2).join(" ")!=="--version")process.exit(2);\nprocess.stdout.write(' +
+        JSON.stringify(version + '\n') +
+        ');\n',
+      { mode: 0o755 },
+    );
+    const planFile = path.join(f.sb.root, 'install-plan.json');
+    const personal = path.join(f.sb.home, '.zshrc');
+    fs.writeFileSync(personal, 'Owner shell settings\n');
+    const data = [
+      f.clientPaths.config,
+      f.serverPaths.config,
+      f.clientPaths.memory,
+      f.serverPaths.memory,
+    ];
+    const before = data.map((file) => ({
+      file,
+      ino: fs.statSync(file).ino,
+      bytes: fs.readFileSync(file),
+    }));
+    const cli = (args: string[]) => bosun(args, { env, cwd: workspace });
+    return { ...f, env, paths, workspace, binary, planFile, personal, original, before, cli };
+  } catch (error) {
+    await f.close();
+    throw error;
+  }
+}
+function retained(f: Awaited<ReturnType<typeof installFixture>>) {
+  for (const record of f.before) {
+    assert.equal(fs.statSync(record.file).ino, record.ino);
+    assert.deepEqual(fs.readFileSync(record.file), record.bytes);
+  }
+  assert.equal(fs.readFileSync(f.personal, 'utf8'), 'Owner shell settings\n');
+  assert.equal(rows(f.serverPaths.memory)[0].id, f.original.id);
+  assert.ok(
+    !f.sb
+      .calls()
+      .some((call) => ['ollama', 'uv', 'brew', 'launchctl', 'claude', 'codex'].includes(call.bin)),
+  );
+}
+async function planAndApply(f: Awaited<ReturnType<typeof installFixture>>) {
+  const planned = await f.cli([
+    'install',
+    'plan',
+    '--binary',
+    f.binary,
+    '--request-id',
+    'remote_install',
+    '--output',
+    f.planFile,
+  ]);
+  assert.equal(planned.code, 0, planned.err);
+  const plan = readInstallationPlan(f.planFile);
+  const applied = await f.cli([
+    'install',
+    'apply',
+    f.planFile,
+    '--hash',
+    plan.planHash,
+    '--clients-stopped',
+  ]);
+  assert.equal(applied.code, 0, applied.err);
+  return { plan, applied: JSON.parse(applied.out) };
+}
+test('final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes', async () => {
+  const remote = await remoteFixture();
+  let expected: unknown[];
+  try {
+    const remoteRpc: Rpc = (method, params, foreign) =>
+      remote.rpc(
+        'client',
+        method,
+        params,
+        'owner',
+        foreign ? remote.otherWorkspace : remote.clientWorkspace,
+      );
+    expected = await operations(remoteRpc);
+    assert.deepEqual(rows(remote.clientPaths.memory), []);
+    const context = await remote.rpc('client', 'context.retrieve', {
+      task: 'accept public proposal',
+      sources: ['curated'],
+    });
+    assert.ok(context.ids.length > 0);
+    assert.deepEqual(remote.sb.calls(), []);
+  } finally {
+    await remote.close();
+  }
+  // Each daemon owns one process logging authority. Compare the local arm after remote close.
+  const local = await runtimeFixture();
+  try {
+    const other = gitRepo(local.sb, 'foreign-checkout', 'git@example.com:team/other.git');
+    const localRpc: Rpc = (method, params, foreign) =>
+      local.rpc(method, params, foreign ? { ...local.scope, workspace: other } : local.scope);
+    assert.deepEqual(await operations(localRpc), expected);
+  } finally {
+    await local.close();
+  }
 });
 
-test('install --serve sets up only the listed services on the bind address; uninstall removes them', async () => {
-  const sb = sandbox({ stubs: ['brew', 'launchctl', 'ollama', 'uv', 'git', 'curl'] });
+test('final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS', async () => {
+  const allow = remoteNetwork(['127.0.0.1/32', '100.64.0.0/10', '::1/128']);
+  for (const address of ['127.0.0.1', '::ffff:127.0.0.1', '100.101.102.103', '::1'])
+    assert.equal(allow(address), true);
+  for (const address of [undefined, '8.8.8.8', 'fe80::1', '192.168.1.77'])
+    assert.equal(allow(address), false);
+  const lan = remoteNetwork(['192.168.1.5/24']);
+  assert.equal(lan('192.168.1.77'), true);
+  assert.equal(lan('192.168.2.77'), false);
+  assert.throws(
+    () => remoteEndpoint('http://100.101.102.103:8788'),
+    (value) => value instanceof BosunError && value.code === 'invalid',
+  );
+  const f = await remoteFixture(false, undefined, '', '', ['10.0.0.0/8']);
   try {
-    fs.mkdirSync(path.join(sb.home, '.local', 'share', 'bosun', 'kev', '.git'), { recursive: true });
-    const env = sb.env({ SERVE_BIND: '127.0.0.1', BOSUN_OLLAMA_APP: path.join(sb.root, 'no-app'), STUB_MAP: JSON.stringify({ 'ollama --version': { out: 'ollama version is 0.34.4' } }) });
-    const r = await bosun(['install', '--serve', 'kev,llm,memory'], { env });
-    assert.equal(r.code, 0, r.err);
-    const cfg = parse(path.join(sb.home, '.bosun', 'config.env'));
-    assert.deepEqual([cfg.SERVE_BIND, cfg.OLLAMA_URL], ['127.0.0.1', 'http://127.0.0.1:11434']);
-    const la = path.join(sb.home, 'Library', 'LaunchAgents');
-    for (const n of ['memory', 'kev-proxy', 'router', 'ollama']) assert.ok(fs.existsSync(path.join(la, `com.bosun.${n}.plist`)), n);
-    assert.match(fs.readFileSync(path.join(la, 'com.bosun.memory.plist'), 'utf8'), new RegExp(`<string>${BIN}</string><string>serve</string><string>memory</string>`));
-    assert.ok(!fs.existsSync(path.join(sb.home, '.claude')), 'a server install wires no hosts');
-    assert.match(r.out, /bosun install --remote kev=http:\/\/127\.0\.0\.1:8009,llm=http:\/\/127\.0\.0\.1:11434,memory=http:\/\/127\.0\.0\.1:8788/);
-    assert.equal((await bosun(['uninstall'], { env })).code, 0);
-    for (const n of ['memory', 'kev-proxy']) assert.ok(!fs.existsSync(path.join(la, `com.bosun.${n}.plist`)), n);
-  } finally { sb.cleanup(); }
+    await assert.rejects(
+      serveRemoteRpc({
+        settings: { ...f.serverConfig.remote, bind: '0.0.0.0' },
+        env: f.serverEnv,
+        identity: {
+          protocol: 1,
+          version,
+          memorySchema: 2,
+          authorityId: f.manifest.installationId,
+          sourceId: f.manifest.sourceId,
+        },
+        assertOwner() {
+          throw Error('UNEXPECTED OWNER ACCESS');
+        },
+        async dispatch() {
+          throw Error('UNEXPECTED DISPATCH');
+        },
+        port: 0,
+      }),
+      (value) => value instanceof BosunError && value.code === 'invalid',
+    );
+    const reply = await fetch(f.endpoint + '/v1/identity', { headers: headers(f) });
+    assert.equal(reply.status, 403);
+    assert.equal((await reply.json()).error.code, 'unsupported');
+    assert.deepEqual(rows(f.serverPaths.memory), []);
+  } finally {
+    await f.close();
+  }
 });
 
-test('install: re-running a plain install on a split-setup client keeps the remote URLs and sets up no local Ollama or Kev', async () => {
-  const sb = sandbox({ stubs: ['claude', 'brew', 'launchctl', 'ollama', 'uv', 'git', 'curl'] });
+test('final remote request bounds and media type errors are finite and create no memory effects', async () => {
+  const f = await remoteFixture();
   try {
-    const env = sb.env({ BOSUN_OLLAMA_APP: path.join(sb.root, 'no-app'), REMOTE_TIMEOUT_MS: '300', STUB_MAP: JSON.stringify({ 'ollama --version': { out: 'ollama version is 0.34.4' } }) });
-    const far = 'http://100.1.2.3';
-    const first = await bosun(['install', '--host', 'claude', '--remote', `kev=${far}:8009,llm=${far}:11434,memory=${far}:8788`], { env });
-    assert.equal(first.code, 0, first.err);
-    sb.reset();
-    const again = await bosun(['install', '--host', 'claude'], { env });
-    assert.equal(again.code, 0, again.err);
-    const calls = sb.calls().map((c) => `${c.bin} ${c.argv.join(' ')}`);
-    assert.ok(!calls.some((c) => c.startsWith('ollama pull')), 'no 22 GB pull for a remote llm');
-    assert.ok(!calls.some((c) => c.startsWith('uv ') || c.startsWith('git clone')), 'no local Kev');
-    assert.ok(!calls.some((c) => c.startsWith('launchctl setenv OLLAMA_HOST') || c.startsWith('launchctl bootstrap')), 'no local services');
-    const cfg = parse(path.join(sb.home, '.bosun', 'config.env'));
-    assert.deepEqual([cfg.ROUTER_URL, cfg.OLLAMA_URL, cfg.MEMORY_URL], [`${far}:8009`, `${far}:11434`, `${far}:8788`]);
-  } finally { sb.cleanup(); }
+    for (const [type, body] of [
+      ['text/plain', 'not JSON'],
+      ['application/json', 'x'.repeat(RPC_LIMITS.requestBytes + 1)],
+      ['application/json', '{"payload":"RAW-PARSER-CANARY"'],
+    ]) {
+      const reply = await fetch(f.endpoint + '/v1/rpc', {
+        method: 'POST',
+        headers: { ...headers(f), 'content-type': type },
+        body,
+      });
+      assert.equal(reply.status, 400);
+      const value = await reply.json();
+      assert.equal(value.ok, false);
+      assert.equal(value.error.code, 'invalid');
+      assert.doesNotMatch(JSON.stringify(value), /RAW-PARSER-CANARY|SyntaxError|Unexpected token/);
+    }
+    assert.deepEqual(rows(f.serverPaths.memory), []);
+  } finally {
+    await f.close();
+  }
 });
 
-test('split: a memory or Kev host that never replies — the hook still exits within its budget', async () => {
-  const sb = sandbox();
-  const hang = http.createServer(() => { /* synthetic endpoint never replies */ });
-  const port = await listen(hang, 0, '127.0.0.1');
+test('final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference', async () => {
+  const f = await remoteFixture();
   try {
-    const repo = gitRepo(sb, 'shop', 'git@github.com:org/shop.git');
-    const t = Date.now();
-    const r = await bosun(['route', '--hook'], { env: sb.env({ ROUTER_URL: `http://127.0.0.1:${port}`, MEMORY_URL: `http://127.0.0.1:${port}`, ROUTER_TIMEOUT: '0.3' }), cwd: repo, input: JSON.stringify({ prompt: 'rename getCart to fetchCart in cart-service' }) });
-    assert.deepEqual([r.code, r.out], [0, '']);
-    assert.ok(Date.now() - t < 3000, `exited after ${Date.now() - t} ms (Claude's hook timeout is 5 s)`);
-  } finally { hang.closeAllConnections(); await new Promise<void>((resolve) => hang.close(() => resolve())); sb.cleanup(); }
+    await f.rpc('client', 'memory.store', {
+      category: 'project',
+      title: 'Authoritative package manager',
+      body: 'Remote pnpm instructions.',
+    });
+    await f.server.close();
+    const search = await bosun(['memory', 'search', 'pnpm'], {
+      env: f.clientEnv,
+      cwd: f.clientWorkspace,
+    });
+    assert.equal(search.code, 1);
+    assert.equal(JSON.parse(search.err).error.code, 'unavailable');
+    const session = mcpSession(f.clientEnv, f.clientWorkspace);
+    try {
+      const reply = await session.call('memory_store', {
+        category: 'project',
+        title: 'Offline write',
+        body: 'Do not create this note.',
+      });
+      assert.equal(reply.result.isError, true);
+      assert.equal(reply.result.structuredContent.error.code, 'unavailable');
+    } finally {
+      await session.close();
+    }
+    const hook = await bosun(['hook'], {
+      env: f.clientEnv,
+      cwd: f.clientWorkspace,
+      input: JSON.stringify({ prompt: 'Remote pnpm instructions', cwd: f.clientWorkspace }),
+    });
+    assert.equal(hook.code, 0);
+    assert.equal(hook.out, '');
+    assert.deepEqual(rows(f.clientPaths.memory), []);
+    assert.equal(rows(f.serverPaths.memory).length, 1);
+    assert.equal(f.client.status().remote.offlineWrites, false);
+  } finally {
+    await f.close();
+  }
+});
+
+test('foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference', async () => {
+  const peer = await mock({
+    '/v1/identity': () => ({ delayMs: 1500, text: '<html>FOREIGN-REPLY-CANARY</html>' }),
+  });
+  const f = await remoteFixture(false, async () => peer.url);
+  try {
+    const count = peer.requests.length,
+      start = performance.now();
+    const hook = await bosun(['hook'], {
+      env: f.clientEnv,
+      cwd: f.clientWorkspace,
+      input: JSON.stringify({ prompt: 'HOOK-PRIVATE-CANARY', cwd: f.clientWorkspace }),
+    });
+    assert.equal(hook.code, 0);
+    assert.equal(hook.out, '');
+    assert.equal(peer.requests.length, count);
+    assert.ok(performance.now() - start < 5000);
+    const result = await bosun(
+      [
+        'memory',
+        'add',
+        '--category',
+        'project',
+        '--title',
+        'Never sent',
+        '--body',
+        'MUTATION-CANARY',
+      ],
+      { env: f.clientEnv, cwd: f.clientWorkspace },
+    );
+    assert.equal(result.code, 1);
+    assert.equal(JSON.parse(result.err).error.code, 'unavailable');
+    assert.ok(
+      peer.requests.every(
+        (request) =>
+          request.path === '/v1/identity' && request.method === 'GET' && request.body === null,
+      ),
+    );
+    assert.deepEqual(rows(f.clientPaths.memory), []);
+  } finally {
+    try {
+      await f.close();
+    } finally {
+      await peer.close();
+    }
+  }
+});
+
+test('final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints', async () => {
+  const peer = await mock(),
+    f = await remoteFixture(false, async () => peer.url);
+  try {
+    const files = [f.clientPaths.memory, f.clientPaths.config, f.serverPaths.memory];
+    const before = files.map((file) => ({
+      ino: fs.statSync(file).ino,
+      bytes: fs.readFileSync(file),
+    }));
+    const count = peer.requests.length,
+      calls = f.sb.calls().length;
+    const result = await bosun(['doctor'], { env: f.clientEnv, cwd: f.clientWorkspace });
+    assert.equal(result.code, 1, result.err);
+    assert.equal(JSON.parse(result.err).error.code, 'unavailable');
+    const report = JSON.parse(result.out);
+    assert.equal(report.prepared, false);
+    assert.ok(report.checks.some((check: any) => check.state === 'held'));
+    assert.equal(report.coverage, 'filesystem-metadata');
+    assert.equal(report.nativeCalls, false);
+    assert.equal(report.databaseOpened, false);
+    assert.equal(report.schemaQualification, 'unverified');
+    assert.equal(peer.requests.length, count);
+    assert.equal(f.sb.calls().length, calls);
+    files.forEach((file, n) => {
+      assert.equal(fs.statSync(file).ino, before[n].ino);
+      assert.deepEqual(fs.readFileSync(file), before[n].bytes);
+    });
+  } finally {
+    try {
+      await f.close();
+    } finally {
+      await peer.close();
+    }
+  }
+});
+
+test('explicit Clef endpoint selection preserves the model and sends only public advice; absent calibration never starts a worker or proxy', async () => {
+  const selected = 'clef-flash:owner-tag';
+  const peer = await mock({
+    '/v1/systemone': () => ({
+      json: {
+        model: selected,
+        latency_ms: 12,
+        usage: { input_tokens: 12, output_tokens: 2 },
+        answers: {
+          lane: {
+            type: 'choice',
+            choice: 'local',
+            confidence: 0.9,
+            probabilities: { main: 0.01, worker: 0.05, local: 0.9, scout: 0.04 },
+          },
+          risk: {
+            type: 'choice',
+            choice: 'low',
+            confidence: 0.9,
+            probabilities: { high: 0.1, low: 0.9 },
+          },
+        },
+      },
+    }),
+  });
+  try {
+    const config = parseRuntimeConfig(
+      '[router]\nurl=' + JSON.stringify(peer.url) + '\nmodel=' + JSON.stringify(selected) + '\n',
+    );
+    const router = createClefRouter(config.router);
+    const reply = await router.classify(
+      { privacy: 'public', text: 'rename a to b' },
+      AbortSignal.timeout(1000),
+    );
+    assert.ok(reply);
+    assert.equal(reply.lane, 'local');
+    assert.equal(peer.requests.length, 1);
+    assert.equal(peer.requests[0].body.model, selected);
+    assert.equal(router.qualification.autonomousDelegation, 'unsupported');
+    await assert.rejects(
+      router.classify(
+        { privacy: 'private', text: 'PRIVATE-ROUTER-CANARY' },
+        AbortSignal.timeout(1000),
+      ),
+    );
+    assert.equal(peer.requests.length, 1);
+  } finally {
+    await peer.close();
+  }
+});
+
+test('final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files', async () => {
+  const f = await installFixture();
+  try {
+    const { plan, applied } = await planAndApply(f);
+    assert.equal(applied.record.state, 'ready');
+    assert.equal(applied.record.service.state, 'prepared');
+    assert.equal(fs.existsSync(plan.service.target), false);
+    retained(f);
+    const undo = await f.cli([
+      'uninstall',
+      plan.id,
+      '--version',
+      String(applied.record.version),
+      '--hash',
+      plan.planHash,
+      '--clients-stopped',
+    ]);
+    assert.equal(undo.code, 0, undo.err);
+    assert.equal(JSON.parse(undo.out).record.state, 'undone');
+    assert.equal(fs.existsSync(plan.targetBinary), false);
+    retained(f);
+  } finally {
+    await f.close();
+  }
+});
+
+test('final server installation prepares one owned dormant daemon and wires no host, model or obsolete service', async () => {
+  const f = await installFixture('server');
+  try {
+    const { plan, applied } = await planAndApply(f);
+    assert.equal(applied.record.service.state, 'prepared');
+    assert.equal(fs.existsSync(plan.service.target), false);
+    const plist = fs.readFileSync(plan.service.file, 'utf8');
+    assert.ok(plist.includes(plan.targetBinary));
+    assert.ok(plist.includes('daemon'));
+    assert.doesNotMatch(plist, /kev|ollama|uv|ANTHROPIC|CODEX_HOME/i);
+    assert.equal(fs.existsSync(path.join(f.sb.home, '.claude')), false);
+    assert.equal(fs.existsSync(path.join(f.sb.home, '.codex')), false);
+    retained(f);
+  } finally {
+    await f.close();
+  }
+});
+
+test('duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert', async () => {
+  const f = await installFixture();
+  try {
+    const { plan, applied } = await planAndApply(f);
+    const before = f.sb.calls().length;
+    const repeated = await f.cli([
+      'install',
+      'apply',
+      f.planFile,
+      '--hash',
+      plan.planHash,
+      '--clients-stopped',
+    ]);
+    assert.equal(repeated.code, 0, repeated.err);
+    assert.equal(JSON.parse(repeated.out).record.id, applied.record.id);
+    assert.equal(JSON.parse(repeated.out).duplicate, true);
+    assert.equal(f.sb.calls().length, before);
+    retained(f);
+    for (const [args, code] of [
+      [['--remote', 'unknown=ftp://bad'], 2],
+      [['--serve', 'kev'], 2],
+      [['apply', f.planFile, '--hash', 'invalid'], 3],
+    ] as const) {
+      const denied = await f.cli(['install', ...args]);
+      assert.equal(denied.code, code, denied.err);
+      retained(f);
+    }
+  } finally {
+    await f.close();
+  }
 });

@@ -1,0 +1,251 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cached read rejects actual oversized primary before callback (25.180375ms)
+✔ cached read rejects actual oversized wal before callback (19.492125ms)
+✔ cached transaction rejects actual oversized primary before callback (19.550917ms)
+✔ cached transaction rejects actual oversized wal before callback (19.025625ms)
+✔ native large source/FTS transaction is refused without committed row/event/floor changes (106.827083ms)
+✔ registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt (582.156292ms)
+✔ error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer (25.893875ms)
+✔ error before native COMMIT retains exact domain identity only after successful rollback (21.618916ms)
+✔ error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write (28.181958ms)
+✔ cached read rejects changed journal before callback without repair (17.369833ms)
+✔ cached read rejects changed wal-mode before callback without repair (18.163084ms)
+✔ cached read rejects changed parent-mode before callback without repair (16.613ms)
+✔ cached read rejects changed wal-link before callback without repair (17.577375ms)
+✔ cached transaction rejects changed journal before callback without repair (18.149291ms)
+✔ cached transaction rejects changed wal-mode before callback without repair (16.401833ms)
+✔ cached transaction rejects changed parent-mode before callback without repair (19.072708ms)
+✔ cached transaction rejects changed wal-link before callback without repair (18.047542ms)
+✔ native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (25.15775ms)
+✔ native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (26.881542ms)
+✔ native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (35.444125ms)
+✔ eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML (385.168375ms)
+✔ driver PRAGMA prepare failure clears private authorization and callback controls remain denied (22.339667ms)
+Native dirty-page qualification: { spill: true, before: 94792, pending: 4317792, committed: 4375472 }
+Native dirty-page qualification: { spill: false, before: 94792, pending: 94792, committed: 4375472 }
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false
+}
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false
+}
+✔ post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay (19.016458ms)
+✔ native dirty-page probe observes cache_spill=true before actual commit (23.121291ms)
+✔ native dirty-page probe observes cache_spill=false before actual commit (22.195375ms)
+✔ native FTS xSync allocation occurs at actual COMMIT (14.455542ms)
+✔ native FTS xSync page-limit failure occurs at actual COMMIT (10.406709ms)
+✔ registered real store covers constructor expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit (143.758667ms)
+✔ registered long-lived get/search expiry and prune use synchronous admission, preserving archive/purge events (81.834334ms)
+✔ registered docs indexes insert/update/delete with FTS and owns a private close lifecycle (140.063667ms)
+✔ final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit (272.491834ms)
+✔ fresh final owner CLI unshares with exact CAS, linked access and retained original audit (292.874625ms)
+✖ upgraded final owner CLI unshares with exact CAS, linked access and retained original audit (66.767ms)
+✔ fresh final owner unsharing preserves the raw malformed privacy marker and model opacity (194.607042ms)
+✖ upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity (66.312209ms)
+✖ fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (151.0065ms)
+✖ upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (64.6535ms)
+✖ fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (621.46ms)
+✖ upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (64.786958ms)
+✖ final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job (399.56425ms)
+✔ final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context (915.415042ms)
+✖ registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle (71.260791ms)
+✔ registered discovery holds pending/unknown/mismatched roots before legacy chmod/migration (278.913584ms)
+✔ registered domain errors retain class/currentVersion after rollback while hostile proxy errors stay finite (61.656458ms)
+✔ read-only doctor memory inspection creates no files, holds WAL before native open and verifies rollback without writes (6.925833ms)
+✖ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (371.3475ms)
+ℹ tests 46
+ℹ suites 0
+ℹ pass 37
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6151.056
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:353:3
+✖ upgraded final owner CLI unshares with exact CAS, linked access and retained original audit (66.767ms)
+  Error: memory cutover unavailable (schema)
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:41:53)
+      at mapped (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:83:29)
+      at validateLegacyUpgradeSource (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:202:17)
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:256:5)
+      at memoryLifecycleFixture (file:///Users/edge/Developer/bosun/test/memory-lifecycle-fixture.ts:156:13)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:356:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined,
+    reason: 'schema'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:471:3
+✖ upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity (66.312209ms)
+  Error: memory cutover unavailable (schema)
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:41:53)
+      at mapped (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:83:29)
+      at validateLegacyUpgradeSource (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:202:17)
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:256:5)
+      at memoryLifecycleFixture (file:///Users/edge/Developer/bosun/test/memory-lifecycle-fixture.ts:156:13)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:474:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined,
+    reason: 'schema'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:517:3
+✖ fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (151.0065ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'active'
+  - 'archived'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:524:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'active',
+    expected: 'archived',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:517:3
+✖ upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (64.6535ms)
+  Error: memory cutover unavailable (schema)
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:41:53)
+      at mapped (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:83:29)
+      at validateLegacyUpgradeSource (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:202:17)
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:256:5)
+      at memoryLifecycleFixture (file:///Users/edge/Developer/bosun/test/memory-lifecycle-fixture.ts:156:13)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:521:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined,
+    reason: 'schema'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:600:3
+✖ fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (621.46ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + true
+  - undefined
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:615:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:600:3
+✖ upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (64.786958ms)
+  Error: memory cutover unavailable (schema)
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:41:53)
+      at mapped (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:83:29)
+      at validateLegacyUpgradeSource (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:202:17)
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:256:5)
+      at memoryLifecycleFixture (file:///Users/edge/Developer/bosun/test/memory-lifecycle-fixture.ts:156:13)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:604:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined,
+    reason: 'schema'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:687:1
+✖ final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job (399.56425ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'not_found'
+  - 'conflict'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:705:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'not_found',
+    expected: 'conflict',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:784:1
+✖ registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle (71.260791ms)
+  ReferenceError: serveMain is not defined
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:827:20)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:999:1
+✖ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (371.3475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:1029:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

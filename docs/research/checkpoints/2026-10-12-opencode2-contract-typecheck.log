@@ -1,0 +1,4 @@
+
+> bosun@0.2.0 typecheck
+> node scripts/run-typecheck.mjs
+

@@ -1,0 +1,122 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (373.145625ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (709.487416ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (422.225875ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (578.08125ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (454.409334ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (535.012833ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (541.2855ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (8830.006542ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (876.275083ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (556.518833ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (373.942792ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (575.212583ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (557.549209ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (2292.166042ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (342.12175ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (298.460375ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (200.649166ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (176.813667ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (195.505166ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (233.349833ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (199.988417ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (221.100375ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (204.735666ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (182.831959ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (171.512125ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (184.508458ms)
+✖ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (173.047667ms)
+✔ model bootstrap admission checks the selected native quota, preserves usage and never bypasses weekly exhaustion (817.24725ms)
+✔ isolated handoff keeps summary and native bootstrap costs separate and retains usage after readiness loss (1108.553875ms)
+✔ weekly exhaustion before isolated handoff prevents native bootstrap even with owner unknown-quota opt-in (537.041833ms)
+✔ managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP (1.227333ms)
+✔ V2 managed creation proves an owned empty root; API instruction seeding has exact idle/hash readback without an inference or inbox item (36.40925ms)
+✔ native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection (29.694125ms)
+✔ root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed (20.747083ms)
+✔ arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP (13.262291ms)
+✔ wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed (36.007041ms)
+✔ readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts (47.594542ms)
+✔ local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts (23.895ms)
+✔ owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof (20.490042ms)
+✔ uncertain create/seed/turn effects are held without deletion or automatic effect replay (21.57925ms)
+✔ fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact (122.787292ms)
+✔ staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS (24.7855ms)
+✔ fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation (72.607708ms)
+✔ source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools (52.910958ms)
+✔ fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation (18.804084ms)
+✔ managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result (94.201ms)
+✔ concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt (13.508917ms)
+✔ native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy (65.640709ms)
+✔ unsupported selections/input limits and native version mismatch fail without unintended mutations (3.792958ms)
+✔ owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference (36.434625ms)
+✔ incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors (43.2545ms)
+✔ capture privacy and native ownership gates precede cursor/source getters and all HTTP (12.229083ms)
+✔ capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window (138.584417ms)
+✔ bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence (6.64175ms)
+✖ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (24.012917ms)
+✔ paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage (354.50275ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 54
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24630.446875
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/managed-runtime.test.ts:1323:3
+✖ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (173.047667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/managed-runtime.test.ts:1372:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:1404:1
+✖ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (24.012917ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(n.requests.every((request) => !request.path.includes('foreign.invalid')))
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:1436:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

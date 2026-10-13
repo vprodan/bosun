@@ -1,10 +1,12 @@
 // Owned public rollback view only. The mutable WAL primary is never opened through SQLite; owner backups stay unread.
 import fs from 'node:fs';
+import { realpathWithoutOpen } from '../../platform/canonical-path.cjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../../platform/sqlite.ts'
 import { CATEGORIES, type Ctx, type Found, type Memory, type Query } from '../../core/domain/memory.ts';
 import { MemoryError } from '../../core/errors.ts';
+import { memorySqliteRuntime, sqliteWalSafe } from '../../platform/sqlite-runtime.ts';
 import type { MemoryReader } from '../../core/ports/memory.ts';
 import { ftsQuery, norm } from '../../core/text.ts';
 import { PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, RESTORE_PENDING_SUFFIX, normalize } from './sqlite-public-protocol.ts';
@@ -55,7 +57,7 @@ function present(file: string): boolean {
 function identity(file: string): Identity {
   if (typeof file !== 'string' || !path.isAbsolute(file) || path.resolve(file) !== file || file.includes('\0')) unavailable('path');
   const parent = path.dirname(file);
-  if (fs.realpathSync(parent) !== parent || fs.realpathSync(file) !== file) unavailable('path');
+  if (realpathWithoutOpen(parent) !== parent || realpathWithoutOpen(file) !== file) unavailable('path');
   const dir = fs.statSync(parent); const s = fs.lstatSync(file, { bigint: true });
   if (!dir.isDirectory() || (dir.mode & 0o7777) !== 0o700 || !s.isFile() || s.isSymbolicLink() || s.nlink !== 1n
     || Number(s.mode & 0o7777n) !== 0o600 || process.getuid && (dir.uid !== process.getuid() || Number(s.uid) !== process.getuid())) unavailable('path');
@@ -67,7 +69,7 @@ function same(file: string, expected: Identity): void {
 }
 
 export class SqlitePublicReadOnly implements MemoryReader {
-  #db: DatabaseSync | null = null;
+  #db: SqliteDatabase | null = null;
   #now: () => number;
   #options: PublicReadOptions;
   #source: Identity;
@@ -84,14 +86,15 @@ export class SqlitePublicReadOnly implements MemoryReader {
     this.#source = { dev: '', ino: '' }; this.#view = { dev: '', ino: '' };
     const started = this.time();
     try {
-      if (process.versions.bun || process.platform === 'win32' || Number(process.versions.node.split('.')[0]) < 24) unavailable('runtime');
+      if (!memorySqliteRuntime()) unavailable('runtime');
       this.#source = identity(options.primary); this.#view = identity(options.view);
       if (options.primary === options.view || this.#source.dev === this.#view.dev && this.#source.ino === this.#view.ino) unavailable('path');
       this.files();
       const header = Buffer.alloc(100); const fd = fs.openSync(options.view, 'r');
       try { if (fs.readSync(fd, header, 0, 100, 0) !== 100) unavailable('format'); } finally { fs.closeSync(fd); }
       if (header.toString('ascii', 0, 16) !== 'SQLite format 3\0' || header[18] !== 1 || header[19] !== 1) unavailable('format');
-      this.#db = new DatabaseSync(options.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+      this.#db = new SqliteDatabase(options.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+      if (!sqliteWalSafe(this.#db.prepare('SELECT sqlite_version() AS v').get()?.v)) unavailable('runtime');
       this.#db.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;');
       const objects = this.#db.prepare("SELECT name,type,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").all() as Row[];
       if (objects.length !== PUBLIC_SQL.size || objects.some((r) => !PUBLIC_SQL.has(r.name)

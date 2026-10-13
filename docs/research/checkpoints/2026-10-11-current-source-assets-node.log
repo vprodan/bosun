@@ -1,0 +1,82 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cli: help exits 0, unknown command exits 2 (395.756875ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (204.525084ms)
+✔ cli: install rejects a bad option before touching anything (202.526833ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (400.048167ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (202.900208ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (643.541125ms)
+✔ core errors and deterministic Unicode text behavior (2.390959ms)
+✔ coded errors preserve causes and legacy exits while constraining untyped codes and details (0.171042ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.196792ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.213333ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.138791ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.25375ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.559708ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.095208ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (4.908625ms)
+✔ opencode plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (362.399834ms)
+✔ codex plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (538.88375ms)
+✔ claude plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (392.40325ms)
+✔ private, credential, stale, unsupported or modified plans have no profile/configuration effect (90.903291ms)
+✔ running daemon authority prevents installation and stale plan/undo versions preserve original profiles (295.584584ms)
+✔ undo refuses content drift and preserves the profile and unrelated data (342.245667ms)
+✔ undo refuses extra-file drift and preserves the profile and unrelated data (348.299083ms)
+✔ undo refuses symlink drift and preserves the profile and unrelated data (355.522833ms)
+✔ undo refuses hardlink drift and preserves the profile and unrelated data (348.179625ms)
+✔ undo refuses mode drift and preserves the profile and unrelated data (347.172084ms)
+✔ lost positive profile rename receipt stays unknown, duplicate apply does not recreate, and explicit verified undo retires it (373.462125ms)
+✔ partial install receipt loss retains mismatched staged files for review without changing outside data (142.807333ms)
+✔ lost intent manifest receipt returns the saved original and never recreates a host profile (108.47ms)
+✔ lost terminal manifest receipt returns the saved original and never recreates a host profile (335.35375ms)
+✔ metadata detection/session parsing never executes native hosts or classifies unknown prompts as public (84.212167ms)
+✔ profile doctor refuses rebound parent directories before reading foreign payloads (307.070208ms)
+✔ actual Commander plan export refuses overwrite, requires reviewed apply and denies model mutation before file reads (353.262ms)
+✔ Codex reuses matching user project skills, preserves unrelated files and never owns their removal (486.195667ms)
+✔ changed project skill links hold undo and a new request cannot adopt links owned by another profile (422.018958ms)
+✔ lost project skill link receipt remains unknown without recreation and explicit undo removes only matching new links (413.571417ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.796583ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (153.24825ms)
+✔ roles: bosun roles --json prints the resolved table (206.778125ms)
+✔ runtime paths are explicit and path calculation does not create files (0.760584ms)
+✔ shipped roles and skills resolve from embedded assets in a synthetic working directory (0.61525ms)
+✔ final project scope preserves existing clone/worktree/non-repo identities and configured links (4.1125ms)
+✔ shared envelopes reject skew/extra fields and normalize provider errors (0.299791ms)
+✔ native UDS RPC preserves concurrent request identity and uses protected socket (14.11825ms)
+✔ malformed and oversized requests never invoke dispatch; stopped admission stays closed (3.059041ms)
+✔ lost mutation reply has unknown outcome and is never automatically repeated (33.319833ms)
+✔ oversized successful replies preserve uncertainty instead of claiming a failed mutation (1.878583ms)
+✔ unsafe socket parents and existing ordinary files are not adopted or deleted (0.498ms)
+✔ native process streaming preserves split UTF8/stdin and reports positive process close (39.128333ms)
+✔ native process cancellation waits for close and kills an ordinary worker ignoring TERM (49.021875ms)
+✔ oversized native lines and stderr stop the process without exposing its error content (55.116291ms)
+✔ native process channel permits bounded interactive stdin and positive peer acknowledgement (29.002542ms)
+✔ native cancellation kills an ordinary descendant even when its parent closes first (64.661833ms)
+✔ real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names (11.129333ms)
+✔ config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding (16.703333ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 54
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9915.014375

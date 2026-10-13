@@ -1,0 +1,41 @@
+{
+  "runtime": "1.4.3",
+  "sqlite": "3.54.0",
+  "close": "function close() { [native code] }",
+  "statementKeys": [
+    "sourceSQL",
+    "expandedSQL"
+  ],
+  "statementPrototype": [
+    "run",
+    "get",
+    "all",
+    "iterate",
+    "columns",
+    "setReadBigInts",
+    "setReturnArrays",
+    "setAllowBareNamedParameters",
+    "setAllowUnknownNamedParameters",
+    "constructor"
+  ],
+  "databaseKeys": [
+    "isOpen",
+    "isTransaction",
+    "limits"
+  ],
+  "finalize": "undefined",
+  "lockReleased": false,
+  "lockError": "ERR_SQLITE_ERROR",
+  "closeVariants": [
+    {
+      "mode": "boolean-true",
+      "released": false,
+      "retained": "function"
+    },
+    {
+      "mode": "dispose",
+      "released": false,
+      "retained": "function"
+    }
+  ]
+}

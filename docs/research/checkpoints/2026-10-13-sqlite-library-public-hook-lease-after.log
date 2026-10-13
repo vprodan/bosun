@@ -1,0 +1,19 @@
+38 |     const safe: CutoverReason = ['path', 'identity', 'schema', 'state', 'backup', 'busy', 'storage', 'runtime', 'input', 'receipt_unknown'].includes(reason) ? reason : 'storage';
+39 |     super(safe === 'input' ? 'invalid' : 'unavailable', `memory cutover unavailable (${safe})`, safe === 'receipt_unknown' ? { details: { outcome: 'unknown' } } : undefined);
+40 |     this.reason = safe;
+41 |   }
+42 | }
+43 | function fail(reason: CutoverReason): never { throw new CutoverError(reason); }
+                                                         ^
+error: memory cutover unavailable (storage)
+ exitCode: 1,
+  details: undefined,
+   reason: "storage",
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:43:53)
+      at mapped (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:88:3)
+      at cutoverMemory (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:428:24)
+      at /Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/public-hook-smoke.ts:11:585
+
+Bun v1.4.3 (macOS arm64)

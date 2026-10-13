@@ -1,10 +1,15 @@
 // Explicit owner cutover/publication and registered admission. No automatic floor installation or hook reader.
 import fs from 'node:fs';
+import { realpathWithoutOpen } from '../../platform/canonical-path.cjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { DatabaseSync, StatementSync, backup, constants } from 'node:sqlite';
+import { pathToFileURL } from 'node:url';
+import { SqliteDatabase, SqliteStatement, sqliteBackup, sqliteConstants } from '../../platform/sqlite.ts'
 import { BosunError, MemoryError } from '../../core/errors.ts';
 import { norm } from '../../core/text.ts';
+import { screenPublicText } from '../../core/secret-screen.ts';
+import { memorySqliteRuntime, sqliteWalSafe } from '../../platform/sqlite-runtime.ts';
+import { GRAPH_TABLES, GRAPH_SCHEMA_SQL } from './sqlite-graph-schema.ts';
 import { GATE_SQL, PUBLIC_STATE_SQL, PUBLIC_MEMORY_SQL, PUBLIC_FTS_SQL, PUBLIC_FTS_TRIGGERS, PUBLIC_SQL, PUBLIC_COLUMNS, PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES, RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX, normalize } from './sqlite-public-protocol.ts';
 
 const FLOOR = 1;
@@ -20,6 +25,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 const TABLES = ['memories', 'memory_events', 'docs'] as const;
 // Fingerprint of the existing migration-1 sqlite_master (including FTS shadow tables), not its data.
 const SCHEMA = '3cb4d90795d1afc8819cae315ed6835876bc85de27b9b1ceb603a1b98c1f57e2';
+const SCHEMA2 = '6ff81a0129ab188ee178c3e0b82397815f5970f7b8529ef56386b2fe9d0dd713';
+function protectedTables(db: SqliteDatabase): readonly string[] {
+  return db.prepare('SELECT MAX(version) AS version FROM schema_migrations').get()?.version === 2 ? [...TABLES, ...GRAPH_TABLES] : TABLES;
+}
 type Row = Record<string, unknown>;
 type Identity = { dev: string; ino: string };
 export type CutoverReason = 'path' | 'identity' | 'schema' | 'state' | 'backup' | 'busy' | 'storage' | 'runtime' | 'input' | 'receipt_unknown';
@@ -40,6 +49,8 @@ export type CutoverOptions = {
   paths: CutoverPaths;
   now: () => number;
   id: () => string;
+  /** The one supported legacy upgrade: migration1 without any existing floor/view. */
+  upgradeSchema?: true;
   /** Explicit owner workflow only. No native handles are passed; validation must be synchronous. */
   expectation?: { operation: 'apply' | 'reconcile' | 'recover'; sourceId: string; validate: () => void };
   /** Owner progress/checkpoint only; no data, artifact hashes or paths are passed. */
@@ -100,7 +111,7 @@ function same(file: string, expected: Identity): void {
 function canonical(file: string, exists: boolean): void {
   if (typeof file !== 'string' || !path.isAbsolute(file) || path.resolve(file) !== file || file.includes('\0')) fail('path');
   const parent = path.dirname(file);
-  if (fs.realpathSync(parent) !== parent || exists && fs.realpathSync(file) !== file) fail('path');
+  if (realpathWithoutOpen(parent) !== parent || exists && realpathWithoutOpen(file) !== file) fail('path');
 }
 function present(file: string): boolean {
   if (typeof file !== 'string' || file.includes('\0')) fail('path');
@@ -117,7 +128,7 @@ function paths(input: CutoverPaths, ownerRestore = false): CutoverPaths {
   const p = { primary: input.primary, view: input.view, backups: input.backups };
   if (!ownerRestore && present(p.view + RESTORE_PENDING_SUFFIX)) fail('state');
   canonical(p.primary, true); canonical(p.view, present(p.view));
-  if (typeof p.backups !== 'string' || path.resolve(p.backups) !== p.backups || fs.realpathSync(p.backups) !== p.backups) fail('path');
+  if (typeof p.backups !== 'string' || path.resolve(p.backups) !== p.backups || realpathWithoutOpen(p.backups) !== p.backups) fail('path');
   for (const dir of [p.backups, path.dirname(p.view), path.dirname(p.primary)]) {
     const s = fs.statSync(dir);
     if (!s.isDirectory() || (s.mode & 0o7777) !== 0o700 || process.getuid && s.uid !== process.getuid()) fail('path');
@@ -133,13 +144,13 @@ function paths(input: CutoverPaths, ownerRestore = false): CutoverPaths {
   return p;
 }
 function reserve(file: string): Identity { fs.closeSync(fs.openSync(file, 'wx', 0o600)); return identity(file); }
-function closeNative(db: DatabaseSync | undefined | null): boolean {
+function closeNative(db: SqliteDatabase | undefined | null): boolean {
   if (!db) return true;
   try { if (db.isOpen) db.close(); return true; }
   catch { try { if (db.isOpen) db.close(); } catch {} return false; }
 }
-function open(file: string, readOnly = false): DatabaseSync {
-  const db = new DatabaseSync(file, { readOnly, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+function open(file: string, readOnly = false): SqliteDatabase {
+  const db = new SqliteDatabase(file, { readOnly, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
   try { db.exec('PRAGMA busy_timeout=0; PRAGMA temp_store=MEMORY; PRAGMA synchronous=FULL; PRAGMA wal_autocheckpoint=0;'); }
   catch (e) { closeNative(db); throw e; }
   return db;
@@ -157,26 +168,45 @@ function viewIdentity(p: CutoverPaths, ownedRecovery = false): Identity {
   if (header.toString('ascii', 0, 16) !== 'SQLite format 3\0' || header[18] !== 1 || header[19] !== 1) fail('state');
   return id;
 }
-function runtime(db: DatabaseSync): void {
-  const version = String(db.prepare('SELECT sqlite_version() AS v').get()!.v).split('.').map(Number);
-  const [a, b, c] = version;
-  if (process.versions.bun || a !== 3 || !(b > 51 || b === 51 && c >= 3 || b === 50 && c >= 7 || b === 44 && c >= 6)
-    || typeof backup !== 'function' || typeof db.function !== 'function' || typeof db.setAuthorizer !== 'function') fail('runtime');
+function runtime(db: SqliteDatabase): void {
+  const version = db.prepare('SELECT sqlite_version() AS v').get()!.v;
+  if (!memorySqliteRuntime() || !sqliteWalSafe(version)
+    || typeof sqliteBackup !== 'function' || typeof db.function !== 'function' || typeof db.setAuthorizer !== 'function') fail('runtime');
 }
-function schema(db: DatabaseSync): void {
+function schema(db: SqliteDatabase): 1 | 2 {
   const versions = db.prepare('SELECT version FROM schema_migrations ORDER BY version').all();
-  if (versions.length !== 1 || versions[0].version !== 1) fail('schema');
+  const version = versions.length === 1 && versions[0].version === 1 ? 1
+    : versions.length === 2 && versions[0].version === 1 && versions[1].version === 2 ? 2 : fail('schema');
   const rows = db.prepare("SELECT name,type,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT LIKE 'bosun_%' ORDER BY name").all();
   const digest = crypto.createHash('sha256').update(JSON.stringify(rows.map((r) => [r.name, r.type, r.tbl_name, normalize(r.sql)]))).digest('hex');
-  if (digest !== SCHEMA) fail('schema');
+  if (digest !== (version === 1 ? SCHEMA : SCHEMA2)) fail('schema');
   const extra = db.prepare("SELECT name FROM sqlite_master WHERE name LIKE 'bosun_%'").all();
-  const allowed = new Set([META, PUBLIC_FLOOR, ...TABLES.flatMap((t) => ['insert', 'update', 'delete'].map((op) => triggerName(t, op)))]);
+  const allowed = new Set([META, PUBLIC_FLOOR, ...protectedTables(db).flatMap((t) => ['insert', 'update', 'delete'].map((op) => triggerName(t, op)))]);
   if (extra.some((r) => !allowed.has(String(r.name)))) fail('schema');
+  return version;
 }
-function sqlEquals(db: DatabaseSync, name: string, sql: string): void {
+// Explicit upgrade preflight only, never used by hook/daemon fallback reads.
+// Legacy clients must have closed their WAL handles before any layout effects.
+export function validateLegacyUpgradeSource(file: string): void {
+  let db: SqliteDatabase | undefined;
+  try {
+    canonical(file, true);
+    if (['-wal', '-shm', '-journal'].some(suffix => present(file + suffix)) ||
+      fs.statSync(file).size < 100 || fs.statSync(file).size > MAX_BYTES) fail('state');
+    db = new SqliteDatabase(pathToFileURL(file).href + '?immutable=1&mode=ro', {
+      readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false,
+    });
+    db.exec('PRAGMA busy_timeout=0; PRAGMA temp_store=MEMORY; PRAGMA query_only=ON;');
+    runtime(db);
+    if (schema(db) !== 1 || sourceFloor(db)) fail('schema');
+    if (db.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('schema');
+  } catch (e) { mapped(e); }
+  finally { if (!closeNative(db)) fail('storage'); }
+}
+function sqlEquals(db: SqliteDatabase, name: string, sql: string): void {
   if (normalize(db.prepare('SELECT sql FROM sqlite_master WHERE name=?').get(name)?.sql) !== normalize(sql)) fail('schema');
 }
-function sourceFloor(db: DatabaseSync): Row | undefined {
+function sourceFloor(db: SqliteDatabase): Row | undefined {
   if (!db.prepare('SELECT 1 FROM sqlite_master WHERE name=?').get(META)) {
     if (db.prepare("SELECT 1 FROM sqlite_master WHERE name LIKE 'bosun_%'").get()) fail('schema');
     return undefined;
@@ -184,7 +214,7 @@ function sourceFloor(db: DatabaseSync): Row | undefined {
   sqlEquals(db, META, META_SQL);
   const upgraded = !!db.prepare('SELECT 1 FROM sqlite_master WHERE name=?').get(PUBLIC_FLOOR);
   const format = upgraded ? 2 : 1;
-  for (const table of TABLES) for (const op of ['insert', 'update', 'delete']) sqlEquals(db, triggerName(table, op), triggerSql(table, op, format));
+  for (const table of protectedTables(db)) for (const op of ['insert', 'update', 'delete']) sqlEquals(db, triggerName(table, op), triggerSql(table, op, format));
   const rows = db.prepare(`SELECT * FROM ${META}`).all();
   if (rows.length !== 1 || rows[0].id !== 1 || rows[0].protocol !== 1 || !integer(rows[0].generation)) fail('state');
   if (upgraded) {
@@ -196,7 +226,7 @@ function sourceFloor(db: DatabaseSync): Row | undefined {
   rows[0].format = format;
   return rows[0];
 }
-function validateGate(db: DatabaseSync, p: CutoverPaths, source: Identity, view: Identity): Gate {
+function validateGate(db: SqliteDatabase, p: CutoverPaths, source: Identity, view: Identity): Gate {
   const names = db.prepare("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").all();
   const format = names.some((r) => r.name === 'bosun_public_state') ? 2 : 1;
   if (format === 1 && (names.length !== 1 || names[0].name !== 'bosun_cutover_gate')) fail('schema');
@@ -229,7 +259,7 @@ function recoveryBinding(floor: Row, p: CutoverPaths, source: Identity, view: Id
     backup_hash: floor.backup_hash as string, started_at: floor.started_at as number };
   bindGate(gate, p, source, view); reconcile(floor, gate, p);
 }
-function publicState(db: DatabaseSync, gate: Gate): Row {
+function publicState(db: SqliteDatabase, gate: Gate): Row {
   const rows = db.prepare('SELECT * FROM bosun_public_state').all(); const r = rows[0];
   if (rows.length !== 1 || r.id !== 1 || r.format !== 2 || !['HOLD', 'READY'].includes(String(r.state)) || r.source_id !== gate.source_id
     || r.generation !== null && !integer(r.generation) || r.publication_id !== null && (typeof r.publication_id !== 'string' || !UUID.test(r.publication_id))
@@ -253,7 +283,7 @@ function reconcile(floor: Row, gate: Gate, p: CutoverPaths): void {
   }
   if (!gate.backup_hash || digestBackup(path.join(p.backups, gate.backup_name), { dev: gate.backup_dev, ino: gate.backup_ino }) !== gate.backup_hash) fail('backup');
 }
-function viewTx(db: DatabaseSync, fn: () => void): void {
+function viewTx(db: SqliteDatabase, fn: () => void): void {
   db.exec('BEGIN IMMEDIATE');
   try { fn(); db.exec('COMMIT'); } catch (e) { try { db.exec('ROLLBACK'); } catch {} throw e; }
 }
@@ -266,7 +296,7 @@ function freshId(id: () => string): string {
   if (typeof value !== 'string' || !UUID.test(value)) fail('input'); return value;
 }
 const receipt = (gate: Gate, generation: number): CutoverReceipt => ({ state: 'HOLD', floor: FLOOR, sourceId: gate.source_id, attemptId: gate.attempt_id, generation });
-function confirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPaths, expected: Gate): { gate: Gate; generation: number } {
+function confirmed(source: SqliteDatabase, view: SqliteDatabase, p: CutoverPaths, expected: Gate): { gate: Gate; generation: number } {
   if (present(p.view + RESTORE_PENDING_SUFFIX)) fail('state');
   const sourceId = { dev: expected.source_dev, ino: expected.source_ino }; const viewId = { dev: expected.view_dev, ino: expected.view_ino };
   same(p.primary, sourceId); same(p.view, viewId);
@@ -285,7 +315,7 @@ function confirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPaths, ex
 
 /** Holds actual source write admission continuously across native backup and the schema commit. */
 export async function cutoverMemory(options: CutoverOptions): Promise<CutoverReceipt> {
-  let source: DatabaseSync | undefined; let view: DatabaseSync | undefined; let copySource: DatabaseSync | undefined;
+  let source: SqliteDatabase | undefined; let view: SqliteDatabase | undefined; let copySource: SqliteDatabase | undefined;
   let admitted = false;
   try {
     if (!options || typeof options.now !== 'function' || typeof options.id !== 'function') fail('input');
@@ -300,7 +330,7 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     const p = paths(options.paths); const sourceId = identity(p.primary);
     source = open(p.primary); runtime(source);
     source.exec('BEGIN IMMEDIATE'); admitted = true;
-    same(p.primary, sourceId); paths(p); schema(source);
+    same(p.primary, sourceId); paths(p); const sourceSchema = schema(source);
     const floor = sourceFloor(source);
     let gate: Gate | undefined;
     let viewId: Identity | undefined;
@@ -310,6 +340,8 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     } else {
       if (floor) fail('identity');
     }
+    if (options.upgradeSchema !== undefined &&
+      (options.upgradeSchema !== true || sourceSchema !== 1 || floor || gate || view)) fail('schema');
     // Independent owner expectations and filesystem freshness are checked under actual admission,
     // before revocation, artifact reservation, gate changes or floor installation.
     if (expectation) {
@@ -352,7 +384,7 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     await options.checkpoint?.('intent');
     same(p.primary, sourceId); same(p.view, viewId); same(backupFile, backupId);
     copySource = open(p.primary, true);
-    await backup(copySource, backupFile, { source: 'main', target: 'main', rate: 100 });
+    await sqliteBackup(copySource, backupFile, { source: 'main', target: 'main', rate: 100 });
     if (!closeNative(copySource)) fail('storage'); copySource = undefined;
     // Only the finished offline artifact is read by fs; the live DB/WAL is never copied.
     const artifact = open(backupFile);
@@ -367,16 +399,29 @@ export async function cutoverMemory(options: CutoverOptions): Promise<CutoverRec
     viewTx(view, () => view!.prepare("UPDATE bosun_cutover_gate SET phase='backed',backup_hash=? WHERE id=1").run(gate!.backup_hash));
     await options.checkpoint?.('backup');
     same(p.primary, sourceId); same(p.view, viewId); reconcileBackup(gate, p);
+    // Backup contains the untouched legacy rows, raw flags, audit and schema.
+    // DDL and the writer floor commit together under the original admission.
+    if (options.upgradeSchema) {
+      source.exec(GRAPH_SCHEMA_SQL);
+      source.prepare('INSERT INTO schema_migrations(version,applied_at) VALUES(2,?)').run(started);
+      if (schema(source) !== 2) fail('schema');
+    }
     source.exec(META_SQL);
     source.prepare(`INSERT INTO ${META} VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
       gate.id, gate.protocol, gate.source_id, gate.attempt_id, 0, gate.source_dev, gate.source_ino, gate.view_dev, gate.view_ino,
       gate.backup_name, gate.backup_dev, gate.backup_ino, gate.backup_hash, gate.started_at);
-    for (const table of TABLES) for (const op of ['insert', 'update', 'delete']) source.exec(triggerSql(table, op));
+    for (const table of protectedTables(source)) for (const op of ['insert', 'update', 'delete']) source.exec(triggerSql(table, op));
     await options.checkpoint?.('floor');
     same(p.primary, sourceId); same(p.view, viewId); reconcileBackup(gate, p);
     source.exec('COMMIT'); admitted = false;
     await options.checkpoint?.('commit');
     confirmed(source, view, p, gate);
+    if (options.upgradeSchema) {
+      // The final registered runtime expects a WAL primary. Change format only
+      // after the original backup and schema/floor commit are confirmed.
+      if (source.prepare('PRAGMA journal_mode=WAL').get()!.journal_mode !== 'wal') fail('state');
+      same(p.primary, sourceId);
+    }
     viewTx(view, () => view!.exec("UPDATE bosun_cutover_gate SET phase='applied' WHERE id=1"));
     const final = confirmed(source, view, p, gate); if (final.gate.phase !== 'applied') fail('state');
     return receipt(gate, final.generation);
@@ -403,12 +448,12 @@ function recoveryGate(gate: Gate, p: CutoverPaths): void {
 }
 /** Owner-only reference inspection. Never opens the primary or an unreferenced artifact through SQLite. */
 export function inspectOwnerCutoverReference(p: CutoverPaths, names: readonly string[], sourceId?: string, recover = false): { index: number; phase: 'copying' | 'backed' | 'applied' } {
-  let view: DatabaseSync | undefined;
+  let view: SqliteDatabase | undefined;
   try {
     if (sourceId !== undefined && (typeof sourceId !== 'string' || !UUID.test(sourceId)) || recover && sourceId === undefined
       || !Array.isArray(names) || names.length > 32 || names.some((name) => typeof name !== 'string' || !UUID.test(name.slice(0, -3)) || !name.endsWith('.db'))) fail('input');
     p = paths(p); const source = identity(p.primary); const fixed = viewIdentity(p);
-    view = new DatabaseSync(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+    view = new SqliteDatabase(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
     view.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;');
     runtime(view);
     const gate = validateGate(view, p, source, fixed);
@@ -420,7 +465,7 @@ export function inspectOwnerCutoverReference(p: CutoverPaths, names: readonly st
   } catch (e) { return mapped(e); }
   finally { if (!closeNative(view)) fail('storage'); }
 }
-function holdPublic(view: DatabaseSync, gate: Gate): void {
+function holdPublic(view: SqliteDatabase, gate: Gate): void {
   viewTx(view, () => {
     view.exec("UPDATE bosun_cutover_gate SET state='HOLD' WHERE id=1");
     if (gate.format === 2) {
@@ -569,7 +614,7 @@ export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], s
   reference: 'verified' | 'unverified'; index: number; ownedNames: string[]; attemptId: string | null; newSourceId: string | null;
   pending: boolean; outcome: 'committed' | 'rolled_back' | null;
 } {
-  let view: DatabaseSync | undefined;
+  let view: SqliteDatabase | undefined;
   try {
     if (typeof sourceId !== 'string' || !UUID.test(sourceId) || newSourceId !== undefined && (typeof newSourceId !== 'string' || !UUID.test(newSourceId))
       || !Array.isArray(names) || names.length > 32) fail('input');
@@ -590,7 +635,7 @@ export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], s
         attemptId: intent.attemptId, newSourceId: intent.newSourceId, pending: true, outcome: null };
     }
     const fixed = viewIdentity(p);
-    view = new DatabaseSync(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+    view = new SqliteDatabase(p.view, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
     view.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE; BEGIN;'); runtime(view);
     const gate = validateGate(view, p, source, fixed); if (gate.phase !== 'applied') fail('state');
     let intent: RestoreIntent | undefined; let outcome: 'committed' | 'rolled_back' | null = null;
@@ -615,9 +660,9 @@ export function inspectOwnerRestore(p: CutoverPaths, names: readonly string[], s
   finally { if (!closeNative(view)) fail('storage'); }
 }
 async function exactBackup(p: CutoverPaths, file: string, fixed: Identity): Promise<string> {
-  let copy: DatabaseSync | undefined;
+  let copy: SqliteDatabase | undefined;
   try {
-    copy = open(p.primary, true); await backup(copy, file, { source: 'main', target: 'main', rate: 100 });
+    copy = open(p.primary, true); await sqliteBackup(copy, file, { source: 'main', target: 'main', rate: 100 });
     if (!closeNative(copy)) fail('storage'); copy = undefined;
     const artifact = open(file);
     try {
@@ -630,10 +675,11 @@ async function exactBackup(p: CutoverPaths, file: string, fixed: Identity): Prom
     syncDirectory(p.backups); return hash;
   } finally { if (!closeNative(copy)) fail('storage'); }
 }
-function restoreRows(source: DatabaseSync, artifact: DatabaseSync): void {
+function restoreRows(source: SqliteDatabase, artifact: SqliteDatabase): void {
+  if (schema(source) !== schema(artifact)) fail('schema');
   let bytes = 0; let total = 0;
   // Existing AFTER triggers maintain both external-content FTS indexes. Keep all explicit primary keys.
-  for (const table of TABLES) {
+  for (const table of protectedTables(artifact)) {
     const columns = artifact.prepare(`PRAGMA table_info(${table})`).all().map((r) => String(r.name));
     const select = artifact.prepare(`SELECT ${columns.join(',')} FROM ${table} ORDER BY 1`); select.setReadBigInts(true);
     const insert = source.prepare(`INSERT INTO ${table}(${columns.join(',')}) VALUES(${columns.map(() => '?').join(',')})`);
@@ -645,23 +691,23 @@ function restoreRows(source: DatabaseSync, artifact: DatabaseSync): void {
       if (bytes > MAX_BYTES) fail('state'); insert.run(...values);
     }
   }
-  const migration = artifact.prepare('SELECT applied_at FROM schema_migrations WHERE version=1'); migration.setReadBigInts(true);
-  source.prepare('UPDATE schema_migrations SET applied_at=? WHERE version=1').run(migration.get()!.applied_at as bigint);
+  const migrations = artifact.prepare('SELECT version,applied_at FROM schema_migrations'); migrations.setReadBigInts(true);
+  for (const migration of migrations.all()) source.prepare('UPDATE schema_migrations SET applied_at=? WHERE version=?').run(migration.applied_at as bigint, migration.version as bigint);
   if (source.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('state');
 }
-function rotateFloor(source: DatabaseSync, gate: Gate, generation: number): void {
+function rotateFloor(source: SqliteDatabase, gate: Gate, generation: number): void {
   source.prepare(`UPDATE ${META} SET source_id=?,attempt_id=?,generation=?,backup_name=?,backup_dev=?,backup_ino=?,backup_hash=?,started_at=? WHERE id=1`)
     .run(gate.source_id, gate.attempt_id, generation, gate.backup_name, gate.backup_dev, gate.backup_ino, gate.backup_hash, gate.started_at);
   if (gate.format === 2) source.prepare(`UPDATE ${PUBLIC_FLOOR} SET source_id=? WHERE id=1`).run(gate.source_id);
 }
-function rotateView(view: DatabaseSync, gate: Gate): void {
+function rotateView(view: SqliteDatabase, gate: Gate): void {
   viewTx(view, () => {
     view.prepare(`UPDATE bosun_cutover_gate SET source_id=?,attempt_id=?,backup_name=?,backup_dev=?,backup_ino=?,backup_hash=?,started_at=? WHERE id=1`)
       .run(gate.source_id, gate.attempt_id, gate.backup_name, gate.backup_dev, gate.backup_ino, gate.backup_hash, gate.started_at);
     if (gate.format === 2) view.prepare("UPDATE bosun_public_state SET state='HOLD',source_id=?,generation=NULL,publication_id=NULL,published_at=NULL,valid_until=NULL WHERE id=1").run(gate.source_id);
   });
 }
-function restoreConfirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPaths, gate: Gate): number {
+function restoreConfirmed(source: SqliteDatabase, view: SqliteDatabase, p: CutoverPaths, gate: Gate): number {
   same(p.primary, { dev: gate.source_dev, ino: gate.source_ino }); same(p.view, { dev: gate.view_dev, ino: gate.view_ino });
   schema(source); const floor = sourceFloor(source); if (!floor) fail('state');
   const current = validateGate(view, p, identity(p.primary), viewIdentity(p));
@@ -671,7 +717,7 @@ function restoreConfirmed(source: DatabaseSync, view: DatabaseSync, p: CutoverPa
 }
 /** Bounded logical restoration of the CURRENT verified owner reference; no live DB/WAL file copy. */
 export async function restoreMemory(options: RestoreOptions): Promise<RestoreReceipt> {
-  let source: DatabaseSync | undefined; let view: DatabaseSync | undefined; let artifact: DatabaseSync | undefined; let admitted = false;
+  let source: SqliteDatabase | undefined; let view: SqliteDatabase | undefined; let artifact: SqliteDatabase | undefined; let admitted = false;
   let effected = false;
   try {
     if (!options || !['restore', 'restore-reconcile'].includes(options.operation) || typeof options.sourceId !== 'string' || !UUID.test(options.sourceId)
@@ -715,7 +761,7 @@ export async function restoreMemory(options: RestoreOptions): Promise<RestoreRec
       reconcile(floor, gate, p); const previous = completedReceipt(p, gate);
       if (options.validate() !== undefined) fail('input');
       const target = path.join(p.backups, gate.backup_name); reconcileBackup(gate, p);
-      artifact = new DatabaseSync(target, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+      artifact = new SqliteDatabase(target, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
       artifact.exec('PRAGMA query_only=ON; PRAGMA busy_timeout=0; PRAGMA temp_store=MEMORY; PRAGMA locking_mode=EXCLUSIVE; BEGIN;');
       runtime(artifact); schema(artifact); sourceFloor(artifact);
       if (artifact.prepare('PRAGMA quick_check').get()!.quick_check !== 'ok') fail('backup');
@@ -814,8 +860,8 @@ export type PublicationOptions = { paths: CutoverPaths; now: () => number; id: (
   checkpoint?: (phase: PublicationPhase) => void | Promise<void> };
 export type PublicationReceipt = { state: 'READY'; publicationId: string };
 type OwnedView = { paths: CutoverPaths; gate: Gate };
-function reholdOwned(owned: OwnedView, active?: DatabaseSync): boolean {
-  let extra: DatabaseSync | undefined;
+function reholdOwned(owned: OwnedView, active?: SqliteDatabase): boolean {
+  let extra: SqliteDatabase | undefined;
   try {
     const { paths: p, gate } = owned;
     same(p.view, { dev: gate.view_dev, ino: gate.view_ino });
@@ -845,27 +891,30 @@ function publicRow(row: Row): Row {
   // Fixed current-public projection; audit history and owner recovery metadata are absent.
   return Object.fromEntries(PUBLIC_COLUMNS.map((key) => [key, row[key]]));
 }
-function publicRows(source: DatabaseSync, now: number): Row[] {
+function publicRows(source: SqliteDatabase, now: number): Row[] {
   const rows = source.prepare(`SELECT ${PUBLIC_COLUMNS.join(',')} FROM memories WHERE typeof(private)='integer' AND private=0
     AND status='active' AND (expires_at IS NULL OR (typeof(expires_at)='integer' AND expires_at>:now)) ORDER BY seq LIMIT :limit`)
     .all({ now, limit: PUBLIC_MAX_ROWS + 1 });
   if (rows.length > PUBLIC_MAX_ROWS) fail('state');
   let bytes = 0;
-  return rows.map((row) => {
+  return rows.flatMap((row) => {
     const projected = publicRow(row); bytes += Buffer.byteLength(JSON.stringify(projected));
-    if (bytes > PUBLIC_MAX_BYTES) fail('state'); return projected;
+    if (bytes > PUBLIC_MAX_BYTES) fail('state');
+    try { for (const key of ['title', 'body', 'tags', 'source', 'source_ref']) if (typeof projected[key] === 'string') screenPublicText(projected[key]); }
+    catch { return []; }
+    return [projected];
   });
 }
-function installPublicFloor(source: DatabaseSync, gate: Gate): void {
+function installPublicFloor(source: SqliteDatabase, gate: Gate): void {
   source.exec(PUBLIC_FLOOR_SQL);
   source.prepare(`INSERT INTO ${PUBLIC_FLOOR} VALUES(1,2,?,?,?)`).run(gate.source_id, gate.view_dev, gate.view_ino);
-  for (const table of TABLES) for (const op of ['insert', 'update', 'delete']) {
+  for (const table of protectedTables(source)) for (const op of ['insert', 'update', 'delete']) {
     source.exec(`DROP TRIGGER ${triggerName(table, op)}`); source.exec(triggerSql(table, op, 2));
   }
 }
 /** Explicit owner publication for an already-applied floor. No source/gate/backup creation or cutover. */
 export async function publishMemoryView(options: PublicationOptions): Promise<PublicationReceipt> {
-  let source: DatabaseSync | undefined; let view: DatabaseSync | undefined; let admitted = false; let viewTransaction = false;
+  let source: SqliteDatabase | undefined; let view: SqliteDatabase | undefined; let admitted = false; let viewTransaction = false;
   let owned: OwnedView | undefined; let readyCommitted = false;
   try {
     if (!options || typeof options.now !== 'function' || typeof options.id !== 'function'
@@ -969,8 +1018,9 @@ export async function publishMemoryView(options: PublicationOptions): Promise<Pu
 
 /** Registered connection pinned to its construction format; publication is an explicit separate operation. */
 export class CutoverWriter {
-  #source: DatabaseSync | null = null;
-  #view: DatabaseSync | null = null;
+  readonly schemaVersion!: 1 | 2;
+  #source: SqliteDatabase | null = null;
+  #view: SqliteDatabase | null = null;
   #paths!: CutoverPaths;
   #gate!: Gate;
   #admitted = false;
@@ -990,8 +1040,9 @@ export class CutoverWriter {
       this.#view = open(p.view);
       this.#gate = validateGate(this.#view, p, identity(p.primary), viewId);
       if (this.#gate.phase !== 'applied') fail('state');
-      schema(this.#source);
+      this.schemaVersion = schema(this.#source);
       const floor = sourceFloor(this.#source); if (!floor) fail('state');
+      const protectedNames = protectedTables(this.#source);
       reconcile(floor, this.#gate, p);
       if (floor.format !== this.#gate.format) fail('state');
       const fn = this.#gate.format === 2 ? FN2 : FN;
@@ -1004,22 +1055,22 @@ export class CutoverWriter {
         this.#protectedDml = true;
         return 1;
       });
-      const ddl = new Set([constants.SQLITE_CREATE_TABLE, constants.SQLITE_CREATE_INDEX, constants.SQLITE_CREATE_TRIGGER,
-        constants.SQLITE_CREATE_VIEW, constants.SQLITE_CREATE_VTABLE, constants.SQLITE_DROP_TABLE, constants.SQLITE_DROP_INDEX,
-        constants.SQLITE_DROP_TRIGGER, constants.SQLITE_DROP_VIEW, constants.SQLITE_DROP_VTABLE, constants.SQLITE_ALTER_TABLE,
-        constants.SQLITE_CREATE_TEMP_TABLE, constants.SQLITE_CREATE_TEMP_INDEX, constants.SQLITE_CREATE_TEMP_TRIGGER,
-        constants.SQLITE_CREATE_TEMP_VIEW, constants.SQLITE_DROP_TEMP_TABLE, constants.SQLITE_DROP_TEMP_INDEX,
-        constants.SQLITE_DROP_TEMP_TRIGGER, constants.SQLITE_DROP_TEMP_VIEW,
-        constants.SQLITE_ATTACH, constants.SQLITE_DETACH]);
+      const ddl = new Set([sqliteConstants.SQLITE_CREATE_TABLE, sqliteConstants.SQLITE_CREATE_INDEX, sqliteConstants.SQLITE_CREATE_TRIGGER,
+        sqliteConstants.SQLITE_CREATE_VIEW, sqliteConstants.SQLITE_CREATE_VTABLE, sqliteConstants.SQLITE_DROP_TABLE, sqliteConstants.SQLITE_DROP_INDEX,
+        sqliteConstants.SQLITE_DROP_TRIGGER, sqliteConstants.SQLITE_DROP_VIEW, sqliteConstants.SQLITE_DROP_VTABLE, sqliteConstants.SQLITE_ALTER_TABLE,
+        sqliteConstants.SQLITE_CREATE_TEMP_TABLE, sqliteConstants.SQLITE_CREATE_TEMP_INDEX, sqliteConstants.SQLITE_CREATE_TEMP_TRIGGER,
+        sqliteConstants.SQLITE_CREATE_TEMP_VIEW, sqliteConstants.SQLITE_DROP_TEMP_TABLE, sqliteConstants.SQLITE_DROP_TEMP_INDEX,
+        sqliteConstants.SQLITE_DROP_TEMP_TRIGGER, sqliteConstants.SQLITE_DROP_TEMP_VIEW,
+        sqliteConstants.SQLITE_ATTACH, sqliteConstants.SQLITE_DETACH]);
       this.#source.setAuthorizer((action, table, _column, _db, trigger) => {
-        if (ddl.has(action) || action === constants.SQLITE_PRAGMA
+        if (ddl.has(action) || action === sqliteConstants.SQLITE_PRAGMA
           && !(table === 'data_version' && _column === null)
-          && !(this.#pragma?.name === table && this.#pragma.value === _column && (_db === null || _db === 'main'))) return constants.SQLITE_DENY;
-        if (action === constants.SQLITE_TRANSACTION && !this.#transactionControl || action === constants.SQLITE_SAVEPOINT) return constants.SQLITE_DENY;
-        if (action === constants.SQLITE_FUNCTION && [FN, FN2].includes(_column ?? '') && !TABLES.some((t) => ['insert', 'update', 'delete'].some((op) => trigger === triggerName(t, op)))) return constants.SQLITE_DENY;
-        if ([constants.SQLITE_UPDATE, constants.SQLITE_INSERT, constants.SQLITE_DELETE].includes(action)
-          && (table === PUBLIC_FLOOR || table === META && !TABLES.some((t) => ['insert', 'update', 'delete'].some((op) => trigger === triggerName(t, op))))) return constants.SQLITE_DENY;
-        return constants.SQLITE_OK;
+          && !(this.#pragma?.name === table && this.#pragma.value === _column && (_db === null || _db === 'main'))) return sqliteConstants.SQLITE_DENY;
+        if (action === sqliteConstants.SQLITE_TRANSACTION && !this.#transactionControl || action === sqliteConstants.SQLITE_SAVEPOINT) return sqliteConstants.SQLITE_DENY;
+        if (action === sqliteConstants.SQLITE_FUNCTION && [FN, FN2].includes(_column ?? '') && !protectedNames.some((t) => ['insert', 'update', 'delete'].some((op) => trigger === triggerName(t, op)))) return sqliteConstants.SQLITE_DENY;
+        if ([sqliteConstants.SQLITE_UPDATE, sqliteConstants.SQLITE_INSERT, sqliteConstants.SQLITE_DELETE].includes(action)
+          && (table === PUBLIC_FLOOR || table === META && !protectedNames.some((t) => ['insert', 'update', 'delete'].some((op) => trigger === triggerName(t, op))))) return sqliteConstants.SQLITE_DENY;
+        return sqliteConstants.SQLITE_OK;
       });
     } catch (e) { try { this.close(); } catch {} mapped(e); }
   }
@@ -1053,7 +1104,7 @@ export class CutoverWriter {
     if (applied !== Math.max(count, limit)) fail('state');
   }
   /** Synchronous callback only; do not retain statements/connection or replace its floor function. */
-  transaction<T>(write: (db: DatabaseSync) => T): T {
+  transaction<T>(write: (db: SqliteDatabase) => T): T {
     if (!this.#source || !this.#view || this.#admitted || typeof write !== 'function') fail('state');
     let admissionAttempted = false; let commitAttempted = false; let committed = false;
     try {
@@ -1069,7 +1120,7 @@ export class CutoverWriter {
       if (current.gate.phase !== 'applied') fail('state');
       this.#reserveCapacity();
       const result = write(this.#source);
-      if (result === this.#source || result instanceof StatementSync || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
+      if (result === this.#source || result instanceof SqliteStatement || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
       this.#confirmed();
       this.#reserveCapacity();
       if (this.#protectedDml && !this.#capacityAllowed) fail('state');
@@ -1102,13 +1153,13 @@ export class CutoverWriter {
     }
   }
   /** Synchronous SQL reads for the owner store; never exposes a native handle as a property. */
-  read<T>(read: (db: DatabaseSync) => T): T {
+  read<T>(read: (db: SqliteDatabase) => T): T {
     if (!this.#source || typeof read !== 'function') fail('state');
     try {
       const current = this.#confirmed();
       if (current.gate.phase !== 'applied') fail('state');
       const result = read(this.#source);
-      if (result === this.#source || result instanceof StatementSync || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
+      if (result === this.#source || result instanceof SqliteStatement || result && typeof (result as { then?: unknown }).then === 'function') fail('input');
       return result;
     } catch (e) { const domain = authoritative(e); if (domain) throw domain; return mapped(e); }
   }

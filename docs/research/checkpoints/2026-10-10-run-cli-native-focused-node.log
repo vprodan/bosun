@@ -1,0 +1,69 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (5.344666ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (254.296875ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.481125ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (154.159333ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (542.499291ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (292.139875ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (173.206292ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (153.507542ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (151.415583ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (319.103292ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (2.979625ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (122.915666ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (545.71775ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (370.160667ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (283.840917ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (160.512333ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (152.765917ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (167.481ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (165.158166ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (205.924167ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (144.555042ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (345.787875ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (179.117833ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (152.345208ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (261.696458ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (325.437708ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.76225ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (18.188208ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (7.294333ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (4.514417ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (9.096542ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (5.417333ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (7.45725ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (20.621167ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (8.772208ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (9.294708ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (169.156583ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (15.979458ms)
+✔ final run literal, public file and real stdin all reach one pinned native executor with isolated parent controls and original dedupe (1758.764833ms)
+✔ nested run rejects before task file, configuration getters, queue writes or native discovery (110.287125ms)
+✔ run rejects missing/ambiguous/oversized and credential-bearing task input before owner jobs or native effects (303.977167ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8480.833292

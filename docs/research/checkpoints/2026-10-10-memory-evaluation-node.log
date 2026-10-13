@@ -1,0 +1,50 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (4.628917ms)
+✔ all public classifications precede any export/query/label payload getters (0.318125ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (3.68375ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.279541ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (521.513458ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (485.143583ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (525.648041ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (64.904791ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (487.731375ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (642.107166ms)
+✔ entire corpus privacy is checked before any task payload, including the last held-out entry (0.820542ms)
+✔ fixed split rejects duplicate tasks/references, repository or session leakage, missing categories, model skew and credentials (10.890958ms)
+✔ threshold freezes only development evidence; held-out relabeling cannot tune it and synthetic/imported metrics cannot qualify calibration (3.443333ms)
+✔ deterministic permissions/model/no-delegation fences remain authoritative and risk-miss/outcome metrics expose harmful offered hints (1.64725ms)
+✔ final CLI offline analysis uses the complete corpus, reports outcome uncertainty, leaves sources/config intact and calls no model (149.763916ms)
+✔ native capture evaluates development first, persists its selection before held-out requests and never sends labels or verification data to the classifier (397.440458ms)
+✔ public declaration and source pin reject private late cases, secret input and external/symlink paths before inference or artifacts (124.502875ms)
+✔ a dataset change during capture preserves one unknown original job, never starts held-out capture and never replays the request (140.997833ms)
+✔ reviewed digest mismatch holds before generation; a tagged model is never silently evaluated with different weights (132.837167ms)
+✔ lost actual frozen-file publication retains its original selection after20 calls and starts no held-out request or replay (173.18675ms)
+✔ cancellation during held-out capture keeps the frozen selection and unknown job without more inference or release (189.970375ms)
+✔ outcome proof resolves an actual closed revision-bound check; owner assertions and mismatched revisions remain unverified (1031.183167ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5509.141875

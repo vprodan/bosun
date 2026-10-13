@@ -1,10 +1,10 @@
 import './bootstrap.ts';
 // Test sandbox: roots below the enforced per-run guard, stub CLIs, offline mock servers.
-import { spawn, spawnSync } from 'node:child_process';
+import childProcess from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
 import { createRequire } from 'node:module';
 
 const { environment, DEFAULT_STUBS } = createRequire(import.meta.url)('../scripts/test-env.cjs');
@@ -56,14 +56,30 @@ if (hit.out !== undefined) process.stdout.write(typeof hit.out === 'string' ? hi
 process.exit(hit.code || Number(process.env['STUB_EXIT_' + name.toUpperCase()] || 0));
 `;
 
-export type Call = { bin: string; argv: string[]; env: Record<string, string>; stdin: string; cwd: string; pid: number };
+export type Call = {
+  bin: string;
+  argv: string[];
+  env: Record<string, string>;
+  stdin: string;
+  cwd: string;
+  pid: number;
+};
 export type Sandbox = {
-  root: string; home: string; bin: string; out: string;
+  root: string;
+  home: string;
+  bin: string;
+  out: string;
   env: (extra?: Record<string, string>) => Record<string, string>;
-  calls: () => Call[]; reset: () => void; cleanup: () => void;
+  calls: () => Call[];
+  reset: () => void;
+  cleanup: () => void;
 };
 
-export function sandbox({ stubs = ['claude', 'codex', 'orca'] }: { stubs?: string[] } = {}): Sandbox {
+export function sandbox({
+  stubs = ['claude', 'codex', 'orca'],
+}: {
+  stubs?: string[];
+} = {}): Sandbox {
   const base = path.join(guard.root, 'sandboxes');
   fs.mkdirSync(base, { recursive: true });
   const root = fs.mkdtempSync(path.join(base, 'case-'));
@@ -71,13 +87,32 @@ export function sandbox({ stubs = ['claude', 'codex', 'orca'] }: { stubs?: strin
   const bin = path.join(root, 'stubs');
   const out = path.join(root, 'stub.jsonl');
   const baseEnv: Record<string, string> = environment(root, guard.root);
-  for (const name of new Set([...DEFAULT_STUBS, ...stubs])) fs.writeFileSync(path.join(bin, name), STUB, { mode: 0o755 });
+  for (const name of new Set([...DEFAULT_STUBS, ...stubs]))
+    fs.writeFileSync(path.join(bin, name), STUB, { mode: 0o755 });
   const env = (extra: Record<string, string> = {}): Record<string, string> => ({
-    ...baseEnv, ...(stubs.includes('curl') ? { BOSUN_TEST_CURL_SUCCESS: '1' } : {}), ...extra,
+    ...baseEnv,
+    ...(stubs.includes('curl') ? { BOSUN_TEST_CURL_SUCCESS: '1' } : {}),
+    ...extra,
   });
-  const calls = (): Call[] => (fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []);
+  const calls = (): Call[] =>
+    fs.existsSync(out)
+      ? fs
+          .readFileSync(out, 'utf8')
+          .split('\n')
+          .filter(Boolean)
+          .map((l) => JSON.parse(l))
+      : [];
   const reset = () => fs.rmSync(out, { force: true });
-  return { root, home, bin, out, env, calls, reset, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
+  return {
+    root,
+    home,
+    bin,
+    out,
+    env,
+    calls,
+    reset,
+    cleanup: () => fs.rmSync(root, { recursive: true, force: true }),
+  };
 }
 
 // Point this process at a sandbox: HOME, PATH and stub output. Paths are getters, so nothing needs reloading.
@@ -92,7 +127,8 @@ export function fresh(sb: Sandbox, env: Record<string, string> = {}): void {
 export function gitRepo(sb: Sandbox, name: string, origin?: string): string {
   const dir = path.join(sb.root, name);
   fs.mkdirSync(dir, { recursive: true });
-  const git = (...a: string[]) => spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd: dir });
+  const git = (...a: string[]) =>
+    childProcess.spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd: dir });
   git('init', '-q', '-b', 'main');
   git('commit', '-q', '--allow-empty', '-m', 'init');
   if (origin) git('remote', 'add', 'origin', origin);
@@ -100,13 +136,24 @@ export function gitRepo(sb: Sandbox, name: string, origin?: string): string {
 }
 
 export type Run = { code: number | null; out: string; err: string };
-export function bosun(args: string[], { env, cwd, input }: { env?: NodeJS.ProcessEnv; cwd?: string; input?: string } = {}): Promise<Run> {
+export function bosun(
+  args: string[],
+  { env, cwd, input }: { env?: NodeJS.ProcessEnv; cwd?: string; input?: string | Uint8Array } = {},
+): Promise<Run> {
   return new Promise((resolve) => {
-    const p = spawn(process.execPath, [BIN, ...args], { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+    const p = childProcess.spawn(process.execPath, [BIN, ...args], {
+      env,
+      cwd,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
     let out = '';
     let err = '';
-    p.stdout.on('data', (d) => { out += d; });
-    p.stderr.on('data', (d) => { err += d; });
+    p.stdout.on('data', (d) => {
+      out += d;
+    });
+    p.stderr.on('data', (d) => {
+      err += d;
+    });
     p.on('close', (code) => resolve({ code, out, err }));
     p.stdin.end(input === undefined ? '' : input);
   });
@@ -116,94 +163,183 @@ export type Req = { method?: string; path: string; headers: http.IncomingHttpHea
 export type Mock = { url: string; requests: Req[]; close: () => Promise<void> };
 
 // A handler's reply: JSON, raw text (served as HTML), a delay, or a dropped connection.
-export type Reply = { status?: number; json?: unknown; text?: string; delayMs?: number; destroy?: boolean };
+export type Reply = {
+  status?: number;
+  json?: unknown;
+  text?: string;
+  delayMs?: number;
+  destroy?: boolean;
+};
 export type Route = (body: any, req: http.IncomingMessage) => Reply | Promise<Reply>;
 
-// Mock server: Ollama GET /api/tags, Kev POST /v1/systemone, Anthropic POST /v1/messages (SSE). Records requests.
+// Mock server: Ollama metadata/chat, Clef POST /v1/systemone, Anthropic POST /v1/messages (SSE). Records requests.
 // routes: per-path handlers that win over those defaults.
 export function mock(routes: Record<string, Route> = {}): Promise<Mock> {
   const requests: Req[] = [];
   const server = http.createServer((req, res) => {
     let body = '';
-    req.on('data', (c) => { body += c; });
+    req.on('data', (c) => {
+      body += c;
+    });
     req.on('end', async () => {
       let json: any = null;
-      try { json = body ? JSON.parse(body) : null; } catch { json = body; }
+      try {
+        json = body ? JSON.parse(body) : null;
+      } catch {
+        json = body;
+      }
       requests.push({ method: req.method, path: req.url || '', headers: req.headers, body: json });
       const route = routes[(req.url || '').split('?')[0]];
       if (route) {
         const r = await route(json, req);
-        if (r.destroy) { req.socket.destroy(); return; }
+        if (r.destroy) {
+          req.socket.destroy();
+          return;
+        }
         if (r.delayMs) await new Promise((res) => setTimeout(res, r.delayMs));
         if (res.destroyed || res.writableEnded) return;
-        res.writeHead(r.status ?? 200, { 'content-type': r.text !== undefined ? 'text/html' : 'application/json' });
+        res.writeHead(r.status ?? 200, {
+          'content-type': r.text !== undefined ? 'text/html' : 'application/json',
+        });
         res.end(r.text ?? JSON.stringify(r.json ?? {}));
         return;
       }
-      const send = (o: unknown) => { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(o)); };
+      const send = (o: unknown) => {
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify(o));
+      };
       if (req.method === 'GET') return send({ models: [] });
       if ((req.url || '').startsWith('/v1/systemone')) {
-        const t = json.state.request;
-        const [lane, conf] = /rename/.test(t) ? ['local', 0.9] : /implement/.test(t) ? ['worker', 0.8] : ['scout', 0.1];
-        return send({ model: 'kev-latest', latency_ms: 12, answers: {
-          lane: { type: 'choice', choice: lane, confidence: conf },
-          risk: { type: 'choice', choice: /payment/.test(t) ? 'high' : 'low', confidence: 0.3 } } });
+        const t = typeof json?.state === 'string' ? json.state : '';
+        const [lane, confidence] = /rename/.test(t)
+          ? ['local', 0.9]
+          : /implement/.test(t)
+            ? ['worker', 0.8]
+            : ['scout', 0.8];
+        const laneProbabilities = Object.fromEntries(
+          ['main', 'worker', 'local', 'scout'].map((key) => [
+            key,
+            key === lane ? confidence : (1 - confidence) / 3,
+          ]),
+        );
+        const risk = /payment/.test(t) ? 'high' : 'low';
+        const riskConfidence = 0.85;
+        return send({
+          model: json?.model ?? 'clef-flash:9b',
+          answers: {
+            lane: { type: 'choice', choice: lane, probabilities: laneProbabilities, confidence },
+            risk: {
+              type: 'choice',
+              choice: risk,
+              probabilities: {
+                high: risk === 'high' ? riskConfidence : 1 - riskConfidence,
+                low: risk === 'low' ? riskConfidence : 1 - riskConfidence,
+              },
+              confidence: riskConfidence,
+            },
+          },
+          usage: { input_tokens: 800, output_tokens: 2 },
+        });
       }
       if ((req.url || '').startsWith('/v1/messages')) {
         res.writeHead(200, { 'content-type': 'text/event-stream' });
-        const msg = { id: 'm1', type: 'message', role: 'assistant', model: json.model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 1, output_tokens: 1 } };
+        const msg = {
+          id: 'm1',
+          type: 'message',
+          role: 'assistant',
+          model: json.model,
+          content: [],
+          stop_reason: null,
+          stop_sequence: null,
+          usage: { input_tokens: 1, output_tokens: 1 },
+        };
         for (const e of [
           { type: 'message_start', message: msg },
           { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
           { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'MOCK-OK' } },
           { type: 'content_block_stop', index: 0 },
-          { type: 'message_delta', delta: { stop_reason: 'end_turn', stop_sequence: null }, usage: { output_tokens: 1 } },
+          {
+            type: 'message_delta',
+            delta: { stop_reason: 'end_turn', stop_sequence: null },
+            usage: { output_tokens: 1 },
+          },
           { type: 'message_stop' },
-        ]) res.write(`event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`);
+        ])
+          res.write(`event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`);
         return res.end();
       }
       res.statusCode = 404;
       res.end();
     });
   });
-  return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve({
-    url: `http://127.0.0.1:${(server.address() as { port: number }).port}`,
-    requests,
-    close: () => new Promise((r) => { server.closeAllConnections(); server.close(() => r()); }),
-  })));
+  return new Promise((resolve) =>
+    server.listen(0, '127.0.0.1', () =>
+      resolve({
+        url: `http://127.0.0.1:${(server.address() as { port: number }).port}`,
+        requests,
+        close: () =>
+          new Promise((r) => {
+            server.closeAllConnections();
+            server.close(() => r());
+          }),
+      }),
+    ),
+  );
 }
 
-
 // A claude-mem-like database: the columns bosun reads, and FTS tables shaped like claude-mem's schema v40.
-export function claudeMemDb(file: string, rows: { obs?: { project: string; title: string; narrative: string; at?: number }[]; sums?: { project: string; request: string; learned: string; completed?: string; at?: number }[] }): void {
-  const db = new DatabaseSync(file);
+export function claudeMemDb(
+  file: string,
+  rows: {
+    obs?: { project: string; title: string; narrative: string; at?: number }[];
+    sums?: { project: string; request: string; learned: string; completed?: string; at?: number }[];
+  },
+): void {
+  const db = new SqliteDatabase(file);
   db.exec(`CREATE TABLE observations (id INTEGER PRIMARY KEY AUTOINCREMENT, memory_session_id TEXT, project TEXT NOT NULL, text TEXT, type TEXT, title TEXT, subtitle TEXT, facts TEXT, narrative TEXT, concepts TEXT, created_at TEXT, created_at_epoch INTEGER NOT NULL);
     CREATE VIRTUAL TABLE observations_fts USING fts5(title, subtitle, narrative, text, facts, concepts, content='observations', content_rowid='id');
     CREATE TABLE session_summaries (id INTEGER PRIMARY KEY AUTOINCREMENT, memory_session_id TEXT, project TEXT NOT NULL, request TEXT, investigated TEXT, learned TEXT, completed TEXT, next_steps TEXT, notes TEXT, created_at TEXT, created_at_epoch INTEGER NOT NULL);
     CREATE VIRTUAL TABLE session_summaries_fts USING fts5(request, investigated, learned, completed, next_steps, notes, content='session_summaries', content_rowid='id');`);
   for (const o of rows.obs || []) {
-    const r = db.prepare('INSERT INTO observations (project, type, title, narrative, created_at_epoch) VALUES (?, ?, ?, ?, ?)').run(o.project, 'discovery', o.title, o.narrative, o.at ?? Date.now());
-    db.prepare('INSERT INTO observations_fts (rowid, title, narrative) VALUES (?, ?, ?)').run(r.lastInsertRowid, o.title, o.narrative);
+    const r = db
+      .prepare(
+        'INSERT INTO observations (project, type, title, narrative, created_at_epoch) VALUES (?, ?, ?, ?, ?)',
+      )
+      .run(o.project, 'discovery', o.title, o.narrative, o.at ?? Date.now());
+    db.prepare('INSERT INTO observations_fts (rowid, title, narrative) VALUES (?, ?, ?)').run(
+      r.lastInsertRowid,
+      o.title,
+      o.narrative,
+    );
   }
   for (const x of rows.sums || []) {
-    const r = db.prepare('INSERT INTO session_summaries (project, request, learned, completed, created_at_epoch) VALUES (?, ?, ?, ?, ?)').run(x.project, x.request, x.learned, x.completed ?? '', x.at ?? Date.now());
-    db.prepare('INSERT INTO session_summaries_fts (rowid, request, learned, completed) VALUES (?, ?, ?, ?)').run(r.lastInsertRowid, x.request, x.learned, x.completed ?? '');
+    const r = db
+      .prepare(
+        'INSERT INTO session_summaries (project, request, learned, completed, created_at_epoch) VALUES (?, ?, ?, ?, ?)',
+      )
+      .run(x.project, x.request, x.learned, x.completed ?? '', x.at ?? Date.now());
+    db.prepare(
+      'INSERT INTO session_summaries_fts (rowid, request, learned, completed) VALUES (?, ?, ?, ?)',
+    ).run(r.lastInsertRowid, x.request, x.learned, x.completed ?? '');
   }
   db.close();
 }
 
 // A real `bosun mcp` stdio session: one JSON line out per request, in order.
 export function mcpSession(env: NodeJS.ProcessEnv, cwd: string) {
-  const p = spawn(process.execPath, [BIN, 'mcp'], { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+  const p = childProcess.spawn(process.execPath, [BIN, 'mcp'], { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
   const lines: string[] = [];
   const waiting: { resolve: (v: any) => void; reject: (e: Error) => void }[] = [];
   let buf = '';
   let stderr = '';
   let closed: { code: number | null; lines: string[] } | undefined;
-  p.stderr.on('data', (d) => { stderr += d; });
+  p.stderr.on('data', (d) => {
+    stderr += d;
+  });
   p.on('close', (code) => {
     closed = { code, lines };
-    for (const waiter of waiting.splice(0)) waiter.reject(new Error(`MCP child exited ${code}: ${stderr}`));
+    for (const waiter of waiting.splice(0))
+      waiter.reject(new Error(`MCP child exited ${code}: ${stderr}`));
   });
   p.stdout.on('data', (d) => {
     buf += d;
@@ -214,13 +350,30 @@ export function mcpSession(env: NodeJS.ProcessEnv, cwd: string) {
       waiting.shift()?.resolve(JSON.parse(l));
     }
   });
-  const send = (m: object | string) => p.stdin.write(`${typeof m === 'string' ? m : JSON.stringify(m)}\n`);
-  const next = () => closed ? Promise.reject(new Error(`MCP child exited ${closed.code}: ${stderr}`)) : new Promise<any>((resolve, reject) => waiting.push({ resolve, reject }));
+  const send = (m: object | string) =>
+    p.stdin.write(`${typeof m === 'string' ? m : JSON.stringify(m)}\n`);
+  const next = () =>
+    closed
+      ? Promise.reject(new Error(`MCP child exited ${closed.code}: ${stderr}`))
+      : new Promise<any>((resolve, reject) => waiting.push({ resolve, reject }));
   let n = 100;
   return {
-    send, next,
-    rpc: (id: unknown, method: string, params?: object) => { send({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }); return next(); },
-    call: (name: string, args: object) => { send({ jsonrpc: '2.0', id: n++, method: 'tools/call', params: { name, arguments: args } }); return next(); },
-    close: () => closed ? Promise.resolve(closed) : new Promise<{ code: number | null; lines: string[] }>((res) => { p.on('close', (code) => res({ code, lines })); p.stdin.end(); }),
+    send,
+    next,
+    rpc: (id: unknown, method: string, params?: object) => {
+      send({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) });
+      return next();
+    },
+    call: (name: string, args: object) => {
+      send({ jsonrpc: '2.0', id: n++, method: 'tools/call', params: { name, arguments: args } });
+      return next();
+    },
+    close: () =>
+      closed
+        ? Promise.resolve(closed)
+        : new Promise<{ code: number | null; lines: string[] }>((res) => {
+            p.on('close', (code) => res({ code, lines }));
+            p.stdin.end();
+          }),
   };
 }

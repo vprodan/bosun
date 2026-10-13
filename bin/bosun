@@ -1,19 +1,4 @@
-#!/usr/bin/env node
-// Compile cache first: it keeps type-stripped TypeScript startup near plain JS (measured 33 ms vs 67 ms cold).
-import { enableCompileCache } from 'node:module';
-enableCompileCache();
-const argv = process.argv.slice(2);
-let code;
-if (argv[0] === 'route' && argv.includes('--hook')) {
-  // The prompt hook runs on every prompt: load only what it needs (cli.ts pulls in every command, ~10 ms more).
-  const [{ main }, { load }] = await Promise.all([import('../lib/route.ts'), import('../lib/config.ts')]);
-  code = await main(argv.slice(1), load());
-} else {
-  const { main } = await import('../lib/cli.ts');
-  code = await main(argv);
-}
-// Done: flush and exit. An aborted fetch to a host that drops packets keeps its TCP connect alive until the OS gives up
-// (~10 s), which would hold the hook past Claude's 5 s hook timeout.
-const flushed = (s) => s.destroyed || s.closed ? Promise.resolve() : new Promise((r) => s.write('', r));
-await Promise.all([flushed(process.stdout), flushed(process.stderr)]);
-process.exit(code ?? 0);
+#!/usr/bin/env bun
+// Bun source entry; the compiled binary shares the same lazy composition.
+if (!process.versions.bun) throw new Error('bosun requires Bun; no Node fallback');
+await import('../src/app/entry.ts');

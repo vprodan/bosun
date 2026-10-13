@@ -1,0 +1,16 @@
+1 | notes(v TEXT);INSERT INTO notes VALUES('public')');db.close();const child=cp.spawn(process.execPath,['-e',"const{SqliteD
+                                                                                                                                                                                                                                                                                                                                                    ^
+error: Expected ")" but found "public"
+    at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/l66RPmL/[eval]:1:337
+
+1 | v TEXT);INSERT INTO notes VALUES('public')');db.close();const child=cp.spawn(process.execPath,['-e',"const{SqliteDatabas
+                                                                                                                                                                                                                                                                                                                                                          ^
+error: Expected ";" but found "')'"
+    at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/l66RPmL/[eval]:1:343
+
+1 | EXT);INSERT INTO notes VALUES('public')');db.close();const child=cp.spawn(process.execPath,['-e',"const{SqliteDatabase}=
+                                                                                                                                                                                                                                                                                                                                                             ^
+error: Unexpected )
+    at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/l66RPmL/[eval]:1:346
+
+Bun v1.4.3 (macOS arm64)

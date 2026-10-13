@@ -1,0 +1,1 @@
+../../../../../../../../Users/edge/Developer/bosun/test/claude-client.test.ts(170,5): error TS2542: Index signature in type 'Readonly<Record<string, string | undefined>>' only permits reading.

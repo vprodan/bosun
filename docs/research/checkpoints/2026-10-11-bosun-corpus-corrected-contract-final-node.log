@@ -1,0 +1,10 @@
+{
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "stdout": "{\"scope\":\"in-memory synthetic schema projection only; no eval/storage import/provider/native activity\",\"guardPreloaded\":true,\"rawDatasetRejected\":true,\"rawWrapperRejected\":true,\"projectedSchemaAccepted\":true,\"notes\":58,\"cases\":100,\"graph\":88,\"savedEvidence\":\"review-pending\",\"savedReviewedTrue\":0,\"modelCalls\":0,\"providerCalls\":0,\"nativeHostsExecuted\":false,\"storageOpened\":false}\n",
+  "stderr": "",
+  "joined": true,
+  "tempRemoved": true,
+  "candidateSha256": "daf7f06dda27aa846d7f9d9b44378d75313c65e8d8b40790c49fe4b410e04989"
+}

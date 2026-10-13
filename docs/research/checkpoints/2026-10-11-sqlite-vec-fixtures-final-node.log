@@ -1,0 +1,74 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ owner CLI indexes native source chunks once and actual MCP queries return original IDs with negative abstention (779.209917ms)
+✔ classification precedes payload getters; owner indexing rejects private, proposed and foreign IDs before model metadata (247.74775ms)
+✔ disabled or empty vector sources leave defaults intact and make no model calls (411.2325ms)
+✔ source revocation during metadata or embedding prevents storage and preserves sticky original job receipt (418.244958ms)
+✔ workspace origin drift during embedding holds without derived data or replay (174.070375ms)
+✔ cancelled embedding and successful native store with lost return retain unknown and never resubmit (363.068583ms)
+✔ multi-batch indexing preserves Unicode spans and commits only after every source remains public (477.408834ms)
+✔ optional query cache rechecks current source generation, keeps sessions separate and evicts at its bound (786.021375ms)
+✔ corpus revocation during a query holds the reply and cannot populate a cache from an uncertain result (260.94225ms)
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (111.789458ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (93.672625ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (136.941417ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (77.132ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (3.950458ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (14.787958ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.502417ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (7.148208ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (11.538125ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (1.998166ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.173791ms)
+✔ optional sqlite-vec uses one selected fingerprint and source-derived SQL; closes without touching an authority DB (5.991084ms)
+✔ missing, changed, linked, hardlinked, unsafe and wrong-architecture selections degrade before any native opener (25.080167ms)
+✔ bad native version, loader failure, file drift or invalid numeric receipts close and never substitute a backend (13.818375ms)
+✔ guarded production constructor cannot load the invented native library and returns explicit degradation (3.19325ms)
+✔ native vector source uses existing scope/CAS storage, checks privacy before opening and rechecks every cache hit (149.442167ms)
+✖ native distance failure joins its connection and never populates an uncertain query cache (114.203916ms)
+✔ native library configuration is explicit and exact; missing selection preserves disabled defaults (5.259125ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 26
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5261.858958
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/sqlite-vec.test.ts:142:1
+✖ native distance failure joins its connection and never populates an uncertain query cache (114.203916ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/sqlite-vec.test.ts:148:62)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,50 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cli: help exits 0, unknown command exits 2 (399.705417ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (206.396834ms)
+✔ cli: install rejects a bad option before touching anything (199.985583ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (400.809125ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (204.998834ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (667.048708ms)
+✔ core errors and deterministic Unicode text behavior (2.131375ms)
+✔ coded errors preserve causes and legacy exits while constraining untyped codes and details (0.165791ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.205208ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.216917ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.143459ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.250917ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.593167ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.096542ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (5.0125ms)
+✔ lint: thirteen skills, frontmatter name matches the folder, descriptions long enough to trigger (1.707417ms)
+✔ lint: skills, policy and roles only reference final roles, skills and commands that exist (4.252ms)
+✔ lint: no skill passes spec text to a shell inside double quotes (backticks and $ would run) (0.467875ms)
+✔ lint: the verify rule covers new files too (git status --short, not only git diff) (0.121667ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.690333ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (150.244708ms)
+✔ roles: bosun roles --json prints the resolved table (207.789291ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3055.8495

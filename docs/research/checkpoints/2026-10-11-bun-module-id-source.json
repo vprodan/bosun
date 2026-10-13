@@ -1,0 +1,126 @@
+{
+  "scope": "pinned publisher source read only; no build/native runtime executed",
+  "records": [
+    {
+      "file": "src/bundler/bundle_v2.rs",
+      "url": "https://raw.githubusercontent.com/oven-sh/bun/bun-v1.4.2/src/bundler/bundle_v2.rs",
+      "status": 200,
+      "sha256": "2c6552b6e99c6a2461d6b813eb8f5245492f7e5c2e019d049bc942cb33a7a427",
+      "bytes": 394530,
+      "matches": [
+        {
+          "line": 116,
+          "text": "    pub(crate) free_list: Vec<Box<[u8]>>,\n\n    /// See the comment in `Chunk.OutputPiece`.\n    pub(crate) unique_key: u64,\n    pub(crate) dynamic_import_entry_points: ArrayHashMap<IndexInt, ()>,\n\n    pub(crate) finalizers: Vec<ExternalFreeFunction>,\n"
+        },
+        {
+          "line": 2175,
+          "text": "            let input_files_cols = input_files_slice.split_mut();\n            let additional_files: &mut [bun_alloc::AstVec<crate::AdditionalFile>] =\n                input_files_cols.additional_files;\n            let unique_keys: &mut [Box<[u8], bun_alloc::AstAlloc>] =\n                input_files_cols.unique_key_for_additional_file;\n            let content_hashes: &mut [u64] = input_files_cols.content_hash_for_additional_file;\n            for (index, url_for_css) in all_urls_for_css.iter().enumerate() {\n                if !url_for_css.is_empty() {"
+        },
+        {
+          "line": 2176,
+          "text": "            let additional_files: &mut [bun_alloc::AstVec<crate::AdditionalFile>] =\n                input_files_cols.additional_files;\n            let unique_keys: &mut [Box<[u8], bun_alloc::AstAlloc>] =\n                input_files_cols.unique_key_for_additional_file;\n            let content_hashes: &mut [u64] = input_files_cols.content_hash_for_additional_file;\n            for (index, url_for_css) in all_urls_for_css.iter().enumerate() {\n                if !url_for_css.is_empty() {\n                    // We like to inline additional files in CSS if they fit a size threshold"
+        },
+        {
+          "line": 2186,
+          "text": "                        && !additional_files_imported_by_js_and_inlined_in_css.is_set(index)\n                    {\n                        additional_files[index].clear_retaining_capacity();\n                        unique_keys[index] = bun_alloc::AstAlloc::vec().into_boxed_slice();\n                        content_hashes[index] = 0;\n                    }\n                }\n            }"
+        },
+        {
+          "line": 2958,
+          "text": "                thread_lock: bun_core::ThreadLock::init_locked(),\n                resolve_tasks_waiting_for_import_source_index: ArrayHashMap::new(),\n                free_list: Vec::new(),\n                unique_key: 0,\n                dynamic_import_entry_points: ArrayHashMap::new(),\n                finalizers: Vec::new(),\n                drain_defer_task: DeferredBatchTask::default(),\n                asynchronous: false,"
+        },
+        {
+          "line": 3548,
+          "text": "                                format!(\n                                    \"{}\",\n                                    chunk::UniqueKey {\n                                        prefix: self.unique_key,\n                                        kind: chunk::QueryKind::Scb,\n                                        index: *source_id\n                                    }\n                                )"
+        },
+        {
+          "line": 3565,
+          "text": "                                format!(\n                                    \"{}\",\n                                    chunk::UniqueKey {\n                                        prefix: self.unique_key,\n                                        kind: chunk::QueryKind::Scb,\n                                        index: *ssr_index\n                                    }\n                                )"
+        },
+        {
+          "line": 3586,
+          "text": "                                format!(\n                                    \"{}#{}\",\n                                    chunk::UniqueKey {\n                                        prefix: self.unique_key,\n                                        kind: chunk::QueryKind::Scb,\n                                        index: *source_id\n                                    },\n                                    bstr::BStr::new(export_name_string),"
+        },
+        {
+          "line": 4036,
+          "text": "                None,\n                alloc,\n            )?;\n            this.unique_key = generate_unique_key();\n\n            // Wrap so every exit path (incl. `?`) hits the cleanup below.\n            let result = (|| -> Result<BuildResult, Error> {\n                if this.transpiler.log().has_errors() {"
+        },
+        {
+          "line": 4174,
+          "text": "            entry_points: &[&[u8]],\n        ) -> Result<Box<BundleV2<'a>>, Error> {\n            let mut this = BundleV2::init(transpiler, None, alloc, event_loop, false, None, alloc)?;\n            this.unique_key = generate_unique_key();\n\n            if this.transpiler.log().has_errors() {\n                return Err(crate::Error::BuildFailed);\n            }"
+        },
+        {
+          "line": 4212,
+          "text": "                None,\n                alloc,\n            )?;\n            this.unique_key = generate_unique_key();\n\n            // Wrap so every exit path hits the cleanup below; `chunks` must drop\n            // inside the closure, before `deinit_without_freeing_arena()`.\n            let result = (|| -> Result<Vec<options::OutputFile>, Error> {"
+        },
+        {
+          "line": 4317,
+          "text": "                // raw-ptr sidestep for split-borrow against `transpiler_for_target`\n                // inside the loop. All six column derefs share the same invariant.\n                let (\n                    unique_key_for_additional_files,\n                    content_hashes_for_additional_files,\n                    sources,\n                    targets,\n                    additional_files,"
+        },
+        {
+          "line": 4328,
+          "text": "                        (*self_ptr)\n                            .graph\n                            .input_files\n                            .items_unique_key_for_additional_file(),\n                        (*self_ptr)\n                            .graph\n                            .input_files\n                            .items_content_hash_for_additional_file(),"
+        },
+        {
+          "line": 4343,
+          "text": "\n                for reachable_source in reachable_files {\n                    let index = reachable_source.get() as usize;\n                    let key: &[u8] = &unique_key_for_additional_files[index];\n                    if !key.is_empty() {\n                        let loader = loaders[index];\n                        let target = targets[index];\n                        let mut template: options::PathTemplate = if loader == Loader::Text {"
+        },
+        {
+          "line": 5236,
+          "text": "            &mut self,\n            entry_points: &[&[u8]],\n        ) -> Result<BuildResult, Error> {\n            self.unique_key = generate_unique_key();\n\n            if self.transpiler.log().errors > 0 {\n                return Err(crate::Error::BuildFailed);\n            }"
+        },
+        {
+          "line": 5442,
+          "text": "            &mut self,\n            bake_entry_points: &bake_types::EntryPointList,\n        ) -> Result<DevServerInput, Error> {\n            self.unique_key = generate_unique_key();\n\n            /* arena: help_catch_memory_issues — no-op (mimalloc TLH check) */\n\n            let mut ctx = DevServerInput {"
+        },
+        {
+          "line": 7083,
+          "text": "            // SAFETY: `alloc_str` returns a `&mut str` into the bundler arena, which\n            // outlives this AST. `E::EString.data` is `&'static [u8]` per the\n            // arena-erasure convention. See `interned_slice` contract.\n            let unique_key: &'static [u8] = unsafe {\n                interned_slice(\n                    self.arena()\n                        .alloc_str(&format!(\n                            \"{}\","
+        },
+        {
+          "line": 7089,
+          "text": "                        .alloc_str(&format!(\n                            \"{}\",\n                            chunk::UniqueKey {\n                                prefix: self.unique_key,\n                                kind: chunk::QueryKind::HtmlImport,\n                                index: self.graph.html_imports.server_source_indices.len() as u32,\n                            },\n                        ))"
+        },
+        {
+          "line": 7117,
+          "text": "                    unsafe { &mut *log_ptr },\n                    Expr::init(\n                        E::EString {\n                            data: unique_key.into(),\n                            ..Default::default()\n                        },\n                        bun_ast::Loc::EMPTY,\n                    ),"
+        },
+        {
+          "line": 7293,
+          "text": "\n                    this.graph\n                        .input_files\n                        .items_unique_key_for_additional_file_mut()[result_source_index] =\n                        bun_alloc::AstAlloc::vec_from_slice(\n                            result.unique_key_for_additional_file.slice(),\n                        )\n                        .into_boxed_slice();"
+        },
+        {
+          "line": 7295,
+          "text": "                        .input_files\n                        .items_unique_key_for_additional_file_mut()[result_source_index] =\n                        bun_alloc::AstAlloc::vec_from_slice(\n                            result.unique_key_for_additional_file.slice(),\n                        )\n                        .into_boxed_slice();\n                    this.graph\n                        .input_files"
+        },
+        {
+          "line": 7302,
+          "text": "                        .input_files\n                        .items_content_hash_for_additional_file_mut()[result_source_index] =\n                        result.content_hash_for_additional_file;\n                    if !result.unique_key_for_additional_file.is_empty()\n                        && result.loader == Loader::Text\n                    {\n                        // `process_resolve_queue` only counts `should_copy_for_bundling()`\n                        // loaders, and a zero count skips `process_files_to_copy`."
+        },
+        {
+          "line": 7309,
+          "text": "                        // loaders, and a zero count skips `process_files_to_copy`.\n                        this.graph.estimated_file_loader_count += 1;\n                    }\n                    if !result.unique_key_for_additional_file.is_empty()\n                        && result.loader.should_copy_for_bundling()\n                    {\n                        if let Some(dev) = this.dev_server {\n                            let source ="
+        },
+        {
+          "line": 7964,
+          "text": "        pub html_files: ArrayHashMap<Index, ()>,\n    }\n\n    pub(crate) fn generate_unique_key() -> u64 {\n        let key = bun_core::fast_random() & 0x0FFFFFFF_FFFFFFFF_u64;\n        // without this check, putting unique_key in an object key would\n        // sometimes get converted to an identifier. ensuring it starts\n        // with a number forces that optimization off."
+        },
+        {
+          "line": 7965,
+          "text": "    }\n\n    pub(crate) fn generate_unique_key() -> u64 {\n        let key = bun_core::fast_random() & 0x0FFFFFFF_FFFFFFFF_u64;\n        // without this check, putting unique_key in an object key would\n        // sometimes get converted to an identifier. ensuring it starts\n        // with a number forces that optimization off.\n        if cfg!(debug_assertions) {"
+        },
+        {
+          "line": 7966,
+          "text": "\n    pub(crate) fn generate_unique_key() -> u64 {\n        let key = bun_core::fast_random() & 0x0FFFFFFF_FFFFFFFF_u64;\n        // without this check, putting unique_key in an object key would\n        // sometimes get converted to an identifier. ensuring it starts\n        // with a number forces that optimization off.\n        if cfg!(debug_assertions) {\n            let mut buf = [0u8; 16];"
+        }
+      ]
+    },
+    {
+      "file": "src/bundler/linker.rs",
+      "url": "https://raw.githubusercontent.com/oven-sh/bun/bun-v1.4.2/src/bundler/linker.rs",
+      "status": 200,
+      "sha256": "590d0b22580645c48e25b251beb97060bd51f83603b6dd137749dce0ac42fff1",
+      "bytes": 30639,
+      "matches": []
+    }
+  ]
+}

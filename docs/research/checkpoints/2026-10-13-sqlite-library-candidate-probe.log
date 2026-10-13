@@ -1,0 +1,17 @@
+24 | 		return DEFAULT_ADDON;
+25 | 	}
+26 | 
+27 | 	// Only the project-built binding contains the connection safety contract.
+28 | 	const filename = path.join(__dirname, '..', 'build', 'Release', 'better_sqlite3.node');
+29 | 	return DEFAULT_ADDON = require(filename);
+                             ^
+error: 'better-sqlite3' is not yet supported in Bun.
+Track the status in https://github.com/oven-sh/bun/issues/4290
+In the meantime, you could try bun:sqlite which has a similar API.
+ code: "ERR_DLOPEN_FAILED"
+
+      at getBinding (/Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/lib/binding.js:29:25)
+      at new Database (/Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/lib/database.js:46:17)
+      at /Users/edge/Developer/bosun/scripts/check-sqlite-library.mjs:31:18
+
+Bun v1.4.3 (macOS arm64)

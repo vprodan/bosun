@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "status": "review-pending",
+  "ownerSelectedCorpus": "Bosun repository data",
+  "authorization": "Owner selected public Bosun repository data; local source/product-doc preparation only.",
+  "publicReachability": "GitHub origin returned404; no public-hosting claim.",
+  "repositoryRevision": "4adb3b4ca735cbe9fe9af5a0636255fa3186f075",
+  "sourceState": "Current uncommitted final-runtime tree, pinned by file hashes; not represented as committed content.",
+  "candidateSourceDigest": "d62e28cdb141adcbaa19c11ad4ddd6165cad7f313bc15e1fc1041b41650ab725",
+  "files": [
+    {
+      "file": "README.md",
+      "split": "development",
+      "bytes": 20051,
+      "sha256": "b8529199ff8b5ea7f99f4668806941163311d7b1f5f80c73adf55fc7c39b7ba3",
+      "lines": 168,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/README.md"
+    },
+    {
+      "file": "src/core/domain/config.ts",
+      "split": "development",
+      "bytes": 6643,
+      "sha256": "006b466aae7bf8acb2cacc6379816b3b315373a3aaa105f38346503bdd0e7356",
+      "lines": 243,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/domain/config.ts"
+    },
+    {
+      "file": "src/core/ports/host.ts",
+      "split": "development",
+      "bytes": 3938,
+      "sha256": "769ec927c6cc33a1b2cd50d8f4f99bad2fdaca5405eaf298331016f6f47516da",
+      "lines": 103,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/ports/host.ts"
+    },
+    {
+      "file": "src/platform/paths.ts",
+      "split": "development",
+      "bytes": 1620,
+      "sha256": "ab63f9f54dc0dec52faae6f54e701e454e7a00406715dda3d2f1130539ba3433",
+      "lines": 33,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/platform/paths.ts"
+    },
+    {
+      "file": "src/app/native-runners.ts",
+      "split": "heldout",
+      "bytes": 3286,
+      "sha256": "3ccfa84bf23c739fcbc2e8bf022e08590d6d497361d976453a9d4c5a595d451e",
+      "lines": 49,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/native-runners.ts"
+    },
+    {
+      "file": "src/core/use-cases/quota.ts",
+      "split": "heldout",
+      "bytes": 4872,
+      "sha256": "b7d20b60867bd1645348536c482a2b50f08c151fc90050f50eda1164e9b51616",
+      "lines": 64,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/use-cases/quota.ts"
+    },
+    {
+      "file": "src/core/use-cases/handoff.ts",
+      "split": "heldout",
+      "bytes": 15385,
+      "sha256": "5460cca753969f260250032f6075853ed638c6a5ebe12db49d0bfb85e78499f4",
+      "lines": 420,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/use-cases/handoff.ts"
+    },
+    {
+      "file": "src/adapters/hosts/opencode/control.ts",
+      "split": "heldout",
+      "bytes": 35850,
+      "sha256": "d7db509e94257b6856900f282103bd8b54c6d0af83227b0094b0dc666a98a2c0",
+      "lines": 1040,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/adapters/hosts/opencode/control.ts"
+    },
+    {
+      "file": "src/adapters/hosts/codex/control.ts",
+      "split": "heldout",
+      "bytes": 27448,
+      "sha256": "eb3eb0adb06e58ef55bd03a866183f0240b78feca17f06d3b9ca7017e5a5b316",
+      "lines": 803,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/adapters/hosts/codex/control.ts"
+    },
+    {
+      "file": "src/core/lexical-memory.ts",
+      "split": "heldout",
+      "bytes": 1141,
+      "sha256": "f3d9baf446a06ba2276b5f7acbf4d91a6912346a86f1c7fd52440ffa039b00af",
+      "lines": 38,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/lexical-memory.ts"
+    },
+    {
+      "file": "src/core/secret-screen.ts",
+      "split": "heldout",
+      "bytes": 760,
+      "sha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+      "lines": 14,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/secret-screen.ts"
+    },
+    {
+      "file": "src/core/use-cases/retrieve-context.ts",
+      "split": "heldout",
+      "bytes": 10252,
+      "sha256": "5b4a1a1137f644f827f801d242119b1262deab1663280a83d69d5eba710f72f5",
+      "lines": 292,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/use-cases/retrieve-context.ts"
+    },
+    {
+      "file": "src/core/domain/graph.ts",
+      "split": "heldout",
+      "bytes": 2257,
+      "sha256": "afaa62d1d14d766703adef0e2806397e95ba1f90d99d60f8d1e62b8a1456da92",
+      "lines": 30,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/core/domain/graph.ts"
+    },
+    {
+      "file": "src/app/consolidation.ts",
+      "split": "heldout",
+      "bytes": 10633,
+      "sha256": "3a24b0e435a70e431fc602ae1b8f240c9f22a4cbf82d964863470adf0a57b493",
+      "lines": 103,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/consolidation.ts"
+    },
+    {
+      "file": "src/app/embeddings.ts",
+      "split": "heldout",
+      "bytes": 10994,
+      "sha256": "2f730221b24ead2500614d1e3daef92cef91d6cc40d03d38cbbce294b6fa6a94",
+      "lines": 257,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/embeddings.ts"
+    },
+    {
+      "file": "src/app/remote-views.ts",
+      "split": "heldout",
+      "bytes": 8884,
+      "sha256": "4efbfd1b984268f00cde149d3dd6833080fab8b4bb62c422956db95d39c10454",
+      "lines": 262,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/remote-views.ts"
+    },
+    {
+      "file": "src/app/upgrade-router.ts",
+      "split": "heldout",
+      "bytes": 8624,
+      "sha256": "0cc989a7f06653b59670d0901d78cb54b4db44ca463c02428316820392667c48",
+      "lines": 233,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/upgrade-router.ts"
+    },
+    {
+      "file": "src/adapters/services/launchd.ts",
+      "split": "heldout",
+      "bytes": 4525,
+      "sha256": "56c7e9fd2dfaf195a54f291965479cb6292df157696475128b28acd6a9f2158f",
+      "lines": 124,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/adapters/services/launchd.ts"
+    },
+    {
+      "file": "src/app/installation.ts",
+      "split": "heldout",
+      "bytes": 23367,
+      "sha256": "45265e1d25a8362d99581b433a2080c2331f1b825f1ad99198f0187512c14fbc",
+      "lines": 667,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/app/installation.ts"
+    },
+    {
+      "file": "src/platform/watch-command.ts",
+      "split": "heldout",
+      "bytes": 2519,
+      "sha256": "846fc8a6cde93c82cfd4facde69da9db4d6d6727fb9d0b5d714168532de16507",
+      "lines": 64,
+      "capturedFile": "docs/research/checkpoints/bosun-corpus-2026-10-11/sources/src/platform/watch-command.ts"
+    }
+  ],
+  "labelReview": "Pending; owner selection does not imply acceptance of generated gold labels or graph derivatives.",
+  "grouping": "Files are split disjointly before labels/evaluation. Topic/snapshot grouping is not a native-session capture or retention claim.",
+  "plannedCases": {
+    "development": 20,
+    "heldout": 80,
+    "negative": 20
+  },
+  "excludes": [
+    "HANDOFF.md",
+    "RESUME.md",
+    "development ledgers",
+    "raw session logs",
+    "personal config/auth/databases",
+    "unrelated workspace files"
+  ],
+  "modelsCalled": false,
+  "evaluated": false,
+  "snapshot": "Exact selected bytes retained for review; product docs may change afterward without substituting corpus inputs."
+}

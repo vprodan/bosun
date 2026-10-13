@@ -1,0 +1,3311 @@
+{
+  "schema": 1,
+  "privacy": "public",
+  "evidence": "synthetic",
+  "model": "clef-flash:9b",
+  "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "cases": [
+    {
+      "privacy": "public",
+      "id": "task_00",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "high-risk",
+      "text": "task_00: Public high-risk evaluation task with distinct case 0.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-0.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_00",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 12,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 20
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_01",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "ambiguous",
+      "text": "task_01: Public ambiguous evaluation task with distinct case 1.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-1.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_01",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 13,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 21
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_02",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "mechanical",
+      "text": "task_02: Public mechanical evaluation task with distinct case 2.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-2.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_02",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 14,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 22
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_03",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "implementation",
+      "text": "task_03: Public implementation evaluation task with distinct case 3.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-3.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_03",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 15,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 23
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_04",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "inspection",
+      "text": "task_04: Public inspection evaluation task with distinct case 4.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-4.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_04",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 16,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 24
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_05",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "cross-vendor",
+      "text": "task_05: Public cross-vendor evaluation task with distinct case 5.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-5.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_05",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 17,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 25
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_06",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "no-delegation",
+      "text": "task_06: Public no-delegation evaluation task with distinct case 6.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-6.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_06",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 18,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 26
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_07",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "high-risk",
+      "text": "task_07: Public high-risk evaluation task with distinct case 7.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-7.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_07",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 19,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 27
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_08",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "ambiguous",
+      "text": "task_08: Public ambiguous evaluation task with distinct case 8.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-8.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_08",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 20,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 28
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_09",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "mechanical",
+      "text": "task_09: Public mechanical evaluation task with distinct case 9.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-9.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_09",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 21,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 29
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_10",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "implementation",
+      "text": "task_10: Public implementation evaluation task with distinct case 10.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-10.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_10",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 22,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 30
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_11",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "inspection",
+      "text": "task_11: Public inspection evaluation task with distinct case 11.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-11.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_11",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 23,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 31
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_12",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "cross-vendor",
+      "text": "task_12: Public cross-vendor evaluation task with distinct case 12.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-12.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_12",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 24,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 32
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_13",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "no-delegation",
+      "text": "task_13: Public no-delegation evaluation task with distinct case 13.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-13.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_13",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 25,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 33
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_14",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "high-risk",
+      "text": "task_14: Public high-risk evaluation task with distinct case 14.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-14.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_14",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 26,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 34
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_15",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "ambiguous",
+      "text": "task_15: Public ambiguous evaluation task with distinct case 15.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-15.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_15",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 27,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 35
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_16",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "mechanical",
+      "text": "task_16: Public mechanical evaluation task with distinct case 16.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-16.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_16",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 28,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 36
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_17",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "implementation",
+      "text": "task_17: Public implementation evaluation task with distinct case 17.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-17.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_17",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 29,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 37
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_18",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "inspection",
+      "text": "task_18: Public inspection evaluation task with distinct case 18.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-18.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_18",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 30,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 38
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_19",
+      "split": "development",
+      "repositoryGroup": "p_aaaaaaaaaaaaaaaa",
+      "sessionGroup": "session_development",
+      "category": "cross-vendor",
+      "text": "task_19: Public cross-vendor evaluation task with distinct case 19.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-19.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_19",
+        "projectId": "p_aaaaaaaaaaaaaaaa",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 31,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 39
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_20",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_20: Public no-delegation evaluation task with distinct case 20.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-20.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_20",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 32,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 40
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_21",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_21: Public high-risk evaluation task with distinct case 21.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-21.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_21",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 33,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 41
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_22",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_22: Public ambiguous evaluation task with distinct case 22.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-22.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_22",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 34,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 42
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_23",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_23: Public mechanical evaluation task with distinct case 23.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-23.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_23",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 35,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 43
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_24",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_24: Public implementation evaluation task with distinct case 24.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-24.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_24",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 36,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 44
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_25",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_25: Public inspection evaluation task with distinct case 25.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-25.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_25",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 37,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 45
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_26",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_26: Public cross-vendor evaluation task with distinct case 26.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-26.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_26",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 38,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 46
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_27",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_27: Public no-delegation evaluation task with distinct case 27.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-27.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_27",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 39,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 47
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_28",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_28: Public high-risk evaluation task with distinct case 28.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-28.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_28",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 40,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 48
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_29",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_29: Public ambiguous evaluation task with distinct case 29.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-29.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_29",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 41,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 49
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_30",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_30: Public mechanical evaluation task with distinct case 30.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-30.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_30",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 42,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 50
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_31",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_31: Public implementation evaluation task with distinct case 31.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-31.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_31",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 43,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 51
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_32",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_32: Public inspection evaluation task with distinct case 32.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-32.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_32",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.3,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 44,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 52
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_33",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_33: Public cross-vendor evaluation task with distinct case 33.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-33.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_33",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 45,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 53
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_34",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_34: Public no-delegation evaluation task with distinct case 34.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-34.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_34",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 46,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 54
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_35",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_35: Public high-risk evaluation task with distinct case 35.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-35.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_35",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 47,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 55
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_36",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_36: Public ambiguous evaluation task with distinct case 36.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-36.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_36",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 48,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 56
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_37",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_37: Public mechanical evaluation task with distinct case 37.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-37.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_37",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 49,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 57
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_38",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_38: Public implementation evaluation task with distinct case 38.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-38.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_38",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 50,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 58
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_39",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_39: Public inspection evaluation task with distinct case 39.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-39.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_39",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 51,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 59
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_40",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_40: Public cross-vendor evaluation task with distinct case 40.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-40.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_40",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 52,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 60
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_41",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_41: Public no-delegation evaluation task with distinct case 41.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-41.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_41",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 53,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 61
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_42",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_42: Public high-risk evaluation task with distinct case 42.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-42.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_42",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 54,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 62
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_43",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_43: Public ambiguous evaluation task with distinct case 43.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-43.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_43",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 55,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 63
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_44",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_44: Public mechanical evaluation task with distinct case 44.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-44.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_44",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 56,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 64
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_45",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_45: Public implementation evaluation task with distinct case 45.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-45.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_45",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 57,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 65
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_46",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_46: Public inspection evaluation task with distinct case 46.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-46.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_46",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 58,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 66
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_47",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_47: Public cross-vendor evaluation task with distinct case 47.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-47.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_47",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 59,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 67
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_48",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_48: Public no-delegation evaluation task with distinct case 48.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-48.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_48",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 60,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 68
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_49",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_49: Public high-risk evaluation task with distinct case 49.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-49.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_49",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 61,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 69
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_50",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_50: Public ambiguous evaluation task with distinct case 50.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-50.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_50",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 62,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 70
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_51",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_51: Public mechanical evaluation task with distinct case 51.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-51.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_51",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 63,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 71
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_52",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_52: Public implementation evaluation task with distinct case 52.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-52.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_52",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 64,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 72
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_53",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_53: Public inspection evaluation task with distinct case 53.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-53.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_53",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 65,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 73
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_54",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_54: Public cross-vendor evaluation task with distinct case 54.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-54.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_54",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 66,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 74
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_55",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_55: Public no-delegation evaluation task with distinct case 55.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-55.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_55",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 67,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 75
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_56",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_56: Public high-risk evaluation task with distinct case 56.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-56.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_56",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 68,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 76
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_57",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_57: Public ambiguous evaluation task with distinct case 57.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-57.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_57",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 69,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 77
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_58",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_58: Public mechanical evaluation task with distinct case 58.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-58.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_58",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 70,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 78
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_59",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_59: Public implementation evaluation task with distinct case 59.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-59.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_59",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 71,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 79
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_60",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_60: Public inspection evaluation task with distinct case 60.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-60.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_60",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 72,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 80
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_61",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_61: Public cross-vendor evaluation task with distinct case 61.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-61.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_61",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 73,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 81
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_62",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_62: Public no-delegation evaluation task with distinct case 62.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-62.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_62",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 74,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 82
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_63",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_63: Public high-risk evaluation task with distinct case 63.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-63.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_63",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 75,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 83
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_64",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_64: Public ambiguous evaluation task with distinct case 64.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-64.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_64",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 76,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 84
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_65",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_65: Public mechanical evaluation task with distinct case 65.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-65.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_65",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 77,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 85
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_66",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_66: Public implementation evaluation task with distinct case 66.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-66.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_66",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 78,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 86
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_67",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_67: Public inspection evaluation task with distinct case 67.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-67.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_67",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 79,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 87
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_68",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_68: Public cross-vendor evaluation task with distinct case 68.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-68.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_68",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 80,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 88
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_69",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_69: Public no-delegation evaluation task with distinct case 69.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-69.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_69",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 81,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 89
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_70",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_70: Public high-risk evaluation task with distinct case 70.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-70.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_70",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 82,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 90
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_71",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_71: Public ambiguous evaluation task with distinct case 71.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-71.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_71",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 83,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 91
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_72",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_72: Public mechanical evaluation task with distinct case 72.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-72.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_72",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 84,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 92
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_73",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "implementation",
+      "text": "task_73: Public implementation evaluation task with distinct case 73.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-73.ts"
+        ]
+      },
+      "expected": {
+        "lane": "worker",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_73",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "worker"
+      },
+      "observed": {
+        "decision": {
+          "lane": "worker",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 85,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 93
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_74",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "inspection",
+      "text": "task_74: Public inspection evaluation task with distinct case 74.",
+      "access": "read",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "inspect",
+        "files": [
+          "src/task-74.ts"
+        ]
+      },
+      "expected": {
+        "lane": "scout",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_74",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "scout"
+      },
+      "observed": {
+        "decision": {
+          "lane": "scout",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 86,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 94
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_75",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "cross-vendor",
+      "text": "task_75: Public cross-vendor evaluation task with distinct case 75.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "implementation",
+        "files": [
+          "src/task-75.ts"
+        ],
+        "exactModel": "claude-sonnet-owner-pin"
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_75",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 87,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 95
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_76",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "no-delegation",
+      "text": "task_76: Public no-delegation evaluation task with distinct case 76.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-76.ts"
+        ],
+        "noDelegation": true
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_76",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 88,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 96
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_77",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "high-risk",
+      "text": "task_77: Public high-risk evaluation task with distinct case 77.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "payments",
+        "files": [
+          "src/task-77.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "high"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_77",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "failed",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "high",
+          "risk_conf": 0.9,
+          "ms": 89,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 97
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_78",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "ambiguous",
+      "text": "task_78: Public ambiguous evaluation task with distinct case 78.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-78.ts"
+        ]
+      },
+      "expected": {
+        "lane": "main",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_78",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "escalated",
+        "executedLane": "main"
+      },
+      "observed": {
+        "decision": {
+          "lane": "main",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 90,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 98
+      }
+    },
+    {
+      "privacy": "public",
+      "id": "task_79",
+      "split": "heldout",
+      "repositoryGroup": "p_bbbbbbbbbbbbbbbb",
+      "sessionGroup": "session_heldout",
+      "category": "mechanical",
+      "text": "task_79: Public mechanical evaluation task with distinct case 79.",
+      "access": "edit",
+      "selectedModel": "gpt-6.1-sol",
+      "policy": {
+        "operation": "mechanical",
+        "files": [
+          "src/task-79.ts"
+        ]
+      },
+      "expected": {
+        "lane": "local",
+        "risk": "low"
+      },
+      "outcome": {
+        "kind": "synthetic",
+        "reference": "outcome_task_79",
+        "projectId": "p_bbbbbbbbbbbbbbbb",
+        "revision": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "result": "passed",
+        "executedLane": "local"
+      },
+      "observed": {
+        "decision": {
+          "lane": "local",
+          "conf": 0.9,
+          "risk": "low",
+          "risk_conf": 0.9,
+          "ms": 91,
+          "router": "clef-flash:9b"
+        },
+        "residency": "warm",
+        "totalMs": 99
+      }
+    }
+  ]
+}

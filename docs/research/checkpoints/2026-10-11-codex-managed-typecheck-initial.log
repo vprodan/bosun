@@ -1,0 +1,2 @@
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts(229,36): error TS2367: This comparison appears to be unintentional because the types '"ready"' and '"unknown"' have no overlap.
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts(230,13): error TS2367: This comparison appears to be unintentional because the types '"ready"' and '"unknown"' have no overlap.

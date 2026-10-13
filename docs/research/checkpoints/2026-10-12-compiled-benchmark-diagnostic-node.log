@@ -1,0 +1,63 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ benchmark diagnostic preserves actual child channels/exit and confirms the unchanged relay group lifecycle (1098.86825ms)
+✔ a child close frame cannot substitute for positive relay original/group completion (6.200666ms)
+✔ new diagnostic rejects an unapproved invocation before artifact or compiled execution (102.379625ms)
+✔ context: relevance and recency both count; sources are weighted (2.400958ms)
+✔ context: dedupe across sources keeps the higher score (0.178834ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (2.886ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.095125ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (903.340541ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (465.164125ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (594.777458ms)
+✔ final hook with missing memory creates nothing and runs no model/service (107.253083ms)
+✔ benchmark selects direct compiled hook arguments and retains the Node source interpreter entry (2841.29175ms)
+✔ benchmark failed Node producers are joined before temporary cleanup and never counted as injections (1301.459209ms)
+✔ benchmark holds its temporary tree and stops after a synthetic unknown producer join (743.903125ms)
+✔ memory: store/get/search round trip, FTS ranking, tags filter, limit cap and explicit access tracking (27.119541ms)
+✔ memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all (7.853958ms)
+✔ memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key (6.596959ms)
+✔ memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope (7.15775ms)
+✔ memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags (19.254041ms)
+✔ memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one (11.753666ms)
+✔ project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote (103.703875ms)
+✔ memory: explicit retention archives expired sessions and prunes old archives (9.421125ms)
+✔ memory: validation limits, and error messages never quote content (6.406917ms)
+✔ memory: user text never becomes FTS syntax (8.927083ms)
+✔ memory: concurrent writers wait instead of failing (539.39625ms)
+✔ supported schema-1 owner upgrade commits schema 2 behind the cutover floor and preserves a schema-1 backup (26.615625ms)
+✔ memory: private memories stay out of search unless asked (7.732125ms)
+✔ memory bench: measured numbers, no owner files or unsupported retrieval timings (4970.028375ms)
+✔ benchmark requires a successful child, valid envelope and exact synthetic note identities (0.357125ms)
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+✔ explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats (61984.356834ms)
+✔ memory: explicit retention archives expired sessions in a long-running process (7.525625ms)
+✔ final routing retains lane/risk policy while hooks stay silent without notes and perform no inference for any host (1598.633667ms)
+✔ final router evaluation reports frozen development thresholds and keeps corrupt historical labels separate from held-out evidence (120.603458ms)
+✔ final router evaluation rejects an insufficient corpus and documents the complete required split (114.822375ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 78505.54

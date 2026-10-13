@@ -1,10 +1,12 @@
 // Effectful native source helper. Only explicit index composition imports this module.
 import fs from 'node:fs';
+import { realpathWithoutOpen } from '../../platform/canonical-path.cjs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import type { DatabaseSync } from 'node:sqlite';
+import type { SqliteDatabase } from '../../platform/sqlite.ts'
 import { docsRelative } from './sqlite-docs.ts';
 import { DOCS_MAX_BYTES, DOCS_MAX_FILES, DOCS_MAX_LIST_BYTES, type DocsEnumeration, type DocsFile } from './sqlite-docs-index.ts';
+import { screenPublicText } from '../../core/secret-screen.ts';
 
 function git(args: string[], maxBuffer: number): Buffer | null {
   try {
@@ -14,12 +16,12 @@ function git(args: string[], maxBuffer: number): Buffer | null {
 }
 export function resolveDocsRoot(dir: string): string | null {
   try {
-    const current = fs.realpathSync(dir);
+    const current = realpathWithoutOpen(dir);
     if (!fs.lstatSync(current).isDirectory()) return null;
     const output = git(['-C', current, 'rev-parse', '--show-toplevel'], 8192);
     if (output === null) return null;
     const reported = new TextDecoder('utf8', { fatal: true }).decode(output).replace(/\n$/, '');
-    const root = fs.realpathSync(reported);
+    const root = realpathWithoutOpen(reported);
     if (root === '/' || !fs.lstatSync(root).isDirectory() || current !== root && !current.startsWith(root + path.sep)) return null;
     return root;
   } catch { return null; }
@@ -27,7 +29,7 @@ export function resolveDocsRoot(dir: string): string | null {
 export function enumerateDocs(root: string): DocsEnumeration {
   const held = { complete: false } as const;
   try {
-    if (fs.realpathSync(root) !== root || !fs.lstatSync(root).isDirectory()) return held;
+    if (realpathWithoutOpen(root) !== root || !fs.lstatSync(root).isDirectory()) return held;
     const before = stamp(fs.lstatSync(root, { bigint: true }));
     const output = git(['-C', root, 'ls-files', '-z', '-co', '--exclude-standard', '--', '*.md'], DOCS_MAX_LIST_BYTES);
     if (output === null || output.length && output[output.length - 1] !== 0) return held;
@@ -35,7 +37,7 @@ export function enumerateDocs(root: string): DocsEnumeration {
     const files = text ? text.slice(0, -1).split('\0') : [];
     if (files.length > DOCS_MAX_FILES || files.some((relative) => Buffer.byteLength(relative) > 4096
       || !relative.endsWith('.md') || docsRelative(root, root + '/' + relative) !== relative)) return held;
-    const valid = (): boolean => { try { return fs.realpathSync(root) === root && stamp(fs.lstatSync(root, { bigint: true })) === before; } catch { return false; } };
+    const valid = (): boolean => { try { return realpathWithoutOpen(root) === root && stamp(fs.lstatSync(root, { bigint: true })) === before; } catch { return false; } };
     return valid() ? { complete: true, files: [...new Set(files)], valid } : held;
   } catch { return held; }
 }
@@ -50,7 +52,7 @@ function optionalStat(file: string): fs.BigIntStats | undefined {
 }
 // Resolve every ancestor without following symlinks, and inspect .git presence only (never its payload).
 function probe(root: string, relative: string): Probe {
-  if (docsRelative(root, root + '/' + relative) !== relative || fs.realpathSync(root) !== root) throw Error('source');
+  if (docsRelative(root, root + '/' + relative) !== relative || realpathWithoutOpen(root) !== root) throw Error('source');
   const rootStat = fs.lstatSync(root, { bigint: true });
   if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) throw Error('source');
   const stamps = [stamp(rootStat)]; let current = root; const parts = relative.split('/');
@@ -92,7 +94,9 @@ export function inspectDoc(root: string, relative: string, _knownMtime?: number,
       if (!count) return { state: 'held' }; offset += count;
     }
     if (stamp(fs.fstatSync(fd, { bigint: true })) !== stamp(opened) || !valid()) return { state: 'held' };
-    const body = buffer.toString('utf8');
+    let body: string;
+    try { body = new TextDecoder('utf8', { fatal: true }).decode(buffer); screenPublicText(body); }
+    catch { return { state: 'rejected', valid }; }
     return { state: 'file', mtime, bytes, title: (body.match(/^#\s+(.+)$/m)?.[1] ?? relative).trim().slice(0, 200), body, valid };
   } catch { return { state: 'held' }; }
   finally {
@@ -109,7 +113,7 @@ export function inspectDoc(root: string, relative: string, _knownMtime?: number,
 }
 
 // Native handle and source path stay callback-local. Never inspect unknown storage artifacts or change modes.
-export function checkDocsStorage(db: DatabaseSync, reservedBytes: number): boolean {
+export function checkDocsStorage(db: SqliteDatabase, reservedBytes: number): boolean {
   try {
     if (!Number.isSafeInteger(reservedBytes) || reservedBytes < 0) return false;
     const file = db.location(); if (file === null) return true;
@@ -117,7 +121,7 @@ export function checkDocsStorage(db: DatabaseSync, reservedBytes: number): boole
     for (const source of [file, file + '-wal']) {
       const stat = optionalStat(source);
       if (!stat) { if (source === file) return false; continue; }
-      if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1n || fs.realpathSync(source) !== source) return false;
+      if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1n || realpathWithoutOpen(source) !== source) return false;
       bytes += Number(stat.size);
     }
     return bytes >= 100 && bytes + reservedBytes <= 64 * 1024 * 1024;

@@ -1,10 +1,10 @@
 // Explicit writer operations. Callers schedule these separately from query/projection work.
-import type { DatabaseSync } from 'node:sqlite';
+import type { SqliteDatabase } from '../../platform/sqlite.ts'
 import type { SqliteSession } from './sqlite-session.ts';
 export const DAY = 86400000;
 export type RetentionPolicy = { readonly sessionTtlDays: number; readonly purgeAfterDays: number };
 
-export function event(db: DatabaseSync, id: string, op: string, source: string, before: string | null, after: string | null, at: number): void {
+export function event(db: SqliteDatabase, id: string, op: string, source: string, before: string | null, after: string | null, at: number): void {
   db.prepare('INSERT INTO memory_events (memory_id, op, at, source, hash_before, hash_after) VALUES (?, ?, ?, ?, ?, ?)').run(id, op, at, source, before, after);
 }
 export function expire(session: SqliteSession, now: number): number {

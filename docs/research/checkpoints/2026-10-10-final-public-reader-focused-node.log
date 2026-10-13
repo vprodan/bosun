@@ -1,0 +1,76 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ actual local hook keeps the rollback connection lock through native write callback, then releases while still alive (157.541958ms)
+✔ delayed router leaves no local lease: committed privatization is reflected before hook packing/output (181.464917ms)
+✔ failed write and signal cancellation tear down the one-shot process before release; no cached frame can flush later (269.767458ms)
+✔ actual OS pipe backpressure cancels delivery without a late frame, then releases the native writer lock (379.895208ms)
+✔ unconfirmed stdout cancellation retains the lease until one-shot process teardown (388.260167ms)
+✔ regular-file stdout omits local memory before DB open; advisory output remains valid and records n0 (125.616083ms)
+✔ final binary hook handles a real closed stdout pipe without late EPIPE errors or a retained public-view lease (516.541584ms)
+✔ oversized UTF-8 memory is discarded and its lock released before advisory handoff, with truthful n0 (153.274375ms)
+✔ actual rollback hook omits finite-expiry notes before packing through backpressure and event-loop stalls (1977.948541ms)
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (88.588667ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (139.238833ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (127.248917ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (890.233917ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1238.59975ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (549.075458ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (67.627959ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (69.324ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (77.143791ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (82.592917ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (186.531625ms)
+✖ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (120002.420917ms)
+✖ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (120002.580917ms)
+✔ production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS (67.84075ms)
+✔ v2 publication fences cached real v1 MemoryService/Docs and old prepared statements; reopened writers revoke until explicit republish (149.470709ms)
+✔ same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view (62.241459ms)
+✔ multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup (801.484334ms)
+✔ final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects (605.609375ms)
+✔ publication preserves established non-generator IDs and excludes malformed private flags before reading public content (48.980083ms)
+✔ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (517.780166ms)
+✔ explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them (813.001167ms)
+✔ actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher (734.592333ms)
+✔ publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY (178.493834ms)
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14499680,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":29.45,"latencyQualification":"unqualified"}
+✔ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2720.83075ms)
+✔ public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data (1205.214709ms)
+✔ publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors (212.436541ms)
+✔ post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD (110.739875ms)
+✔ publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired (264.305584ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 2
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 275577.173166
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:865:1
+✖ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (120002.420917ms)
+  'test timed out after 120000ms'
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:931:1
+✖ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (120002.580917ms)
+  'test timed out after 120000ms'

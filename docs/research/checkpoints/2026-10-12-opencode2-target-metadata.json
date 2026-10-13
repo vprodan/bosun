@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-12T13:05:52.108Z",
+  "repository": "https://github.com/anomalyco/opencode",
+  "ref": "bcf23b6775c79a429b1511b255d6d88ab0248d4a",
+  "refCommittedAt": "2026-10-12T09:47:39Z",
+  "qualificationCandidate": "2.0.27",
+  "executable": "opencode2",
+  "installedOrExecuted": false,
+  "legacyBoundary": "Current Bosun adapter targets OpenCode1.18.34; old @opencode-ai/sdk/v2 namespace is not proof of new2.x core/API compatibility.",
+  "manifests": [
+    {
+      "path": "packages/cli/package.json",
+      "name": "@opencode/cli",
+      "version": "2.0.27",
+      "bin": {
+        "opencode": "./bin/opencode.cjs",
+        "opencode2": "./bin/opencode2.cjs"
+      }
+    },
+    {
+      "path": "packages/client/package.json",
+      "name": "@opencode/client",
+      "version": "2.0.27",
+      "exports": [
+        ".",
+        "./promise",
+        "./promise/api",
+        "./service",
+        "./solid",
+        "./effect",
+        "./effect/api",
+        "./effect/service"
+      ]
+    },
+    {
+      "path": "packages/plugin/package.json",
+      "name": "@opencode/plugin",
+      "version": "2.0.27",
+      "exports": [
+        ".",
+        "./effect",
+        "./host",
+        "./runtime",
+        "./tui",
+        "./*"
+      ]
+    }
+  ],
+  "registry": {
+    "url": "https://registry.npmjs.org/@opencode%2fcli/latest",
+    "status": 200,
+    "name": "@opencode/cli",
+    "version": "2.0.27",
+    "distIntegrity": "sha512-lyb/oqO9kEiYlSPFTWZsYaAmO2tarEUnYamRfFYQFTLLXTfg+hEFi4wUMBzv+NvWD+1rKSxShR0MsiBP8YKRbg=="
+  },
+  "legacyBetaTag": {
+    "url": "https://registry.npmjs.org/@opencode-ai%2fcli/beta",
+    "status": 200,
+    "version": "0.0.0-beta-19271"
+  },
+  "qualification": "source/package metadata only; no native behavior, installation, SDK dependency, model, credentials or personal state touched"
+}

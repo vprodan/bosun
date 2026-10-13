@@ -1,0 +1,120 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (17.672125ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (24.066709ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (6.051083ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (6.596166ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (4.13925ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (2.264125ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (4.972375ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (4.586791ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (7.612959ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (54.079167ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (73.317834ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (4.457167ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.533166ms)
+✔ upgrade reviews exact supported Kev plist and explicit new endpoint without probing, installing or retaining its confidence (17.966375ms)
+✔ unowned, malformed, changed, linked and foreign-user legacy definitions hold before upgrade effects or service discovery (43.347ms)
+✔ one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay (119.891208ms)
+✔ already stopped Kev definition archives without repeating bootout, while absent service makes no native call (193.948959ms)
+✔ actual stop followed by lost native return retains original plist/backup and a held attempt without another stop (41.263166ms)
+✔ archive unlink followed by lost return preserves retained native backup and never repeats any upgrade effects (39.858333ms)
+✔ retired backup corruption or an unowned replacement definition makes status/duplicate apply held without mutation (223.069167ms)
+✔ legacy launchd list selection is restricted to the exact router label and current CLI exposes its review options (3.198375ms)
+✔ start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart (2307.184833ms)
+✔ restart with a lost actual stop acknowledgement holds its original operation without starting or replaying (1133.99125ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.235625ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2120.690291ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1228.7475ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1221.636667ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1835.3005ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1540.926208ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1234.064542ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1222.438791ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2660.482875ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (480.547292ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1323.324209ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1326.213916ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1503.605083ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.180541ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (335.531667ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (298.659041ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (303.640833ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (284.559667ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1106.475666ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (273.618875ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (269.959625ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (298.573583ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (839.083417ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (409.427542ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (486.957792ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (291.044667ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (278.590333ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (149.623875ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.491791ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.435166ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.916458ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (17.251542ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.499375ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.78325ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (53.854959ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.432792ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.175333ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.628625ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.33ms)
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+✔ qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures (30.557458ms)
+✔ read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied (13.129791ms)
+✔ read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events (13.16875ms)
+✔ read-only bounds and escaped query text use finite diagnostics with zero file changes (9.164959ms)
+✔ unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects (17.284167ms)
+✔ missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files (13.659542ms)
+✔ read-only reader checks injected deadlines and safely holds corrupt required schemas without writes (9.873167ms)
+✔ read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history (13.147041ms)
+✔ read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension (24.608375ms)
+✔ final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference (291.92925ms)
+✔ final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls (223.868166ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.20725ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (48.376459ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (123.171083ms)
+✔ upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte (110.239625ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (174.333292ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (111.315875ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (110.158667ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (33.030083ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (32.678958ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.895583ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (32.0305ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (34.272667ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (110.291959ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (35.106958ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (35.552833ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (75.144125ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (67.2975ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (115.140916ms)
+ℹ tests 91
+ℹ suites 0
+ℹ pass 91
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30850.726125

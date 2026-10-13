@@ -1,0 +1,137 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (17.802292ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (23.060916ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (6.5325ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (6.7455ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (4.096625ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (2.251708ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (5.349208ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (3.695875ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (7.736333ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (54.127666ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (71.722541ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (4.779125ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.592625ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.80875ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.828416ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (223.619833ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (241.752125ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (218.496125ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (132.939125ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (248.134875ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (553.8315ms)
+✔ privacy: direct private generate blocks every provider before config/messages/schema access (8.900041ms)
+✔ privacy: private suggestions use only the first line and no model tags (5.68025ms)
+✔ privacy: route flags/private or malformed hook markers skip inference and remote retrieval (852.251ms)
+✖ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (187.87025ms)
+✖ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (188.921125ms)
+✖ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (188.06575ms)
+✔ privacy: nested log objects, toJSON hooks, errors/causes and unknown metadata never serialize (5.020292ms)
+✔ privacy: LLM usage ignores echoed model/token content and emits fixed error kinds (17.465209ms)
+✔ privacy: metrics reports never redisplay malformed historical metadata and leave files unchanged (4.390208ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.352625ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.253292ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.85125ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (17.136958ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.333708ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.855959ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (54.7045ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.434541ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.173875ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.000083ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.282333ms)
+✔ new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution (215.984ms)
+✔ final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement (128.045291ms)
+✔ actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review (137.192375ms)
+✔ final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer (233.725292ms)
+✔ disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference (106.716ms)
+✔ actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime (259.312042ms)
+✔ actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes (231.899542ms)
+✔ final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution (119.92075ms)
+✔ real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout (598.728667ms)
+✔ final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior (664.266125ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 48
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7146.881417
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/privacy.test.ts:90:1
+✖ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (187.87025ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/privacy.test.ts:99:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/privacy.test.ts:115:1
+✖ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (188.921125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/privacy.test.ts:129:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/privacy.test.ts:140:1
+✖ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (188.06575ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'label'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/privacy.test.ts:150:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

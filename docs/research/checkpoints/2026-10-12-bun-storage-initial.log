@@ -1,0 +1,85 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 26 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 27 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 28 - unknown suites/options and prohibited runtimes fail closed
+Containment: 28/28 probes passed; application suites not imported.
+Guarded Bun file 1/1: sqlite-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:
+(pass) SQLite Bun source and historical compiled candidates keep Node/version/platform drift held [0.68ms]
+(pass) loaded SQLite must retain a patched WAL branch irrespective of compiler version [0.07ms]
+53 |     ['m_archived', 'project', 'p_a', null, 'archived', 0, null],
+54 |   ] as const) scoped.run(id, category, project, session, id, 'Scoped preserved body', status, shared, 'owner', id + '-hash', 2, 2, expires);
+55 |   return { sb, paths, db, close() { db.close(); sb.cleanup(); } };
+56 | }
+57 | const options = (paths: CutoverPaths): CutoverOptions => ({ paths, now: () => 100, id: () => crypto.randomUUID() });
+58 | const rows = (db: DatabaseSync, table: string) => db.prepare(`SELECT * FROM ${table} ORDER BY 1`).all();
+                                                          ^
+error: unable to open database file
+ errcode: 14,
+  errstr: "unable to open database file",
+    code: "ERR_SQLITE_ERROR"
+
+      at rows (/Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:58:54)
+      at <anonymous> (/Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:72:28)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) cutover native qualification: pinned schema and owner artifact format [12.56ms]
+(pass) cutover holds write admission across exact native backup and persistent floor; old prepared DML is fenced [17.44ms]
+(pass) cutover registration requires actual wrapper admission; old read snapshots and cached handles cannot mutate [42.08ms]
+(pass) cutover process crashes recover with fresh exact backups before commit, or reconcile committed floor without doubleapply [187.99ms]
+(pass) cutover failed callbacks/errors are finite and restart never reuses a stale backup [17.69ms]
+(pass) cutover never returns messages/causes from mutated typed errors or hostile exception prototypes [18.62ms]
+(pass) cutover unknown schema, corrupt storage, symlinks and artifact collisions fail closed without overwrite [29.59ms]
+(pass) cutover recovery holds inode/epoch swaps, backup tampering and unknown floor/gate definitions [120.58ms]
+(pass) cutover validates initial dependencies before reserving artifacts; the first committed gate is recoverable [44.09ms]
+(pass) cutover refuses successful receipts when final post-commit checkpoint changes source/view/artifact/epoch [42.69ms]
+(pass) cutover cleanup failures remain finite, release native admission and reconcile the committed attempt [12.67ms]
+335 |     assert.throws(() => writer!.transaction((db) => {
+336 |       db.exec("UPDATE memories SET private=1 WHERE id='m_public'"); failRollback = true; throw Error('PRIVATE write error');
+337 |     }), CutoverError);
+338 |     assert.equal(failRollback, false); assert.throws(() => writer!.transaction(() => {}), CutoverError);
+339 |     assert.equal(f.db.prepare("SELECT private FROM memories WHERE id='m_public'").get()!.private, 0);
+340 |     f.db.exec('BEGIN IMMEDIATE'); f.db.exec('ROLLBACK');
+               ^
+error: database is locked
+ errcode: 5,
+  errstr: "database is locked",
+    code: "ERR_SQLITE_ERROR"
+
+      at <anonymous> (/Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:340:10)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) registered writer rollback failure poisons and closes the connection rather than leaving admission alive [2165.00ms]
+(pass) registered writer invalidation respects a lease on the same rollback gate inode and never precedes primary admission [42.18ms]
+(pass) registered writer refuses a coordinated same-inode source/view epoch change after registration [19.96ms]
+
+ 14 pass
+ 2 fail
+Ran 16 tests across 1 file. [2.82s]
+Guarded Bun files: 0/1 passed; 1 failed.

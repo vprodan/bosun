@@ -1,0 +1,134 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context: relevance and recency both count; sources are weighted (2.522792ms)
+✔ context: dedupe across sources keeps the higher score (0.199583ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (2.777584ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.109709ms)
+✔ claude-mem: this repo only, read-only; missing, off, schema mismatch and a locked database give [] and a warning (12.359583ms)
+✔ docs index: this repo's Markdown only, re-read when the mtime changes, removed files leave the index (121.467209ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (964.410666ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (467.535375ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (587.083542ms)
+✔ final hook with missing memory creates nothing and runs no model/service (102.068625ms)
+✔ new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view (123.947708ms)
+✔ final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance (99.246208ms)
+✔ final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only (128.799041ms)
+✔ curated final source rejects private/unclassified payload getters before projection (0.202125ms)
+✔ expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive (108.000291ms)
+✔ lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently (62.196541ms)
+✔ native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay (60.679375ms)
+✔ startup dependency failure closes both registered handles without releasing shared daemon authority (59.81425ms)
+✔ explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage (70.06675ms)
+✔ explicit format1 publication retains cached writer fencing and requires explicit runtime restart (72.607458ms)
+✔ explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes (62.94475ms)
+✔ owner CLI indexes native source chunks once and actual MCP queries return original IDs with negative abstention (714.60675ms)
+✔ classification precedes payload getters; owner indexing rejects private, proposed and foreign IDs before model metadata (226.405959ms)
+✔ disabled or empty vector sources leave defaults intact and make no model calls (365.662041ms)
+✔ source revocation during metadata or embedding prevents storage and preserves sticky original job receipt (366.084583ms)
+✔ workspace origin drift during embedding holds without derived data or replay (156.879125ms)
+✔ cancelled embedding and successful native store with lost return retain unknown and never resubmit (337.0845ms)
+✔ multi-batch indexing preserves Unicode spans and commits only after every source remains public (474.043542ms)
+✔ optional query cache rechecks current source generation, keeps sessions separate and evicts at its bound (748.927959ms)
+✔ corpus revocation during a query holds the reply and cannot populate a cache from an uncertain result (255.019334ms)
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (111.740792ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (95.743875ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (133.19875ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (79.126584ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (4.030125ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (14.95875ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.553875ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (7.245667ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (12.805958ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (2.218834ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.183292ms)
+✔ actual local hook keeps the rollback connection lock through native write callback, then releases while still alive (159.920708ms)
+✔ delayed router leaves no local lease: committed privatization is reflected before hook packing/output (183.368125ms)
+✔ failed write and signal cancellation tear down the one-shot process before release; no cached frame can flush later (272.295875ms)
+✔ actual OS pipe backpressure cancels delivery without a late frame, then releases the native writer lock (391.000833ms)
+✔ unconfirmed stdout cancellation retains the lease until one-shot process teardown (390.266625ms)
+✔ regular-file stdout omits local memory before DB open; advisory output remains valid and records n0 (118.452083ms)
+✔ final binary hook handles a real closed stdout pipe without late EPIPE errors or a retained public-view lease (522.655125ms)
+✔ oversized UTF-8 memory is discarded and its lock released before advisory handoff, with truthful n0 (158.121166ms)
+✔ actual rollback hook omits finite-expiry notes before packing through backpressure and event-loop stalls (1975.467583ms)
+✔ MemoryStore acceptance: plain direct adapter (12.821833ms)
+✔ MemoryStore acceptance: plain legacy composition (10.782584ms)
+✔ MemoryStore acceptance: registered direct adapter (101.32675ms)
+✔ MemoryStore acceptance: registered legacy composition (98.747458ms)
+✔ direct plain query/projection has unchanged storage footprint, scope/flags and deterministic expiry (10.355375ms)
+✔ direct registered query/projection has unchanged storage footprint, scope/flags and deterministic expiry (99.270834ms)
+✔ direct plain explicit retention/touch/prune uses frozen policy and injected timestamps (6.448667ms)
+✔ direct registered explicit retention/touch/prune uses frozen policy and injected timestamps (45.945ms)
+✔ direct plain semantic clock/expiry failures leave existing rows/events/generation unchanged (8.128ms)
+✔ direct registered semantic clock/expiry failures leave existing rows/events/generation unchanged (70.873291ms)
+✔ direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held (57.689666ms)
+✔ legacy composition retains constructor/read expiry and best-effort touch on an actual SQLite session (7.707417ms)
+✔ direct plain post-commit sink/timing failures preserve result, events and generation (5.810625ms)
+✔ direct registered post-commit sink/timing failures preserve result, events and generation (44.658958ms)
+✔ direct dependencies fail before DML, transactions roll back and lifecycle cleanup preserves the original error (6.777875ms)
+✔ validation schemas/validator and native session helpers retain exact legacy forwarding identity (0.163917ms)
+✔ direct adapter imports and works under a synthetic HOME with unusable ambient config and no owner filesystem effects (71.539625ms)
+✔ direct plain expired session restore renews the current default and survives reopen until the new boundary (7.222167ms)
+✔ direct registered expired session restore renews the current default and survives reopen until the new boundary (42.0185ms)
+✔ direct plain restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (9.783833ms)
+✔ direct registered restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (142.480625ms)
+✔ direct plain zero session TTL disables expiry for creation and explicit expired restore (7.830417ms)
+✔ direct registered zero session TTL disables expiry for creation and explicit expired restore (37.125459ms)
+✔ direct plain restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (8.799417ms)
+✔ direct registered restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (117.89375ms)
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (89.159708ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (138.450708ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (125.022125ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (887.257834ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1217.492916ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (546.963459ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (66.852125ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (68.050583ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (75.794125ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (83.4745ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (183.227458ms)
+✔ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (567.114291ms)
+✔ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (915.446292ms)
+✔ local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop (2058.441959ms)
+✔ actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes (145.300375ms)
+✔ production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS (66.669958ms)
+✔ v2 publication fences cached real v1 MemoryService/Docs and old prepared statements; reopened writers revoke until explicit republish (142.405ms)
+✔ same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view (63.255959ms)
+✔ multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup (818.543583ms)
+✔ final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects (613.077458ms)
+✔ publication preserves established non-generator IDs and excludes malformed private flags before reading public content (49.5365ms)
+✔ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (523.400958ms)
+✔ explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them (822.885375ms)
+✔ actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher (749.746625ms)
+✔ publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY (175.768875ms)
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14458744,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":29.89,"latencyQualification":"unqualified"}
+✔ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2764.573375ms)
+✔ public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data (1220.542083ms)
+✔ publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors (200.474875ms)
+✔ post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD (106.249833ms)
+✔ publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired (255.087292ms)
+ℹ tests 105
+ℹ suites 0
+ℹ pass 105
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29567.540916

@@ -1,0 +1,96 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (112.135458ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (171.584541ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (145.788166ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (966.420917ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1247.798416ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (556.7965ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (66.973917ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (70.199292ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (77.409ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (79.536542ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (185.461542ms)
+✔ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (565.23625ms)
+✔ final binary hook handles a closed stdout pipe without late EPIPE errors or a retained public-view lease (342.861334ms)
+✔ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (906.197208ms)
+✖ explicit native fs hook write retains the real reader through its original callback (180.032625ms)
+✖ uncertain explicit fs hook writes hold their lease until the original producer is killed and joined (487.44ms)
+✔ local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop (2050.62125ms)
+✔ actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes (141.385709ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 16
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8529.05275
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:1054:1
+✖ explicit native fs hook write retains the real reader through its original callback (180.032625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      children: {
+        'public.db': {
+          ctime: '1791729883897581958',
+          dev: '16777233',
+  ...
+      },
+  +   ctime: '1791729883994905035',
+  -   ctime: '1791729883897622875',
+      dev: '16777233',
+      ino: '87457430',
+      mode: '16832',
+  +   mtime: '1791729883994905035',
+  -   mtime: '1791729883897622875',
+      size: '96'
+    }
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/public-reader.test.ts:1066:12)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { dev: '16777233', ino: '87457430', mode: '16832', size: '96', mtime: '1791729883994905035', ctime: '1791729883994905035', children: { 'public.db': [Object] } },
+    expected: { dev: '16777233', ino: '87457430', mode: '16832', size: '96', mtime: '1791729883897622875', ctime: '1791729883897622875', children: { 'public.db': [Object] } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:1072:1
+✖ uncertain explicit fs hook writes hold their lease until the original producer is killed and joined (487.44ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection (writerBusy).
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/public-reader.test.ts:1079:7)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }

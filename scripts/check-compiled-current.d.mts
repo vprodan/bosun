@@ -1,0 +1,20 @@
+import type { streamProcess } from '../src/platform/process.ts';
+import type { RuntimeConfig } from '../src/core/domain/config.ts';
+export function isolatedConfig(home: string): RuntimeConfig;
+export const CURRENT_PINS: Readonly<Record<string, string>>;
+export type CheckContext = { binary: string; cwd: string; env: Record<string, string>; home?: string; runtime?: string; socket?: string };
+export type ProcessReceipt = { args: string[]; joined: boolean; code: number | null; signal: string | null; error: string | null; wallMs?: number; stdoutBytes?: number; stdoutSha256?: string };
+export type EntryCase = { name: string; args: string[]; input?: string; initialize?: boolean };
+export const entryCases: readonly EntryCase[];
+export function verifyCurrentArtifact(directory: string, privateRoot: string): Promise<Record<string, unknown>>;
+export function prepareIsolation(root: string, name: string): Required<Omit<CheckContext, 'binary'>>;
+export function cleanupAllowed(input: { rootsJoined: boolean; benchmarkAttempted: boolean; benchmarkVerified: boolean }): boolean;
+export function ownedTreeBytes(root: string): number;
+export function runEntryProbe(context: CheckContext, entry: EntryCase, dependencies?: { execute?: typeof streamProcess }): Promise<ProcessReceipt & { check: string; passed: boolean; eofSent: boolean; initialized?: boolean }>;
+export function foregroundDaemon(context: CheckContext, dependencies?: { execute?: typeof streamProcess }): {
+  receipt: ProcessReceipt; ready(): Promise<void>; close(): Promise<ProcessReceipt & { controlledCancellation: boolean; gracefulExitCode: string }>;
+};
+export function runSqliteRequests(call: (audience: string, method: string, params: Record<string, unknown>, invalid?: boolean) => Promise<any>): Promise<{ requests: number; originalMutations: number }>;
+export function currentRpc(socket: string, workspace: string, audience: string, method: string, params: Record<string, unknown>, sequence: number, invalid?: boolean): Promise<any>;
+export function classifyBenchmark(report: unknown): { nestedProducersReportedJoined: number; componentLatency: null; designatedMacLatency: string; wall: { samples: number; p50: number; p95: number } };
+export function runBenchmarkProbe(context: CheckContext, dependencies?: { execute?: typeof streamProcess }): Promise<{ receipt: ProcessReceipt; passed: boolean; benchmark: ReturnType<typeof classifyBenchmark> | null }>;

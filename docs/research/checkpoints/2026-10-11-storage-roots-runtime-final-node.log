@@ -1,0 +1,44 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ runtime paths are explicit and path calculation does not create files (0.731292ms)
+✔ shipped roles and skills resolve from embedded assets in a synthetic working directory (0.610125ms)
+✔ final project scope preserves existing clone/worktree/non-repo identities and configured links (4.014833ms)
+✔ shared envelopes reject skew/extra fields and normalize provider errors (0.297917ms)
+✔ native UDS RPC preserves concurrent request identity and uses protected socket (13.681166ms)
+✔ malformed and oversized requests never invoke dispatch; stopped admission stays closed (3.141959ms)
+✔ lost mutation reply has unknown outcome and is never automatically repeated (33.345ms)
+✔ oversized successful replies preserve uncertainty instead of claiming a failed mutation (1.743083ms)
+✔ unsafe socket parents and existing ordinary files are not adopted or deleted (0.467292ms)
+✔ native process streaming preserves split UTF8/stdin and reports positive process close (39.278792ms)
+✔ native process cancellation waits for close and kills an ordinary worker ignoring TERM (49.719792ms)
+✔ oversized native lines and stderr stop the process without exposing its error content (55.91725ms)
+✔ native process channel permits bounded interactive stdin and positive peer acknowledgement (28.635333ms)
+✔ native cancellation kills an ordinary descendant even when its parent closes first (67.561291ms)
+✔ real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names (11.07ms)
+✔ config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding (16.924875ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 446.015583

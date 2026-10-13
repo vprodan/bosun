@@ -1,0 +1,317 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ production boundary graph passes including the recorded legacy forwarding seams (878.406333ms)
+✔ boundary negative fixture: final memory composition cannot reach legacy config (79.557459ms)
+✔ boundary negative fixture: curated source policy cannot reach native writer (74.706083ms)
+✔ boundary negative fixture: normal registered reader cannot import new initialization (74.552834ms)
+✔ boundary negative fixture: jobs core cannot use an ambient clock (74.356333ms)
+✔ boundary negative fixture: jobs core cannot import durable IO (71.893167ms)
+✔ boundary negative fixture: jobs storage cannot reuse memory cutover machinery (73.874375ms)
+✔ boundary negative fixture: final jobs composition cannot import legacy rendezvous (72.590917ms)
+✔ boundary negative fixture: type-only static IO import (78.239458ms)
+✔ boundary negative fixture: reexport relative bypass (71.430667ms)
+✔ boundary negative fixture: literal dynamic import (71.6245ms)
+✔ boundary negative fixture: import type query (71.787208ms)
+✔ boundary negative fixture: tsconfig alias bypass (78.000791ms)
+✔ boundary negative fixture: package imports alias bypass (72.444042ms)
+✔ boundary negative fixture: unresolved alias (72.032333ms)
+✔ boundary negative fixture: computed dynamic import (70.354083ms)
+✔ boundary negative fixture: computed require (73.821166ms)
+✔ boundary negative fixture: require alias (74.098917ms)
+✔ boundary negative fixture: module loader escape (75.137416ms)
+✔ boundary negative fixture: property require escape (69.026208ms)
+✔ boundary negative fixture: element require escape (67.842125ms)
+✔ boundary negative fixture: import equals escape (72.529167ms)
+✔ boundary negative fixture: new graph cycle (70.542125ms)
+✔ boundary negative fixture: old graph cycle (77.319667ms)
+✔ boundary negative fixture: production test dependency (72.667583ms)
+✔ boundary negative fixture: cross adapter flat files (69.97775ms)
+✔ boundary negative fixture: cross adapter nested directories (72.051791ms)
+✔ boundary negative fixture: cross adapter kinds (73.686292ms)
+✔ boundary negative fixture: core process global (75.284375ms)
+✔ boundary negative fixture: core fetch global (71.377791ms)
+✔ boundary negative fixture: core global alias (72.098333ms)
+✔ boundary negative fixture: ambient clock alias (73.950333ms)
+✔ boundary negative fixture: actual context use case cannot reach native hashing (70.119916ms)
+✔ boundary negative fixture: actual context use case cannot use ambient timing (69.148125ms)
+✔ boundary negative fixture: context forwarding cannot restore its obsolete text helper edge (72.210916ms)
+✔ boundary negative fixture: ambient random alias (77.0795ms)
+✔ boundary negative fixture: Math object alias (69.166541ms)
+✔ boundary negative fixture: computed Math operation (70.050666ms)
+✔ boundary negative fixture: new source cannot import old lib helper (71.196167ms)
+✔ boundary negative fixture: unregistered legacy file (75.057958ms)
+✔ boundary negative fixture: unrecorded forwarding edge (72.072291ms)
+✔ boundary negative fixture: memory adapter cannot reach legacy config (71.4915ms)
+✔ boundary negative fixture: memory adapter cannot read ambient config (70.98525ms)
+✔ boundary negative fixture: memory query cannot use an ambient clock (71.199542ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient timing source (75.969708ms)
+✔ boundary negative fixture: memory adapter cannot create a runtime native connection (72.698584ms)
+✔ boundary negative fixture: memory adapter cannot alias a runtime native connection (72.648458ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform clock through a package alias (76.156458ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias (70.114292ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient measurement sink (71.123042ms)
+✔ boundary negative fixture: validation cannot load runtime filesystem (70.243708ms)
+✔ boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper (76.840083ms)
+✔ boundary negative fixture: validation isolation cannot reexport an ambient helper (72.1055ms)
+✔ boundary negative fixture: memory isolation cannot alias an unreviewed contract sink (71.740125ms)
+✔ boundary negative fixture: pure validation cannot reach storage (72.1395ms)
+✔ boundary negative fixture: memory query cannot import maintenance (76.886458ms)
+✔ boundary negative fixture: docs snapshot query cannot import its index use case (70.076ms)
+✔ boundary negative fixture: docs snapshot query cannot reach filesystem helper (69.326959ms)
+✔ boundary negative fixture: docs index cannot import effectful source helper (69.803ms)
+✔ boundary negative fixture: docs query cannot use ambient config (71.099041ms)
+✔ boundary negative fixture: docs index cannot use runtime filesystem (76.858417ms)
+✔ boundary negative fixture: docs index cannot use ambient timing (71.786042ms)
+✔ boundary negative fixture: docs query cannot alias a platform source (75.970917ms)
+✔ boundary negative fixture: docs query cannot reach unreviewed contract metrics (70.207958ms)
+✔ boundary negative fixture: docs filesystem helper cannot reach legacy state (71.45275ms)
+✔ boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer (75.8525ms)
+✔ boundary negative fixture: local hook reader cannot import writable store (73.971125ms)
+✔ boundary negative fixture: service forwarding does not allow unrelated memory internals (70.31575ms)
+✔ boundary negative fixture: unknown new production zone (69.622583ms)
+✔ AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals (78.853292ms)
+✔ isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins (74.541792ms)
+✔ boundary resolution cannot escape the checked graph through a symlink (3.903417ms)
+✔ app path aliases cannot escape the checked graph as apparent external dependencies (70.744583ms)
+✔ new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view (123.344375ms)
+✔ final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance (98.981625ms)
+✔ final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only (133.197041ms)
+✔ curated final source rejects private/unclassified payload getters before projection (0.188917ms)
+✔ expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive (110.606333ms)
+✔ lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently (60.657791ms)
+✔ native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay (62.506417ms)
+✔ startup dependency failure closes both registered handles without releasing shared daemon authority (59.602709ms)
+✔ explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage (70.878875ms)
+✔ explicit format1 publication retains cached writer fencing and requires explicit runtime restart (72.109041ms)
+✔ explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes (63.167041ms)
+✔ one shared method table applies real schemas and privacy before prompt getters (1.865209ms)
+✔ actual UDS methods share scoped memory/context and keep private owner records out of model replies/mutations (208.329541ms)
+✔ actual job methods persist request dedupe, selected execution, scoped progress and explicit cancellation (89.8965ms)
+✔ native owner plan reads only filesystem/header metadata; retired CLI preserves live and closed WAL footprints (423.278375ms)
+✔ native owner apply uses independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer (21.368875ms)
+✔ closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects (18.823667ms)
+✔ stale source or WAL identity plans fail before native open without further footprint changes (28.937084ms)
+✔ filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them (38.388708ms)
+✔ plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers (63.499791ms)
+✔ plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation (12.318417ms)
+✔ owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects (1787.905792ms)
+✔ native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified (10.468625ms)
+✔ admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused (2201.709833ms)
+✔ READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply (240.244ms)
+✔ saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked (34.280209ms)
+✔ owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text (8.916458ms)
+✔ owner dependency getters and proxies reject before filesystem inspection or private error serialization (7.992667ms)
+✔ non-synchronous owner validation is refused under native admission before any artifact or floor mutation (6575.315917ms)
+✔ native preparation reviews absent leaves and legacy modes without SQLite, then applies a fresh strict candidate (35.88475ms)
+✔ preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched (22.075334ms)
+✔ preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects (193.179041ms)
+✔ a real existing READY view stays blocked before any preparation permission action (227.8905ms)
+✔ preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths (64.736167ms)
+✔ preparation pins all actionable and creation-parent descriptors before any permission effect (8.175291ms)
+✔ all pinned source, WAL and SHM metadata is rechecked before the first fchmod (25.743375ms)
+✔ descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes (17.660958ms)
+✔ partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan (55.291708ms)
+✔ created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening (38.17725ms)
+✔ owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release (21.100916ms)
+✔ preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields (11.327ms)
+✔ retired preparation CLI rejects flags, positionals, duplicate options and remote without storage effects (1979.381ms)
+✔ native preparation preserves exact action paths containing spaces/control characters and retired CLI changes no storage (208.631167ms)
+✔ preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem (8.570125ms)
+✔ explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles (480.972875ms)
+✔ recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged (216.825917ms)
+✔ multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted (34.821292ms)
+✔ wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML (22.999417ms)
+✔ recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched (96.675417ms)
+✔ recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view (63.994875ms)
+✔ actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects (553.40525ms)
+✔ recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference (4433.221458ms)
+✔ retired recovery CLI has no effects; native recovery requires bound source, retain acknowledgement and attestation (1814.271292ms)
+✔ recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures (16.637125ms)
+✔ native restore plan saves independent new epoch and opens only leased rollback view; retired CLI makes no storage effects (268.929791ms)
+✔ actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities (191.283292ms)
+✔ retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority (77.965ms)
+✔ readers observe only pending filename and never open retained owner JSON or backup bytes (77.065083ms)
+✔ pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes (658.835625ms)
+✔ unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage (2441.426333ms)
+✔ stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery (2037.280209ms)
+✔ native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML (229.21475ms)
+✔ explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss (533.89425ms)
+✔ seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival (1286.843583ms)
+✔ fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles (360.019416ms)
+✔ owner capsule reads stay bounded and reject growth between metadata validation and descriptor use (91.112125ms)
+✔ post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay (72.83ms)
+✔ retired restore CLI and independently bound native tokens refuse missing attestation, extra inputs and wrong epochs without effects (1424.4795ms)
+✔ completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup (257.522834ms)
+✔ pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data (326.369125ms)
+✔ restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps (103.602208ms)
+✔ new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution (227.392833ms)
+✔ final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement (125.611042ms)
+✔ actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review (136.225167ms)
+✔ final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer (241.63025ms)
+✔ disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference (109.948791ms)
+✔ actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime (278.417542ms)
+✔ actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes (236.6865ms)
+✔ final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution (125.949292ms)
+✔ real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout (632.240417ms)
+✔ final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior (664.41375ms)
+✔ runtime paths are explicit and path calculation does not create files (0.742084ms)
+✔ shipped roles and skills resolve from embedded assets in a synthetic working directory (0.621959ms)
+✔ final project scope preserves existing clone/worktree/non-repo identities and configured links (4.501458ms)
+✔ shared envelopes reject skew/extra fields and normalize provider errors (0.334875ms)
+✔ native UDS RPC preserves concurrent request identity and uses protected socket (13.305083ms)
+✔ malformed and oversized requests never invoke dispatch; stopped admission stays closed (3.038625ms)
+✔ lost mutation reply has unknown outcome and is never automatically repeated (33.461083ms)
+✔ oversized successful replies preserve uncertainty instead of claiming a failed mutation (2.914416ms)
+✔ unsafe socket parents and existing ordinary files are not adopted or deleted (0.595916ms)
+✔ native process streaming preserves split UTF8/stdin and reports positive process close (41.340041ms)
+✔ native process cancellation waits for close and kills an ordinary worker ignoring TERM (49.706625ms)
+✔ oversized native lines and stderr stop the process without exposing its error content (56.3495ms)
+✔ native process channel permits bounded interactive stdin and positive peer acknowledgement (27.738125ms)
+✔ native cancellation kills an ordinary descendant even when its parent closes first (77.174875ms)
+✔ real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names (11.03575ms)
+✔ config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding (15.318417ms)
+✔ SQLite runtime candidates keep compiled version/platform drift held without executing Bun (0.459542ms)
+✔ loaded SQLite must retain a patched WAL branch irrespective of compiler version (0.115417ms)
+✔ cutover native qualification: pinned schema and owner artifact format (12.699083ms)
+✔ cutover holds write admission across exact native backup and persistent floor; old prepared DML is fenced (18.421875ms)
+✔ cutover registration requires actual wrapper admission; old read snapshots and cached handles cannot mutate (39.083041ms)
+✔ cutover process crashes recover with fresh exact backups before commit, or reconcile committed floor without doubleapply (378.823417ms)
+✔ cutover failed callbacks/errors are finite and restart never reuses a stale backup (24.329708ms)
+✔ cutover never returns messages/causes from mutated typed errors or hostile exception prototypes (18.086792ms)
+✔ cutover unknown schema, corrupt storage, symlinks and artifact collisions fail closed without overwrite (34.072041ms)
+✔ cutover recovery holds inode/epoch swaps, backup tampering and unknown floor/gate definitions (127.604167ms)
+✔ cutover validates initial dependencies before reserving artifacts; the first committed gate is recoverable (57.711417ms)
+✔ cutover refuses successful receipts when final post-commit checkpoint changes source/view/artifact/epoch (57.457084ms)
+✔ cutover cleanup failures remain finite, release native admission and reconcile the committed attempt (17.912042ms)
+✔ registered writer rollback failure poisons and closes the connection rather than leaving admission alive (18.532583ms)
+✔ registered writer invalidation respects a lease on the same rollback gate inode and never precedes primary admission (22.6235ms)
+✔ registered writer refuses a coordinated same-inode source/view epoch change after registration (18.148791ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.228833ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (48.278458ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (124.263667ms)
+✔ upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte (110.223625ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (167.329375ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (114.474083ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (107.004583ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (32.688458ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (32.3635ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.285ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (31.509375ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (31.254ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (107.643375ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (33.294666ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (35.77275ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (73.002458ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (65.625417ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (110.053792ms)
+✔ cached read rejects actual oversized primary before callback (22.9105ms)
+✔ cached read rejects actual oversized wal before callback (17.743084ms)
+✔ cached transaction rejects actual oversized primary before callback (17.455833ms)
+✔ cached transaction rejects actual oversized wal before callback (17.626625ms)
+✔ native large source/FTS transaction is refused without committed row/event/floor changes (102.733042ms)
+✔ registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt (498.770167ms)
+✔ error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer (23.403208ms)
+✔ error before native COMMIT retains exact domain identity only after successful rollback (19.39475ms)
+✔ error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write (26.820459ms)
+✔ cached read rejects changed journal before callback without repair (15.684333ms)
+✔ cached read rejects changed wal-mode before callback without repair (15.439334ms)
+✔ cached read rejects changed parent-mode before callback without repair (16.745ms)
+✔ cached read rejects changed wal-link before callback without repair (16.725917ms)
+✔ cached transaction rejects changed journal before callback without repair (15.84725ms)
+✔ cached transaction rejects changed wal-mode before callback without repair (16.815458ms)
+✔ cached transaction rejects changed parent-mode before callback without repair (16.849583ms)
+✔ cached transaction rejects changed wal-link before callback without repair (17.096959ms)
+✔ native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (24.890292ms)
+✔ native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (23.4245ms)
+✔ native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (31.529584ms)
+✔ eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML (395.551083ms)
+✔ driver PRAGMA prepare failure clears private authorization and callback controls remain denied (22.832333ms)
+Native dirty-page qualification: { spill: true, before: 160712, pending: 4383712, committed: 4441392 }
+Native dirty-page qualification: { spill: false, before: 160712, pending: 160712, committed: 4441392 }
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false
+}
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false
+}
+✔ post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay (22.130041ms)
+✔ native dirty-page probe observes cache_spill=true before actual commit (24.314458ms)
+✔ native dirty-page probe observes cache_spill=false before actual commit (22.70075ms)
+✔ native FTS xSync allocation occurs at actual COMMIT (14.472708ms)
+✔ native FTS xSync page-limit failure occurs at actual COMMIT (10.33975ms)
+✔ registered real store covers explicit expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit (136.87825ms)
+✔ registered explicit expiry and prune use synchronous admission, preserving archive/purge events (75.513459ms)
+✔ final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit (275.902417ms)
+✔ fresh final owner CLI unshares with exact CAS, linked access and retained original audit (292.643459ms)
+✔ upgraded final owner CLI unshares with exact CAS, linked access and retained original audit (310.860917ms)
+✔ fresh final owner unsharing preserves the raw malformed privacy marker and model opacity (198.739166ms)
+✔ upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity (217.083083ms)
+✔ fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (226.885667ms)
+✔ upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (243.067042ms)
+✔ fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1180.331708ms)
+✔ upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1192.156041ms)
+✔ final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job (479.494208ms)
+✔ final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context (941.004125ms)
+✔ registered gate lease blocks explicit maintenance and mutations while reads stay available (60.791209ms)
+✔ registered final writer holds pending/unknown/mismatched roots without permission or schema changes (283.028125ms)
+✔ registered final writer preserves domain errors after rollback and keeps hostile callback errors finite (63.966375ms)
+✔ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (399.136833ms)
+✔ failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully (187.515459ms)
+ℹ tests 249
+ℹ suites 0
+ℹ pass 248
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 54963.100916
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/boundaries.test.ts:20:1
+✖ production boundary graph passes including the recorded legacy forwarding seams (878.406333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'src/adapters/memory/sqlite-cutover.ts:10: Cross-adapter dependency (src/adapters/memory/sqlite-runtime.ts)',
+  +   'src/adapters/memory/sqlite-owner.ts:6: Cross-adapter dependency (src/adapters/memory/sqlite-runtime.ts)'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/boundaries.test.ts:22:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'src/adapters/memory/sqlite-cutover.ts:10: Cross-adapter dependency (src/adapters/memory/sqlite-runtime.ts)', 'src/adapters/memory/sqlite-owner.ts:6: Cross-adapter dependency (src/adapters/memory/sqlite-runtime.ts)' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

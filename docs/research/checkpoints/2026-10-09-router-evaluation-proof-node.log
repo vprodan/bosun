@@ -1,0 +1,40 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ entire corpus privacy is checked before any task payload, including the last held-out entry (0.869959ms)
+✔ fixed split rejects duplicate tasks/references, repository or session leakage, missing categories, model skew and credentials (10.989ms)
+✔ threshold freezes only development evidence; held-out relabeling cannot tune it and synthetic/imported metrics cannot qualify calibration (3.37275ms)
+✔ deterministic permissions/model/no-delegation fences remain authoritative and risk-miss/outcome metrics expose harmful offered hints (1.628333ms)
+✔ final CLI offline analysis uses the complete corpus, reports outcome uncertainty, leaves sources/config intact and calls no model (155.167417ms)
+✔ native capture evaluates development first, persists its selection before held-out requests and never sends labels or verification data to the classifier (426.565792ms)
+✔ public declaration and source pin reject private late cases, secret input and external/symlink paths before inference or artifacts (128.845208ms)
+✔ a dataset change during capture preserves one unknown original job, never starts held-out capture and never replays the request (145.875708ms)
+✔ reviewed digest mismatch holds before generation; a tagged model is never silently evaluated with different weights (132.539208ms)
+✔ lost actual frozen-file publication retains its original selection after20 calls and starts no held-out request or replay (172.008208ms)
+✔ cancellation during held-out capture keeps the frozen selection and unknown job without more inference or release (189.013042ms)
+✔ outcome proof resolves an actual closed revision-bound check; owner assertions and mismatched revisions remain unverified (1123.931208ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2702.345666

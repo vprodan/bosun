@@ -5,11 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { DatabaseSync } from 'node:sqlite';
-import { sandbox, fresh, gitRepo, bosun, mcpSession, REPO } from './helpers.ts';
-import { Docs } from '../lib/memory/docs.ts';
-import { MIGRATIONS } from '../lib/memory/sqlite.ts';
-import { project } from '../lib/memory/project.ts';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
+import { sandbox, fresh, gitRepo, REPO } from './helpers.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
+import { mcpFixture } from './mcp-fixture.ts';
+import { DaemonOwner } from '../src/platform/daemon-owner.ts';
+import { MEMORY_MIGRATIONS } from '../src/adapters/memory/sqlite-schema.ts';
 import { footprint } from './read-view-prototype.ts';
 import { SqliteDocs } from '../src/adapters/memory/sqlite-docs.ts';
 import { SqliteDocsIndex, DOCS_MAX_BYTES, DOCS_MAX_TOTAL_BYTES, type DocsIndexDependencies, type DocsMeasurement } from '../src/adapters/memory/sqlite-docs-index.ts';
@@ -18,56 +19,30 @@ import { plainSession, type SqliteSession } from '../src/adapters/memory/sqlite-
 import { cutoverMemory, CutoverWriter, publishMemoryView } from '../src/adapters/memory/sqlite-cutover.ts';
 import type { ContextSource } from '../src/core/ports/context-source.ts';
 import { BosunError, MemoryError, modelMemoryError } from '../src/core/errors.ts';
+import { project } from '../src/platform/project.ts';
 
 const CTX = { projectId: 'p_a', sessionId: null, linked: [] as string[] };
-function baseline() {
-  const sb = sandbox(); fresh(sb); const repo = gitRepo(sb, 'repo');
-  const db = new DatabaseSync(':memory:'); db.exec(MIGRATIONS[0]);
-  const docs = new Docs(db, repo, CTX.projectId);
-  return { sb, repo, db, docs, close() { docs.close(); sb.cleanup(); } };
-}
-test('docs complete enumeration: native failed ls-files after root success preserves indexed rows', () => {
-  const f = baseline();
-  try {
-    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra\nZebra retained document'); f.docs.index();
-    const before = f.db.prepare('SELECT * FROM docs').all();
-    fs.writeFileSync(path.join(f.repo, '.git/index'), 'invalid native git index');
-    assert.deepEqual(f.docs.index(), { changed: 0, removed: 0 });
-    assert.deepEqual(f.db.prepare('SELECT * FROM docs').all(), before);
-  } finally { f.close(); }
-});
-test('docs complete enumeration: 2001 files holds without deleting an unvisited existing row', () => {
-  const f = baseline();
-  try {
-    fs.writeFileSync(path.join(f.repo, 'zzz.md'), '# Zebra\nZebra retained document'); f.docs.index();
-    const before = f.db.prepare('SELECT * FROM docs').all();
-    for (let i = 0; i < 2000; i++) fs.writeFileSync(path.join(f.repo, `a${String(i).padStart(4, '0')}.md`), '# Short\nShort document');
-    assert.deepEqual(f.docs.index(), { changed: 0, removed: 0 });
-    assert.deepEqual(f.db.prepare('SELECT * FROM docs').all(), before);
-  } finally { f.close(); }
-});
 for (const registered of [false, true]) test(`docs timestamp-preserving edit: ${registered ? 'registered' : 'plain'} refreshes content without writing unchanged snapshots`, async () => {
   const f = await fixture(registered);
-  const docs = new Docs(f.session, f.repo, 'p_a');
   try {
     const file = path.join(f.repo, 'guide.md');
     fs.writeFileSync(file, '# Zebra\nZebra previous content');
     fs.utimesSync(file, 1_800_000_000, 1_800_000_000);
-    assert.deepEqual(docs.index(), { changed: 1, removed: 0 });
+    assert.equal(f.index.index().changed, 1);
     const initial = f.rows()[0];
     const generation = f.generation();
-    assert.deepEqual(docs.index(), { changed: 0, removed: 0 });
+    assert.equal(f.index.index().changed, 0);
     assert.equal(f.generation(), generation);
     fs.writeFileSync(file, '# Zebra\nZebra freshword content');
     fs.utimesSync(file, 1_800_000_000, 1_800_000_000);
-    assert.deepEqual(docs.index(), { changed: 1, removed: 0 });
+    assert.equal(f.index.index().changed, 1);
     const refreshed = f.rows()[0];
     assert.equal(refreshed.seq, initial.seq);
     assert.equal(refreshed.mtime, initial.mtime);
     assert.equal(refreshed.body, '# Zebra\nZebra freshword content');
-    assert.equal((await docs.search('freshword', CTX, 10))[0].id, 'guide.md');
+    assert.equal((await f.query.search('freshword', CTX, 10))[0].id, 'guide.md');
     const stable = { rows: f.rows(), generation: f.generation(), files: f.files() };
-    assert.deepEqual(docs.index(), { changed: 0, removed: 0 });
+    assert.equal(f.index.index().changed, 0);
     assert.deepEqual({ rows: f.rows(), generation: f.generation(), files: f.files() }, stable);
   } finally { f.close(); }
 });
@@ -90,25 +65,16 @@ test('docs descriptor close failure holds indexing and retries only its still-op
   }
 });
 test('docs regular source: outside symlink is rejected before reading private bytes', async () => {
-  const f = baseline(); const read = fs.readFileSync; let outsideReads = 0;
+  const f = await fixture(); const read = fs.readFileSync; let outsideReads = 0;
   const outside = path.join(f.sb.root, 'PRIVATE-file.md');
   try {
     fs.writeFileSync(outside, '# PRIVATE title\nPRIVATE-BODY-CANARY zebra');
     fs.symlinkSync(outside, path.join(f.repo, 'guide.md'));
     fs.readFileSync = ((file: any, ...args: any[]) => { if (file === outside || file === path.join(f.repo, 'guide.md')) outsideReads++; return (read as any)(file, ...args); }) as typeof read;
-    assert.deepEqual(await f.docs.search('zebra', CTX, 10), []);
+    assert.equal(f.index.index().state, 'indexed');
+    assert.deepEqual(await f.query.search('zebra', CTX, 10), []);
     assert.equal(outsideReads, 0);
   } finally { fs.readFileSync = read; f.close(); }
-});
-test('docs scope: query and parent index preserve another configured project beneath the root', async () => {
-  const f = baseline();
-  try {
-    const foreign = path.join(f.repo, 'nested', 'foreign.md');
-    f.db.prepare('INSERT INTO docs(path,project_id,mtime,title,body) VALUES(?,?,?,?,?)').run(foreign, 'p_b', 1, 'PRIVATE title', 'PRIVATE-CANARY zebra');
-    assert.deepEqual(f.docs.index(), { changed: 0, removed: 0 });
-    assert.equal(f.db.prepare('SELECT count(*) AS n FROM docs WHERE project_id=?').get('p_b')!.n, 1);
-    assert.deepEqual(await f.docs.search('zebra', CTX, 10), []);
-  } finally { f.close(); }
 });
 
 async function fixture(registered = false) {
@@ -117,9 +83,9 @@ async function fixture(registered = false) {
   const primaryDir = path.join(storage, 'primary'); const viewDir = path.join(storage, 'view'); const backups = path.join(storage, 'backups');
   for (const dir of [storage, primaryDir, viewDir, backups]) fs.mkdirSync(dir, { mode: 0o700 });
   const paths = { primary: path.join(primaryDir, 'memory.db'), view: path.join(viewDir, 'public.db'), backups };
-  const db = new DatabaseSync(paths.primary); fs.chmodSync(paths.primary, 0o600);
+  const db = new SqliteDatabase(paths.primary); fs.chmodSync(paths.primary, 0o600);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0; PRAGMA busy_timeout=0;');
-  db.exec(MIGRATIONS[0]); db.exec('CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL); INSERT INTO schema_migrations VALUES(1,0);');
+  db.exec('CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL);'); db.exec(MEMORY_MIGRATIONS[0]); db.exec('INSERT INTO schema_migrations VALUES(1,0);');
   if (registered) await cutoverMemory({ paths, now: () => 1_800_000_000_000, id: crypto.randomUUID });
   const session: SqliteSession = registered ? new CutoverWriter(paths) : plainSession(db);
   const metrics: DocsMeasurement[] = []; let ticks = 0;
@@ -284,13 +250,13 @@ test('docs native short read and file mutation during descriptor read hold befor
 });
 
 test('docs registered READY lease permits snapshot SELECT while holding index writes; release revokes HOLD and fences old writer', async () => {
-  const f = await fixture(true); let current: CutoverWriter | undefined; let lease: DatabaseSync | undefined;
+  const f = await fixture(true); let current: CutoverWriter | undefined; let lease: SqliteDatabase | undefined;
   try {
     fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra\nZebra retained snapshot'); f.index.index();
     await publishMemoryView({ paths: f.paths, now: () => 1_800_000_000_000, id: crypto.randomUUID });
     await assert.rejects(f.query.search('zebra', CTX, 10), (error) => error instanceof MemoryError && error.code === 'unavailable');
     current = new CutoverWriter(f.paths); const query = new SqliteDocs(current, f.scope); const index = new SqliteDocsIndex(current, f.scope, f.deps);
-    lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('BEGIN');
+    lease = new SqliteDatabase(f.paths.view, { readOnly: true }); lease.exec('BEGIN');
     assert.equal(lease.prepare('SELECT state FROM bosun_public_state').get()!.state, 'READY');
     const before = { rows: f.db.prepare('SELECT * FROM docs ORDER BY seq').all(), generation: f.generation(), files: f.files() };
     assert.equal((await query.search('zebra', CTX, 10))[0].id, 'guide.md');
@@ -300,7 +266,7 @@ test('docs registered READY lease permits snapshot SELECT while holding index wr
     assert.equal(f.generation(), before.generation); assert.equal(lease.prepare('SELECT state FROM bosun_public_state').get()!.state, 'READY');
     lease.exec('ROLLBACK'); lease.close(); lease = undefined;
     assert.equal(index.index().changed, 1);
-    const gate = new DatabaseSync(f.paths.view, { readOnly: true });
+    const gate = new SqliteDatabase(f.paths.view, { readOnly: true });
     try { assert.equal(gate.prepare('SELECT state FROM bosun_public_state').get()!.state, 'HOLD'); } finally { gate.close(); }
     assert.equal((await query.search('zebra', CTX, 10)).length, 2);
   } finally { lease?.close(); current?.close(); f.close(); }
@@ -323,40 +289,118 @@ for (const registered of [false, true]) test(`docs storage reservation and post-
   } finally { f.close(); }
 });
 
-for (const registered of [false, true]) test(`docs actual CLI MCP/context: ${registered ? 'registered' : 'plain'} outside canaries, trusted projects, held enumeration and snapshots`, async () => {
-  const f = await fixture(registered); let mcp: ReturnType<typeof mcpSession> | undefined;
-  const env = f.sb.env({ BOSUN_HOME: path.dirname(f.paths.primary), CLAUDE_MEM: 'off', ...(registered ? { MEMORY_VIEW_PATH: f.paths.view, MEMORY_BACKUP_DIR: f.paths.backups } : {}) });
-  try {
-    const own = project(f.repo).id; const ownScope = { root: f.repo, projectId: own };
-    const docs = new SqliteDocsIndex(f.session, ownScope, f.deps);
-    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra public\nZebra public deployment instructions'); assert.equal(docs.index().changed, 1);
-    const outside = path.join(f.sb.root, 'PRIVATE-doc.md'); fs.writeFileSync(outside, '# PRIVATE-TITLE\nPRIVATE-BODY zebra');
-    fs.symlinkSync(outside, path.join(f.repo, 'secret.md'));
-    f.session.transaction((db) => db.prepare('INSERT INTO docs(path,project_id,mtime,title,body) VALUES(?,?,?,?,?)').run(path.join(f.repo, 'foreign.md'), 'p_foreign', 1, 'PRIVATE-FOREIGN-TITLE', 'PRIVATE-FOREIGN-BODY zebra'));
-    const run = await bosun(['mcp'], { env, cwd: f.repo, input: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'context_retrieve', arguments: { task: 'zebra deployment', sources: ['docs'] } } }) + '\n' });
-    assert.equal(run.code, 0, run.err); assert.match(run.out, /Zebra public/); assert.doesNotMatch(run.out + run.err, /PRIVATE/);
-    mcp = mcpSession(env, f.repo);
-    assert.match((await mcp.call('project_knowledge_search', { query: 'zebra' })).result.structuredContent.hits[0].snippet, /public deployment/);
-    const rejected = await mcp.call('context_retrieve', { task: 'zebra', sources: ['docs'], projectId: 'p_foreign' });
-    assert.equal(rejected.result.isError, true); assert.doesNotMatch(JSON.stringify(rejected), /PRIVATE/);
-    const before = f.rows(); fs.writeFileSync(path.join(f.repo, '.git/index'), 'invalid native git index');
-    const held = await mcp.call('context_retrieve', { task: 'zebra', sources: ['docs'] });
-    assert.equal(held.result.structuredContent.text, ''); assert.deepEqual(f.rows(), before);
-    const direct = new SqliteDocs(f.session, ownScope);
-    assert.equal((await direct.search('zebra', { ...CTX, projectId: own }, 10))[0].id, 'guide.md', 'explicit direct API serves the persisted snapshot without enumeration');
-    const closed = await mcp.close(); mcp = undefined; assert.equal(closed.code, 0);
-  } finally { await mcp?.close(); f.close(); }
-});
+for (const nested of [false, true])
+  test(`final daemon docs CLI/MCP: ${nested ? 'nested repository' : 'foreign project'} canaries, explicit indexing and held snapshot preservation`, async () => {
+    const f = await runtimeFixture('', {
+      beforeStart(paths, workspace) {
+        const owner = new DaemonOwner(paths.owner);
+        const writer = new CutoverWriter({
+          primary: paths.memory,
+          view: paths.view,
+          backups: paths.backups,
+        });
+        try {
+          writer.transaction((db) => {
+            db.prepare('INSERT INTO docs(path,project_id,mtime,title,body) VALUES(?,?,?,?,?)').run(
+              path.join(workspace, nested ? 'nested/stale.md' : 'foreign.md'),
+              nested ? project(workspace).id : 'p_foreign',
+              1,
+              'PRIVATE-FOREIGN-TITLE',
+              'PRIVATE-FOREIGN-BODY zebra',
+            );
+          });
+        } finally {
+          writer.close();
+          owner.close();
+        }
+      },
+    });
+    let mcp: Awaited<ReturnType<typeof mcpFixture>> | undefined;
+    const rows = () => {
+      const writer = new CutoverWriter({
+        primary: f.paths.memory,
+        view: f.paths.view,
+        backups: f.paths.backups,
+      });
+      try {
+        return writer.read((db) => db.prepare('SELECT * FROM docs ORDER BY seq').all());
+      } finally {
+        writer.close();
+      }
+    };
+    const index = async () => {
+      const queued = await f.rpc('docs.index', {});
+      let job = await f.rpc('job.get', { id: queued.job.id });
+      for (let n = 0; n < 200 && ['queued', 'running'].includes(job.state); n++) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        job = await f.rpc('job.get', { id: queued.job.id });
+      }
+      assert.equal(job.state, 'succeeded', JSON.stringify(job));
+      return JSON.parse((await f.rpc('job.result', { id: job.id })).result);
+    };
+    try {
+      if (nested) gitRepo(f.sb, 'workspace/nested');
+      fs.writeFileSync(
+        path.join(f.workspace, 'guide.md'),
+        '# Zebra public\nZebra public deployment instructions',
+      );
+      const outside = path.join(f.sb.root, 'PRIVATE-doc.md');
+    fs.writeFileSync(outside, '# PRIVATE-TITLE\nPRIVATE-BODY zebra');
+    fs.symlinkSync(outside, path.join(f.workspace, 'secret.md'));
+    mcp = await mcpFixture(f.env, f.workspace);
+    const initialRows = rows();
+    const cold = await mcp.call('context_retrieve', { task: 'zebra', sources: ['docs'] });
+    assert.deepEqual((cold.structuredContent as any).ids, [], 'a fresh facet excludes ambiguous nested/foreign snapshots before any indexing');
+    assert.doesNotMatch(JSON.stringify(cold), /PRIVATE/);
+    assert.deepEqual(rows(), initialRows, 'membership checks cannot mutate or index stored snapshots');
+    assert.equal((await index()).changed, 1);
+      const context = await mcp.call('context_retrieve', {
+        task: 'zebra deployment',
+        sources: ['docs'],
+      });
+      assert.match(JSON.stringify(context), /Zebra public/);
+      assert.doesNotMatch(JSON.stringify(context) + mcp.stderr(), /PRIVATE/);
+      assert.deepEqual((context.structuredContent as any).ids, ['guide.md']);
+      const cli = await f.cli(['context', 'zebra deployment', '--sources', 'docs']);
+      assert.equal(cli.code, 0, cli.err);
+      assert.match(cli.out, /public deployment/);
+      assert.doesNotMatch(cli.out + cli.err, /PRIVATE/);
+      const rejected = await mcp.call('context_retrieve', {
+        task: 'zebra',
+        sources: ['docs'],
+        projectId: 'p_foreign',
+      });
+      assert.equal(rejected.isError, true);
+      assert.doesNotMatch(JSON.stringify(rejected), /PRIVATE/);
+      const before = rows();
+      fs.unlinkSync(path.join(f.workspace, 'guide.md'));
+      fs.writeFileSync(path.join(f.workspace, '.git/index'), 'invalid native git index');
+      assert.equal((await index()).state, 'held');
+      assert.deepEqual(rows(), before, 'incomplete enumeration cannot delete the trusted snapshot');
+      const snapshot = await mcp.call('context_retrieve', {
+        task: 'zebra deployment',
+        sources: ['docs'],
+      });
+      assert.deepEqual((snapshot.structuredContent as any).ids, ['guide.md']);
+      assert.match(JSON.stringify(snapshot), /public deployment/);
+      assert.doesNotMatch(JSON.stringify(snapshot), /PRIVATE/);
+      assert.deepEqual(rows(), before, 'snapshot queries perform no implicit reindexing');
+      assert.equal(f.calls(), 0);
+    } finally {
+      await mcp?.close();
+      await f.close();
+    }
+  });
 
 test('docs direct child import has no ambient config, filesystem, git, indexing or measurement closure', () => {
   const sb = sandbox();
   try {
     const owner = path.join(sb.root, 'synthetic-owner'); fs.mkdirSync(owner); fs.writeFileSync(path.join(owner, 'PRIVATE-canary'), 'PRIVATE');
     const before = footprint(owner);
-    const source = `import {DatabaseSync} from 'node:sqlite';
+    const source = `import {SqliteDatabase} from ${JSON.stringify(path.join(REPO, 'src/platform/sqlite.ts'))};
       import {SqliteDocs} from ${JSON.stringify(path.join(REPO, 'src/adapters/memory/sqlite-docs.ts'))};
       import {plainSession} from ${JSON.stringify(path.join(REPO, 'src/adapters/memory/sqlite-session.ts'))};
-      const db=new DatabaseSync(':memory:');db.exec(${JSON.stringify(MIGRATIONS[0])});
+      const db=new SqliteDatabase(':memory:');db.exec(${JSON.stringify(MEMORY_MIGRATIONS[0])});
       db.prepare('INSERT INTO docs(path,project_id,mtime,title,body) VALUES(?,?,?,?,?)').run('/synthetic/root/guide.md','p_a',100,'Zebra','Zebra native snapshot');
       const s=new SqliteDocs(plainSession(db),{root:'/synthetic/root',projectId:'p_a'});
       const hits=await s.search('zebra',{projectId:'p_a',sessionId:null,linked:[]},5);s.close();process.stdout.write(JSON.stringify(hits.map(h=>h.id)));`;
@@ -364,20 +408,6 @@ test('docs direct child import has no ambient config, filesystem, git, indexing 
     assert.equal(result.status, 0, result.stderr); assert.deepEqual(JSON.parse(result.stdout), ['guide.md']);
     assert.deepEqual(footprint(owner), before); assert.deepEqual(sb.calls(), []);
   } finally { sb.cleanup(); }
-});
-
-test('docs compatibility refresh preserves ambiguous nested rows, replaces exclusion scope, and fails closed on a later hold', async () => {
-  const f = await fixture(); const docs = new Docs(f.session, f.repo, 'p_a');
-  try {
-    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra outer\nZebra outer public');
-    fs.mkdirSync(path.join(f.repo, 'nested')); fs.writeFileSync(path.join(f.repo, 'nested/doc.md'), '# PRIVATE nested title\nPRIVATE nested zebra');
-    assert.equal(docs.index().changed, 2);
-    gitRepo(f.sb, 'repo/nested');
-    assert.deepEqual((await docs.search('zebra', CTX, 10)).map((hit) => hit.id), ['guide.md']);
-    const before = f.rows(); assert.equal(before.length, 2);
-    fs.writeFileSync(path.join(f.repo, '.git/index'), 'invalid git index');
-    assert.deepEqual(await docs.search('zebra', CTX, 10), []); assert.deepEqual(f.rows(), before);
-  } finally { f.close(); }
 });
 
 test('docs source mutation after the admitted preflight rolls back every source DML and keeps errors content-free', async () => {
@@ -419,13 +449,13 @@ for (const registered of [false, true]) test(`docs actual oversized source plus 
 });
 
 test('docs native COMMIT followed by error preserves finite unknown receipt, committed row/FTS and fenced session', async () => {
-  const f = await fixture(true); const exec = DatabaseSync.prototype.exec; let source: DatabaseSync | undefined; let commits = 0;
+  const f = await fixture(true); const exec = SqliteDatabase.prototype.exec; let source: SqliteDatabase | undefined; let commits = 0;
   try {
     fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra\nZebra committed document');
     const index = new SqliteDocsIndex(f.session, f.scope, { ...f.deps,
       checkStorage(db, reserved) { if (reserved) source = db; return f.deps.checkStorage(db, reserved); },
     });
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       const result = exec.call(this, sql);
       if (this === source && sql === 'COMMIT') { commits++; throw new MemoryError('conflict', 'PRIVATE docs commit canary', 99); }
       return result;
@@ -443,5 +473,5 @@ test('docs native COMMIT followed by error preserves finite unknown receipt, com
     const reopened = new CutoverWriter(f.paths);
     try { assert.equal(reopened.read((db) => db.prepare('SELECT body FROM docs').get()!.body), '# Zebra\nZebra committed document'); }
     finally { reopened.close(); }
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });

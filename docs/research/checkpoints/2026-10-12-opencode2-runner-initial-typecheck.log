@@ -1,0 +1,11 @@
+
+> bosun@0.2.0 typecheck
+> node scripts/run-typecheck.mjs
+
+../../../../../../../../Users/edge/Developer/bosun/src/adapters/hosts/opencode/v2-native.ts(94,57): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: {}): string[]', gave the following error.
+    Argument of type '{} | null' is not assignable to parameter of type '{}'.
+      Type 'null' is not assignable to type '{}'.
+  Overload 2 of 2, '(o: object): string[]', gave the following error.
+    Argument of type '{} | null' is not assignable to parameter of type 'object'.
+      Type 'null' is not assignable to type 'object'.

@@ -1,0 +1,33 @@
+{
+  "coverage": "owned-native-bootstrap-protocol-only",
+  "sourceDigest": "1a90d3dbcbd4d4e8e3d02f02afb175e019063c0e0dbf6e9e78d805d2ff4be946",
+  "binarySha256": "97a01e5bc74a199e67189435d0331ea3a24eac2e07db4b76d9148c5b0386138f",
+  "stage": "owned-protocol",
+  "checks": [
+    {
+      "args": [
+        "-f",
+        "/private/tmp/bosun-claude-bootstrap-g2AGlm/native.sb",
+        "/usr/bin/true"
+      ],
+      "code": 0,
+      "signal": null,
+      "failed": false,
+      "groupJoined": true,
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "checks": [],
+      "messages": [],
+      "started": true,
+      "joined": true
+    }
+  ],
+  "providerRequests": 0,
+  "joined": true,
+  "cleaned": true,
+  "nativeAutomaticQualification": "unverified"
+}

@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-12T09:38:35.392Z",
+  "status": "root reviewed; exact new benchmark-only approval not yet requested; product unexecuted",
+  "proposal": {
+    "path": "docs/plans/2026-10-12-compiled-benchmark-diagnostic.md",
+    "bytes": 6526,
+    "sha256": "f93f9825896bf939ac22ab274595d36b4d8d31615642f198d157a391aa87c863"
+  },
+  "driver": {
+    "path": "scripts/check-compiled-benchmark-diagnostic.mjs",
+    "bytes": 14210,
+    "sha256": "4164c1e2ecb88b73bec463a166d2f1598cb5113a82c7410ff1b77006d11e220f"
+  },
+  "pins": {
+    "binary": "bba7bfb39c530363de72e6462844b46b132088f4e738b7429430dee7af31a02a",
+    "archive": "bb776df39db6530b976708ecf92a53b8a27c552ebc742ee45f0065977163315b",
+    "metadata": "a49eeca3447549e2227fa322dbcce26abaf22f970ccf3b9ba6d7e5d5d163a651",
+    "source": "1197aa21b3ef31c052bf096e9c4099ab64188c887c9ffe35a076e74100657441",
+    "checkout": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+    "compiler": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+  },
+  "relaySourceSha256": "f33859b488c8c2c586003d4c2ce2a383e14505c24879bc1d9a0bd1bb5b850371",
+  "files": [
+    {
+      "path": "src/app/memory-benchmark.ts",
+      "bytes": 12000,
+      "sha256": "57142230a51f02e5891d4042c903a5e3b0f088b546d131ba78ecba1e444bb83a"
+    },
+    {
+      "path": "src/app/cli.ts",
+      "bytes": 60735,
+      "sha256": "ff66ef2f834ec26034cc3aa74148accab83e85c8f27e9197a4c57dce43a1143d"
+    },
+    {
+      "path": "test/memory-benchmark.test.ts",
+      "bytes": 9915,
+      "sha256": "faac9b3756e7e7f4bcf43ff2ef9a8512f5518f09e8dff9f59a55b3def18e48f6"
+    },
+    {
+      "path": "scripts/check-compiled-benchmark-diagnostic.mjs",
+      "bytes": 14210,
+      "sha256": "4164c1e2ecb88b73bec463a166d2f1598cb5113a82c7410ff1b77006d11e220f"
+    },
+    {
+      "path": "scripts/check-compiled-benchmark-diagnostic.d.mts",
+      "bytes": 1322,
+      "sha256": "cf0a3a9a0ee689c8150a3ec1dd8e2fdca23de03510d49235999e261c2052a14a"
+    },
+    {
+      "path": "test/compiled-benchmark-diagnostic.test.ts",
+      "bytes": 7138,
+      "sha256": "448530eba74cf1d7ad81347fc80c17a84b36b7f762bc6e90ef9a9862a577dd65"
+    },
+    {
+      "path": "src/contracts/rpc.ts",
+      "bytes": 4599,
+      "sha256": "7e3aec97654188042b2b50f7cdf60303b36d397129375b0aedc967daa5e93c9f"
+    },
+    {
+      "path": "src/core/errors.ts",
+      "bytes": 2910,
+      "sha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f"
+    },
+    {
+      "path": "src/platform/process.ts",
+      "bytes": 8602,
+      "sha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b"
+    },
+    {
+      "path": "scripts/check-compiled-current.mjs",
+      "bytes": 25245,
+      "sha256": "09e42b5a564cf285a31be8f8696780d588731abb4e17e3744cc5180c69c014b7"
+    },
+    {
+      "path": "scripts/check-compiled-runtime.mjs",
+      "bytes": 11077,
+      "sha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109"
+    },
+    {
+      "path": "scripts/distribution.mjs",
+      "bytes": 20211,
+      "sha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18"
+    },
+    {
+      "path": "scripts/generate-assets.mjs",
+      "bytes": 2608,
+      "sha256": "69ac97416f32430352f9a1b26b513c1fafcc62b81766d1a97ea69265c4ece00f"
+    },
+    {
+      "path": "src/platform/sqlite-runtime.ts",
+      "bytes": 1189,
+      "sha256": "12287d5e5c3eb481a00f5609a1bbc429ed248ee147bfb382a75714ed4d20a2a4"
+    }
+  ],
+  "logs": [
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-diagnostic-node.log",
+      "bytes": 5286,
+      "sha256": "383e05035de6e412ca1e8f8d44b0db5cecb20c11866c64535108a4e43f09b67e"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-node.log",
+      "bytes": 5513,
+      "sha256": "63755b0627bb97518af70217bb664bc373ddf2ffe018ba6f3cb42f897ba23bb0"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-final-node.log",
+      "bytes": 3949,
+      "sha256": "ea72f0823ac2d3d28b819c2fd739f1c7f7a33d6354ba3e0a42b48b011afb4a01"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumentation-boundaries.log",
+      "bytes": 69,
+      "sha256": "adcbe777bb3e789e865dfb29c38ab2bc76e79e5564bfc5fe826d12d945015362"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-diagnostic-coordinator-node.log",
+      "bytes": 5522,
+      "sha256": "529ce9239af3e82bf3abaf333f2aaf0de269f502f015b4f21f23d037b08c8d9e"
+    }
+  ],
+  "preservedDeclaredPins": 41,
+  "pendingClaudeClosure": {
+    "sourceDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+    "files": [
+      {
+        "path": "scripts/check-claude-metadata.mjs",
+        "expectedSha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "sha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/client.ts",
+        "expectedSha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "sha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/runner.ts",
+        "expectedSha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "sha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/transcript.ts",
+        "expectedSha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "sha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/inference.ts",
+        "expectedSha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "sha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/route.ts",
+        "expectedSha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "sha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/task.ts",
+        "expectedSha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "sha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "matches": true
+      },
+      {
+        "path": "src/core/errors.ts",
+        "expectedSha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "sha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "matches": true
+      },
+      {
+        "path": "src/core/policy.ts",
+        "expectedSha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "sha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "matches": true
+      },
+      {
+        "path": "src/core/ports/runner.ts",
+        "expectedSha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "sha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "matches": true
+      },
+      {
+        "path": "src/core/secret-screen.ts",
+        "expectedSha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "sha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "matches": true
+      },
+      {
+        "path": "src/platform/private-file.ts",
+        "expectedSha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "sha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "matches": true
+      },
+      {
+        "path": "src/platform/process.ts",
+        "expectedSha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "sha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "matches": true
+      }
+    ]
+  },
+  "static": {
+    "originalSession": 88330,
+    "terminalExit": 0,
+    "compilerInvocations": 2,
+    "compilerInvocationsExit": [
+      0,
+      0
+    ],
+    "productInvocations": 0,
+    "masterSnapshotRemoved": true,
+    "allBuildSnapshotsRemoved": true,
+    "productionFlagsUnchanged": true,
+    "buildRecord": {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumented-build-record.json",
+      "bytes": 4345168,
+      "sha256": "ec1b5085418b19f47cd0e004c719e93e561671cbab989b5077902f5d1a9d6026"
+    },
+    "files": {
+      "SHA256SUMS": {
+        "bytes": 247,
+        "sha256": "2bfc55686955cadde40091c8f562b08041e09e3dc6ff5e49696cebad61665ba7"
+      },
+      "bosun": {
+        "bytes": 64522098,
+        "sha256": "bba7bfb39c530363de72e6462844b46b132088f4e738b7429430dee7af31a02a"
+      },
+      "bosun-0.2.0-darwin-arm64.tar.gz": {
+        "bytes": 27192499,
+        "sha256": "bb776df39db6530b976708ecf92a53b8a27c552ebc742ee45f0065977163315b"
+      },
+      "build.json": {
+        "bytes": 1323999,
+        "sha256": "a49eeca3447549e2227fa322dbcce26abaf22f970ccf3b9ba6d7e5d5d163a651"
+      }
+    },
+    "sourceDifference": [
+      "src/app/cli.ts",
+      "src/app/memory-benchmark.ts"
+    ],
+    "variantDifference": [
+      "scripts/distribution.mjs"
+    ],
+    "independentStaticReview": {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-benchmark-instrumented-static-review.json",
+      "bytes": 988,
+      "sha256": "3d405c47bbcd23a3f117167066fb116dd2e81f799c384ae656c8896168a9b22d"
+    }
+  },
+  "guardedNode": [
+    {
+      "originalSession": 88556,
+      "exit": 0,
+      "passed": 34,
+      "containment": 19,
+      "durationMs": 78505.54
+    },
+    {
+      "originalSession": 76777,
+      "exit": 0,
+      "passed": 36,
+      "containment": 19,
+      "durationMs": 80752.924958
+    },
+    {
+      "originalSession": 64033,
+      "exit": 0,
+      "passed": 22,
+      "containment": 19,
+      "durationMs": 75281.876042
+    },
+    {
+      "originalSession": 5646,
+      "exit": 0,
+      "passed": 36,
+      "containment": 19,
+      "durationMs": 81258.967792
+    }
+  ],
+  "typecheck": {
+    "originalSession": 18328,
+    "exit": 0
+  },
+  "boundaries": {
+    "files": 234,
+    "edges": 1259,
+    "violations": 0
+  },
+  "benchmarkRootInvocations": 0,
+  "proposedCompiledMaximum": {
+    "root": 1,
+    "nestedHooks": 21,
+    "total": 22,
+    "nodeRelay": 1
+  },
+  "cleanup": "every failed/unknown benchmark retains entire new outer tree; previous retained tree untouched",
+  "underlyingNativeCause": "unresolved",
+  "fullNode1134": "predates instrumentation; current relevant focused checks above",
+  "reviewed": [
+    "finite phase/count snapshot has no raw content/path/error data",
+    "advisory sync/async observer failures preserve operation/cleanup error and retention",
+    "private non-detached child shares relay group; compiled child close and positive relay/group join distinguished",
+    "bounded framing plus raw channel capture; failure classifies neither nested joins nor latency",
+    "fresh artifact pins and actual source match; no old artifact relabeling",
+    "no repeated entry/setup/daemon/RPC checks; no native/model/install selection"
+  ]
+}

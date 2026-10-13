@@ -1,0 +1,2 @@
+../../../../../../../../Users/edge/Developer/bosun/src/app/cli.ts(430,10): error TS2554: Expected 2 arguments, but got 3.
+../../../../../../../../Users/edge/Developer/bosun/src/app/cli.ts(430,14): error TS2339: Property 'watch' does not exist on type '{ requestId: string; base?: string | undefined; }'.

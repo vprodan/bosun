@@ -1,0 +1,114 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings (4.988833ms)
+✔ fresh Codex seed is persisted and independently read back with no turn/model request before readiness (352.029416ms)
+✔ owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics (153.86475ms)
+✔ wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference (1291.340875ms)
+✔ empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated (390.788125ms)
+✔ lost creation receipt retains original native history and prevents repeating the same source request (125.691ms)
+✔ pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay (799.810292ms)
+✔ cancellation request without original terminal receipt joins the process and leaves unknown effects (1202.856ms)
+✔ fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history (145.298375ms)
+✔ Codex fresh generation creates an independent root and joins the retired process before destination dispatch (198.368458ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) (346.400208ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) (305.755375ms)
+✔ core errors and deterministic Unicode text behavior (2.119416ms)
+✔ coded errors preserve causes and legacy exits while constraining untyped codes and details (0.159583ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.221625ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.250167ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.153416ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.8575ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.312ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.085541ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (4.993375ms)
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (30.357959ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.527709ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (20.756625ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (16.243292ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (19.653333ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (42.072875ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (33.081042ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.462458ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (9.437208ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (47.958875ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (9.369291ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (10.449375ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (259.448083ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (486.543833ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (336.584667ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (450.942208ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (343.361875ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (432.202541ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (429.619167ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3414.400375ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (685.04375ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (445.475583ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (293.281666ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (446.267708ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (443.403666ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1650.553958ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (227.740708ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (224.466084ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (157.765416ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (153.547833ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (159.172375ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (181.782375ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (153.623708ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (174.242708ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (172.326417ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (145.386625ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (154.493583ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (157.013167ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (169.758666ms)
+✔ managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP (1.20825ms)
+✔ native managed creation proves owned empty root/model/cwd/access/variant; exact noReply seed has native part/message/hash readback (26.640125ms)
+✔ native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection (17.185083ms)
+✔ root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed (16.218833ms)
+✔ arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP (6.714375ms)
+✔ wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed (17.706ms)
+✔ readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts (24.951417ms)
+✔ local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts (10.702542ms)
+✔ owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof (11.31575ms)
+✔ uncertain create/seed/turn effects are held without deletion or automatic effect replay (14.372958ms)
+✔ fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact (63.848459ms)
+✔ staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS (11.100667ms)
+✔ fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation (32.836792ms)
+✔ source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools (30.14775ms)
+✔ fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation (8.801958ms)
+✔ managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result (40.100459ms)
+✔ concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt (8.926042ms)
+✔ native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy (26.174625ms)
+✔ unsupported selections/input limits and native version mismatch fail without unintended mutations (2.608334ms)
+✔ owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference (14.35375ms)
+✔ incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors (21.652041ms)
+✔ capture privacy and native ownership gates precede cursor/source getters and all HTTP (4.438417ms)
+✔ capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window (51.582792ms)
+✔ bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence (8.243583ms)
+✔ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (11.88775ms)
+✔ paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage (173.590625ms)
+ℹ tests 86
+ℹ suites 0
+ℹ pass 86
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19465.132292

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-12T08:49:01.696Z",
+  "status": "root-reviewed; current compiled batch unexecuted; separate approval not yet granted",
+  "driverSha256": "09e42b5a564cf285a31be8f8696780d588731abb4e17e3744cc5180c69c014b7",
+  "proposalSha256": "33d058e426d37421bf6fde8a87706de8add034190a58152a540f507e2e03e47a",
+  "sourceRecordSha256": "dea57166cf4b868064c7aac59bc5a599239445a5bacfb7f4f6a5e5d4bae5b842",
+  "binarySha256": "8466c8ffabab081687bd737d6aa610138c74abe8aa3c21a5694757df0b217176",
+  "sourceDigest": "a06890a071197bd9fc2b6948e0bc97dac918ce8b564a59442f09a598f4c29367",
+  "checkoutDigest": "a484016981086346c94b1ba72eb11a8c884edac4d9905bc9fac34dcbd2c74bab",
+  "evidence": {
+    "dependencyAndLogPinsChecked": 21,
+    "protectedPinsChecked": 9,
+    "claudeClosurePinsChecked": 13,
+    "artifactFilesChecked": 4,
+    "nodeRecipeTests": 6,
+    "nodeContainment": 19,
+    "compiledInvocationPlan": {
+      "root": 8,
+      "nested": 21,
+      "total": 29,
+      "rpc": 7
+    },
+    "actualCompiledInvocations": 0
+  },
+  "reviewed": [
+    "Entry validation and MCP response/EOF before positive original join",
+    "Seven privacy RPCs with enabled inert primary and no job/native selection",
+    "Benchmark exact counts/outcomes and reported21 producer joins plus positive parent/group completion",
+    "Failed benchmark retains complete tree even after parent join",
+    "Controlled daemon cancellation does not fabricate exitcode0; listener/owner metadata are limited checks",
+    "Truthful private archived variant verifier; production flags and all prior approvals/pins preserved"
+  ],
+  "limitations": [
+    "Observed benchmark wall latency is synthetic; component/host-token/designated-machine/native/model quality remain unqualified",
+    "The driver is a trusted-application disposable check, not an OS sandbox",
+    "A failed exact run has no automatic retry permission"
+  ]
+}

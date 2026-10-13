@@ -1,0 +1,41 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Claude assigned transcript is independently retained and content hashes do not claim readiness (9.65975ms)
+✔ Claude private/unclassified binding and seed requests reject before consulting path or text getters (4.848458ms)
+✔ Claude root readback rejects foreign identities, ancestry, synthetic histories and seed changes finitely (82.090416ms)
+✔ Claude fresh seed readback accepts one exact text block and rejects extra user/assistant or metadata rows (31.403ms)
+✔ Claude reader only uses the assigned namespace and refuses symlink, hardlink and nonprivate files (31.962625ms)
+✔ Claude binding repeats directory, cwd and file identities before each independently retained read (23.966292ms)
+✔ Claude retained reads reject write/replacement/parent races while the original descriptor is open (22.954292ms)
+✔ Claude append-only linear history extends a binding, while prior accepted rows remain immutable (36.242917ms)
+✔ Claude unknown, partial, overbound and invalid-encoding JSONL stays held without exposing raw content (44.790583ms)
+✔ Claude public evidence admits exact users and completed exact-model assistants and keeps native private metadata local (7.274166ms)
+✔ Claude public evidence refuses unadmitted user text, changed models, uncompleted frames and foreign completion claims (41.965334ms)
+✔ Claude private text/block classifications, credentials and tool results are held before public evidence can escape (38.914667ms)
+✔ Claude evidence validates the full source after a cursor and keeps UTF-8 bounded windows incremental (25.654583ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 486.108417

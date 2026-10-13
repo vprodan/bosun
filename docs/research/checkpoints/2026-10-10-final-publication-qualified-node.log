@@ -1,0 +1,74 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS (67.632833ms)
+✔ v2 publication fences cached real v1 MemoryService/Docs and old prepared statements; reopened writers revoke until explicit republish (145.067917ms)
+✔ same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view (62.771167ms)
+✔ multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup (811.509334ms)
+✖ final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects (207.96475ms)
+✔ publication preserves established non-generator IDs and excludes malformed private flags before reading public content (50.078ms)
+✖ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (237.874334ms)
+✔ explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them (820.446791ms)
+✔ actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher (752.030333ms)
+✔ publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY (188.630375ms)
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14458744,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":29.9,"latencyQualification":"unqualified"}
+✔ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2754.799334ms)
+✔ public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data (1215.255708ms)
+✔ publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors (211.220833ms)
+✔ post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD (113.989041ms)
+✔ publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired (261.827042ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 13
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8119.952667
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:411:1
+✖ final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects (207.96475ms)
+  TypeError: Cannot read properties of undefined (reading 'state')
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/publication.test.ts:434:52)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:490:1
+✖ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (237.874334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at Object.checkpoint (file:///Users/edge/Developer/bosun/test/publication.test.ts:512:20)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async publishMemoryView (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:966:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/publication.test.ts:494:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,41 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - missing HOME fails before application evaluation
+34 |   const r = launch(root, [entry], {
+35 |     guarded: preload, cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 10000,
+36 |   });
+37 |   assert.equal(r.error, undefined, String(r.error));
+38 |   assert.notEqual(r.status, 0, r.stdout);
+39 |   assert.match(r.stderr, /containment|require scripts\/run-tests/);
+              ^
+AssertionError: The input did not match the regular expression /containment|require scripts\/run-tests/. Input:
+
+'29 |   while (!original.exists(ancestor)) {\n' +
+  '30 |     const parent = path.dirname(ancestor);\n' +
+  "31 |     if (parent === ancestor) fail('cannot resolve filesystem path');\n" +
+  '32 |     tail.unshift(path.basename(ancestor)); ancestor = parent;\n' +
+  '33 |   }\n' +
+  '34 |   return path.join(original.realpath(ancestor), ...tail);\n' +
+  '                                 ^\n' +
+  "EPERM: operation not permitted, lstat '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/okJT43S'\n" +
+  '    path: "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/okJT43S",\n' +
+  ' syscall: "lstat",\n' +
+  '   errno: -1,\n' +
+  '    code: "EPERM"\n' +
+  '\n' +
+  '      at canonical (/Users/edge/Developer/bosun/scripts/test-preload.cjs:34:29)\n' +
+  '      at assertEnvironment (/Users/edge/Developer/bosun/scripts/test-preload.cjs:64:93)\n' +
+  '      at /Users/edge/Developer/bosun/scripts/test-preload.cjs:72:1\n' +
+  '\n' +
+  'Bun v1.4.3 (macOS arm64)\n'
+
+ generatedMessage: true,
+     actual: "29 |   while (!original.exists(ancestor)) {\n30 |     const parent = path.dirname(ancestor);\n31 |     if (parent === ancestor) fail('cannot resolve filesystem path');\n32 |     tail.unshift(path.basename(ancestor)); ancestor = parent;\n33 |   }\n34 |   return path.join(original.realpath(ancestor), ...tail);\n                                 ^\nEPERM: operation not permitted, lstat '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/okJT43S'\n    path: \"/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/okJT43S\",\n syscall: \"lstat\",\n   errno: -1,\n    code: \"EPERM\"\n\n      at canonical (/Users/edge/Developer/bosun/scripts/test-preload.cjs:34:29)\n      at assertEnvironment (/Users/edge/Developer/bosun/scripts/test-preload.cjs:64:93)\n      at /Users/edge/Developer/bosun/scripts/test-preload.cjs:72:1\n\nBun v1.4.3 (macOS arm64)\n",
+   expected: /containment|require scripts\/run-tests/,
+   operator: "match",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at blockedBeforeImport (/Users/edge/Developer/bosun/scripts/check-containment.mjs:39:10)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

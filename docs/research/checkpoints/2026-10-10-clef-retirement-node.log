@@ -1,0 +1,137 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ production boundary graph passes including the recorded legacy forwarding seams (863.710666ms)
+✔ boundary negative fixture: final memory composition cannot reach legacy config (75.801917ms)
+✔ boundary negative fixture: curated source policy cannot reach native writer (79.344ms)
+✔ boundary negative fixture: normal registered reader cannot import new initialization (73.715625ms)
+✔ boundary negative fixture: jobs core cannot use an ambient clock (77.36125ms)
+✔ boundary negative fixture: jobs core cannot import durable IO (72.91175ms)
+✔ boundary negative fixture: jobs storage cannot reuse memory cutover machinery (72.661792ms)
+✔ boundary negative fixture: final jobs composition cannot import legacy rendezvous (79.44075ms)
+✔ boundary negative fixture: type-only static IO import (72.425166ms)
+✔ boundary negative fixture: reexport relative bypass (73.388458ms)
+✔ boundary negative fixture: literal dynamic import (72.997875ms)
+✔ boundary negative fixture: import type query (72.811375ms)
+✔ boundary negative fixture: tsconfig alias bypass (75.972958ms)
+✔ boundary negative fixture: package imports alias bypass (75.423666ms)
+✔ boundary negative fixture: unresolved alias (76.775542ms)
+✔ boundary negative fixture: computed dynamic import (72.111833ms)
+✔ boundary negative fixture: computed require (76.948625ms)
+✔ boundary negative fixture: require alias (71.109917ms)
+✔ boundary negative fixture: module loader escape (71.719209ms)
+✔ boundary negative fixture: property require escape (76.409834ms)
+✔ boundary negative fixture: element require escape (70.692167ms)
+✔ boundary negative fixture: import equals escape (74.319625ms)
+✔ boundary negative fixture: new graph cycle (75.112375ms)
+✔ boundary negative fixture: old graph cycle (71.036666ms)
+✔ boundary negative fixture: production test dependency (72.901208ms)
+✔ boundary negative fixture: cross adapter flat files (78.085666ms)
+✔ boundary negative fixture: cross adapter nested directories (75.1ms)
+✔ boundary negative fixture: cross adapter kinds (72.792416ms)
+✔ boundary negative fixture: core process global (71.2055ms)
+✔ boundary negative fixture: core fetch global (71.70275ms)
+✔ boundary negative fixture: core global alias (71.463042ms)
+✔ boundary negative fixture: ambient clock alias (75.768416ms)
+✔ boundary negative fixture: actual context use case cannot reach native hashing (73.198917ms)
+✔ boundary negative fixture: actual context use case cannot use ambient timing (75.193791ms)
+✔ boundary negative fixture: context forwarding cannot restore its obsolete text helper edge (76.497833ms)
+✔ boundary negative fixture: ambient random alias (73.924292ms)
+✔ boundary negative fixture: Math object alias (71.167ms)
+✔ boundary negative fixture: computed Math operation (71.152125ms)
+✔ boundary negative fixture: new source cannot import old lib helper (72.197834ms)
+✔ boundary negative fixture: unregistered legacy file (72.103584ms)
+✔ boundary negative fixture: unrecorded forwarding edge (78.86525ms)
+✔ boundary negative fixture: memory adapter cannot reach legacy config (73.860584ms)
+✔ boundary negative fixture: memory adapter cannot read ambient config (74.837542ms)
+✔ boundary negative fixture: memory query cannot use an ambient clock (70.611209ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient timing source (71.528458ms)
+✔ boundary negative fixture: memory adapter cannot create a runtime native connection (78.049834ms)
+✔ boundary negative fixture: memory adapter cannot alias a runtime native connection (71.476208ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform clock through a package alias (72.89ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias (72.707292ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient measurement sink (78.079916ms)
+✔ boundary negative fixture: validation cannot load runtime filesystem (71.79075ms)
+✔ boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper (72.732667ms)
+✔ boundary negative fixture: validation isolation cannot reexport an ambient helper (75.072041ms)
+✔ boundary negative fixture: memory isolation cannot alias an unreviewed contract sink (70.829667ms)
+✔ boundary negative fixture: pure validation cannot reach storage (76.45125ms)
+✔ boundary negative fixture: memory query cannot import maintenance (72.046791ms)
+✔ boundary negative fixture: docs snapshot query cannot import its index use case (71.352208ms)
+✔ boundary negative fixture: docs snapshot query cannot reach filesystem helper (71.790833ms)
+✔ boundary negative fixture: docs index cannot import effectful source helper (78.474625ms)
+✔ boundary negative fixture: docs query cannot use ambient config (72.393541ms)
+✔ boundary negative fixture: docs index cannot use runtime filesystem (72.281ms)
+✔ boundary negative fixture: docs index cannot use ambient timing (74.110667ms)
+✔ boundary negative fixture: docs query cannot alias a platform source (71.252959ms)
+✔ boundary negative fixture: docs query cannot reach unreviewed contract metrics (74.807125ms)
+✔ boundary negative fixture: docs filesystem helper cannot reach legacy state (74.718166ms)
+✔ boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer (72.906208ms)
+✔ boundary negative fixture: local hook reader cannot import writable store (71.85775ms)
+✔ boundary negative fixture: service forwarding does not allow unrelated memory internals (78.327291ms)
+✔ boundary negative fixture: unknown new production zone (70.245625ms)
+✔ AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals (73.729375ms)
+✔ isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins (77.609875ms)
+✔ boundary resolution cannot escape the checked graph through a symlink (4.237708ms)
+✔ app path aliases cannot escape the checked graph as apparent external dependencies (70.724375ms)
+✔ core extraction retains class/function identity and deterministic Unicode text behavior (2.21625ms)
+✔ coded errors preserve causes/legacy exits but constrain untyped codes/details and finite logs (5.996792ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.234875ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.251458ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.116625ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.250333ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.18425ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.085167ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (4.097209ms)
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (91.941583ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (137.041041ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (128.626417ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (910.016458ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1253.337292ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (560.407458ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (66.590667ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (69.33325ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (79.214334ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (82.007709ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (189.844916ms)
+✔ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (578.509125ms)
+✔ final binary hook handles a closed stdout pipe without late EPIPE errors or a retained public-view lease (356.186458ms)
+✔ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (912.222458ms)
+✔ local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop (2034.454917ms)
+✔ actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes (150.70975ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.210958ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.905917ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.920833ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (15.841875ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.574667ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.770625ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (53.118584ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.483625ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.206625ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.126583ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.273208ms)
+ℹ tests 109
+ℹ suites 0
+ℹ pass 109
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14315.049583

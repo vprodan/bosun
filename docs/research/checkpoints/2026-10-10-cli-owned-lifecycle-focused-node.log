@@ -1,0 +1,94 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cli: help exits 0, unknown command exits 2 (428.10675ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (220.191ms)
+✔ cli: install rejects a bad option before touching anything (210.872417ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (413.4325ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (214.050083ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (654.094042ms)
+✔ empty doctor reports missing preparation without creating a home, database, config or native process (16.463334ms)
+✔ prepared runtime diagnostics preserve IDs, modes, bytes and WAL sidecars while reporting native/schema qualification honestly (84.776542ms)
+✔ SQLite diagnostics never recover a journal or create shared memory, including live WAL and corrupt files (11.778041ms)
+✔ unsafe runtime parents and rebounded files are held before foreign payload reads (4.261375ms)
+✔ model and malformed doctor commands refuse before path/config getters or storage effects (8.396083ms)
+✔ changed profiles, invalid manifests and stale hook bindings are held with finite metadata and no repair (309.764083ms)
+✔ start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart (2225.25125ms)
+✔ restart with a lost actual stop acknowledgement holds its original operation without starting or replaying (1161.655333ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.224917ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2101.518458ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1244.22725ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1245.709334ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1822.4165ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1556.691083ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1252.237666ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1234.03625ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2666.301375ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (460.417125ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1328.051125ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1342.427042ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1536.158958ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.40475ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (447.502792ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (302.751ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (293.458333ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (283.017334ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1121.393625ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (274.815583ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (274.977833ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (303.436333ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (844.257708ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (418.802625ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (730.46175ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (293.318083ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (276.938833ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (152.831833ms)
+✔ roles: every role parses and renders for Claude and Codex with its configured model (7.68475ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.319291ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (157.01875ms)
+✔ roles: bosun roles --json prints the resolved table (204.0635ms)
+✔ runtime paths are explicit and path calculation does not create files (0.6615ms)
+✔ shipped roles and skills resolve from embedded assets in a synthetic working directory (0.569167ms)
+✔ final project scope preserves existing clone/worktree/non-repo identities and configured links (5.97ms)
+✔ shared envelopes reject skew/extra fields and normalize provider errors (0.301458ms)
+✔ native UDS RPC preserves concurrent request identity and uses protected socket (14.079ms)
+✔ malformed and oversized requests never invoke dispatch; stopped admission stays closed (3.99475ms)
+✔ lost mutation reply has unknown outcome and is never automatically repeated (31.53375ms)
+✔ oversized successful replies preserve uncertainty instead of claiming a failed mutation (1.932542ms)
+✔ unsafe socket parents and existing ordinary files are not adopted or deleted (0.457833ms)
+✔ native process streaming preserves split UTF8/stdin and reports positive process close (44.010167ms)
+✔ native process cancellation waits for close and kills an ordinary worker ignoring TERM (49.549333ms)
+✔ oversized native lines and stderr stop the process without exposing its error content (54.435916ms)
+✔ native process channel permits bounded interactive stdin and positive peer acknowledgement (28.162833ms)
+✔ native cancellation kills an ordinary descendant even when its parent closes first (72.438625ms)
+✔ real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names (11.795542ms)
+✔ config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding (15.59625ms)
+✔ services: plist is valid XML with escaped argv, env and workdir (24.701334ms)
+✔ services: vge compares dotted versions numerically (3.776875ms)
+✔ services: migration aliases reject an invalid receipt selection before touching launchd (598.65825ms)
+✔ services: svcOn retries a failing launchctl bootstrap before giving up (1876.139458ms)
+ℹ tests 66
+ℹ suites 0
+ℹ pass 66
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34155.619916

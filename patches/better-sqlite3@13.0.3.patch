@@ -1,0 +1,875 @@
+--- a/lib/binding.js
++++ b/lib/binding.js
+@@ -24,17 +24,8 @@
+ 		return DEFAULT_ADDON;
+ 	}
+ 
+-	// Otherwise, try to find the binding as a prebuilt binary.
+-	let filename = getPrebuildPath();
+-	if (filename) {
+-		return DEFAULT_ADDON = require(filename);
+-	}
+-
+-	// If no prebuilt binary was found, try the default node-gyp locations.
+-	filename = path.join(__dirname, '..', 'build', 'Debug', 'better_sqlite3.node');
+-	if (!fs.existsSync(filename)) {
+-		filename = path.join(__dirname, '..', 'build', 'Release', 'better_sqlite3.node');
+-	}
++	// Only the project-built binding contains the connection safety contract.
++	const filename = path.join(__dirname, '..', 'build', 'Release', 'bosun_sqlite.node');
+ 	return DEFAULT_ADDON = require(filename);
+ }
+ 
+--- a/lib/darwin-arm64.js
++++ b/lib/darwin-arm64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/darwin-arm64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/lib/darwin-x64.js
++++ b/lib/darwin-x64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/darwin-x64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/lib/database.js
++++ b/lib/database.js
+@@ -26,7 +26,7 @@
+ 		if ('memory' in options) throw new TypeError('Option "memory" was removed in v7.0.0 (use ":memory:" filename instead)');
+ 
+ 		// Interpret options
+-		const filename = filenameGiven.trim();
++		const filename = filenameGiven;
+ 		const anonymous = filename === '' || filename === ':memory:';
+ 		const readonly = util.getBooleanOption(options, 'readonly');
+ 		const fileMustExist = util.getBooleanOption(options, 'fileMustExist');
+@@ -73,6 +73,9 @@
+ 	Database.prototype.loadExtension = wrappers.loadExtension;
+ 	Database.prototype.exec = wrappers.exec;
+ 	Database.prototype.close = wrappers.close;
++	Database.prototype.setAuthorizer = wrappers.setAuthorizer;
++	Database.prototype.setConnectionControls = wrappers.setConnectionControls;
++	Database.prototype.location = wrappers.location;
+ 	Database.prototype.defaultSafeIntegers = wrappers.defaultSafeIntegers;
+ 	Database.prototype.unsafeMode = wrappers.unsafeMode;
+ 	Database.prototype[util.inspect] = require('./methods/inspect');
+--- a/lib/linux-arm64.js
++++ b/lib/linux-arm64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/linux-arm64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/lib/linux-x64.js
++++ b/lib/linux-x64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/linux-x64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/lib/linuxmusl-arm64.js
++++ b/lib/linuxmusl-arm64.js
+@@ -1,4 +1,4 @@
+ 'use strict';
+-const Database = require('./database')(() => require('../prebuilds/linuxmusl-arm64.node'), false);
++const Database = require('./database')(require('./binding').getBinding, false);
+ Database.SqliteError = require('./sqlite-error');
+ module.exports = Database;
+--- a/lib/linuxmusl-x64.js
++++ b/lib/linuxmusl-x64.js
+@@ -1,4 +1,4 @@
+ 'use strict';
+-const Database = require('./database')(() => require('../prebuilds/linuxmusl-x64.node'), false);
++const Database = require('./database')(require('./binding').getBinding, false);
+ Database.SqliteError = require('./sqlite-error');
+ module.exports = Database;
+--- a/lib/methods/backup.js
++++ b/lib/methods/backup.js
+@@ -10,10 +10,10 @@
+ 
+ 	// Validate arguments
+ 	if (typeof filename !== 'string') throw new TypeError('Expected first argument to be a string');
++	if (filename.includes('\0')) throw new TypeError('Backup filename must not contain NUL');
+ 	if (typeof options !== 'object') throw new TypeError('Expected second argument to be an options object');
+ 
+ 	// Interpret options
+-	filename = filename.trim();
+ 	const attachedName = 'attached' in options ? options.attached : 'main';
+ 	const handler = 'progress' in options ? options.progress : null;
+ 
+@@ -59,7 +59,9 @@
+ 				}
+ 				setImmediate(step);
+ 			} catch (err) {
+-				backup.close();
++				// Finishing a failed transfer can repeat its SQLite error. Cleanup
++				// must not replace that error or leave this promise unsettled.
++				try { backup.close(); } catch (_) {}
+ 				reject(err);
+ 			}
+ 		});
+--- a/lib/methods/wrappers.js
++++ b/lib/methods/wrappers.js
+@@ -30,6 +30,20 @@
+ 	return this;
+ };
+ 
++exports.setAuthorizer = function setAuthorizer(callback) {
++	this[cppdb].setAuthorizer(callback);
++	return this;
++};
++
++exports.setConnectionControls = function setConnectionControls(allowExtension, defensive, doubleQuotedStringLiterals) {
++	this[cppdb].setConnectionControls(allowExtension, defensive, doubleQuotedStringLiterals);
++	return this;
++};
++
++exports.location = function location(databaseName = 'main') {
++	return this[cppdb].location(databaseName);
++};
++
+ exports.getters = {
+ 	name: {
+ 		get: function name() { return this[cppdb].name; },
+--- a/lib/sqlite-error.js
++++ b/lib/sqlite-error.js
+@@ -1,13 +1,15 @@
+ 'use strict';
+ 
+ class SqliteError extends Error {
+-	constructor(message, code) {
++	constructor(message, code, errcode, errstr) {
+ 		if (typeof code !== 'string') {
+ 			throw new TypeError('Expected second argument to be a string');
+ 		}
+ 
+ 		super('' + message);
+ 		this.code = code;
++		this.errcode = errcode;
++		this.errstr = errstr;
+ 
+ 		if (typeof Error.captureStackTrace === 'function') {
+ 			Error.captureStackTrace(this, SqliteError);
+--- a/lib/win32-arm64.js
++++ b/lib/win32-arm64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/win32-arm64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/lib/win32-x64.js
++++ b/lib/win32-x64.js
+@@ -1,3 +1,3 @@
+ 'use strict';
+-module.exports = require('./database')(() => require('../prebuilds/win32-x64.node'), false);
++module.exports = require('./database')(require('./binding').getBinding, false);
+ module.exports.SqliteError = require('./sqlite-error');
+--- a/src/addon.cpp
++++ b/src/addon.cpp
+@@ -5,7 +5,7 @@
+ 		cs(env) {}
+ 
+ 	static void Cleanup(Addon* addon) {
+-		for (Database* db : addon->dbs) db->CloseHandles();
++		for (Database* db : addon->dbs) db->CloseForEnvironment();
+ 		addon->dbs.clear();
+ 		delete addon;
+ 	}
+@@ -14,21 +14,6 @@
+ 		return next_id++;
+ 	}
+ 
+-	static void ConfigureURI() {
+-		static std::once_flag init_flag;
+-		std::call_once(init_flag, [](){
+-			const char* env = getenv("SQLITE_USE_URI");
+-			if (env != NULL) {
+-				if (strcmp(env, "1") == 0) {
+-					int status = sqlite3_config(SQLITE_CONFIG_URI, 1);
+-					assert(status == SQLITE_OK); ((void)status);
+-				} else if (strcmp(env, "0") == 0) {
+-					int status = sqlite3_config(SQLITE_CONFIG_URI, 0);
+-					assert(status == SQLITE_OK); ((void)status);
+-				}
+-			}
+-		});
+-	}
+ 
+ 	static NODE_METHOD(JS_initialize) {
+ 		REQUIRE_ARGUMENT_FUNCTION(first, Napi::Function SqliteError);
+--- a/src/better_sqlite3.cpp
++++ b/src/better_sqlite3.cpp
+@@ -9,7 +9,6 @@
+ #include <random>
+ #include <unordered_map>
+ #include <algorithm>
+-#include <mutex>
+ #include <sqlite3.h>
+ #include <napi.h>
+ 
+@@ -47,7 +46,6 @@
+ 
+ Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
+ 	Napi::HandleScope scope(env);
+-	Addon::ConfigureURI();
+ 
+ 	// Initialize addon instance. The addon is bound to each native-backed class
+ 	// as callback data (rather than per-environment instance data) so that
+@@ -70,4 +68,4 @@
+ 	return exports;
+ }
+ 
+-NODE_API_MODULE(better_sqlite3, InitAll)
++NODE_API_MODULE(bosun_sqlite, InitAll)
+--- a/src/objects/backup.cpp
++++ b/src/objects/backup.cpp
+@@ -14,19 +14,33 @@
+ 
+ Backup::~Backup() {
+ 	if (alive) db->RemoveBackup(this);
+-	CloseHandles();
++	CloseForEnvironment();
+ }
+ 
+-// Whenever this is used, db->RemoveBackup must be invoked beforehand.
+-void Backup::CloseHandles() {
+-	if (alive) {
+-		alive = false;
+-		std::string filename(sqlite3_db_filename(dest_handle, "main"));
+-		sqlite3_backup_finish(backup_handle);
+-		int status = sqlite3_close(dest_handle);
+-		assert(status == SQLITE_OK); ((void)status);
+-		if (unlink) remove(filename.c_str());
++int Backup::CloseHandles() {
++	if (!alive) return SQLITE_OK;
++	int finish_status = SQLITE_OK;
++	if (backup_handle) {
++		finish_status = sqlite3_backup_finish(backup_handle);
++		backup_handle = NULL;
+ 	}
++	// Copy the filename only when it is needed after the destination closes.
++	const char* path = unlink ? sqlite3_db_filename(dest_handle, "main") : NULL;
++	std::string filename(path ? path : "");
++	int status = sqlite3_close(dest_handle);
++	if (status != SQLITE_OK) return status;
++	alive = false;
++	dest_handle = NULL;
++	if (unlink && !filename.empty()) remove(filename.c_str());
++	return finish_status;
++}
++
++void Backup::CloseForEnvironment() {
++	CloseHandles();
++	if (!alive) return;
++	sqlite3_close_v2(dest_handle);
++	dest_handle = NULL;
++	alive = false;
+ }
+ 
+ INIT(Backup::Init) {
+@@ -54,7 +68,10 @@
+ 	sqlite3* dest_handle;
+ 	std::string dest_file = destFile.Utf8Value();
+ 	std::string attached_name = attachedName.Utf8Value();
+-	int mask = (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
++	if (dest_file.find('\0') != std::string::npos || attached_name.find('\0') != std::string::npos) {
++		return ThrowTypeError(env, "Backup filename and database name must not contain NUL");
++	}
++	int mask = (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI);
+ 
+ 	if (sqlite3_open_v2(dest_file.c_str(), &dest_handle, mask, NULL) != SQLITE_OK) {
+ 		Database::ThrowSqliteError(env, addon, dest_handle);
+@@ -90,15 +107,15 @@
+ 	UNWRAP_OR_RETURN(Backup, backup, info.This());
+ 	REQUIRE_ARGUMENT_INT32(first, int pages);
+ 	REQUIRE_DATABASE_OPEN(backup->db->GetState());
+-	assert(backup->db->GetState()->busy == false);
+-	assert(backup->alive == true);
++	REQUIRE_DATABASE_NOT_BUSY(backup->db->GetState());
++	if (!backup->alive || !backup->backup_handle) return ThrowTypeError(info.Env(), "The backup is not open");
+ 
+ 	UseIsolate;
+ 	sqlite3_backup* backup_handle = backup->backup_handle;
+-	int status = sqlite3_backup_step(backup_handle, pages) & 0xff;
++	int status = sqlite3_backup_step(backup_handle, pages);
+ 
+ 	Addon* addon = backup->db->GetAddon();
+-	if (status == SQLITE_OK || status == SQLITE_DONE || status == SQLITE_BUSY) {
++	if (status == SQLITE_OK || status == SQLITE_DONE || (status & 0xff) == SQLITE_BUSY) {
+ 		int total_pages = sqlite3_backup_pagecount(backup_handle);
+ 		int remaining_pages = sqlite3_backup_remaining(backup_handle);
+ 		Napi::Object result = Napi::Object::New(env);
+@@ -114,8 +131,11 @@
+ 
+ NODE_METHOD(Backup::JS_close) {
+ 	UNWRAP_OR_RETURN(Backup, backup, info.This());
+-	assert(backup->db->GetState()->busy == false);
+-	if (backup->alive) backup->db->RemoveBackup(backup);
+-	backup->CloseHandles();
++	REQUIRE_DATABASE_NOT_BUSY(backup->db->GetState());
++	int status = backup->CloseHandles();
++	if (!backup->alive) backup->db->RemoveBackup(backup);
++	if (status != SQLITE_OK) {
++		Database::ThrowSqliteError(info.Env(), backup->db->GetAddon(), sqlite3_errstr(status), status);
++	}
+ 	return info.This();
+ }
+--- a/src/objects/backup.hpp
++++ b/src/objects/backup.hpp
+@@ -4,8 +4,10 @@
+ 	explicit Backup(const Napi::CallbackInfo& info);
+ 	~Backup();
+ 
+-	// Whenever this is used, db->RemoveBackup must be invoked beforehand.
+-	void CloseHandles();
++	// Preserve ownership if SQLite refuses to close the destination.
++	int CloseHandles();
++	inline bool IsAlive() const { return alive; }
++	void CloseForEnvironment();
+ 
+ 	// Used to support ordered containers.
+ 	static inline bool Compare(Backup const * const a, Backup const * const b) {
+--- a/src/objects/database.cpp
++++ b/src/objects/database.cpp
+@@ -18,9 +18,12 @@
+ 	unsafe_mode(false),
+ 	was_js_error(false),
+ 	has_logger(false),
++	authorizing(false),
+ 	iterators(0),
+ 	addon(static_cast<Addon*>(info.Data())),
+ 	logger(),
++	authorizer(),
++	allow_extension(false),
+ 	stmts(),
+ 	backups() {
+ 	TYPE_TAG_CONSTRUCTOR(info);
+@@ -29,20 +32,45 @@
+ 
+ Database::~Database() {
+ 	if (open) addon->dbs.erase(this);
++	CloseForEnvironment();
++}
++
++int Database::CloseHandles() {
++	if (!open) return SQLITE_OK;
++	int first_error = SQLITE_OK;
++	for (Statement* stmt : stmts) {
++		int status = stmt->CloseHandles();
++		if (status != SQLITE_OK && first_error == SQLITE_OK) first_error = status;
++	}
++	stmts.clear();
++	for (auto it = backups.begin(); it != backups.end();) {
++		Backup* backup = *it;
++		int status = backup->CloseHandles();
++		if (status != SQLITE_OK && first_error == SQLITE_OK) first_error = status;
++		if (backup->IsAlive()) ++it;
++		else it = backups.erase(it);
++	}
++	if (!backups.empty()) return first_error;
++	int status = sqlite3_close(db_handle);
++	if (status != SQLITE_OK) return status;
++	open = false;
++	db_handle = NULL;
++	authorizer.Reset();
++	logger.Reset();
++	return first_error;
++}
++
++void Database::CloseForEnvironment() {
+ 	CloseHandles();
+-}
+-
+-// Whenever this is used, addon->dbs.erase() must be invoked beforehand.
+-void Database::CloseHandles() {
+-	if (open) {
+-		open = false;
+-		for (Statement* stmt : stmts) stmt->CloseHandles();
+-		for (Backup* backup : backups) backup->CloseHandles();
+-		stmts.clear();
+-		backups.clear();
+-		int status = sqlite3_close(db_handle);
+-		assert(status == SQLITE_OK); ((void)status);
+-	}
++	if (!open) return;
++	for (Backup* backup : backups) backup->CloseForEnvironment();
++	backups.clear();
++	// Only unreachable-object/environment teardown may defer SQLite destruction.
++	sqlite3_close_v2(db_handle);
++	open = false;
++	db_handle = NULL;
++	authorizer.Reset();
++	logger.Reset();
+ }
+ 
+ void Database::ThrowDatabaseError(Napi::Env env) {
+@@ -56,13 +84,17 @@
+ }
+ 
+ void Database::ThrowSqliteError(Napi::Env env, Addon* addon, const char* message, int code) {
++	// Never replace a pending callback/domain exception with a SQLite wrapper.
++	if (env.IsExceptionPending()) return;
+ 	assert(message != NULL);
+ 	assert((code & 0xff) != SQLITE_OK);
+ 	assert((code & 0xff) != SQLITE_ROW);
+ 	assert((code & 0xff) != SQLITE_DONE);
+ 	Napi::Object error = addon->SqliteError.New({
+ 		StringFromUtf8(env, message, -1),
+-		addon->cs.Code(env, code)
++		addon->cs.Code(env, code),
++		Napi::Number::New(env, code),
++		StringFromUtf8(env, sqlite3_errstr(code & 0xff), -1)
+ 	});
+ 	// Constructing the SqliteError can itself throw (e.g., if the user's error
+ 	// constructor throws); in that case, let that exception propagate instead
+@@ -131,6 +163,9 @@
+ 		PrototypeMethod<Database, &Database::JS_table>("table", addon),
+ 		PrototypeMethod<Database, &Database::JS_loadExtension>("loadExtension", addon),
+ 		PrototypeMethod<Database, &Database::JS_close>("close", addon),
++		PrototypeMethod<Database, &Database::JS_setAuthorizer>("setAuthorizer", addon),
++		PrototypeMethod<Database, &Database::JS_setConnectionControls>("setConnectionControls", addon),
++		PrototypeMethod<Database, &Database::JS_location>("location", addon),
+ 		PrototypeMethod<Database, &Database::JS_defaultSafeIntegers>("defaultSafeIntegers", addon),
+ 		PrototypeMethod<Database, &Database::JS_unsafeMode>("unsafeMode", addon),
+ 	}, addon);
+@@ -151,11 +186,12 @@
+ 	UseIsolate;
+ 	sqlite3* db_handle;
+ 	std::string utf8 = filename.Utf8Value();
++	if (utf8.find('\0') != std::string::npos) return ThrowTypeError(env, "Database filename must not contain NUL");
+ 	int mask = readonly ? SQLITE_OPEN_READONLY
+ 		: must_exist ? SQLITE_OPEN_READWRITE
+ 		: (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
+ 
+-	if (sqlite3_open_v2(utf8.c_str(), &db_handle, mask, NULL) != SQLITE_OK) {
++	if (sqlite3_open_v2(utf8.c_str(), &db_handle, mask | SQLITE_OPEN_URI, NULL) != SQLITE_OK) {
+ 		ThrowSqliteError(env, addon, db_handle);
+ 		int status = sqlite3_close(db_handle);
+ 		assert(status == SQLITE_OK); ((void)status);
+@@ -167,10 +203,15 @@
+ 	sqlite3_busy_timeout(db_handle, timeout);
+ 	sqlite3_limit(db_handle, SQLITE_LIMIT_LENGTH, MAX_BUFFER_SIZE < MAX_STRING_SIZE ? MAX_BUFFER_SIZE : MAX_STRING_SIZE);
+ 	sqlite3_limit(db_handle, SQLITE_LIMIT_SQL_LENGTH, MAX_STRING_SIZE);
+-	int status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, NULL);
+-	assert(status == SQLITE_OK); ((void)status);
+-	status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_DEFENSIVE, 1, NULL);
+-	assert(status == SQLITE_OK); ((void)status);
++	int status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 0, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_DEFENSIVE, 1, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_DQS_DDL, 0, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db_handle, SQLITE_DBCONFIG_DQS_DML, 0, NULL);
++	if (status != SQLITE_OK) {
++		ThrowSqliteError(env, addon, sqlite3_errstr(status), status);
++		sqlite3_close_v2(db_handle);
++		return env.Undefined();
++	}
+ 
+ 	if (buffer.IsBuffer() && !Deserialize(env, buffer.As<Napi::Object>(), addon, db_handle, readonly)) {
+ 		int status = sqlite3_close(db_handle);
+@@ -376,12 +417,16 @@
+ 	REQUIRE_DATABASE_OPEN(db);
+ 	REQUIRE_DATABASE_NOT_BUSY(db);
+ 	REQUIRE_DATABASE_NO_ITERATORS(db);
++	if (!db->allow_extension) return ThrowTypeError(info.Env(), "Extension loading is disabled");
+ 	UseIsolate;
+ 	char* error;
+ 	std::string filename_utf8 = filename.Utf8Value();
+ 	std::string entry_utf8;
+ 	bool has_entry = !entryPoint.IsEmpty();
+ 	if (has_entry) entry_utf8 = entryPoint.Utf8Value();
++	if (filename_utf8.find('\0') != std::string::npos || entry_utf8.find('\0') != std::string::npos) {
++		return ThrowTypeError(env, "Extension filename and entry point must not contain NUL");
++	}
+ 	int status = sqlite3_load_extension(
+ 		db->db_handle,
+ 		filename_utf8.c_str(),
+@@ -399,15 +444,20 @@
+ 	UNWRAP_OR_RETURN(Database, db, info.This());
+ 	if (db->open) {
+ 		REQUIRE_DATABASE_NOT_BUSY(db);
+-		REQUIRE_DATABASE_NO_ITERATORS(db);
+-		db->addon->dbs.erase(db);
+-		db->CloseHandles();
++		db->busy = true;
++		int status = db->CloseHandles();
++		db->busy = false;
++		if (!db->open) db->addon->dbs.erase(db);
++		if (status != SQLITE_OK) {
++			ThrowSqliteError(info.Env(), db->addon, sqlite3_errstr(status), status);
++		}
+ 	}
+ 	return info.Env().Undefined();
+ }
+ 
+ NODE_METHOD(Database::JS_defaultSafeIntegers) {
+ 	UNWRAP_OR_RETURN(Database, db, info.This());
++	REQUIRE_DATABASE_NOT_BUSY(db);
+ 	if (info.Length() == 0) db->safe_ints = true;
+ 	else { REQUIRE_ARGUMENT_BOOLEAN(first, db->safe_ints); }
+ 	return info.Env().Undefined();
+@@ -415,12 +465,95 @@
+ 
+ NODE_METHOD(Database::JS_unsafeMode) {
+ 	UNWRAP_OR_RETURN(Database, db, info.This());
++	REQUIRE_DATABASE_OPEN(db);
++	REQUIRE_DATABASE_NOT_BUSY(db);
++	REQUIRE_DATABASE_NO_ITERATORS(db);
+ 	if (info.Length() == 0) db->unsafe_mode = true;
+ 	else { REQUIRE_ARGUMENT_BOOLEAN(first, db->unsafe_mode); }
+-	sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_DEFENSIVE, static_cast<int>(!db->unsafe_mode), NULL);
++	int status = sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_DEFENSIVE, static_cast<int>(!db->unsafe_mode), NULL);
++	if (status != SQLITE_OK) db->ThrowDatabaseError(info.Env());
+ 	return info.Env().Undefined();
+ }
+ 
++int Database::Authorize(void* context, int action, const char* p1, const char* p2, const char* database, const char* trigger) {
++	Database* db = static_cast<Database*>(context);
++	Napi::Env env = db->authorizer.Env();
++	if (db->authorizing || db->was_js_error || env.IsExceptionPending()) return SQLITE_DENY;
++	Napi::HandleScope scope(env);
++	const char* strings[] = { p1, p2, database, trigger };
++	napi_value args[5];
++	args[0] = Napi::Number::New(env, action);
++	for (size_t i = 0; i < 4; ++i) {
++		args[i + 1] = strings[i] ? StringFromUtf8(env, strings[i], -1) : env.Null();
++	}
++	if (env.IsExceptionPending()) {
++		db->was_js_error = true;
++		return SQLITE_DENY;
++	}
++	db->authorizing = true;
++	Napi::Value result = SafeCall(env, db->authorizer.Value(), env.Undefined(), 5, args);
++	db->authorizing = false;
++	if (env.IsExceptionPending()) {
++		db->was_js_error = true;
++		return SQLITE_DENY;
++	}
++	if (!result.IsEmpty() && result.IsNumber()) {
++		double value = result.As<Napi::Number>().DoubleValue();
++		if (value == SQLITE_OK || value == SQLITE_DENY || value == SQLITE_IGNORE) return static_cast<int>(value);
++	}
++	ThrowTypeError(env, "Authorizer must synchronously return SQLITE_OK, SQLITE_DENY, or SQLITE_IGNORE");
++	db->was_js_error = true;
++	return SQLITE_DENY;
++}
++
++NODE_METHOD(Database::JS_setAuthorizer) {
++	UNWRAP_OR_RETURN(Database, db, info.This());
++	REQUIRE_ARGUMENT_ANY(first, Napi::Value callback);
++	REQUIRE_DATABASE_OPEN(db);
++	REQUIRE_DATABASE_NOT_BUSY(db);
++	REQUIRE_DATABASE_NO_ITERATORS(db);
++	if (!callback.IsNull() && !callback.IsFunction()) return ThrowTypeError(info.Env(), "Expected an authorizer function or null");
++	int status = sqlite3_set_authorizer(db->db_handle, callback.IsNull() ? NULL : Authorize, callback.IsNull() ? NULL : db);
++	if (status != SQLITE_OK) {
++		db->ThrowDatabaseError(info.Env());
++		return info.Env().Undefined();
++	}
++	db->authorizer.Reset();
++	if (!callback.IsNull()) db->authorizer.Reset(callback.As<Napi::Function>(), 1);
++	return info.Env().Undefined();
++}
++
++NODE_METHOD(Database::JS_setConnectionControls) {
++	UNWRAP_OR_RETURN(Database, db, info.This());
++	REQUIRE_ARGUMENT_BOOLEAN(first, bool allow_extension);
++	REQUIRE_ARGUMENT_BOOLEAN(second, bool defensive);
++	REQUIRE_ARGUMENT_BOOLEAN(third, bool dqs);
++	REQUIRE_DATABASE_OPEN(db);
++	REQUIRE_DATABASE_NOT_BUSY(db);
++	REQUIRE_DATABASE_NO_ITERATORS(db);
++	int status = sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_DEFENSIVE, defensive, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_DQS_DDL, dqs, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_DQS_DML, dqs, NULL);
++	if (status == SQLITE_OK) status = sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, allow_extension, NULL);
++	if (status != SQLITE_OK) {
++		db->allow_extension = false;
++		sqlite3_db_config(db->db_handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 0, NULL);
++		ThrowSqliteError(info.Env(), db->addon, sqlite3_errstr(status), status);
++	} else {
++		db->allow_extension = allow_extension;
++	}
++	return info.Env().Undefined();
++}
++
++NODE_METHOD(Database::JS_location) {
++	UNWRAP_OR_RETURN(Database, db, info.This());
++	REQUIRE_ARGUMENT_STRING(first, Napi::String databaseName);
++	REQUIRE_DATABASE_OPEN(db);
++	std::string name = databaseName.Utf8Value();
++	const char* filename = sqlite3_db_filename(db->db_handle, name.c_str());
++	return filename && *filename ? StringFromUtf8(info.Env(), filename, -1) : info.Env().Null();
++}
++
+ NODE_GETTER(Database::JS_open) {
+ 	UNWRAP_OR_RETURN(Database, db, info.This());
+ 	return Napi::Boolean::New(info.Env(), db->open);
+--- a/src/objects/database.hpp
++++ b/src/objects/database.hpp
+@@ -4,8 +4,9 @@
+ 	explicit Database(const Napi::CallbackInfo& info);
+ 	~Database();
+ 
+-	// Whenever this is used, addon->dbs.erase() must be invoked beforehand.
+-	void CloseHandles();
++	// Finalize only handles owned by this library; retain the connection on failure.
++	int CloseHandles();
++	void CloseForEnvironment();
+ 
+ 	// Used to support ordered containers.
+ 	class CompareDatabase { public:
+@@ -49,6 +50,7 @@
+ 		const bool unsafe_mode;
+ 		bool was_js_error;
+ 		const bool has_logger;
++		const bool authorizing;
+ 		unsigned short iterators;
+ 		Addon* const addon;
+ 	};
+@@ -76,6 +78,10 @@
+ 	static NODE_METHOD(JS_close);
+ 	static NODE_METHOD(JS_defaultSafeIntegers);
+ 	static NODE_METHOD(JS_unsafeMode);
++	static NODE_METHOD(JS_setAuthorizer);
++	static NODE_METHOD(JS_setConnectionControls);
++	static NODE_METHOD(JS_location);
++	static int Authorize(void* context, int action, const char* p1, const char* p2, const char* database, const char* trigger);
+ 	static NODE_GETTER(JS_open);
+ 	static NODE_GETTER(JS_inTransaction);
+ 
+@@ -92,9 +98,12 @@
+ 	bool unsafe_mode;
+ 	bool was_js_error;
+ 	bool has_logger;
++	bool authorizing;
+ 	unsigned short iterators;
+ 	Addon* const addon;
+ 	Napi::Reference<Napi::Value> logger;
++	Napi::FunctionReference authorizer;
++	bool allow_extension;
+ 	std::set<Statement*, CompareStatement> stmts;
+ 	std::set<Backup*, CompareBackup> backups;
+ };
+--- a/src/objects/statement-iterator.cpp
++++ b/src/objects/statement-iterator.cpp
+@@ -34,6 +34,10 @@
+ 
+ 	if (status == SQLITE_ROW) {
+ 		Napi::Value row = Data::GetRowJS(env, stmt, handle, safe_ints, mode);
++		if (env.IsExceptionPending()) {
++			db_state->was_js_error = true;
++			return Throw(env);
++		}
+ 		return NewRecord(env, row, db_state->addon, false);
+ 	} else {
+ 		if (status == SQLITE_DONE) return Return(env);
+@@ -102,6 +106,8 @@
+ 
+ NODE_METHOD(StatementIterator::JS_next) {
+ 	UNWRAP_OR_RETURN(StatementIterator, iter, info.This());
++	REQUIRE_DATABASE_OPEN(iter->db_state);
++	if (!iter->stmt->alive) return ThrowTypeError(info.Env(), "The iterator statement has been finalized");
+ 	REQUIRE_DATABASE_NOT_BUSY(iter->db_state);
+ 	if (iter->alive) return iter->Next(info.Env());
+ 	return DoneRecord(info.Env(), iter->db_state->addon);
+@@ -109,6 +115,8 @@
+ 
+ NODE_METHOD(StatementIterator::JS_return) {
+ 	UNWRAP_OR_RETURN(StatementIterator, iter, info.This());
++	REQUIRE_DATABASE_OPEN(iter->db_state);
++	if (!iter->stmt->alive) return ThrowTypeError(info.Env(), "The iterator statement has been finalized");
+ 	REQUIRE_DATABASE_NOT_BUSY(iter->db_state);
+ 	if (iter->alive) return iter->Return(info.Env());
+ 	return DoneRecord(info.Env(), iter->db_state->addon);
+--- a/src/objects/statement.cpp
++++ b/src/objects/statement.cpp
+@@ -23,11 +23,17 @@
+ }
+ 
+ // Whenever this is used, db->RemoveStatement must be invoked beforehand.
+-void Statement::CloseHandles() {
+-	if (alive) {
+-		alive = false;
+-		sqlite3_finalize(handle);
+-	}
++int Statement::CloseHandles() {
++	if (!alive) return SQLITE_OK;
++	if (locked) {
++		locked = false;
++		assert(db->GetState()->iterators > 0);
++		db->GetState()->iterators -= 1;
++	}
++	alive = false;
++	int status = sqlite3_finalize(handle);
++	handle = NULL;
++	return status;
+ }
+ 
+ // Returns the Statement's bind map (creates it upon first execution).
+@@ -180,7 +186,11 @@
+ 		if (stmt->safe_ints) {
+ 			properties[1].value = Napi::BigInt::New(env, (int64_t)id);
+ 		} else {
+-			properties[1].value = Napi::Number::New(env, (double)id);
++			properties[1].value = SqliteIntegerToNumber(env, id);
++			if (env.IsExceptionPending()) {
++				db->GetState()->was_js_error = true;
++				STATEMENT_THROW();
++			}
+ 		}
+ 		properties[1].attributes = DEFAULT_ATTRIBUTES;
+ 
+@@ -200,6 +210,10 @@
+ 	if (status == SQLITE_ROW) {
+ 		Napi::Value result = Data::GetRowJS(env, stmt, handle, stmt->safe_ints, stmt->mode);
+ 		sqlite3_reset(handle);
++		if (env.IsExceptionPending()) {
++			db->GetState()->was_js_error = true;
++			STATEMENT_THROW();
++		}
+ 		STATEMENT_RETURN(result);
+ 	} else if (status == SQLITE_DONE) {
+ 		sqlite3_reset(handle);
+@@ -218,7 +232,13 @@
+ 	rows.reserve(8);
+ 
+ 	while (sqlite3_step(handle) == SQLITE_ROW) {
+-		rows.emplace_back(Data::GetRowJS(env, stmt, handle, safe_ints, mode));
++		Napi::Value row = Data::GetRowJS(env, stmt, handle, safe_ints, mode);
++		if (env.IsExceptionPending()) {
++			sqlite3_reset(handle);
++			db->GetState()->was_js_error = true;
++			STATEMENT_THROW();
++		}
++		rows.emplace_back(row);
+ 	}
+ 
+ 	if (sqlite3_reset(handle) == SQLITE_OK) {
+--- a/src/objects/statement.hpp
++++ b/src/objects/statement.hpp
+@@ -5,7 +5,7 @@
+ 	~Statement();
+ 
+ 	// Whenever this is used, db->RemoveStatement must be invoked beforehand.
+-	void CloseHandles();
++	int CloseHandles();
+ 
+ 	// Used to support ordered containers.
+ 	static inline bool Compare(Statement const * const a, Statement const * const b) {
+--- a/src/util/custom-aggregate.cpp
++++ b/src/util/custom-aggregate.cpp
+@@ -43,6 +43,11 @@
+ 		napi_value* args = argc <= 4 ? args_fast : ALLOC_ARRAY<napi_value>(argc + 1);
+ 		args[0] = acc->value.Value();
+ 		if (argc != 0) Data::GetArgumentsJS(env, args + 1, argv, argc, self->safe_ints);
++		if (env.IsExceptionPending()) {
++			if (args != args_fast) delete[] args;
++			self->PropagateJSError(invocation);
++			return;
++		}
+ 
+ 		Napi::Value returnValue = SafeCall(env, (self->*ptrtm).Value(), env.Undefined(), argc + 1, args);
+ 		if (args != args_fast) delete[] args;
+--- a/src/util/custom-function.cpp
++++ b/src/util/custom-function.cpp
+@@ -29,6 +29,11 @@
+ 			args = argc <= 4 ? args_fast : ALLOC_ARRAY<napi_value>(argc);
+ 			Data::GetArgumentsJS(env, args, argv, argc, self->safe_ints);
+ 		}
++		if (env.IsExceptionPending()) {
++			if (args != args_fast) delete[] args;
++			self->PropagateJSError(invocation);
++			return;
++		}
+ 
+ 		Napi::Value returnValue = SafeCall(env, self->fn.Value(), env.Undefined(), argc, args);
+ 		if (args != args_fast) delete[] args;
+--- a/src/util/custom-table.cpp
++++ b/src/util/custom-table.cpp
+@@ -192,6 +192,11 @@
+ 			for (int i = 0; i < parameter_count; ++i) {
+ 				if (idxNum & 1 << i) {
+ 					Napi::Value arg = Data::GetValueJS(env, argv[argn++], safe_ints);
++					if (env.IsExceptionPending()) {
++						if (args != args_fast) delete[] args;
++						self->PropagateJSError();
++						return SQLITE_ERROR;
++					}
+ 					args[i] = arg;
+ 					// If any arguments are NULL, the result set is necessarily
+ 					// empty, so don't bother to run the generator function.
+--- a/src/util/data.cpp
++++ b/src/util/data.cpp
+@@ -31,6 +31,17 @@
+ 		return sqlite3_##to##_null(__VA_ARGS__);                               \
+ 	}
+ 
++static Napi::Value SqliteIntegerToNumber(Napi::Env env, sqlite3_int64 value) {
++	constexpr sqlite3_int64 max_safe_integer = 9007199254740991LL;
++	if (value < -max_safe_integer || value > max_safe_integer) {
++		Napi::RangeError error = Napi::RangeError::New(env, "SQLite INTEGER is outside the JavaScript safe integer range");
++		error.Set("code", "ERR_OUT_OF_RANGE");
++		error.ThrowAsJavaScriptException();
++		return env.Undefined();
++	}
++	return Napi::Number::New(env, static_cast<double>(value));
++}
++
+ #define SQLITE_VALUE_TO_JS(from, env, safe_ints, ...)                          \
+ 	switch (sqlite3_##from##_type(__VA_ARGS__)) {                              \
+ 	case SQLITE_INTEGER:                                                       \
+@@ -40,6 +51,7 @@
+ 				(int64_t)sqlite3_##from##_int64(__VA_ARGS__)                   \
+ 			);                                                                 \
+ 		}                                                                      \
++		return SqliteIntegerToNumber(env, sqlite3_##from##_int64(__VA_ARGS__)); \
+ 	case SQLITE_FLOAT:                                                         \
+ 		return Napi::Number::New(                                              \
+ 			env,                                                               \
+@@ -86,6 +98,7 @@
+ 			Napi::String table = InternalizedFromUtf8(env, table_raw == NULL ? "$" : table_raw, -1);
+ 			Napi::String column = InternalizedFromUtf8(env, sqlite3_column_name(handle, i), -1);
+ 			Napi::Value value = Data::GetValueJS(env, handle, i, safe_ints);
++			if (env.IsExceptionPending()) return env.Undefined();
+ 			if (row.HasOwnProperty(table)) {
+ 				row.Get(table).As<Napi::Object>().Set(column, value);
+ 			} else {
+@@ -118,6 +131,7 @@
+ 		assert(argument_count > 0);
+ 		for (int i = 0; i < argument_count; ++i) {
+ 			out[i] = Data::GetValueJS(env, values[i], safe_ints);
++			if (env.IsExceptionPending()) return;
+ 		}
+ 	}
+ 
+--- a/src/util/macros.cpp
++++ b/src/util/macros.cpp
+@@ -49,7 +49,7 @@
+ 	if (!db->open)                                                             \
+ 		return ThrowTypeError(info.Env(), "The database connection is not open")
+ #define REQUIRE_DATABASE_NOT_BUSY(db)                                          \
+-	if (db->busy)                                                              \
++	if (db->busy || db->authorizing)                                            \
+ 		return ThrowTypeError(info.Env(), "This database connection is busy executing a query")
+ #define REQUIRE_DATABASE_NO_ITERATORS(db)                                      \
+ 	if (db->iterators)                                                         \
+--- a/src/util/row-builder.cpp
++++ b/src/util/row-builder.cpp
+@@ -32,6 +32,7 @@
+ 	}
+ 	for (int i = 0; i < column_count; ++i) {
+ 		values[i] = Data::GetValueJS(env, handle, i, safe_ints);
++		if (env.IsExceptionPending()) return env.Undefined();
+ 	}
+ 
+ 	return SafeCall(env, create_row.Value(), env.Undefined(), column_count, values);
+@@ -48,6 +49,7 @@
+ 	}
+ 	for (int i = 0; i < column_count; ++i) {
+ 		args[i] = Data::GetValueJS(env, handle, i, safe_ints);
++		if (env.IsExceptionPending()) return env.Undefined();
+ 	}
+ 	return SafeCall(env, array_factory.Value(), env.Undefined(), column_count, args);
+ }

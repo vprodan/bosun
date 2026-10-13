@@ -1,0 +1,110 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ remote embedding jobs and vector queries use only the authority corpus and preserve source privacy revocation (715.385ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (581.319583ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (870.282708ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (624.420708ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (833.391917ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (568.685875ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (574.425041ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (587.903958ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (791.42325ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.518625ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (671.372625ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (474.7065ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (649.545542ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (469.607709ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (690.76775ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (503.286667ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (519.288167ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (495.343333ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.547167ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.221541ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.558833ms)
+✔ cached read rejects actual oversized primary before callback (23.57275ms)
+✔ cached read rejects actual oversized wal before callback (18.73175ms)
+✔ cached transaction rejects actual oversized primary before callback (18.718125ms)
+✔ cached transaction rejects actual oversized wal before callback (17.974166ms)
+✔ native large source/FTS transaction is refused without committed row/event/floor changes (101.649291ms)
+✔ registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt (495.676292ms)
+✔ error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer (22.85325ms)
+✔ error before native COMMIT retains exact domain identity only after successful rollback (20.105541ms)
+✔ error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write (26.707792ms)
+✔ cached read rejects changed journal before callback without repair (15.748083ms)
+✔ cached read rejects changed wal-mode before callback without repair (15.573958ms)
+✔ cached read rejects changed parent-mode before callback without repair (16.754542ms)
+✔ cached read rejects changed wal-link before callback without repair (17.16075ms)
+✔ cached transaction rejects changed journal before callback without repair (16.027458ms)
+✔ cached transaction rejects changed wal-mode before callback without repair (16.694083ms)
+✔ cached transaction rejects changed parent-mode before callback without repair (16.196084ms)
+✔ cached transaction rejects changed wal-link before callback without repair (15.983083ms)
+✔ native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (24.634459ms)
+✔ native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (23.256584ms)
+✔ native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (32.067333ms)
+✔ eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML (395.14775ms)
+✔ driver PRAGMA prepare failure clears private authorization and callback controls remain denied (21.491083ms)
+Native dirty-page qualification: { spill: true, before: 94792, pending: 4317792, committed: 4375472 }
+Native dirty-page qualification: { spill: false, before: 94792, pending: 94792, committed: 4375472 }
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false
+}
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false
+}
+✔ post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay (19.839709ms)
+✔ native dirty-page probe observes cache_spill=true before actual commit (23.592209ms)
+✔ native dirty-page probe observes cache_spill=false before actual commit (22.303541ms)
+✔ native FTS xSync allocation occurs at actual COMMIT (14.555917ms)
+✔ native FTS xSync page-limit failure occurs at actual COMMIT (11.520708ms)
+✔ registered real store covers constructor expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit (147.491333ms)
+✔ registered long-lived get/search expiry and prune use synchronous admission, preserving archive/purge events (83.081083ms)
+✔ registered docs indexes insert/update/delete with FTS and owns a private close lifecycle (138.406792ms)
+✔ final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit (272.239209ms)
+✔ fresh final owner CLI unshares with exact CAS, linked access and retained original audit (296.587166ms)
+✔ upgraded final owner CLI unshares with exact CAS, linked access and retained original audit (302.306583ms)
+✔ fresh final owner unsharing preserves the raw malformed privacy marker and model opacity (202.402167ms)
+✔ upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity (210.107834ms)
+✔ fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (230.098584ms)
+✔ upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (243.661792ms)
+✔ fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1187.934334ms)
+✔ upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1180.246167ms)
+✔ final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job (483.486084ms)
+✔ final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context (937.325ms)
+✔ registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle (71.821625ms)
+✔ registered discovery holds pending/unknown/mismatched roots before legacy chmod/migration (282.361125ms)
+✔ registered domain errors retain class/currentVersion after rollback while hostile proxy errors stay finite (60.401708ms)
+✔ read-only doctor memory inspection creates no files, holds WAL before native open and verifies rollback without writes (7.020959ms)
+✔ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (390.451875ms)
+✔ failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully (190.432834ms)
+ℹ tests 68
+ℹ suites 0
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19638.541833

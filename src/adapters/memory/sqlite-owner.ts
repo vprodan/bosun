@@ -1,8 +1,10 @@
 // Explicit owner cutover. Strict planning is filesystem-only; recovery/retention inspects only the rollback view natively.
 import fs from 'node:fs';
+import { realpathWithoutOpen } from '../../platform/canonical-path.cjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { BosunError } from '../../core/errors.ts';
+import { memorySqliteRuntime } from '../../platform/sqlite-runtime.ts';
 import { cutoverMemory, inspectOwnerCutoverReference, inspectOwnerRestore, restoreMemory, RESTORE_PENDING_SUFFIX, RESTORE_RECEIPT_SUFFIX,
   CutoverError, type CutoverPaths, type CutoverReceipt, type RestoreReceipt } from './sqlite-cutover.ts';
 
@@ -79,7 +81,7 @@ function uuid(id: unknown): string {
   if (typeof value !== 'string' || !UUID.test(value)) fail('input', 'input'); return value;
 }
 function runtime(): void {
-  if (process.versions.bun || process.platform === 'win32' || Number(process.versions.node.split('.')[0]) < 24 || !process.getuid) fail('runtime', 'runtime');
+  if (!memorySqliteRuntime() || !process.getuid) fail('runtime', 'runtime');
 }
 function configured(input: unknown): CutoverPaths {
   const p = fields(input, ['primary', 'view', 'backups']);
@@ -100,7 +102,7 @@ function metadata(file: string, target: Target, directory = false, stable = true
   let s: fs.BigIntStats;
   try { s = fs.lstatSync(file, { bigint: true }); }
   catch (e) { if ((e as { code?: unknown })?.code === 'ENOENT') fail(target, 'missing'); throw e; }
-  if (s.isSymbolicLink() || (directory ? !s.isDirectory() : !s.isFile() || s.nlink !== 1n) || fs.realpathSync(file) !== file) fail(target, 'path');
+  if (s.isSymbolicLink() || (directory ? !s.isDirectory() : !s.isFile() || s.nlink !== 1n) || realpathWithoutOpen(file) !== file) fail(target, 'path');
   const required = directory ? 0o700 : 0o600;
   const current = Number(s.mode & 0o7777n);
   const allowed = preparing ? (directory ? [0o700, 0o750, 0o755] : [0o600, 0o640, 0o644]) : [required];

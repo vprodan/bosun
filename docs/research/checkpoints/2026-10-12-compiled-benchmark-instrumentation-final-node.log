@@ -1,0 +1,51 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ benchmark selects direct compiled hook arguments and retains the Node source interpreter entry (2976.786625ms)
+✔ benchmark failed Node producers are joined before temporary cleanup and never counted as injections (1337.642667ms)
+✔ benchmark holds its temporary tree and stops after a synthetic unknown producer join (755.460417ms)
+✔ benchmark reports actual cleanup failure once without letting an observer replace it (761.892125ms)
+✔ owner benchmark validation emits a finite failure record and preserves normalized CLI rejection before effects (34.642959ms)
+✔ memory: store/get/search round trip, FTS ranking, tags filter, limit cap and explicit access tracking (27.829209ms)
+✔ memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all (8.821083ms)
+✔ memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key (7.718291ms)
+✔ memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope (7.713709ms)
+✔ memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags (19.075042ms)
+✔ memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one (12.513208ms)
+✔ project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote (105.353625ms)
+✔ memory: explicit retention archives expired sessions and prunes old archives (10.13475ms)
+✔ memory: validation limits, and error messages never quote content (7.277292ms)
+✔ memory: user text never becomes FTS syntax (8.06025ms)
+✔ memory: concurrent writers wait instead of failing (447.051625ms)
+✔ supported schema-1 owner upgrade commits schema 2 behind the cutover floor and preserves a schema-1 backup (25.010042ms)
+✔ memory: private memories stay out of search unless asked (7.156ms)
+✔ memory bench: measured numbers, no owner files or unsupported retrieval timings (5071.179958ms)
+✔ benchmark requires a successful child, valid envelope and exact synthetic note identities (0.381959ms)
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+✔ explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats (63270.682625ms)
+✔ memory: explicit retention archives expired sessions in a long-running process (7.675917ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 75281.876042

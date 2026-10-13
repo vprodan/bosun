@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-12T12:13:28.123Z",
+  "worker": "/root/maintainer_guide",
+  "workerStatus": "completed",
+  "status": "maintainer guide reviewed; complete v1.0 qualification remains open",
+  "files": [
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 5762,
+      "sha256": "4369d6e2c7a989d9d7ff6b720a9207afb572b3bd5b9108bed35bd7f53b11d7d7"
+    },
+    {
+      "path": "README.md",
+      "bytes": 20949,
+      "sha256": "ca13364f6a1d0908403624e3b56d447c270a28801918931eebecc4f08f4a78cb"
+    }
+  ],
+  "validation": {
+    "markdownFiles": 2,
+    "localLinks": 49,
+    "balancedFences": true,
+    "whitespaceExit": 0,
+    "appTestsRunForDocumentation": false,
+    "runtimeSourceDigest": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+    "claudeClosureDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+    "pendingDriversAndProposalUnchanged": true
+  },
+  "findings": [
+    "Shared daemon method and strict bounded contract entry points are documented",
+    "Seven ports and separate lazy runner/provider/router/host/managed composition are documented",
+    "Explicit selections, capability status, privacy, nonreplay and lean hook constraints match implementation",
+    "Canonical assets and existing guarded Node suite commands are documented"
+  ],
+  "sourceReviewed": [
+    "src/contracts/methods.ts",
+    "src/app/dispatcher.ts",
+    "src/app/daemon.ts",
+    "src/app/native-runners.ts",
+    "src/app/model-providers.ts",
+    "src/app/registry.ts",
+    "src/app/host-install.ts",
+    "src/app/managed.ts",
+    "src/core/policy.ts",
+    "src/core/ports",
+    "src/core/use-cases/jobs.ts",
+    "src/core/use-cases/index-embeddings.ts",
+    "scripts/check-boundaries.mjs",
+    "scripts/run-tests.mjs",
+    "scripts/generate-assets.mjs"
+  ],
+  "runtimeQualificationClaimed": false
+}

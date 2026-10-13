@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-11T20:41:57.019Z",
+  "status": "coordinator-reviewed proposal; owner labels pending; final quality coverage incomplete",
+  "scope": "Independent static byte/source/split/gold/alternative/lineage checks and reading all100 proposed questions,58 note bodies and88 graph texts; no retrieval evaluation or application execution",
+  "datasetSha256": "daf7f06dda27aa846d7f9d9b44378d75313c65e8d8b40790c49fe4b410e04989",
+  "reviewSha256": "c55adeaec3fa75f7900b62f5b8cfd55ecb66263c7863a4d2407ccfd6c70a3d3b",
+  "counts": {
+    "sourceSnapshots": 21,
+    "notes": 58,
+    "cases": 100,
+    "graph": 88,
+    "gold": 138,
+    "alternatives": 276,
+    "sourceClusters": 20,
+    "sessionClusters": 20,
+    "negatives": 20,
+    "multiSupport": 38
+  },
+  "verified": [
+    "Exact immutable source hashes/bytes and all58 raw spans/folded note bodies",
+    "Unique complete curated gold candidates; exact alternative quote containment and source ancestry",
+    "Same source/topic cluster split; all proposed graph parents/endpoints have complete original support lineage",
+    "Original draft/manifest/audit unchanged; saved evidence and all graph review flags remain pending"
+  ],
+  "limitations": [
+    "Held-out temporal-history conflicts are still missing; development-only earlier/later host contract is honest but insufficient",
+    "Repository-derived authored questions are not captured owner tasks or12 sanitized native sessions",
+    "Packing truncation and enrichment/vector/model/compiled latency/privacy/revocation/expiry must be measured separately"
+  ],
+  "ownerReviewed": false,
+  "evaluationRan": false,
+  "nativeRan": false,
+  "modelRan": false,
+  "productionChanged": false
+}

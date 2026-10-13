@@ -1,0 +1,18 @@
+1 | import fs from 'node:fs';
+2 | import path from 'node:path';
+3 | import { BosunError } from '../core/errors.ts';
+4 | 
+5 | export function socketPath(file: string): void {
+6 |   if (!path.isAbsolute(file) || path.resolve(file) !== file || file.includes('\0') || Buffer.byteLength(file) > 100) throw new BosunError('invalid', 'Invalid local socket path');
+                                                                                                                               ^
+error: Invalid local socket path
+ exitCode: 2,
+  details: undefined,
+     code: "invalid"
+
+      at socketPath (/Users/edge/Developer/bosun/src/platform/local-socket.ts:6:124)
+      at serveLocalRpc (/Users/edge/Developer/bosun/src/adapters/transport/local-rpc-server.ts:32:18)
+      at <anonymous> (/Users/edge/Developer/bosun/scripts/bun-command-smoke.mjs:54:19)
+      at async gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+
+Bun v1.4.3 (macOS arm64)

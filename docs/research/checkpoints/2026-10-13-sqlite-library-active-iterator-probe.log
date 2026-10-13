@@ -1,0 +1,22 @@
+{
+  "runtime": "1.4.3",
+  "package": "better-sqlite3@13.0.3",
+  "sqlite": "3.53.4",
+  "selected": ".omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3",
+  "retainedStatementClose": true,
+  "nativeWriterReacquired": true,
+  "unfinishedFtsRollback": true,
+  "authorizerDdlDenied": true,
+  "callbackErrorIdentity": true,
+  "asyncAuthorizerDenied": true,
+  "authorizerReentryDenied": true,
+  "udf": true,
+  "exactIntegers": true,
+  "literalFilename": true,
+  "extensionDenied": true,
+  "doubleQuotedStringsDenied": true,
+  "onlineBackup": true,
+  "readonlyBackup": true,
+  "immutableUri": true,
+  "applicationAdmissionLifted": false
+}

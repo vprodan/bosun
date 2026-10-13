@@ -1,0 +1,2 @@
+../../../../../../../../Users/edge/Developer/bosun/test/sqlite-readonly.test.ts(9,10): error TS2300: Duplicate identifier 'runtimePaths'.
+../../../../../../../../Users/edge/Developer/bosun/test/sqlite-readonly.test.ts(17,10): error TS2300: Duplicate identifier 'runtimePaths'.

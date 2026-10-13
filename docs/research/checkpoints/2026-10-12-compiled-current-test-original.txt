@@ -1,0 +1,183 @@
+import './bootstrap.ts';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { test } from 'node:test';
+import { CURRENT_PINS, classifyBenchmark, cleanupAllowed, currentRpc, entryCases, foregroundDaemon, isolatedConfig,
+  prepareIsolation, runBenchmarkProbe, runEntryProbe, runSqliteRequests, verifyCurrentArtifact } from '../scripts/check-compiled-current.mjs';
+import { parseRuntimeConfig, renderRuntimeConfig } from '../src/platform/config.ts';
+import { runtimePaths } from '../src/platform/paths.ts';
+import { streamProcess, type ProcessSpec } from '../src/platform/process.ts';
+import { setupRuntime } from '../src/app/setup.ts';
+import { startDaemon } from '../src/app/daemon.ts';
+import { REPO, sandbox } from './helpers.ts';
+
+function benchmarkFixture() {
+  const distribution = (samples: number) => ({ samples, p50: 1, p95: 2 });
+  return { schema: 1, corpus: { notes: 10000, seed: 42, synthetic: true }, runtime: { engine: 'bun', version: '1.4.2' }, queries: 200,
+    store: distribution(10000), search: distribution(200), context: distribution(200),
+    corpusLoading: { epochNotes: 256, lifecycle: distribution(39) },
+    tokens: { estimator: 'char/4', hostTokens: 'unverified', budget: 400, withinEstimate: 200, maximumEstimate: 300 },
+    hook: { processStartup: 'new-process-per-attempt', processCompletion: 'original-and-group-confirmed', daemon: 'absent', runs: 20,
+      firstRun: { wallMs: 3, outcome: 'injected' }, outcomes: { injected: 20, held: 0, failed: 0, unqualified: 0 },
+      wall: distribution(20), verifiedInjectionWall: distribution(20), componentLatency: null },
+    publicView: 'ready-synthetic', bytes: { primary: 1024, view: 1024 }, designatedMacLatency: 'unverified', ownerStorageOpened: false, modelsCalled: false };
+}
+
+const FIXTURE = `import fs from 'node:fs';
+const args=process.argv.slice(2);fs.appendFileSync(process.env.FIXTURE_OUT,JSON.stringify({args,pid:process.pid})+'\\n');
+if(args[0]==='--version')process.stdout.write('0.2.0\\n');
+else if(args[0]==='--help')process.stdout.write('Usage: bosun run mcp managed upgrade\\n');
+else if(args[0]==='mcp'){
+ let input='';process.stdin.on('data',chunk=>{input+=chunk.toString();if(!input.includes('\\n'))return;
+ const frame=JSON.parse(input);if(frame.method!=='initialize'||frame.id!==1)process.exit(9);
+ const reply=JSON.stringify({jsonrpc:'2.0',id:1,result:{protocolVersion:'2025-11-25',serverInfo:{name:'bosun',version:'0.2.0'}}})+'\\n';
+ process.stdout.write(reply.slice(0,20));setImmediate(()=>process.stdout.write(reply.slice(20)));});
+ process.stdin.on('end',()=>process.exit(0));
+}else if(args[0]==='daemon'){
+ process.on('SIGTERM',()=>process.exit(0));process.stdout.write('bosun daemon ready\\n');setInterval(()=>{},1000);
+}else if(args[0]==='memory')process.stdout.write(process.env.FIXTURE_REPORT+'\\n');
+`;
+
+function nodeFixture() {
+  const sb = sandbox();
+  const source = path.join(sb.root, 'compiled-shape-node-fixture.mjs'), calls = path.join(sb.root, 'calls.jsonl');
+  fs.writeFileSync(source, FIXTURE, { mode: 0o600 });
+  const isolation = prepareIsolation(sb.root, 'isolated');
+  const context = { binary: '/synthetic/compiled-fixture', ...isolation,
+    env: { ...isolation.env, FIXTURE_OUT: calls, FIXTURE_REPORT: JSON.stringify(benchmarkFixture()) } };
+  let joined = 0;
+  const requests: string[][] = [];
+  const execute: typeof streamProcess = async function*(spec) {
+    assert.equal(spec.command, context.binary); requests.push([...spec.args]);
+    yield* streamProcess({ ...spec, env: { ...sb.env(), ...spec.env }, command: process.execPath, args: [source, ...spec.args],
+      onClosed() { joined++; spec.onClosed?.(); } });
+  };
+  return { sb, context, execute, requests, joined: () => joined,
+    assertGone() {
+      const rows = fs.readFileSync(calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+      for (const row of rows) {
+        assert.throws(() => process.kill(row.pid, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+        assert.throws(() => process.kill(-row.pid, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+      }
+    } };
+}
+
+test('current artifact static verification uses the pinned archived variant and exact pure dependencies without executing it', async () => {
+  const sb = sandbox();
+  try {
+    const source = path.join(REPO, 'dist/bosun-0.2.0-darwin-arm64-current-candidate'), candidate = path.join(sb.root, 'static-candidate');
+    fs.mkdirSync(candidate);
+    for (const name of fs.readdirSync(source)) fs.copyFileSync(path.join(source, name), path.join(candidate, name));
+    const report = await verifyCurrentArtifact(candidate, sb.root);
+    assert.equal(report.binarySha256, CURRENT_PINS.binary); assert.equal(report.sourceDigest, CURRENT_PINS.source);
+    assert.equal(report.runtimeQualification, 'unverified');
+    assert.equal(fs.existsSync(path.join(sb.root, 'static-verifier')), false);
+  } finally { sb.cleanup(); }
+});
+
+test('current entry probes send exactly five Node-fixture entries and initialize MCP before stdin EOF; absent join cannot pass', async () => {
+  const f = nodeFixture();
+  try {
+    for (const entry of entryCases) {
+      const result = await runEntryProbe(f.context, entry, { execute: f.execute });
+      assert.equal(result.passed, true); assert.equal(result.joined, true); assert.equal(result.code, 0);
+      if (entry.initialize) assert.ok(result.initialized && result.eofSent);
+    }
+    assert.deepEqual(f.requests, entryCases.map(entry => entry.args)); assert.equal(f.joined(), 5); f.assertGone();
+    const unknown: typeof streamProcess = async function*(spec) {
+      spec.stdout?.(Buffer.from('0.2.0\n')); yield { t: 'exit', code: 0, signal: null };
+    };
+    const held = await runEntryProbe(f.context, entryCases[0], { execute: unknown });
+    assert.equal(held.joined, false); assert.equal(held.passed, false);
+  } finally { f.sb.cleanup(); }
+});
+
+test('current seven-request recipe runs actual owned Node SQLite/UDS privacy checks with an inert primary and zero native selections', async () => {
+  const sb = sandbox(); let runtime: Awaited<ReturnType<typeof startDaemon>> | undefined;
+  try {
+    const isolation = prepareIsolation(sb.root, 'owned-runtime');
+    const socket = path.join(process.env.BOSUN_TEST_RUN_ROOT!, 'cq' + process.pid);
+    const env = { ...isolation.env, BOSUN_SOCKET: socket };
+    const paths = runtimePaths(env), config = parseRuntimeConfig(renderRuntimeConfig(isolatedConfig(isolation.home)));
+    assert.equal(config.hosts.primary, 'opencode'); assert.equal(config.hosts.opencode.enabled, true);
+    assert.equal(fs.existsSync(config.hosts.opencode.command), false);
+    assert.equal(config.graph.vectors, false); assert.equal(config.notifications.enabled, false);
+    await setupRuntime(paths, config);
+    let selected = 0;
+    runtime = await startDaemon({ paths, config, environment: env, runners: { opencode() { selected++; throw Error('Native selection prohibited'); } } });
+    let sequence = 0;
+    const requests: { audience: string; method: string; invalid: boolean }[] = [];
+    const result = await runSqliteRequests(async (audience, method, params, invalid = false) => {
+      requests.push({ audience, method, invalid });
+      return currentRpc(socket, isolation.cwd, audience, method, params, ++sequence, invalid);
+    });
+    assert.equal(result.requests, 7); assert.equal(result.originalMutations, 2); assert.equal(sequence, 7); assert.equal(selected, 0);
+    assert.deepEqual(requests, [
+      { audience: 'owner', method: 'memory.store', invalid: false }, { audience: 'owner', method: 'memory.store', invalid: false },
+      { audience: 'owner', method: 'memory.get', invalid: false }, { audience: 'model', method: 'memory.search', invalid: true },
+      { audience: 'model', method: 'memory.search', invalid: false }, { audience: 'model', method: 'context.retrieve', invalid: false },
+      { audience: 'owner', method: 'daemon.status', invalid: false },
+    ]);
+    await runtime.close(); runtime = undefined;
+    assert.equal(fs.existsSync(socket), false); assert.equal(sb.calls().length, 0);
+    assert.equal(fs.statSync(paths.owner).mode & 0o7777, 0o600);
+    assert.equal(fs.existsSync(paths.owner + '-journal'), false);
+  } finally { await runtime?.close(); sb.cleanup(); }
+});
+
+test('current foreground receipt reports controlled cancellation and positive Node original/group join without inventing exit0', async () => {
+  const f = nodeFixture();
+  try {
+    const foreground = foregroundDaemon(f.context, { execute: f.execute });
+    await foreground.ready(); const result = await foreground.close();
+    assert.equal(result.joined, true); assert.equal(result.controlledCancellation, true); assert.equal(result.code, null);
+    assert.equal(result.gracefulExitCode, 'unqualified-not-exposed-on-controlled-cancellation'); f.assertGone();
+    const unknown: typeof streamProcess = async function*(spec: ProcessSpec) {
+      spec.stdout?.(Buffer.from('bosun daemon ready\n'));
+      await new Promise<void>(resolve => spec.signal.addEventListener('abort', () => resolve(), { once: true }));
+      yield { t: 'exit', code: 0, signal: null };
+    };
+    const held = foregroundDaemon(f.context, { execute: unknown }); await held.ready();
+    assert.equal((await held.close()).joined, false);
+    assert.equal(cleanupAllowed({ rootsJoined: false, benchmarkAttempted: false, benchmarkVerified: false }), false);
+  } finally { f.sb.cleanup(); }
+});
+
+test('current benchmark validator requires successful report and root join; failed benchmark parents never authorize nested-tree cleanup', async () => {
+  const f = nodeFixture();
+  try {
+    const result = await runBenchmarkProbe(f.context, { execute: f.execute });
+    assert.equal(result.passed, true); assert.equal(result.receipt.joined, true); assert.equal(result.benchmark?.nestedProducersReportedJoined, 21);
+    assert.equal(result.benchmark?.componentLatency, null); assert.equal(result.benchmark?.designatedMacLatency, 'unverified'); f.assertGone();
+    for (const mutate of [
+      (r: any) => { r.runtime.node = process.versions.node; }, (r: any) => { r.hook.outcomes = { injected: 19, held: 1, failed: 0, unqualified: 0 }; },
+      (r: any) => { r.hook.processCompletion = 'unverified'; }, (r: any) => { r.queries = 199; },
+      (r: any) => { r.hook.componentLatency = 1; }, (r: any) => { r.tokens.hostTokens = 'verified'; },
+      (r: any) => { r.modelsCalled = true; }, (r: any) => { r.hook.wall.p95 = -1; },
+    ]) { const report = benchmarkFixture(); mutate(report); assert.throws(() => classifyBenchmark(report)); }
+    assert.equal(cleanupAllowed({ rootsJoined: true, benchmarkAttempted: true, benchmarkVerified: false }), false);
+    assert.equal(cleanupAllowed({ rootsJoined: true, benchmarkAttempted: true, benchmarkVerified: true }), true);
+    const unknown: typeof streamProcess = async function*(spec) {
+      spec.stdout?.(Buffer.from(JSON.stringify(benchmarkFixture()))); yield { t: 'exit', code: 0, signal: null };
+    };
+    const held = await runBenchmarkProbe(f.context, { execute: unknown }); assert.equal(held.passed, false); assert.equal(held.receipt.joined, false);
+    f.context.env.FIXTURE_REPORT = JSON.stringify({ ...benchmarkFixture(), modelsCalled: true });
+    const rejected = await runBenchmarkProbe(f.context, { execute: f.execute });
+    assert.equal(rejected.receipt.joined, true); assert.equal(rejected.passed, false); f.assertGone();
+    assert.equal(cleanupAllowed({ rootsJoined: rejected.receipt.joined, benchmarkAttempted: true, benchmarkVerified: rejected.passed }), false);
+  } finally { f.sb.cleanup(); }
+});
+
+test('current driver refuses an unapproved scope before artifact or product runtime operations', () => {
+  const sb = sandbox();
+  try {
+    const result = spawnSync(process.execPath, [path.join(REPO, 'scripts/check-compiled-current.mjs'), '--not-approved',
+      path.join(REPO, 'dist/bosun-0.2.0-darwin-arm64-current-candidate')], { env: sb.env(), cwd: sb.root, encoding: 'utf8', timeout: 15000 });
+    assert.equal(result.status, 1, result.stderr);
+    const report = JSON.parse(result.stdout); assert.equal(report.failure, 'admission');
+    assert.equal(report.compiledRootInvocationsAttempted, 0); assert.equal(report.privateTreeRemoved, null);
+    assert.equal(report.qualifiedForThisScope, false);
+  } finally { sb.cleanup(); }
+});

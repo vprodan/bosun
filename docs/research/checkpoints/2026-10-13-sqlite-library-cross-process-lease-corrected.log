@@ -1,0 +1,1 @@
+{"received":{"phase":"leased","transaction":true},"rejected":true,"error":{"code":"SQLITE_BUSY","errcode":5},"writerAfterRelease":true}

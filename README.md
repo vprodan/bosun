@@ -1,398 +1,193 @@
 # bosun
 
-**Pair with one agent; bosun routes the rest.**
+Pair with OMP, OpenCode 2, Codex or Claude Code; use bosun for scoped memory, bounded jobs, native roles and reviewed handoffs. **OMP is the primary host for new configuration.** Clef-Flash supplies routing advice through Ollama, with a separate provider for summaries, extraction and embeddings. Existing explicit host and model selections remain unchanged.
 
-You drive a single session in Claude Code, Codex, or both. bosun gives that session:
-- a crew of roles
-- a full skill set
-- a local model for mechanical edits
-- the other vendor's model as reviewer
-- Orca for side quests and, when you ask, parallel work
-- a local-first memory: curated notes you review, a few of them added to each prompt, and MCP tools on demand
+**Local release: 1.0.0, macOS arm64.** The cleaned artifact is `dist/bosun-1.0.0-darwin-arm64-cleanup/`; the original release is retained. Final precommit verification passed 1,190/1,190 tests across 94 guarded files plus 35/35 containment. Cleanup typecheck, boundaries, static source/artifact and actual compiled storage/privacy/shutdown/reacquisition plus 10,000-note public-hook checks also passed. The source installer wrapper now uses Bun, not Node; its help path was exercised under OS containment. Real-model quality, live-host controls and broader reproducibility remain deferred; unverified automatic controls stay gated. The owner approved one local repository commit, not push, installation, live calls or publication. [HANDOFF.md](HANDOFF.md) records evidence and recovery safeguards.
 
-Built for an M5 Pro with 48 GB, subscription logins, and TypeScript/Node services. It's a TypeScript CLI that Node ≥ 24 runs directly (native type stripping), with zero runtime dependencies.
-
-```mermaid
-flowchart TD
-  YOU([you pair]) --> HOST{"host<br/>Claude Code or Codex"}
-  HOST --> HOOK["bosun route --hook<br/>(Kev: lane + risk,<br/>~400 tokens of memory)"]
-  HOOK --> MAIN["main thread<br/>your session model"]
-  MAIN -->|MCP| MEM[("bosun memory<br/>SQLite + FTS5")]
-  MAIN -->|skills| SK["bosun-design · plan · build · tdd<br/>debug · review · ship · spin · parallel"]
-  MAIN -->|native subagents| RO["architect · scout · worker<br/>tester · debugger"]
-  MAIN -->|"bosun run"| EX["local (Ollama) · -e codex · -e claude"]
-  MAIN -->|"bosun review"| RV["other vendor's model, read-only"]
-  MAIN -->|"bosun spin / card"| ORCA[("Orca")]
-  SK -->|"bosun-parallel"| ORCH["Orca orchestration<br/>worker-start per task"]
-  EX -.->|inside Orca| SPLIT["watchable split"]
-  ORCH --> ORCA
-  SPLIT --> ORCA
-```
-
-## Roles
-
-Each role has one source file, `roles/<role>.md`. It's rendered as a Claude subagent (`bosun-<role>`) and a Codex agent (`bosun_<role>`), so the two rosters can't drift. Models come from `~/.bosun/config.env`; `bosun roles` prints the live table.
-
-| Role | Claude | Codex | Can | For |
-|---|---|---|---|---|
-| **main** | your session (Opus) | your session (gpt-6-sol) | everything | you pair here and it decides |
-| architect | opus · high | gpt-6-astra · high | read-only | 2–3 options, a recommendation, an executor-ready spec |
-| scout | haiku | gpt-6-luna · low | read-only | where is X, call sites, summaries |
-| worker | sonnet | gpt-6-luna · high | edit + test/lint/tsc | spec'd edits that need reasoning |
-| tester | sonnet | gpt-6-luna · high | test files only | tests, and the red step of TDD |
-| debugger | sonnet | gpt-6-luna · high | read + run, no source edits | repro → hypotheses → root cause; hands off to the architect after 2 misses |
-| reviewer | `bosun review`: **gpt-6-sol** from Claude, **opus** from Codex | | read-only | every diff before it ships (the subagent is only the fallback) |
-| local | `bosun run` → qwen3.6 in Ollama | same | fenced edits | mechanical edits, $0 |
-
-## Skills
-
-Thirteen skills in `skills/`; the installer links the same files into `~/.claude/skills` and `~/.agents/skills` for both hosts. The four context and OpenAI guidance skills also have repository-local links in `.agents/skills`, so Codex can discover them in this checkout without installing bosun. Reload skill discovery or start a new session if they do not appear yet.
-
-```mermaid
-flowchart LR
-  D[bosun-design] --> P[bosun-plan] --> B[bosun-build] --> R[bosun-review] --> S[bosun-ship]
-  B -.-> T[bosun-tdd]
-  B -.-> G[bosun-debug]
-  P -.->|side quest| SP[bosun-spin]
-  P -.->|"'parallelize'"| PA[bosun-parallel]
-```
-
-| Skill | When | What it does |
-|---|---|---|
-| bosun-design | a change with an open decision | at most 3 questions → architect options → you pick |
-| bosun-plan | an approved design or a clear goal | task specs (lane, files, change, must-not-change, verify) in `~/.bosun/plans/` |
-| bosun-build | a plan or a spec | per task: dispatch by lane, read the diff, run verify yourself, escalate after 2 failures |
-| bosun-tdd | test-first | the tester writes red, local or worker makes it green, then refactor |
-| bosun-debug | a bug or failing test | the debugger reproduces and finds the root cause, then a minimal fix through build |
-| bosun-review | before shipping, or `--pr N` | the cross-vendor reviewer → each finding checked against the code → fix the real ones |
-| bosun-ship | ship / commit / PR | an evidence gate, then messages; commits or PRs only when you ask |
-| bosun-spin | "spin this off" | a self-contained spec → a new Orca worktree + agent; you keep pairing |
-| bosun-parallel | "parallelize this" | independent tasks → supervised Orca workers with each role's model |
-| [bosun-openai-models](skills/bosun-openai-models/SKILL.md) | model choice or migration | dated GPT-6.1 Sol / Astra / Luna guidance, reasoning controls, and bosun config mapping |
-| [bosun-codex](skills/bosun-codex/SKILL.md) | Codex integration work | CLI, config, skills, MCP, hooks, sessions, and native compaction |
-| [bosun-chatgpt](skills/bosun-chatgpt/SKILL.md) | ChatGPT product or integration questions | Chat / Work / Codex distinctions, access, shared usage, and supported tools |
-| [bosun-handoff](skills/bosun-handoff/SKILL.md) | save or resume task context | portable resume documents and checking the planned automatic handoff |
-
-**Auto-handoff status (2026-10-04):** designed as a required v1.0 feature in [topic 8](docs/research/08-features.md) and [the completed roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md), but not implemented in v0.2. The proposed `[compact]` settings do not work in the current environment-file config. The handoff skill supports manual task-state transfer; it does not create a background context monitor.
-
-**Release plan:** all selected work, including graph enrichment, the Ink dashboard and remote support, belongs to one v1.0. The roadmap uses internal implementation phases and one final ship gate; package-version changes wait until shipping.
-
-**Latest v1.0 direction:** OpenCode becomes the primary experience, with native OpenCode, Codex and Claude Code support behind the same core. Local Ollama Clef-Flash replaces Kev's execution router and separate Python service; the handoff summarizer stays a separate model. See [the host/router revision](docs/research/09-opencode-clef.md). This is planned behavior; v0.2 code still uses Kev and has no OpenCode adapter.
-
-`bosun install --replace-plugins` turns off the plugins that overlap with these (superpowers, mattpocock-skills, code-review) and records what it disabled. `bosun uninstall` turns back on only those.
-
-## Orca
-
-- **Watchable runs.** Inside Orca, `bosun run` opens a split next to you and runs the executor there. You watch it live: Claude runs stream each step (`→ Edit src/order.ts`), Codex prints its own progress. The main model gets only the final result and the exit code.
-  - Closed split: if you close it mid-run, `bosun run` returns right away (exit 130, partial log).
-  - Split never starts: after 30 s it runs inline instead, and never twice.
-  - Timeout: after `RUN_TIMEOUT_MIN` (30), bosun stops the executor.
-  - Placement: the split opens next to the terminal that asked for it.
-  - Cleanup: runs older than a week are pruned from `~/.bosun/runs`.
-- **`bosun spin`** creates a child worktree with `claude`, `codex` or `local` working on a self-contained spec. It starts from the default branch unless you pass `--stacked`.
-- **`bosun card <status> "comment"`** keeps your worktree card current. Skills call it at checkpoints, and it does nothing outside Orca.
-- **bosun-parallel** drives Orca's own `orchestration` skill: `worker-start --worktree new-child --agent … --model … --effort …`.
-
-```mermaid
-sequenceDiagram
-  participant M as main (Bash tool)
-  participant B as bosun run
-  participant O as Orca
-  participant S as split pane
-  M->>B: bosun run -f - (spec)
-  B->>O: orca terminal split --command "bosun _exec <id>" --json
-  O->>S: runs executor (tee to ~/.bosun/runs/<id>.log, exit code to <id>.rc)
-  Note over S: you watch it live
-  B->>B: poll for <id>.rc (timeout 30 min)
-  B-->>M: print log, exit with the executor's code
-```
-
-## Memory
-
-bosun keeps **curated** memory: facts you or the assistant chose to keep, such as decisions and why, conventions, gotchas and your preferences. It lives in `~/.bosun/memory.db` (SQLite with FTS5, mode 0600). claude-mem stays as it is: bosun reads its database read-only, and never stores the same thing twice.
-
-**Local hook limitation during the v1.0 build:** ordinary default WAL installs remain held. An explicitly prepared READY public view can supply non-expiring local notes only with an independent owner `MEMORY_SOURCE_ID` binding from the initial plan/cutover receipt. Missing/mismatched bindings or invalid/pending/stale views hold without falling back to primary rows. Strict owner apply/reconcile is available below; no configuration or storage is activated automatically. Compatible unactivated rollback stores retain qualified reads. Owner CLI, MCP and remote memory behavior remain compatible. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records the public reader, demonstrated bounded capacity and remaining restore/performance gates.
-
-For qualified local public-view or rollback reads, router work finishes before the reader opens. Both local paths omit every finite-expiry note in SQL before packing: a pipe write can cross expiry under backpressure or an event-loop stall, and the timer cannot prove a hard delivery deadline. Non-expiring notes remain useful; finite-expiry local handoff support is still a ship gate. The connection stays held through packing and the actual native stdout callback, then releases. Memory delivery currently requires Node on POSIX pipe/socket stdout; file/TTY/Windows/Bun sinks omit local notes before DB open. Advice remains available, with no synchronous-sink latency guarantee. Local envelopes cap at 16 KiB; larger notes are dropped before advisory delivery. A pending write error/signal/250 ms event-loop timeout ends the one-shot hook with the reader retained to teardown, because native probes showed stdout `destroy`/`closed` can still flush later. That path records no completion/injection metric. This is native acceptance, not host acknowledgement or a total latency guarantee; [ADR 0004](docs/adr/0004-wal-read-view-protocol-qualification.md#local-caller-handoff-slice-7b1) records the evidence and remaining activation gates.
-
-An explicit production storage primitive keeps primary write admission across a native SQLite-aware owner backup and persistent writer-floor commit. Real local memory/owner CLI, MCP docs and server callers recognize an applied explicit floor and use registered synchronous admission; normal unactivated stores remain compatible. Initial installation is available only through the explicit owner cutover commands below. Default paths are `<db-dir>/memory-view/public.db` and `<db-dir>/memory-backups`, with `MEMORY_VIEW_PATH`/`MEMORY_BACKUP_DIR` overrides; pending/unknown/mismatched gates fail closed before legacy chmod/migration. Cutover requires canonical owner-only 0700 directories/0600 single-link files. Strict plans report missing directories and legacy0755 modes as BLOCKED; the separate reviewed preparation commands can prepare the initial absent-view layout. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md) records native admission and writer fencing.
-
-```text
-bosun memory cutover prepare-plan [--create-view-directory] [--create-backup-directory] [--json]
-bosun memory cutover prepare --plan TOKEN --clients-stopped [--json]
-bosun memory cutover plan [--retain-unreferenced] [--json]
-bosun memory cutover apply --plan TOKEN --clients-stopped [--json]
-bosun memory cutover reconcile --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]
-bosun memory cutover recover-plan --source-id UUID [--retain-unreferenced] [--json]
-bosun memory cutover recover --plan TOKEN --source-id UUID --clients-stopped [--retain-unreferenced] [--json]
-bosun memory cutover restore-plan --source-id OLD_UUID [--retain-unreferenced] [--json]
-bosun memory cutover restore --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json]
-bosun memory cutover restore-reconcile-plan --source-id OLD_UUID --new-source-id NEW_UUID [--retain-unreferenced] [--json]
-bosun memory cutover restore-reconcile --plan TOKEN --source-id OLD_UUID --new-source-id NEW_UUID --clients-stopped [--retain-unreferenced] [--json]
-```
-
-Stop every memory/MCP/docs/server client yourself. If the initial layout needs preparation, request only the missing leaf directories with the create flags, review every exact path/action in `prepare-plan`, then run `prepare` with that token and the stopped attestation. Preparation narrows only known owner directories at 0755/0750 to 0700 and single-link primary/WAL/SHM files at 0644/0640 to 0600; it can create only explicitly requested view/backups leaves at 0700 under existing owner parents. It holds any existing view, unknown/pending/orphan inventory, links, unowned paths, unsupported headers/sizes and other modes. It never recursively creates/changes permissions, deletes, opens SQLite, installs a floor or writes binding/configuration. Partial failures leave conservative changes and require inspection/replanning; permission broadening and deletion are never rollback actions.
-
-After preparation, obtain a fresh strict `cutover plan`. Planning uses filesystem metadata and minimal headers without opening mutable SQLite; schema, floor and clients remain unverified. An absent view/empty backup directory produces an apply candidate and a new source UUID: **save that UUID independently before applying**. Both kinds of token bind configured paths/identities/metadata for a five-minute admission window; they are editable review/freshness bindings, not authorization seals or proof of drain. `--clients-stopped` is operator attestation, and no process drain/restart is automated. Existing CLI initialization can still create config as before; the whole CLI is not zero-IO.
-
-Apply verifies the fresh plan and exact native schema under write admission, installs the planned UUID/floor and returns HOLD. Keep clients stopped through separate explicit publication and owner `MEMORY_SOURCE_ID` binding, then reopen all authorities; cached pre-floor/v1 writers are fenced. A strict reconcile plan is an unverified filesystem candidate, requires your independently saved `--source-id` before mutation, and **revokes READY to HOLD**. If an apply receipt is lost, a committed floor can reconcile using that saved planned UUID and a fresh token. Failed operations may have an unknown outcome; inspect and replan before reconciliation or eligible incomplete recovery.
-
-`recover-plan` requires the independently saved initial UUID and inspects only the journal-free rollback view through native read-only SQLite, retaining a lease while verifying its exact gate/reference. Primary SQLite schema/floor remain unverified until admission. A valid format-1 copying gate can reference an empty/unfinished artifact with null digest; a backed gate requires its completed artifact's exact digest. `recover` requires absent primary floor and same-epoch gate before effects, then makes a **fresh exact backup of current source** under continuous admission, preserving the prior referenced artifact and source epoch. Already-committed floors require explicit reconcile; no generation is reset. Applied-without-floor, unknown pre-intent views and journals remain held; current-reference restore has its separate workflow below.
-
-Bounded inventory permits up to 32 UUID `.db` owner-only single-link files, 64 MiB each and 256 MiB total; recovery requires capacity for one more artifact. Unreferenced files have **unverified ownership**: only metadata/count is reported, their bytes are never read/hashed/adopted/deleted. If they coexist, review `--retain-unreferenced` at both planning and mutation; it acknowledges preservation, not ownership. Use `plan --retain-unreferenced` followed by matching explicit reconcile for a committed floor with retained leftovers. Recovery automatically preserves its previously verified reference; the receipt distinguishes that reference from separately acknowledged unrelated files. Unknown names/links/modes/oversize/sidecars remain blocked. Ordinary open/hook/MCP/server never recover automatically. Verified external drain/restart, general orphan disposition, broader interrupted-storage recovery and durability remain ship gates. [ADR 0008](docs/adr/0008-strict-owner-memory-cutover.md) records exact scope and sidecar/freshness limits.
-
-`restore-plan` verifies the current referenced backup and generates a new source UUID before effects: **save both old and new UUIDs independently**. `restore` preserves a fresh native backup of current source, restores recorded memories/audit/docs with explicit keys and privacy/scope/expiry, rotates the epoch and returns HOLD. An immutable pending intent fences readers/cached writers; hooks inspect only its filename. After an unknown outcome, obtain `restore-reconcile-plan` with both saved UUIDs. Reconciliation checks the exact old/new native floor, never replays restore, and preserves intervening writes/generation. A pending owned view journal is planned using only filesystem/minimal database metadata and the immutable capsule: no native SQLite handle, journal payload or backup bytes are opened, and view/reference remain **unverified**. Only explicit reconciliation after actual source-floor admission may let SQLite recover it; unknown floors/layouts and invalid recovered schema stay held. Reopen authorities and separately publish/set the new owner binding. Referenced mid-backup sidecars, receipt-only journals and arbitrary backup selection remain held. [ADR 0009](docs/adr/0009-owned-memory-restore.md) records the state machine, bounds and trusted-application qualification.
-
-`bosun memory publish [--json]` explicitly publishes a public snapshot only for an already-applied local floor. It upgrades the fixed rollback inode and writer format, fences cached old writers, and commits validated public rows/FTS/READY under primary admission. Supported mutations revoke it to HOLD until another explicit publish; no automatic rebuild runs. Private/unclassified/expired/audit/docs/owner-backup data is excluded from public tables/receipts, while the owner recovery metadata remains in its own table. HOLD is audience revocation, not physical erasure. A post-commit cleanup failure may report an unknown outcome if a lease prevents re-HOLD. Publication and reading share finite limits of 10,000 rows, 16 MiB encoded and a 64 MiB view; source plus WAL remains capped at 64 MiB. The guarded 10,000-row medium-body corpus now publishes READY and supplies correct scoped get/search and actual native hook notes. The earlier 4 MiB encoded-cap HOLD is historical; this functional result does not qualify every 10k corpus or performance. Oversized preflight artifacts remain unchanged and ineligible even if their stored marker was READY. The reader retains its same-inode lease through native delivery and omits finite-expiry local notes; broader interrupted-storage recovery, verified drain/restart, durability and finite-expiry handoff remain gates. [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) records measurements and exact limits.
-
-Doctor's memory check creates/migrates nothing: missing stays absent, mutable WAL is held without claiming its schema is verified, and compatible rollback files report their queried migration version. The writer-discovery probe can open WAL and perform native sidecar housekeeping; it is not the zero-write hook reader.
-
-- **Categories:** `personal` (you, in every project), `project` (this repo), `session` (expires after `MEMORY_SESSION_TTL_DAYS`, 7).
-- **Projects:** a project is the hash of the repo's normalized `origin` URL. Every clone, worktree and machine of a repo shares one project memory. Projects can't see each other, unless a memory is `shared` or you list a project in `MEMORY_LINKED_PROJECTS`.
-- **Each prompt:** when the storage path is qualified/available, the hook adds up to ~400 tokens (estimated) of the most relevant curated notes, next to Kev's hint. A note must share at least `CONTEXT_HOOK_MIN_TERMS` (2) distinct words with the prompt and score `CONTEXT_HOOK_MIN_SCORE` (0.35); otherwise the hook stays silent. It fails open when anything goes wrong, and until you store a first memory it opens nothing at all. The ordinary read APIs filter expiry without archiving; local hook handoff additionally omits finite-expiry notes. Readers never touch access/version/events/mode. Legacy hook/context telemetry and routing inference still run outside that reader; the whole hook is not yet zero-IO or lean.
-- **On demand (MCP, `bosun mcp`):** `memory_search`, `memory_get`, `memory_store`, `memory_update`, `memory_delete`, `context_retrieve` (curated + this repo's Markdown docs + claude-mem, ranked and fitted to a budget) and `project_knowledge_search` (docs + claude-mem).
-- **Private:** `--private` memories stay out of hook/search/context output. MCP get/store/update/delete replies for private or unclassified records contain only `{memory:{private:true}}`, without title, body, tags, provenance, IDs, hashes, events, timestamps, versions, duplicate or status details. Explicitly private input is blocked before every inference provider, including local models. `memory add --private --auto` uses the first line (up to 80 characters) and no suggested tags; explicit title/tags win. Logs and metrics use finite metadata fields and never serialize titles, bodies, prompts, arbitrary nested objects, or error messages/causes.
-
-**Foundation privacy fixes (2026-10-04):** private auto suggestions now make zero model calls, and new route observations contain validated decision metadata plus a random ID per observation. Prompt snippets and text-derived route hashes are no longer written. Historical logs are left unchanged; their prompts are never redisplayed by label/stats/eval. Existing stored memory IDs, scope and content hashes retain their storage semantics.
-
-Legacy SQLite privacy flags are conservative: only stored integer `0` is public, and only stored integer `1` enables sharing across projects. Empty, text, blob and other numeric flags stay protected or unshared. Owner get/search can still inspect in-scope content; duplicate requests and edits that omit flags preserve the stored values. Use the owner CLI's explicit `memory update <id> --public` to reclassify a protected note. MCP continues to permit opaque private edits/deletes and cannot make a note public.
-
-Use `memory update <id> --unshared` to remove sharing across projects; the owner and explicitly linked projects retain read access. `--shared` enables sharing, and `memory add` accepts both choices. Combining `--shared` and `--unshared` fails before project discovery, file reads, model calls or opening memory storage.
-
-`memory update <id> --status active` restores an archived note or accepts a proposal; `--status archived` archives it. Restoring an expired archived **session** note renews its deadline from the update time using the current configured `MEMORY_SESSION_TTL_DAYS` (zero disables expiry). The old schema stores the deadline, not the selected TTL duration, so a previous custom `--ttl-days` duration cannot be recovered. Unexpired deadlines, ordinary edits and other categories keep their existing expiry behavior. Malformed session expiry blocks explicit restore without changing the row. Legacy CLI/MCP construction and reads still perform expiry maintenance, which can advance the version before an update; omit `--version` to use the current version or read it again explicitly. Private MCP restore replies remain opaque.
-
-Use `bosun route --private …` or `route --hook --private` to skip routing and retrieval for a private request. Hook payloads can also mark `private: true` or `privacy: "private"`; malformed explicit privacy markers fail closed. Unmarked v0.2 hook input retains its existing routing behavior until typed host adapters carry classification. There is no automatic secret detection: mark private input explicitly. Full v1.0 screening, enrichment and live-host qualification remain implementation work in [the roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md).
-- **Proposals:** `bosun memory consolidate` has the local model turn this repo's recent claude-mem session summaries into **proposed** memories. Nothing becomes durable until you accept it in `bosun memory review` (or with MCP `memory_update`).
-
-| You want | Do |
-|---|---|
-| Remember something | `bosun memory add -t "Use pnpm" --tags tooling "Always pnpm install; npm breaks the lockfile"` (`--auto` suggests title and tags) |
-| Find it | `bosun memory search lockfile`, `bosun memory get <id>` (with its audit trail) |
-| Change, restore or drop it | `bosun memory update <id> -b "…"`, `bosun memory update <id> --unshared`, `bosun memory update <id> --status active`, `bosun memory delete <id>` (archive), `bosun memory purge <id>` |
-| Review proposals | `bosun memory consolidate`, then `bosun memory review` |
-| Housekeeping | `bosun memory prune` (expired → archived, archived > 90 days → purged) |
-| Numbers | `bosun memory stats` (this project's id, p50/p95 per operation, hook injections, LLM calls), `bosun memory bench`, `bosun memory eval <queries.jsonl>` |
-
-```mermaid
-flowchart TD
-  HOOK["prompt hook"] --> CTX["context manager<br/>rank · dedupe · budget"]
-  MCP["bosun mcp"] --> SVC
-  MCP --> CTX
-  CLI["bosun memory …"] --> SVC
-  CTX --> SVC["memory service<br/>validate · dedupe · isolate · retain"]
-  SVC --> DB[("~/.bosun/memory.db")]
-  CTX --> DOCS[("repo docs index")]
-  CTX --> CM[("claude-mem.db<br/>read-only")]
-  CLI --> CONS["consolidate"] --> LLM["local LLM"]
-  CONS --> SVC
-```
-
-More in [ARCHITECTURE.md](ARCHITECTURE.md): the schema, the ranking formula, and measured numbers.
-
-## Split setup (optional)
-
-Kev, the LLMs and memory can each run on another machine, for example a Mac Studio, with your laptop as the client. Each has its own URL: `ROUTER_URL`, `OLLAMA_URL`, `MEMORY_URL`. Empty means local, as before.
-
-```bash
-# on the server Mac: only the listed services, bound to its Tailscale IP
-bosun install --serve kev,llm,memory
-# on each client: it prints the exact line to run
-bosun install --remote kev=http://100.x.y.z:8009,llm=http://100.x.y.z:11434,memory=http://100.x.y.z:8788
-```
-
-- **Bind:** `SERVE_BIND` defaults to the server's Tailscale IPv4. Without Tailscale, install refuses until you set a LAN IP. It's never `0.0.0.0` unless you set it.
-- **Allowlist:** `bosun serve` answers 403 to any source outside `SERVE_ALLOW` (default `127.0.0.1/32,100.64.0.0/10` plus the bind address's subnet). Ollama can't filter by IP, so it relies on its bind address.
-- **No tokens yet (v1):** anyone who can reach the memory port can read your memory, so keep it on a private network. The API is versioned (`/v1`), and one `authorize()` point is ready for auth later.
-- **Transport:** plain HTTP. Tailscale encrypts it (WireGuard); a plain LAN doesn't.
-- **When the server is down:** the hook's memory part gives up after `REMOTE_HOOK_TIMEOUT_MS` (300) and stays silent. After `REMOTE_TIMEOUT_MS` (5000), the owner CLI retains "memory server unreachable at …"; MCP returns "memory unavailable" with the closed `unavailable` code. There's no offline queue: writes while offline fail visibly.
-- claude-mem, the docs index, the hook and the MCP server always run on the client. Only the curated store moves.
-- `bosun doctor` checks each URL, the server's `/v1/health` (a version mismatch is a warning), and the model on the remote Ollama. `bosun uninstall` removes the server's services, and on a client puts the URLs back.
-
-## Install (not run yet)
-
-```bash
-cd ~/Developer/bosun
-npm test                                     # 87 offline checks: no installs, no network, sandboxed HOME
-./install.sh --host both --replace-plugins   # or --host claude / --host codex; drop --replace-plugins to keep your plugins
-```
-
-It sets up Ollama (≥ 0.34) with a 64K context and one model at a time, pulls `qwen3.6:35b-a3b-coding-nvfp4` (~22 GB), installs Kev (`kev-0.8b`), links `~/.local/bin/bosun`, wires each host (including the `bosun` MCP server: `claude mcp add --scope user`, and `codex mcp add` in each Codex home), runs `bosun doctor`, and ends with a smoke test in which the local model fixes a one-line bug. **Codex only:** open `codex` once, run `/hooks`, and trust the bosun hook.
-
-**Codex inside Orca:** Orca gives Codex its own home folder (`CODEX_HOME`) and manages its `hooks.json`. bosun writes its rules and agents there too, so Codex in Orca gets the same roles and skills. The Kev hint appears only in Codex outside Orca, because Orca rewrites that `hooks.json`.
-
-```mermaid
-flowchart LR
-  subgraph LD["launchd services"]
-    OLS["com.bosun.ollama<br/>ollama serve :11434"]
-    KVS["com.bosun.router<br/>kev.serve :8009"]
-  end
-  subgraph CL["~/.claude (host = claude)"]
-    CS["settings.json: hook + 6 permissions<br/>+ MCP server bosun (user scope)"]
-    CM["CLAUDE.md: bosun block"]
-    CA["agents/bosun-*.md (6, rendered)"]
-    CK["skills/bosun-* (13 links)"]
-  end
-  subgraph CX["~/.codex + ~/.agents (host = codex)"]
-    XH["hooks.json: hook"]
-    XM["AGENTS.md: bosun block"]
-    XA["agents/bosun_*.toml (6, rendered)"]
-    XK["~/.agents/skills/bosun-* (13 links)"]
-  end
-  subgraph ST["~/.bosun"]
-    CFG["config.env, state.json"]
-    LOG["route-log.jsonl, labels, runs/, plans/"]
-    MDB["memory.db, bosun.log, metrics.jsonl, llm-usage.jsonl"]
-  end
-  CS --> RT["bosun route --hook"]
-  XH --> RT
-  RT --> KVS
-  RT --> LOG
-  RT --> MDB
-  RUN["bosun run / review"] --> OLS
-```
-
-- **What it preserves:** wiring is idempotent. Your hooks (codegraph, orca, …), permissions and rules are kept. `settings.json` and `hooks.json` are backed up to `*.bak-bosun` first.
-- **Broken config:** a `settings.json` or `hooks.json` that isn't valid JSON, or a hand-broken bosun marker in `CLAUDE.md`/`AGENTS.md`, stops install, uninstall and rewiring before anything is changed.
-- **Uninstall:** `bosun uninstall` undoes only what bosun did:
-  - removes its services, hook, permissions, rules, agents and skills, plus any file it created
-  - removes its own `~/.local/bin/bosun` link and its own `~/.zshrc` PATH line
-  - puts your own Ollama.app launchctl values back
-  - moves your own files that it had set aside back in place
-  - re-enables the plugins it disabled (`--replace-plugins` stays in effect across re-installs until then)
-
-  It keeps the models, the Kev checkout, `~/.bosun` and the `*.bak-bosun` backups.
-
-## Daily use
-
-| You want | Do |
-|---|---|
-| Normal work | `claude` or `codex` as usual; the bosun block and Kev's hint steer delegation |
-| Force a lane | say it: "architect this", "have the tester write the red test", "offload to local" |
-| Skip the router once | add `#noroute` |
-| Local edit by hand | `bosun run "add nullable deliveryWindow to OrderDto + mapper; verify: yarn tsc --noEmit"` |
-| Other plan's model | `bosun run -e codex "…"` (GPT) / `bosun run -e claude "…"` (Sonnet) |
-| Cross-vendor review | `bosun review`, `bosun review --pr 123` |
-| Side quest | `bosun spin --agent codex "…"` |
-| Health | `bosun doctor`, `bosun status`, `bosun roles` |
-| Free RAM | `bosun stop` … `bosun start` (hosts keep working; hints and local runs pause) |
-| Other local model | `bosun model devstral-small-2:24b` |
-| Tune the router | `bosun label`, then `bosun eval` (after about a week) |
-| Memory | `bosun memory add …`, `bosun memory search …`, `bosun memory review` (see [Memory](#memory)) |
-
-`bosun label` displays only observation ID/time and decision fields, including for historical rows. Correlate these with your own current session before assigning a ground-truth lane; skip observations you cannot identify. Metadata cannot reconstruct an old task, so the label workflow no longer provides prompt replay or groups repeated prompts by a content hash. Legacy ten-character IDs still join their existing labels for evaluation; historical prompt records are never automatically rewritten or deleted.
-
-## Local model and harness
-
-| Model | Size | Notes |
-|---|---|---|
-| **qwen3.6:35b-a3b-coding-nvfp4** ✅ | 22 GB | SWE-bench Verified 73.4, Terminal-Bench 2.0 51.5; MoE with 3B active on Ollama's MLX engine |
-| devstral-small-2:24b (fallback) | 15 GB | 65.8, from a different model family, so a Qwen template bug won't take out both |
-| muse-glimmer:30b-nvfp4 | 17 GB | 76.0 but dense (slower); try it for harder edits |
-| qwen3.8:27b-mlx | 18 GB | strongest agentic scores, but Ollama #17778 breaks tool loops for now |
-
-- **`LOCAL_HARNESS=claude`** (the default) runs `claude -p --bare`: 3 tools, a system prompt of about 400 characters, and a dummy `ollama` key. It never touches your subscription.
-  - Why `--bare`: Ollama's Anthropic endpoint doesn't cache prompts (#18431), so the full ~27K-character prompt would be re-read on every turn.
-- **`LOCAL_HARNESS=codex`** runs `codex exec --oss` in the macOS sandbox: repo-only writes, `.git` protected, no network.
-- **Executor rules** travel inside the prompt, because Ollama's Responses API drops developer-role messages (#18305).
-- **LiteLLM was removed.** Both CLIs talk to Ollama directly.
-
-## Safety
-
-- **Local Claude executor:** `--bare`, the dummy key, and `ANTHROPIC_AUTH_TOKEN` plus the parent session's own `CLAUDE_CODE_*` variables stripped. The e2e test asserts that no `Authorization` header ever reaches the endpoint.
-- **Executor fence** (Claude, `dontAsk`):
-  - The only commands that run: read commands, `git mv`, `mkdir -p`, test/lint/tsc, and `git status/diff/log/show`.
-  - `-e claude` and the Claude reviewer also run `--restricted`: your user and project settings can't widen what they're allowed to do.
-  - Always denied: commit, push, reset, checkout, restore, clean, stash, rebase, `rm`, and the web.
-- **Codex executors:** the OS sandbox with no network.
-- **Reviewer:** read-only on both vendors (Claude: Read/Glob/Grep only; Codex: `-s read-only`).
-- **Codex host:** `bosun` commands need localhost and `~/.bosun`, so the Codex rules block tells the model to ask to run them outside the sandbox. You approve once.
-- **Guard:** `BOSUN_DEPTH` keeps executors from spawning more work, and the hook stays silent inside them.
-- **Spin-offs and parallel workers** are told not to commit, push, or fan out further. Orca's depth limit backs that up.
-- **High-risk prompts** (payments, orders, invoices, auth, data, infra) always go to the main thread.
-- **Memory:** `bosun memory` is never auto-allowed for the model (the owner CLI shows private content and can purge), and MCP can mark a memory private but never make it public again. Project isolation comes from your environment (cwd, `CLAUDE_PROJECT_DIR`), never from tool arguments. Out-of-scope ids read as "not found". MCP and curated context check classification before accessing returned content, even when a remote adapter ignores filtering; model exposure requires an own boolean `private: false`. Denied mutation/read replies use a constant opaque placeholder. Model-facing memory errors carry finite text/codes without provider messages or current-version details. Stored IDs/scope, owner CLI reads/mutations and historical files remain unchanged. The local reader is qualified for bounded legacy rollback stores and independently bound READY public views; safe WAL fallback, atomic private mutation authorization, races and writer/index/expiry separation remain implementation work. Remote generation rejects explicitly private input and `LLM_REMOTE=claude` is off by default.
-
-## Tests
-
-`npm test` uses the mandatory Node launcher. It verifies containment before importing application code, then runs the offline suite sequentially against isolated HOME, bosun/host/XDG/temp roots, stub CLIs, registered ephemeral loopback mocks and fixture databases. Inherited credentials, provider settings and user configuration are removed. Installer/supervisor/model commands use stubs; filesystem, SQLite, child-process and network guards prevent accidental external effects. Every test rejects direct `node --test` invocation. **Never run bosun tests under Bun.**
-
-Supported commands (no dependency installation or model pulls):
+### Use the local artifact
 
 ```sh
-npm test
-node scripts/run-tests.mjs --suite containment --runtime node
-node scripts/run-tests.mjs --suite legacy --runtime node
-node scripts/run-tests.mjs --suite privacy --runtime node
-node scripts/run-tests.mjs --suite exposure --runtime node
-node scripts/run-tests.mjs --suite readonly --runtime node
-node scripts/run-tests.mjs --suite memoryadapter --runtime node
-node scripts/run-tests.mjs --suite docsadapter --runtime node
-node scripts/run-tests.mjs --suite publicreader --runtime node
-node scripts/run-tests.mjs --suite readview --runtime node
-node scripts/run-tests.mjs --suite hooklease --runtime node
-node scripts/run-tests.mjs --suite benchmark --runtime node
-node scripts/run-tests.mjs --suite core,contracts,boundaries --runtime node
-node scripts/run-tests.mjs --suite router,opencode --runtime node
-npm run boundaries
-npm run typecheck
+dist/bosun-1.0.0-darwin-arm64-cleanup/bosun --version
+shasum -a 256 dist/bosun-1.0.0-darwin-arm64-cleanup/bosun-1.0.0-darwin-arm64.tar.gz
 ```
 
-`all` is the default suite; it contains containment probes, legacy tests, privacy/exposure canaries, core/Router/MemoryStore/implemented-docs-ContextSource acceptance tests, native protocol fixtures, native read-only SQLite/read-view qualification and boundary fixtures. `readview` tests a synthetic WAL writer/public rollback-view protocol, backup, revocation, process crashes and explicit bypass limits; it activates no production view. `hooklease` qualifies actual local reader lifetime through child stdout handoff/cancellation on POSIX. `benchmark` selects the existing memory/benchmark/eval regressions while retaining their legacy coverage. `exposure` covers private memory metadata, malformed adapters and actual legacy SQLite flags, opaque receipts and safe error replies, including guarded stdio MCP and transaction-time mutation classification. `readonly` proves the implemented MemoryStore read subset and real local hook. `memoryadapter` exercises the actual writable SQLite adapter and legacy owner composition on plain and registered native sessions, query footprints, deterministic maintenance, dependency/clock failures and content-free best-effort telemetry. Direct owner queries perform no maintenance; legacy CLI/MCP/HTTP composition still expires/touches. Native WAL opens and the full caller closure have separate qualification limits, described in [the adapter decision](docs/adr/0010-writable-memory-adapter.md). `contracts` selects `core`, Clef `router`, `readonly`, `memoryadapter` and `docsadapter`. `router` and `opencode` use synthetic loopback fixtures, never live models/hosts. Known comma-separated groups are supported and selected files run once. Every selected application suite runs the containment probes first. Unknown options, groups and runtimes fail instead of skipping checks. The typecheck launcher uses the existing local compiler with the same isolated environment.
+Expected cleanup archive SHA256:
+`573d45a151c3b3ded1a6e4c6231cb0499c4b856110306ca9df4ceafe5d5a9a80`.
+The archive contains the standalone `bosun`; no Node runtime or external
+`node_modules` is needed. For an existing home, follow the reviewed upgrade and
+installation guide rather than copying over a running authority.
 
-`docsadapter` exercises the actual scoped docs snapshot ContextSource on native plain/registered sessions, unchanged query footprints, admitted index writes, worktrees/nested repositories, complete bounded enumeration, file rejection/source races, native READY leases/HOLD, finite telemetry and real CLI/MCP/context canaries. Direct `SqliteDocs` queries index no files and read the persisted configured root/project snapshot using trusted caller/linked-project policy. The compatible `Docs` source still indexes during search until daemon scheduling migrates; held attempts return no docs and preserve saved rows. Index bounds are 2000 files, 256 KiB per file, 2 MiB listing and 16 MiB total encoded docs/10,000 saved rows. Ambiguous same-project nested rows are retained and excluded from outer queries. Snapshot queries are not live filesystem revocation leases. Conservative encoded reservation and post-DML checks preserve 64 MiB eligibility; registered sessions additionally enforce the native page/WAL reservation in [ADR 0013](docs/adr/0013-registered-writer-capacity-and-receipts.md). Plain/explicit owner-operation allocation and broader recovery remain storage gates. Listed source bodies are verified within the finite budget even when their timestamp is unchanged; identical content avoids DML, and descriptor cleanup failures hold indexing. See [ADR 0011](docs/adr/0011-scoped-docs-query-and-index.md).
+## Prepare a local runtime
 
-`contextpipeline` exercises the actual core context use case with injected clocks/hash/UTC date labels/measurement, deterministic ranking/ties/dedupe/token edges, source capability/identity checks before content, declared-field projection, finite errors, denied curated getters and direct imports with unusable ambient state. It is also part of `contracts`; `context` selects the existing ranking/provider/native-hook tests. Real `lib/context.ts` callers delegate through fixed reviewed source metadata, while the core imports no config, filesystem, SQLite or ambient clocks. The unchanged content hash has a lean platform helper and exact SQLite compatibility forward. Existing MemoryService expiry/touch, compatible docs indexing, hook telemetry and retained native stdout leases keep their behavior. At most 64 verified callbacks and 1000 returned hits per source are admitted; these are count bounds, not payload byte or latency guarantees. [ADR 0012](docs/adr/0012-context-ranking-and-composition.md) records the exact limits. Hook snapshots/lean closure, daemon scheduling, explicit owner-operation allocation/recovery, artifact disposition/drain and the remaining v1.0 gates still require implementation.
+The source entry/tooling target Bun1.4.3 on macOS arm64, with no Node fallback. SQLite uses the pinned maintained `better-sqlite3@13.0.3` Node-API fork through [the owning contract](src/platform/sqlite.ts). The local compiled release passed minimum safety checks; personal installation and live host/model/service use remain separate owner actions.
 
-`writer` includes actual cached capacity/sidecar admission, native dirty-page/FTS COMMIT/FULL probes, conservative page/WAL boundary and checkpoint/close/reopen checks, and committed-data unknown-receipt/no-replay tests. Registered writers recheck the 64 MiB source-plus-WAL eligibility limit and use a stricter native reservation for protected DML; usable capacity depends on existing pages and retained WAL. Larger eligible legacy stores retain queries and no-DML maintenance while mutations may hold. Failed COMMIT without positive rollback evidence or failed post-commit confirmation reports `receipt_unknown` with outcome `unknown`, discards the cached writer and performs no replay. These trusted-application apparent-file-length bounds do not qualify owner cutover/restore/publication final allocation, arbitrary callbacks, power loss or overall storage completion. See [ADR 0013](docs/adr/0013-registered-writer-capacity-and-receipts.md).
-
-`cutover` exercises the explicit production backup/floor primitive only on guarded synthetic WAL databases: exact data preservation, persistent old-writer fencing, real process-crash recovery, fresh backups after rolled-back attempts, identity/epoch rejection and finite cleanup failures. It activates no owner database or public view.
-
-`writer` covers registered real local APIs, owner CLI, stdio MCP, authoritative HTTP serve, docs writes, retention/touch, path overrides/holds and read-only doctor behavior. `memory` selects existing memory/MCP/serve/context compatibility tests and retains their legacy coverage. Both use synthetic guarded roots; registered fixture floors are prepared only with the production explicit primitive.
-
-`publication` covers production explicit publication/CLI, v2 writer fencing, native leases, multiprocess contention/crashes, actual hot-journal recovery, private/backup projection, late clocks/expiry, capacity and uncertain post-commit receipts. It activates no owner database.
-
-`publicreader` qualifies the production bound public reader, scoped projection and unchanged reader footprint, expected epoch/schema/identity holds, independent row/encoded/physical/source-WAL limits, native retained revocation/delivery/cancel/kill/backpressure, finite-expiry omission/stalls, and pending hot-journal holds. `hooklease` also covers the legacy rollback expiry omission. `publication` includes useful scoped and native hook delivery from the 10,000-row medium-body corpus. All fixtures are synthetic; broader interrupted-storage recovery, verified process drain/restart, durability, finite-expiry handoff and designated-Mac p95 remain unqualified.
-
-`owner` includes current-reference restore, new-epoch fencing, seven native process-kill checkpoints, old/new-floor no-replay reconciliation, bounded capsule/identity races and explicit retention. It also covers filesystem-only real CLI plan footprints, reviewed initial legacy-layout preparation and partial/close/identity failures, strict permission/layout blockers, independently planned source UUID and explicit apply/reconcile, closed/live WAL admission freshness, private/audit/ID preservation, stale/invalid inputs, native fencing, READY revocation, receipt-loss reconciliation and finite adversarial errors. It does not stop/restart clients or activate owner storage/configuration.
-
-`bosun memory bench` keeps store/search/context measurements separate from hook delivery. Hook wall times cover attempts; recorded outcomes identify verified injections, no-memory/held, failed and unqualified runs. Default-WAL holds report no retrieval latency. A hook-memory timing requires both successful child output containing memory and that child's matching metric; child failures never count as retrieval.
-
-`node bin/bosun memory bench --n 10000 --public-view` explicitly prepares, plans/applies and publishes only its generated temporary corpus, saves its independent planned epoch and binds child hooks to it. It clears configured owner memory/view/backup/epoch/remote/claude-mem selections, starts no model/service, and removes its generated storage/metrics afterward. The guarded seed-42 10k run delivers 20/20 actual native hook injections; timings describe successful runs on the executing machine, without qualifying the designated-Mac target. Omit `--public-view` to retain the default unactivated-WAL hold arm. Normal CLI configuration loading and content-free migration logging still initialize metadata as before; this option activates no owner memory storage or binding.
-
-The [offline Clef/OpenCode prototype](ARCHITECTURE.md#offline-native-protocol-prototypes-2026-10-05) adds an explicitly selected decision adapter and pinned native metadata codecs/read-only probe. The existing Kev default/service remains active. Fixtures establish no model calibration, loaded readiness, verified context occupancy or automatic handoff; native host wiring and complete lifecycle migration remain implementation work.
-
-`npm run boundaries` checks the production import graph with the existing local TypeScript AST/TypeChecker API: core dependencies/globals, resolved aliases, type imports/reexports, literal dynamic imports, loader indirection, cycles and production/test/cross-adapter edges. It checks source structure, not compiled-hook size/latency or arbitrary JavaScript purity. [The current extraction](ARCHITECTURE.md#compatible-core-extraction-2026-10-04) records the remaining legacy seams.
-
-The suite covers:
-
-- config precedence
-- router hints and the cases where it stays silent
-- roles rendering for both hosts
-- wiring twice, then unwire restoring everything
-- plist escaping
-- the exact executor and reviewer flags
-- the watch/fallback/closed-split paths
-- spin and card
-- a lint that every role, skill and command a skill mentions actually exists
-- memory: storage, updates and version conflicts, duplicates, project isolation, retention, privacy, migrations, concurrent writers, FTS-safe queries
-- context ranking, dedupe and budgets; the hook with memory (silent, fail-open, a 50 KB prompt); the claude-mem and docs providers
-- the LLM router (timeouts, retries, bad JSON, fallback, remote gating), consolidation and review
-- a real stdio MCP session; MCP registration in both hosts
-- the split setup: `bosun serve` + the remote client (same results as local), the allowlist, unreachable and foreign servers, `install --serve` and `--remote`
-
-The real-Claude fixture is excluded from the default runner and does no executable discovery at import. It requires an explicit absolute `BOSUN_TEST_REAL_CLAUDE` setting and a qualified live-host launcher; that launcher is not implemented or authorized yet. The offline guard rejects real host binaries even if installed.
-
-This guard prevents accidental effects in trusted repository tests. It is not an OS security sandbox: arbitrary native code, inherited file descriptors, deliberate monkeypatch removal and native helpers cannot be treated as hostile-code isolation. SQLite file opens/ATTACH and known native helper operations are checked explicitly; symlink checks do not eliminate concurrent filesystem races. Real native Git is pinned from an existing local installation, with sandbox cwd, clean config, disabled hooks and file-only transport. External services, DNS, UDP, socket paths and unregistered loopback ports are denied; registered mocks can serve HTTP/HTTPS clients across guarded children. Run-root cleanup retires registered detached Node test children before removing their files.
-
-## Files
-
+```sh
+bun bin/bosun doctor
+bun bin/bosun setup
+bun bin/bosun roles --json
+bun bin/bosun daemon run
 ```
-bin/bosun            entry            lib/cli.ts       commands        lib/config.ts   settings + paths
-lib/roles.ts         role rendering   lib/route.ts     hook (Kev+mem)  lib/services.ts launchd, Ollama, Kev
-lib/orca.ts          watch/spin/card  lib/exec.ts      run + review    lib/wire.ts     host wiring + MCP registration
-lib/context.ts       rank + budget    lib/mcp.ts       MCP server      lib/serve.ts    bosun serve memory|kev
-lib/llm.ts           LLM router       lib/consolidate.ts proposals     lib/log.ts, metrics.ts  logs + numbers
-lib/memory/          store (service, sqlite, project, remote), providers (claudemem, docs), CLI, bench
-roles/*.md           6 roles          skills/bosun-*/  13 skills       policy.md       the CLAUDE.md/AGENTS.md block
-config.default.env   defaults         test/            node:test       docs/           specs, plans, ledgers
-ARCHITECTURE.md      memory design, data flow, measured numbers
+
+`setup` initializes a new private runtime; it installs no hosts or models. For an existing v0.2 home, use the reviewed `upgrade` flow. The [upgrade, installation and onboarding guide](docs/upgrade-and-install.md) describes the supported layout, exact receipt flags, retained backups and stop/reopen sequence. `doctor` inspects filesystem metadata without opening databases, calling native services or repairing files. `onboard` reports the next reviewed action.
+
+`upgrade plan --request-id <id> --output <file>` also inspects the selected user's exact legacy `com.bosun.router.plist`, without calling launchd. If a Kev definition or explicit Kev endpoint exists, pass the intended Ollama `--router-url <url>`. An unowned supported plist is held until a new plan includes its exact `--adopt-router-hash <sha256>`; other templates and drift remain held. Reviewed apply with `--hash <plan-hash> --clients-stopped` retains the original config and repository, archives the private plist, confirms service absence and selects Clef. Lost stop/archive receipts retain the original attempt and prevent replay. This uses the same one-time upgrade; it installs or starts no model/service. Actual launchd/TCC and physical Clef calibration remain qualification gates.
+
+The default home is `~/.bosun`; `BOSUN_HOME` selects another absolute path. `config.toml` holds explicit host/provider/model choices, and the daemon owns `state.db` and `memory.db`. CLI and MCP clients use its private local socket. No client automatically starts a daemon.
+
+## Configuration and native hosts
+
+OMP, OpenCode 2, Codex and Claude have native host adapters and role profiles. Their common roles are architect, scout, worker, tester, debugger and reviewer. Skills share one policy and role source; credentials and accounts remain with the native host.
+
+`bosun config show` and `bosun roles --json` show resolved settings. `BOSUN_ROLE_<ROLE>_<HOST>_MODEL` and `_EFFORT` override TOML. Exact model strings are retained. Supported legacy `ROLE_*`, `WORKER_BY_*` and `REVIEW_BY_*` selections remain input aliases; canonical fields take precedence. Invalid or ambiguous bindings fail instead of selecting another model.
+
+`host plan` produces a reviewable profile plan; `host apply` requires its hash, and `host undo` requires the current receipt. Planning starts no host and trusts no plugin or hook. Current source templates cover OMP18.10.3, OpenCode2.0.27, Codex0.161.0 and Claude2.1.292. OpenCode selects `opencode2`, V2 agents/permissions/MCP and a local Promise plugin; standalone launch binds the owned configuration rather than adopting an existing background service. Installed-version compatibility and live tool/plugin controls remain qualification gates; see `bosun host --help` and [native protocol provenance](test/fixtures/native-protocol-provenance.md).
+
+OMP jobs require an explicit native `provider/model-id` through `--model` or `[roles.<role>.omp]`; no model is inferred from Codex/Claude bindings. Exact native model tags, including colons, and thinking levels are retained. `BOSUN_OMP_HOME` or `[hosts.omp].home` selects an existing native home through `PI_CODING_AGENT_DIR`; bosun does not copy authentication or configure an account. Ordinary OMP and OpenCode2 prompt hooks admit only a **leading per-input `#public` token**; unmarked/private/attachment inputs and credential-shaped text omit context. Native text is not rewritten. Hook producer completion is not a host-consumption acknowledgement.
+
+
+An already installed ACP agent can be selected separately with `--runner acp-<name>` on `run`, `spin` or `workspace run`. Add a profile to `config.toml` with the exact identity and selector IDs advertised by that agent. This illustrative profile uses placeholder identity/model values; it installs or qualifies no agent:
+
+```toml
+[acp.example]
+enabled = true
+command = "/absolute/path/to/agent"
+args = ["--acp"]
+agentName = "exact-agent-name"
+agentVersion = "exact-agent-version"
+protocolVersion = 1
+timeoutMs = 300000
+modelOption = "exact-model-selector-id"
+effortOption = "exact-effort-selector-id"
 ```
+
+```sh
+bosun run "Public task" --runner acp-example --model exact-model-value --effort exact-effort-value --allow-unknown-quota
+```
+
+The ACP runner creates one fresh session, verifies the pinned ACP v1 identity and exact model/effort acknowledgements, then sends one prompt. `effortOption` is optional when no effort is requested. Categories and defaults never replace explicit selections. ACP quota remains unknown and requires the owner opt-in shown above. Bosun denies client filesystem/terminal/permission requests, but an agent may own other tools; ACP read-only jobs and native automatic handoff remain unqualified. Lost prompt, tool or process receipts keep the original job unknown without retry. Synthetic protocol tests cover the implementation; no live ACP agent is qualified yet.
+
+## Jobs, routing and review
+
+```sh
+bosun run "Public read-only task" --host opencode --read-only --request-id task-1
+bosun job list
+bosun job get JOB_ID
+bosun job wait JOB_ID
+bosun job watch JOB_ID --terminal term_HANDLE
+bosun job watch-reconcile JOB_ID
+bosun job cancel JOB_ID
+```
+
+Run accepts one literal task, `-f public-task.txt` or `-f -` for stdin, bounded to32KiB and valid UTF-8. Nested delegated runs are refused before reading input or configuration. A job pins its runner, model, workspace, access and original request ID. Quota/admission holds precede execution. `--allow-unknown-quota` is an owner opt-in for unavailable observations; known exhaustion remains held. Codex short and weekly windows share the declared account pool; a local reset cannot reset the upstream weekly allowance. Unknown effects require inspection and cannot be released or replayed.
+
+`--watch` on `run`, `spin`, `workspace run` and `review` opens an optional Orca observer for the job already queued. An owner caller in an Orca terminal uses its explicit terminal handle by default; `--no-watch` skips the pane. The pane shows job state metadata. `job wait --result` reads the final result, and `job wait --progress` reports state changes. Jobs keep their exact execution directory, including run submissions from a subdirectory; panes bind to the canonical worktree root. A closed pane or observation timeout leaves execution under daemon control. Missing or unqualified Orca support returns concrete `job wait`, `job get` and `job result` commands. Lost pane effects keep their original receipt held and are never repeated. A newly created Git worktree needs an existing local Orca workspace binding to open a pane. Current pane support is the source Node observer with the source-inspected Orca1.4.222 contract; installed/compiled and live UI qualification remain pending.
+
+`route` asks the configured Clef model for explicitly public advice. Model/tag/digest and local metadata checks bound the request; automatic dispatch remains held until calibration passes. Router observations and labels store bounded metadata without prompts. `review` and `check` bind a native review and explicit verification command to the checked repository revision.
+
+Explicit checks can use Bun executables or Bun shebang scripts; `bunx` remains unsupported. Selected executable bytes, literal arguments, filtered inherited environment and checkout revision remain bound to the original receipt. These are trusted owner commands, not sandboxed programs or proof of every transitive dependency/configuration. Select `--no-env-file --no-install` explicitly for Bun startup; arguments are not silently rewritten. The source Orca observer uses pinned Bun 1.4.3 with those flags and metadata-only `job wait`, never a Node fallback. Live Orca controls remain unqualified; contained local-release safety does not qualify them.
+
+## Scoped memory and context
+
+```sh
+bosun memory add --category project --title "Package manager" --body "Use pnpm."
+bosun memory search pnpm
+bosun memory get MEMORY_ID --events
+bosun context "Which package manager?" --sources lexical
+```
+
+Memory preserves original IDs, versions, scope, private flags and audit. Owner curation supports explicit proposal review, accept/reject, archive/purge and statistics. Private/unclassified model replies stay opaque. Expiry filters reads; indexing and maintenance belong to explicit owner jobs.
+
+`memory add --auto` uses a cancellable tool-free provider for approved public suggestions. Private notes keep local deterministic metadata and make no model call. Reviewed consolidation produces bounded proposals; it does not silently merge source facts.
+
+Context sources include `curated`, improved `lexical`, indexed `docs`, reviewed `claude-mem`, `graph`, `overview` and `vectors`. Curated and lexical are alternative strategies. Graph L1/L2 and overview L3/L4 remain explicit; ordinary context defaults are unchanged. Source privacy, version, scope, expiry and purge revoke descendants before further delivery. `--candidates` includes permitted pre-packing identities.
+
+Claude-mem stays external and read-only, with reviewed references rather than copied observations. Graphify/CodeGraph are optional user-installed tools and remain disabled when absent or unqualified.
+
+## Embeddings and evaluation
+
+`memory embed MEMORY_ID --public --request-id index-1` queues owner indexing. It screens the entire public source window, pins the configured model/digest/dimensions/transform, preserves Unicode chunk boundaries and writes once after all batches finish. Source changes delete derived vectors in the same protected transaction.
+
+Vectors default off. `[graph.embedding]` is separate from generative and native-host bindings. `graph.vectors=true` with `backend="reference"` enables the bounded diagnostic engine. The optional `backend="sqlite-vec"` path requires `[graph.embedding.extension]` with an absolute canonical `file` ending in `vec0.dylib`, its exact owner-reviewed `sha256`, and `version="0.1.9"`. It uses a disposable in-memory distance connection through the owning SQLite contract on the admitted Bun/macOS arm64 runtime; the authority DB and hook remain extension-free, with no new virtual index. Missing selection, rejected bytes/version or unsupported runtime returns no vector candidates, preserving lexical retrieval without query inference. Physical library/Bun compatibility, quality and budgets remain unqualified; fixture success is not physical extension admission. No workflow here installs or pulls anything. `context ... --sources lexical,vectors --public` explicitly permits query inference when its selected backend is available; the hook performs no embedding calls.
+
+The query cache defaults0, caps64 entries and30seconds TTL, and stores only hashed keys plus finite vectors. Exact input/model/configuration/project/session/linked scope and current eligible native generation bind reuse. Every hit repeats current ownership, workspace and visibility checks. Uncertain results never populate it.
+
+`memory eval public-export.json --public` evaluates an approved workspace-relative corpus in a disposable final-runtime replica. `--surface mcp` uses the actual SDK/stdio/daemon at its own budget. `--vectors` additionally requires an explicit public full-digest reference model selection from configuration. D compares against C; E compares against D when selected, otherwise C. Default and hook evaluation make no model calls.
+
+```sh
+sh scripts/bun-check.sh eval-memory --fixture test/fixtures/memory-vector-eval.json --baseline fts --surface mcp --vectors-synthetic
+```
+
+The guarded synthetic mode uses a registered HTTP fixture and rejects owner-reviewed corpora. [The D report](docs/research/checkpoints/2026-10-10-memory-vector-mcp-synthetic-report.json) measured800 MCP calls, but its1/64 gain has a confidence interval including zero. Enrichment stays held. Real quality, physical weights/templates, token cost and compiled/Mac performance remain separate qualification.
+
+## Handoffs, workspaces and interface
+
+`handoff` creates, reads, summarizes and transfers reviewed public artifacts. Deterministic permissions, prohibitions, approvals and next action stay outside model output. Import verifies scope, checksums and checkout differences; it starts no agent and transfers no credentials or running process.
+
+`managed` owns native sessions admitted through bosun. Automatic transfer requires qualified telemetry, fenced prompt ingress, tool quiescence, screened capture, faithful summary, fresh idle bootstrap and exact seed/model/permission acknowledgement. Production controls remain unverified, so arbitrary existing UI sessions use the manual path.
+
+The [OMP managed driver](src/adapters/hosts/omp/control.ts) owns a fresh pinned native RPC process and trusted lifecycle extension. It disables automatic compaction/retry/cache warming, binds exact model/thinking/cwd/builtin tools and policy, verifies a no-inference seed independently, and accepts only original admitted turns with terminal/tool/async settlement. Capture excludes native reasoning and tool payloads; unknown receipts, foreign/altered control history and model drift hold without replay. A fenced source transfers only to a distinct idle seeded root; OMP's built-in in-place `/handoff` is not this transfer. All six production capabilities remain unverified, and reported native occupancy is estimated/unknown rather than observed active-total. OMP read-only jobs remain held pending native tool-isolation qualification.
+
+
+Owned OpenCode and Codex managed startup/turn/capture use the same durable jobs and authority. The Codex driver pins 0.161.0, the configured command/home and exact model/effort/cwd; read-only startup stays held before discovery. It creates a fresh root, injects one public assistant seed without a model turn, and independently checks the returned private native transcript before readiness. Unknown, linked, changed, paginated or foreign transcripts stay held. Native command/MCP payloads and reasoning are omitted from captured evidence. Shutdown joins its app-server process; lost receipts and daemon restart hold ownership without adopting or replaying history. Guarded synthetic protocol coverage does not qualify the six production automatic-handoff capabilities or actual tool/UI/context semantics. Claude's bounded native jobs and candidate tools-disabled bootstrap/retained-transcript readers are implemented; its full managed driver and native readiness remain unfinished.
+
+`workspace`, `spin`, `review` and `check` use owned committed Git worktrees with pinned revisions and original effect receipts. Dirty contents are not copied. Cleanup is previewed and never forced. `card` updates the enclosing Orca card through an owner receipt; broader live Orca workspace/terminal qualification remains open.
+
+`dashboard` shows scoped job, quota, usage and handoff metadata and explicit job actions. `notifications` defaults off and uses opaque local messages. Profile exports are sanitized and preserve explicit models; they contain credential placeholders rather than account material.
+
+## Remote authority
+
+The optional authenticated server uses registered project identities, separate owner/model roles and pinned authority/protocol/TLS settings. Clients forward authoritative writes and inference; they never merge two L1 writers or infer offline writes. Explicitly refreshed permitted local views support offline hook reads without copying private or expiring source data.
+
+Remote view/source leases require confirmed HOLD/release acknowledgements; unknown acquisition, release or mutation outcomes do not retry. Remote embedding jobs and queries use the authority model/corpus, with checked public projections and original source IDs. Live second-machine deployment remains separately authorized.
+
+## Reviewed installation and service lifecycle
+
+`install plan` selects an exact binary, user/runtime roots and dormant daemon definition. `install apply` requires the reviewed hash and stopped-client attestation. It retains an explicitly reviewed prior binary and leaves data, native homes, shell settings and global Ollama environment untouched. Homebrew ownership remains with Homebrew.
+
+`install enable`, `install disable` and `install reconcile` use current receipt versions/hashes and durable operation IDs. Readiness binds the selected binary, daemon identity and actual PID. `install undo` removes/restores only matching owned files after the daemon is disabled and clients are settled.
+
+Migration spellings `uninstall`, `start` and `stop` select the same owned installation receipt and require the same flags. `restart` composes durable disable/enable operations; an uncertain stop holds before enabling, and repeated requests reuse their original receipts. These commands do not guess ownership from old `state.json` or manage arbitrary Ollama/Kev services. The supported upgrade separately handles exact reviewed Kev retirement. Existing unowned global Ollama settings remain retained for explicit owner review; live service qualification is still open.
+
+```sh
+bosun install plan --binary ./bosun-release --request-id install-1 --output install-plan.json
+bosun install apply install-plan.json --hash PLAN_HASH --clients-stopped
+bosun install status
+```
+
+See the [installation and service instructions](docs/upgrade-and-install.md#install-an-owned-executable) for exact service/undo receipt flags. Planning writes the chosen plan file; status reads existing receipts. Guarded source fixtures establish owned effects, drift holds, original data/model retention and undo; they do not qualify a compiled binary or live launchd/TCC installation.
+
+## Development and verification
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for extension seams and guarded validation.
+
+```sh
+sh scripts/bun-check.sh tests --runtime bun --suite omp,opencode,managedcontrols,nativerunners,claudeclient,claudetranscript,core,boundaries,lint
+sh scripts/bun-check.sh typecheck
+sh scripts/bun-check.sh boundaries
+```
+
+Build/static drivers use installed Bun 1.4.3 on macOS arm64. Source capture includes the authoritative `bun.lock`, retained npm lock, current public assets, patched native source and fixed native binary/toolchain receipt. Native acquisition/build is explicit and pinned; no package scripts or Node runtime execute. The cleaned local 1.0.0 artifact passed the exercised minimum-safety scope; broader reproducibility, live-host and real-quality qualification remain deferred. Compiler HOME/cache/temp are fresh, credentials/options absent and automatic installs disabled. The owner authorized cleanup and a fresh rebuild/requalification, not personal installation or old pending proposals:
+
+```sh
+sh scripts/bun-check.sh build --bun /absolute/path/to/qualified-bun
+sh scripts/bun-check.sh verify dist/bosun-1.0.0-darwin-arm64-cleanup --source .
+sh scripts/bun-check.sh formula dist/bosun-1.0.0-darwin-arm64-cleanup --out dist/bosun.rb
+```
+
+Build outputs must be absent; repeated builds require a new `--out` directory. The artifact directory contains one `bosun` executable, a deterministic one-file tar.gz, `build.json` with input/compiler hashes, and `SHA256SUMS`. Runtime .env/bunfig/tsconfig/package autoload and Ink's optional development debugger are disabled. Static verification checks bounded metadata, checksums, the arm64 Mach-O header/load commands and exact archive content; `--source` also checks the current source/assets/dependency bytes. It never executes the binary and establishes integrity, not origin or runtime qualification. Deterministic packaging is separate from Bun compiler reproducibility. A Homebrew formula uses the selected candidate's actual archive hash and the expected `github.com/vprodan/bosun` release location; generation is for review, not publication, installation or service activation. The separate contained release checker establishes only its exercised compiled minimum safety; live host/Orca controls, designated-machine performance, TTY behavior, broader reproducibility and live installation remain qualification gates.
+
+The exact optional `react-devtools-core` peer is marked external because Ink resolves its development branch during bundling even when the peer is absent. The shared Bun entry sets `DEV=false` before lazy imports for source and compiled candidates; this does not make the external debugger a supported feature.
+
+Historical compiled candidate `8466c8ff…b217176` passed five entry checks, setup and seven SQLite/privacy requests, then its 10,000-note benchmark exited 1 without a report. [Its result](docs/research/checkpoints/2026-10-12-compiled-current-result.json) and [the unexecuted diagnostic proposal](docs/plans/2026-10-12-compiled-benchmark-diagnostic.md) are retained history, not the selected release or permission to execute an old proposal. The subsequent original 1.0 release and fresh cleanup artifact passed their own contained 10k public-hook/producer-join safety checks; this does not retroactively qualify old binaries or establish designated-machine performance, live controls or reproducibility.
+
+Every application test uses the mandatory Bun launcher/preload: fresh HOME/cache before startup, explicit child guards, contained SQLite/paths/stub effects, registered mocks and an inherited OS barrier. Native Bun escape APIs and fetch redirects are constrained. Direct `bun test`, Node fallback and configuration/credential/install injection are refused. The previous integrated source candidate passed 1,179/1,179 across 91 files with 35/35 containment. Cleanup verification passed the selected 13/13 suite files plus 35/35 containment, not a fresh full 91-file run. Metadata checks remain fresh and lock-preserving, without identity caches. Source fixtures establish trusted-source containment and synthetic behavior; separate binary-bound safety checks cover the selected local artifact. Neither proves hostile-sameUID isolation, live-host/model quality or complete production qualification.
+
+OMP project code intelligence is configured in `.omp/lsp.json`. The explicitly approved `typescript-language-server@6.0.2` bundle lives in ignored `.omp/tooling/`, with verified registry integrity recorded in its `install.json`; it is not an application dependency and does not change existing lockfiles. `sh scripts/bun-check.sh lsp` launches it and the installed TypeScript6.0.3 tsserver through Bun with fresh HOME/cache/temp and the inherited OS barrier. Automatic typing acquisition and server tracing/logging are disabled. OMP reload, definition and cross-file reference queries were exercised, including navigation to the new OpenCode2 hook renderer. SQLite and live-host qualification remain separate.
+
+The [full goal and direct delivery plan](docs/plans/2026-10-06-bosun-v1.0-direct-delivery.md) retain all accepted scope. A green focused suite is not a complete release audit. No extra installation, personal configuration/authentication/database/LaunchAgent changes or live host/model/service probes are implied by development.
+
+Extend pure policies and seven ports in `src/core`, boundary schemas in `src/contracts`, effects in `src/adapters`/`src/platform`, and composition in `src/app`. CLI, MCP, hook and dashboard share the authority and contracts. [ARCHITECTURE.md](ARCHITECTURE.md) describes the implementation; [policy.md](policy.md), [roles](roles) and [skills](skills) are shared assets.
+
+The [historical README snapshot](docs/research/archive/2026-10-10-readme-legacy.md) retains the previous mixed documentation and development evidence. It is an exact historical copy, with links relative to the old repository-root location; its old installation/Kev commands are superseded.
+
+Full pre-cleanup root [HANDOFF](docs/research/archive/2026-10-13-handoff-pre-cleanup.md) and [RESUME](docs/research/archive/2026-10-13-resume-pre-cleanup.md) histories are also preserved exactly. Their relative links refer to the repository root, not the archive directory. Current stash/external-backup recovery instructions are in [HANDOFF.md](HANDOFF.md); cleanup authorization supersedes older no-cleanup wording without authorizing deletion of owner changes or historical evidence.

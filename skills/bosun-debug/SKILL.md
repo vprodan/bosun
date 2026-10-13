@@ -5,7 +5,7 @@ description: Use for a bug, failing test, crash, wrong output or regression, bef
 
 # bosun-debug
 
-1. `bosun card in-progress "debugging: <symptom>"`.
+1. From an owner session inside Orca: `bosun card in-progress "debugging: <symptom>" --public --request-id <checkpoint-id>`.
 2. Call the **debugger** role with the symptom, how the user sees it, recent changes (`git log -5 --oneline`), and the suspected area. It returns REPRO, HYPOTHESES with evidence, ROOT CAUSE, MINIMAL FIX and CONFIDENCE.
 3. If there's no reproduction, get what's missing (logs, input, environment) before anything else. Don't guess-fix.
 4. Confirm the root cause yourself: read the file:line it names and check that the evidence explains the symptom.

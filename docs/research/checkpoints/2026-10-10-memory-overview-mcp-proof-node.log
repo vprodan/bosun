@@ -1,0 +1,71 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context pipeline: exact hash and estimate forward identities retain normalized SHA-256 behavior (0.607417ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (2.006666ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.517667ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.258459ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.459042ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (4.664083ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.258916ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.269292ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.175708ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.789083ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.218666ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.348208ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (0.452875ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.408542ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (1.247208ms)
+✔ context pipeline: real legacy delegation retains fixed metadata, receiver and denies new/prototype names before search (5.598833ms)
+✔ context pipeline: actual curated delegation denies records before all metadata/body getters (4.359625ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (73.274834ms)
+✔ native weighted FTS and actual excerpt packing expose supporting tail evidence with original IDs/hash and no mutation (210.773791ms)
+✔ reviewed aliases retain the original curated ID, stay scoped, and revoke on source privacy/version changes (248.604916ms)
+✔ explicit reviewed graph context remains absent from ordinary context (207.969042ms)
+✔ lexical source denies private/unclassified records before identity, payload, ranking or provenance getters (0.278916ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (557.097ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (768.181583ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (858.053625ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (5.648666ms)
+✔ all public classifications precede any export/query/label payload getters (0.309583ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (5.443792ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.3475ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2549.153667ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2526.302916ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2685.896334ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (66.807667ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (493.293833ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2877.328459ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2543.88725ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2628.293ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (2.011708ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (22.0525ms)
+✔ native L3/L4 overview is explicit, keeps current parent lineage and revokes with original source privacy (365.369875ms)
+✔ E independently measures reviewed summaries/profiles over C, preserving original quotes and holding weak gain (3774.16925ms)
+✔ actual MCP stdio evaluates the same100-case E corpus with separate budget and no owner footprint/models (21840.354417ms)
+✔ guarded standalone MCP surface uses actual pinned protocol and never starts model tooling (16433.972084ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62732.027375

@@ -1,0 +1,373 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - canonical metadata follows symlinks before parent traversal and contains missing tails
+ok 6 - symlink HOME escape fails before application evaluation
+ok 7 - every host/XDG/temp root is mandatory and contained
+ok 8 - direct test invocation fails before application evaluation
+ok 9 - clean environment excludes inherited credentials and user configuration
+ok 10 - child custom environment regains mandatory preload
+ok 11 - escaped child environment and cwd are rejected before spawn
+ok 12 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 13 - shell and PATH fallback cannot bypass process guard
+ok 14 - outside writes and symlink writes fail
+ok 15 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 16 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 17 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 18 - prototype and instance SQLite constructors preserve guarded identities before native opens
+ok 19 - real credential/config reads fail
+ok 20 - git and plutil external/config mutations fail
+ok 21 - fetch external and unregistered loopback endpoints fail
+ok 22 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 23 - registered ephemeral HTTP mocks remain usable
+ok 24 - HTTP and HTTPS validate merged URL/options destinations before native delegation
+ok 25 - registered HTTP and HTTPS URL/options/callback and IPC mock signatures remain usable
+ok 26 - only registered synthetic local sockets can be connected
+ok 27 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 28 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 29 - native fetch cannot follow a registered mock redirect into a real service
+ok 30 - OS barrier contains native files and SQLite even without the JS preload
+ok 31 - OS process barrier refuses an external shell even without the JS preload
+ok 32 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 33 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 34 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 35 - unknown suites/options and prohibited runtimes fail closed
+Containment: 35/35 probes passed; application suites not imported.
+Guarded Bun file 1/8: distribution.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:170:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence [1540.99ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:259:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths [956.15ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:278:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution static verification rejects binary/checksum and metadata/inventory tampering [926.27ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:301:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution static verification rejects changed current assets or installed dependency bytes [912.06ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:321:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands [875.95ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:345:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls [883.85ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:382:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution source admission rejects native and authoritative Bun lock tampering without synthetic trust [885.62ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:481:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution build/compiler failure removes temporary source and leaves no candidate output [879.58ms]
+59 |     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+60 |   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
+61 |   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+62 |   function copyPackage(name: string) {
+63 |     const directory = path.join(REPO, name);
+64 |     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+                                ^
+ENOENT: no such file or directory, scandir '/Users/edge/Developer/bosun/node_modules/node-addon-api'
+    path: "/Users/edge/Developer/bosun/node_modules/node-addon-api",
+ syscall: "scandir",
+   errno: -2,
+    code: "ENOENT"
+
+      at copyPackage (/Users/edge/Developer/bosun/test/distribution.test.ts:64:28)
+      at fixture (/Users/edge/Developer/bosun/test/distribution.test.ts:78:12)
+      at <anonymous> (/Users/edge/Developer/bosun/test/distribution.test.ts:509:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) distribution Bun CLIs verify without execution and refuse to overwrite a formula [858.58ms]
+(pass) shared source entry admits a private hook before configuration or malformed input [43.95ms]
+
+ 1 pass
+ 9 fail
+Ran 10 tests across 1 file. [8.79s]
+Guarded Bun file 2/8: doctor.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/doctor.test.ts:
+(pass) empty doctor reports missing preparation without creating a home, database, config or native process [12.74ms]
+(pass) prepared runtime diagnostics preserve IDs, modes, bytes and WAL sidecars while reporting native/schema qualification honestly [58.26ms]
+(pass) SQLite diagnostics never recover a journal or create shared memory, including live WAL and corrupt files [8.78ms]
+(pass) unsafe runtime parents and rebounded files are held before foreign payload reads [3.20ms]
+(pass) model and malformed doctor commands refuse before path/config getters or storage effects [7.01ms]
+(pass) changed profiles, invalid manifests and stale hook bindings are held with finite metadata and no repair [128.94ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [285.00ms]
+Guarded Bun file 3/8: host-installation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/host-installation.test.ts:
+(pass) omp plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [178.79ms]
+(pass) opencode plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [146.95ms]
+(pass) codex plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [172.57ms]
+(pass) claude plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [157.80ms]
+(pass) only the pinned OpenCode 2 standalone overlay exceeds ordinary launch environment bounds in plans and receipts [121.70ms]
+(pass) private, credential, stale, unsupported or modified plans have no profile/configuration effect [72.66ms]
+(pass) running daemon authority prevents installation and stale plan/undo versions preserve original profiles [114.35ms]
+(pass) undo refuses content drift and preserves the profile and unrelated data [129.51ms]
+(pass) undo refuses extra-file drift and preserves the profile and unrelated data [116.21ms]
+(pass) undo refuses symlink drift and preserves the profile and unrelated data [121.35ms]
+(pass) undo refuses hardlink drift and preserves the profile and unrelated data [124.78ms]
+(pass) undo refuses mode drift and preserves the profile and unrelated data [119.57ms]
+(pass) lost positive profile rename receipt stays unknown, duplicate apply does not recreate, and explicit verified undo retires it [148.12ms]
+(pass) partial install receipt loss retains mismatched staged files for review without changing outside data [83.37ms]
+(pass) lost intent manifest receipt returns the saved original and never recreates a host profile [78.53ms]
+(pass) lost terminal manifest receipt returns the saved original and never recreates a host profile [138.66ms]
+(pass) metadata detection/session parsing never executes native hosts or classifies unknown prompts as public [67.41ms]
+(pass) profile doctor refuses rebound parent directories before reading foreign payloads [127.18ms]
+(pass) actual Commander plan export refuses overwrite, requires reviewed apply and denies model mutation before file reads [145.89ms]
+(pass) Codex reuses matching user project skills, preserves unrelated files and never owns their removal [147.91ms]
+(pass) changed project skill links hold undo and a new request cannot adopt links owned by another profile [135.78ms]
+(pass) lost project skill link receipt remains unknown without recreation and explicit undo removes only matching new links [151.88ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [2.87s]
+Guarded Bun file 4/8: host-launch.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/host-launch.test.ts:
+(pass) omp preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [345.16ms]
+(pass) opencode preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [322.98ms]
+(pass) codex preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [341.74ms]
+(pass) claude preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [323.87ms]
+(pass) native version mismatch, ambiguous version output and nonzero probe cannot launch a UI or substitute a host [534.86ms]
+(pass) profile, configuration, receipt, workspace and review drift hold before native probes [142.26ms]
+(pass) drift during version inspection is rechecked before foreground effects, including executable replacement [446.14ms]
+(pass) model and malformed launch requests reject before home/config/secret getters; preview never reads auth [113.78ms]
+(pass) explicit terminal shutdown waits for positive native parent close without claiming managed tool quiescence [754.26ms]
+native_ui
+(pass) foreground launch dispatches through the current child-process boundary and retains native close and exit receipts [170.24ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [3.56s]
+Guarded Bun file 5/8: installation-service.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/installation-service.test.ts:
+(pass) start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart [1091.86ms]
+(pass) restart with a lost actual stop acknowledgement holds its original operation without starting or replaying [524.08ms]
+(pass) legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations [0.16ms]
+(pass) actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay [1091.13ms]
+(pass) lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap [596.59ms]
+(pass) lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout [584.81ms]
+(pass) unknown list/context and a foreign namespace or definition refuse before service intent or mutations [526.71ms]
+(pass) loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness [1059.01ms]
+(pass) actual owner CLI service commands use shared receipts and model callers cannot reach service observations [583.61ms]
+(pass) manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts [585.52ms]
+(pass) changed published definition and mismatched native PID cannot stop an unqualified service [1292.90ms]
+(pass) service publication into an unsafe parent is held before intent and preserves owner paths [139.88ms]
+(pass) actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown [652.71ms]
+(pass) foreign archive bytes survive shutdown and reconciliation never repeats native control [643.53ms]
+(pass) onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles [685.28ms]
+(pass) fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation [4.17ms]
+
+ 16 pass
+ 0 fail
+Ran 16 tests across 1 file. [10.13s]
+Guarded Bun file 6/8: opencode-host.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-host.test.ts:
+(pass) OpenCode 2 refuses an old host version or an unrepresentable role variant before profile effects [4.62ms]
+(pass) actual V2 plugin admits only per-input public text and binds context to the original native session/message [63.68ms]
+
+ 2 pass
+ 0 fail
+Ran 2 tests across 1 file. [88.00ms]
+Guarded Bun file 7/8: opencode-v2.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-v2.test.ts:
+(pass) OpenCode 2 source/version pin and V2 metadata projections omit native content, paths and billing [1.15ms]
+(pass) OpenCode 2 does not accept a V1 health, session or WithParts message envelope [0.36ms]
+(pass) OpenCode 2 malformed metadata, counts, message types, cursors and duplicate IDs fail closed [0.63ms]
+(pass) OpenCode 2 idle marker binds a completed turn; latest inference input is a candidate, never active occupancy [0.28ms]
+(pass) OpenCode 2 pending, streaming, failed, incomplete and inactive-without-idle turns remain unknown [0.48ms]
+(pass) OpenCode 2 stale/future, explicit model/variant drift and resets stay held without reordering native sequence [0.55ms]
+(pass) OpenCode 2 native inactive scope is only this process foreground, never tool or background quiescence [0.03ms]
+(pass) OpenCode 2 opaque body cursors remain metadata, not followable URLs or evidence completeness [0.07ms]
+(pass) OpenCode 2 fresh-root and parked seed recipes use only V2 fields and prove no readiness [0.32ms]
+(pass) OpenCode 2 private/unclassified codecs and recipes reject before record, model and text access [0.12ms]
+(pass) OpenCode 2 repeated session/process bindings hold read-only observations on drift with no retry [20.47ms]
+(pass) OpenCode 2 a server-supplied cursor or connection URL is never followed by the metadata probe [1.64ms]
+(pass) OpenCode 2 response/deadline/page limits stop a single attempt without exposing endpoint diagnostics [55.82ms]
+(pass) OpenCode 2 successful metadata fixtures cannot authorize automatic handoff or any control method [0.12ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [102.00ms]
+Guarded Bun file 8/8: opencode.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode.test.ts:
+(pass) OpenCode pinned v1 codecs retain model/variant and omit content, paths, cost and accumulated tokens [1.08ms]
+(pass) OpenCode exact version/metadata mismatches fail with fixed actual coded errors [0.62ms]
+(pass) OpenCode latest completed step is only an input candidate, never cumulative billed usage or verified occupancy [0.21ms]
+(pass) OpenCode stale/future/pending/model-switch/reset samples are unknown rather than zero or safe to hand off [0.13ms]
+(pass) OpenCode pure fresh-root/noReply recipes preserve explicit selections without proving readiness or sending HTTP [0.17ms]
+(pass) OpenCode private/unknown recipes and codecs reject before text/selection/record property access [0.07ms]
+(pass) OpenCode SSE fixture uses pinned global envelope and message.updated properties sessionID/info, with no content replay [0.20ms]
+(pass) OpenCode explicitly selected probe performs only GET metadata reads and never becomes native Codex/Claude [6.76ms]
+(pass) OpenCode probe rejects private/unknown/malformed selection and generation before config/HTTP [0.20ms]
+(pass) OpenCode probe version/errors/foreign sessions/abort hold without retries or raw diagnostic echoes [5.18ms]
+(pass) OpenCode fixture success leaves every managed capability held with no automatic handoff or control calls [0.09ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [37.00ms]
+Guarded Bun files: 7/8 passed; 1 failed.

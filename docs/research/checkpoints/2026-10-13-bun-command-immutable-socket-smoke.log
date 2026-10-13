@@ -1,0 +1,13 @@
+68 |       if (observed.code !== 0 || !methods.length || methods.some(method => method !== 'job.get')
+69 |         || /FINAL RESULT|Public task|PINNED|OUTPUT CANARY/.test(observed.out)) throw Error('Metadata CLI observation failed: ' + observed.err);
+70 |       console.log(JSON.stringify({ runtime: actual.bun, literalArguments: true, isolatedVerificationHome: true,
+71 |         credentialsAbsent: !actual.auth, verificationExecutions: 1, verificationJoined,
+72 |         observerQualification: opened.qualification, originalJobExecutions: f.calls(), paneEffects: effect.length,
+73 |         observerMethods: methods, metadataOnlyOutput: observed.out.trim().split('\n').map(line => JSON.parse(line)),
+               ^
+SyntaxError: JSON Parse error: Expected '}'
+      at map (1:11)
+      at <anonymous> (/Users/edge/Developer/bosun/scripts/bun-command-smoke.mjs:73:87)
+      at async gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+
+Bun v1.4.3 (macOS arm64)

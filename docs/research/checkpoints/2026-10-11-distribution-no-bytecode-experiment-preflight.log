@@ -1,0 +1,22 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+69 !== 0
+
+    at git (file:///Users/edge/Developer/bosun/docs/research/checkpoints/2026-10-11-distribution-no-bytecode-experiment.mjs:42:10)
+    at file:///Users/edge/Developer/bosun/docs/research/checkpoints/2026-10-11-distribution-no-bytecode-experiment.mjs:87:14
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:633:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 69,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.16.0

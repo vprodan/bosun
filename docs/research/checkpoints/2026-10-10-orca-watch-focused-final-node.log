@@ -1,0 +1,67 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (732.136333ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (527.377208ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (526.4245ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (526.342833ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (474.763792ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (803.233ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (122.327458ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (343.200666ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (551.626291ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (404.312083ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (432.536292ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (403.429ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (646.087334ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (647.342208ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (324.280791ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 14
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7668.635
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:19:1
+✖ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (732.136333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'pending'
+  - 'opened'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:27:57
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:21:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'pending',
+    expected: 'opened',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

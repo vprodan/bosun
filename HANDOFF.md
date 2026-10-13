@@ -1,278 +1,101 @@
-# Handoff: bosun (updated 2026-10-06)
+# Handoff: bosun
 
-To continue in a new session: **"Read HANDOFF.md, RESUME.md, docs/research/README.md, docs/research/09-opencode-clef.md and docs/plans/2026-10-01-bosun-v1.0-roadmap.md, then follow the current request."**
+Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [RESUME.md](RESUME.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
-## Current status and development readiness
+## Current scope and permissions
 
-**Foundation development started.** The owner authorized sequential sub-agent implementation on 2026-10-04. Topics 1–8 and [the integrated roadmap](docs/plans/2026-10-01-bosun-v1.0-roadmap.md) are complete, with [the OpenCode/Clef revision](docs/research/09-opencode-clef.md) incorporated. Track actual progress and checks in [the implementation ledger](docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md). Containment/typecheck launchers now exist; the other roadmap verification interfaces remain proposed until their slices implement them.
+- Package version is **1.0.0**; **OMP is primary for new configuration**, with OpenCode 2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.
+- The owner authorized complete repository housekeeping and code cleanup, preservation and identical reapplication of the retained stash, canonical asset reconciliation, and a **fresh local artifact rebuild and guarded requalification**. This supersedes the older “no cleanup/removal workstream” instructions, including those still present in dated plans.
+- The owner explicitly approved staging reviewed files and one local commit of the cleaned 1.0.0 repository to leave Git clean; no push or history rewriting. Use existing **Bun 1.4.3 on macOS arm64 only**. No Node runtime/fallback, dependency/runtime/host/model installs, live host/model/service calls, personal configuration/auth/database/LaunchAgent changes or publication. Native Node-API compatibility and reviewed Node headers are build inputs, not permission to execute Node.
+- The coordinator owns artifact cleanup, stash integration, source/asset integration and final verification. Workers do not run tests/builds/linters during edits. Fresh local rebuild permission does not execute old pending compiled/corpus proposals or authorize live qualification.
 
-- **Release:** all selected work ships together as one v1.0; internal phases only, with no intermediate releases or pre-ship package-version bumps.
-- **Commits (owner request, 2026-10-06):** completed work is split into coherent milestone commits. Commit each future verified milestone with its tests, documentation and updated portable context before starting the next. This supersedes the earlier no-commit constraint; preserve unrelated owner changes and untracked artifacts.
-- **Continuous execution (owner request, 2026-10-06):** finish all remaining accepted work sequentially without pausing for another “continue” request. Milestone checkpoints must lead directly to the next task; existing restrictions and the full v1.0 ship gate still apply.
-- **Hosts:** OpenCode is primary; native OpenCode, Codex and Claude Code remain first-class behind the seven shared ports. Qualify automatic handoff for bosun-managed sessions; arbitrary existing UI sessions use the manual path.
-- **Router:** local Ollama Clef-Flash replaces Kev, including the training-run config, uv/Python service, readiness checks and remote naming. Summaries/extraction retain a separate generative ModelProvider.
-- **Core:** evolve one package and one compiled binary, with the approved daemon, read-only hook fallback, SQLite/FTS, scoped memory and manifest-owned installation. The old no-daemon decision is superseded.
-- **Implementation:** Foundations through 7b8 registered writer capacity/receipt qualification are verified. Cached readers/writers repeat storage eligibility checks. Admitted protected DML uses private native page/WAL reservation with cache_spill off, including FTS COMMIT allocation, sector padding and checkpoint growth. Larger eligible legacy stores retain owner reads/no-op maintenance; conservative write holds preserve rows. Ambiguous COMMIT or post-commit confirmation produces a finite unknown receipt and discards the writer; errors after actual BEGIN release native admission. Docs preserves early held reads and finite transaction unknown outcomes. Context/memory/docs isolation, privacy/IDs/hash/audit and non-expiring hook lease behavior remain compatible. Next: 7b9 runtime assets/import-time effects for the config/CLI migration; explicit owner-operation allocation/recovery, artifacts/drain, hook JSON closure and every native/Clef/daemon/handoff/graph/dashboard/remote/ship gate remain required. Package stays 0.2.0.
-- **Fresh validation:** Independent coordinator guarded Node final full **466/466 application tests plus 18/18 containment**, zero failures/cancellations/skips, 126.8 seconds. Coordinator publication/docs/writer passed **88/88 plus 18 containment**, 21.3 seconds after correcting the older cached-docs exception assertion to held/zero counts with unchanged rows/floor/no context. Initial full was 465/466; no source-fence weakening was needed. Worker corrected native baseline **20/26 plus 18 containment** reproduced six real gaps; final writer **46/46**, writer/docs **73/73**, publication/publicreader **30/30**, all plus containment. Native same-connection FTS COMMIT grows 277→506 pages, or FULL reverts to36; actual committed rows/events/floor with lost receipt, BEGIN cleanup, three page sizes, budget boundaries, spills/checkpoint/close/reopen and useful10k corpus are covered. Strict isolated typecheck, boundaries (68 files/242 edges/zero violations), whitespace, Markdown links/fences and eleven Mermaid grammar blocks pass. Apparent file-length qualification is for registered trusted DML, not universal peak allocation/zero-IO, explicit owner operations, hostile-sameUID, live-host/power-loss/designated-Mac claims.
+Final precommit verification: **1,190/1,190 tests across 94 guarded files**, zero failures, plus **35/35 containment**. [Full log](docs/research/checkpoints/2026-10-13-clean-repo-full-bun.log). Inclusion review found no credential/runtime-artifact blockers. Release review found `install.sh` still invoked Node: fixed to Bun with `--no-env-file --no-install`; its actual `--help` path exited0 under an OS barrier in a disposable home. No installation ran. This wrapper is outside the compiled artifact inventory, so the cleanup binary and existing safety receipt remain unchanged. Local commit hooks/signing are disabled per invocation to avoid unauthorized personal hooks/authentication effects; no personal Git configuration changes.
 
-Checkout: branch `main`, history root `8e835a5082530a132912e6dd3afca65db903aac1`. Completed research, skills and verified foundation implementation are committed in coherent milestone groups; the [ledger commit map](docs/plans/2026-10-04-bosun-v1.0-implementation-ledger.md#commit-checkpoints-2026-10-06) and `git log` identify checkpoints. Pre-existing untracked `bun.lock` and `node_modules/` remain untouched. [RESUME.md](RESUME.md) carries portable context and owner constraints.
+## Restore and transfer safeguards
 
-**Current checkpoint (2026-10-06):** prior verified commits include `a6f3b6b`, sharing/restore `352c737` and context `bc56d00`. 7b8 registered writer capacity/receipt qualification is verified and ready for this milestone commit; its worker and all test jobs are finished. Continue directly to 7b9 runtime asset/import-time effects with one worker, then all remaining v1.0 scope.
+Retain stash **`b830c5c24baa84d5b30895598cfaf94bb2d7205d`**. The external `RESTORE.txt` records that its tracked/indexed changes and **917 untracked files** were reapplied and retained, with diff/status/untracked hashes identical. Do not reapply it over the cleaned checkout, pop/drop it, replace it with a new stash or overwrite newer edits. Git stash objects are local and are not transferred by ordinary push/clone; copy the relevant Git objects as well as the working tree when moving machines.
 
-## First development slice
+For a **separately requested recovery**, follow the external restore instructions: create an isolated worktree at the stash's first parent and apply the exact object there with its original index state. This recipe is not permission to perform new Git effects during cleanup:
 
-1. **Complete:** HOME-first paths and a mandatory Node test launcher/preload contain writes before application imports. XDG/host roots, child propagation, symlink/SQLite guards, stub process effects and registered ephemeral mock endpoints are covered. The real-Claude fixture is excluded and no longer discovers a client at import; a qualified live-host launcher is still unavailable.
-2. **Complete:** `npm test` and `npm run typecheck` use isolated launchers. Containment failures run before application tests; a fresh baseline passed. **Never run bosun tests under Bun.** The original incident/restoration is recorded in the root resume. Read README's test section for the accidental-effect guard's limits.
-3. **Complete:** prompt-content route logs and private `--auto` provider leak fixed, with nested telemetry/provider-echo canary checks. Data IDs, scope/privacy behavior and selected models are preserved. Unmarked legacy input still requires explicit privacy classification; full v1.0 screening remains later work.
-4. **Complete:** seven core contracts, pure policy and compatible routing caller with lazy factories and enforced import boundaries. Only Router has an implemented adapter acceptance suite; storage still writes on reads.
-5. **Complete:** MCP/curated context classify before content access. Private/unclassified get/store/update/delete replies are constant opaque placeholders; search/context filter denied records and errors use finite text/codes. Owner CLI access remains compatible. Atomic private mutation authorization/races and true read-only fallback remain unfinished.
-6. **Complete:** initial OpenCode native-protocol codecs/GET-only probe and Clef Router adapter with synthetic wire/privacy/bounds/failure fixtures. Mocks do not qualify live handoff, occupancy or calibration; current Kev runtime stays active. Basic auth/managed wiring, full native adapters and complete Clef lifecycle migration remain unfinished.
-7. **Complete as a narrow qualified slice:** native WAL probes, rollback-only reader, zero-write WAL hold and real local hook caller. IDs/scope/privacy remain intact; expiry filters without archive/touch. Owner audit stays in the writer API. Benchmarks label held/failed/unqualified runs instead of claiming empty-path retrieval latency.
-8. **Test-only qualification complete:** public rollback view with serialized publisher, persistent UDF writer floor, generation and `HOLD`/`READY` gate; retained reader leases, exact owner backup and guarded process-kill probes. Negative cases expose schema/function/inode bypass and early-close cached delivery. See [ADR 0004](docs/adr/0004-wal-read-view-protocol-qualification.md); this does not activate a production view or prove atomic cutover/power-loss durability.
-9. **Complete:** actual rollback-only local reader lifetime through native stdout callback. Local acquisition follows routing; memory delivery is Node POSIX pipe/socket only, capped at 16 KiB. Pending failure/signal/250 ms event-loop timeout terminates the one-shot producer with its lease retained; native stdout close was disproven as release evidence. File/TTY/Windows/Bun sinks omit local notes; advice remains available. No total-latency or host-acknowledgement claim.
-10. **Complete as an explicit primitive:** production native-backup/floor cutover under continuous admission, owner-only recovery gate/artifacts, restart without overwrite/doubleapply and registered synchronous writer wrapper. [ADR 0005](docs/adr/0005-explicit-memory-writer-floor-cutover.md) covers exact schema/identity, finite cleanup errors, same-inode leases and trusted-application limits. Initial installation now has the separate explicit strict owner command below; no default opener or hook installs it. Unknown pre-intent files remain held.
-11. **Complete:** registered admission is used by real local MemoryService/owner CLI, MCP memory/docs and authoritative serve for existing explicit floors. Constructor/lazy expiry, search touch, mutations, pruning and docs writes are synchronous inside admission. Registered native handles stay private; owner domain errors survive successful rollback and MCP projections remain intact. Canonical path overrides and pending/dangling/mismatched gates fail closed before the legacy opener. Doctor memory checks do not create/migrate; WAL is held without a schema claim. Guarded real CLI/MCP/HTTP/diagnostic fixtures passed.
-12. **Complete:** explicit `memory publish [--json]` for already-applied local floors, fixed-inode public schema/FTS/READY, primary writer-format fencing and synchronous registered revocation. Publication preserves owner rows/backup/IDs/scope/version and copies only validated current public records. Ordinary open never finishes a partial format upgrade or recovers pending journals; explicit publication can recover the verified owned journal. Native process crashes, actual hot spill recovery, same-inode leases, real CLI contenders, late clock/expiry and uncertain cleanup receipts are covered. [ADR 0006](docs/adr/0006-explicit-public-memory-publication.md) records exact bounds and limits.
-13. **Complete for non-expiring local notes:** independently bound public reader with exact public schema/identity/READY metadata, scoped projection and retained native lease through stdout acceptance. The reader only filesystem-checks the mutable primary; it opens the rollback view through SQLite and leaves owner recovery derivatives unread. Invalid/pending/unbound views never fall back to primary rows. Both public and rollback hook paths omit finite-expiry notes before packing; real backpressure and event-loop stalls are covered. [ADR 0007](docs/adr/0007-bound-public-memory-reader.md) records query-time versus delivery eligibility and restore limits.
+```sh
+git worktree add --detach /absolute/path/to/isolated-recovery b830c5c24baa84d5b30895598cfaf94bb2d7205d^1
+git -C /absolute/path/to/isolated-recovery stash apply --index b830c5c24baa84d5b30895598cfaf94bb2d7205d
+```
 
-14. **Complete for strict prepared layouts:** `memory cutover plan/apply/reconcile` provides filesystem-only BLOCKED/unverified planning, independently saved initial source UUID, admission freshness and explicit HOLD reconciliation. `--clients-stopped` is operator attestation; clients stay stopped through separate publication/binding and reopen afterward. [ADR 0008](docs/adr/0008-strict-owner-memory-cutover.md) records the measured sidecar exception, finite errors, receipt-loss reconciliation and incomplete/multi-artifact/restore limits.
-15. **Complete:** reviewed initial prepare-plan/prepare supports explicit leaf creation and descriptor-based narrowing of known legacy modes. Existing views and unknown/pending artifacts remain held; no SQLite or binding action occurs, and partial changes are preserved for fresh inspection.
-16. **Complete for independently bound incomplete attempts:** explicit recover-plan/recover and retained-inventory reconciliation use bounded metadata, view-only native planning, exact epoch/phase/floor expectations before DML and fresh backups. Old references are preserved; unrelated unreferenced files require acknowledgement and remain unread/unowned. Committed floors require reconcile, and recovered storage passes publication/bound reading. General restore, unknown journals/orphans, drain and durability remain held.
-17. **Complete for demonstrated bounded capacity:** shared 16 MiB encoded/64 MiB view bounds permit useful 10k medium-body publication, scoped/native delivery and retained revocation. Independent source-WAL/header/identity/size and logical/physical negative checks stay read-only. Explicit temporary public-view bench verifies 20/20 native injections and preserves simulated owner storage/binding, with existing config initialization/content-free logging caveats.
-18. **Complete for the current verified reference and tested journal-free checkpoints:** 7b2c3 explicit owned restore, new source epoch/HOLD, immutable pending fencing and exact old/new-floor no-replay reconciliation. See [ADR 0009](docs/adr/0009-owned-memory-restore.md).
-19. **Complete for a bound pending restore journal:** 7b2c4a metadata-only planning and admitted native view-journal recovery, with exact old/new floors, pending fences, fixed inode/backup/generation preservation and no replay. [ADR 0009](docs/adr/0009-owned-memory-restore.md) records the trusted-application limit.
-20. **Complete:** 7b3 strict stored private/shared flag classification, before-projection SQL filtering and native/MCP exposure regressions. Raw legacy values and owner behavior remain compatible; no general delivery-time revocation claim.
-21. **Complete:** 7b4 actual writable MemoryStore adapter, explicit dependencies, query/maintenance separation, exact compatibility forwards, direct/legacy plain/registered acceptance and narrow transitive isolation guard. [ADR 0010](docs/adr/0010-writable-memory-adapter.md) records the compatibility and delivery limits.
-22. **Complete:** 7b5 scoped docs snapshot ContextSource and explicit admitted bounded index, complete-enumeration/source/ownership holds, native/MCP acceptance, preserved-timestamp updates and cleanup failures. [ADR 0011](docs/adr/0011-scoped-docs-query-and-index.md) records snapshot/ownership/storage limits.
-23. **Complete:** 7b6 owner unsharing/status-only update and admitted expired-session renewal, with actual native/CLI/MCP preservation, errors and lease/fence acceptance. See [ADR 0010](docs/adr/0010-writable-memory-adapter.md).
-24. **Complete:** 7b7 actual ambient-free context ranking/packing, explicit dependencies and compatible real callers/hash forwards. [ADR 0012](docs/adr/0012-context-ranking-and-composition.md) records policy, count/measurement and lifetime limits.
-25. **Complete:** 7b8 registered native page/WAL capacity, cached eligibility and truthful COMMIT/BEGIN cleanup, with docs holds/unknown receipts and real native/CLI/MCP/lease parity. [ADR 0013](docs/adr/0013-registered-writer-capacity-and-receipts.md) records the conservative equation and exact limits.
-26. **Next:** 7b9 runtime assets/import-time effects for config/CLI migration; then hook JSON closure, explicit owner allocation/recovery, artifact disposition/drain and full roadmap. Continue after each verified commit without another continuation request.
+Any conflict requires reconciliation against the retained original, not forced checkout/reset or loss of owner changes.
 
-The 7b8 worker froze source after native/focused/type/boundary/doc checks; coordinator reviewed source/outcomes and corrected the older cached-docs assertion, then independently passed affected/final-full/type/boundary/documentation checks. Continue directly after this commit; do not restart completed tests or assume a finished worker is live.
+Ignored artifacts were backed up outside the repository to:
 
-Local implementation is authorized, using one sub-agent at a time with coordinator verification between slices. The owner's no-install/no-personal-config constraint remains: no model pull, dependency download, authentication change or personal configuration write. Existing local tools suffice for containment and pure contracts; missing host/model/dependency setup is a later integration prerequisite.
+```text
+/Users/edge/Developer/bosun-cleanup-backups/b830c5c24baa84d5b30895598cfaf94bb2d7205d/ignored-artifacts.tar.gz
+```
 
-## Remaining engineering qualification
+The coordinator's pre-cleanup backup inventory verified **24,635 files**, with archive SHA256 **`4d3f491553adf6f892d7a5c8969073e707584f1a50e10390424f5993e648a584`**. Companion `RESTORE.txt` records exact recovery steps; macOS AppleDouble metadata was excluded from the content comparison. `node_modules` remains in the checkout and is **not archived**. Keep the external backup and inventories/receipts; they are not transferred by Git or by the stash. Copy them separately when moving machines. Inspect archive paths before extracting into the isolated recovery worktree prepared above:
 
-| Item | How it is resolved | Blocks beginning development? |
-|---|---|---|
-| Native context telemetry, prompt admission, tool quiescence and fresh-session acknowledgement | Early OpenCode/Codex/Claude capability fixtures, then version-qualified live checks before claiming automatic support | No; this is engineering qualification and a ship gate |
-| Clef wire compatibility, thresholds, latency and local residency | Decision fixtures, held-out calibration and permitted warm/cold model evaluation | No; no speed/quality claim is assumed |
-| Graph/enrichment quality, privacy and latency | Compare with the stronger lexical baseline under actual packing/token budgets | No; activation remains evaluated |
-| Known unresolved v0.2 issues listed in the historical report | Carry each into the migration ledger as fixed, covered by replacement behavior, or explicitly unresolved; preserve relevant regression assertions | No; they are implementation work, not forgotten future-version assignments |
-| Optional Graphify/CodeGraph integrations | Owner clarified that users install these only when needed. Validate the actual tool/export or MCP contract when configured; leave absent sources disabled and never auto-install | No; optional tool presence/identity is not a development or v1.0 release prerequisite |
-| New libraries and real host/model availability | Use existing tools/stubs first; preserve the owner's installation constraint and verify actual setup before live integration | No for containment/contracts; later dependency/integration prerequisite |
+```sh
+tar -tzf /Users/edge/Developer/bosun-cleanup-backups/b830c5c24baa84d5b30895598cfaf94bb2d7205d/ignored-artifacts.tar.gz
+tar -xzf /Users/edge/Developer/bosun-cleanup-backups/b830c5c24baa84d5b30895598cfaf94bb2d7205d/ignored-artifacts.tar.gz -C /absolute/path/to/isolated-recovery
+```
 
-Use synthetic/manually redacted fixtures by default; no owner transcript/database is required to start. No owner clarification remains before foundation work. Keep scope and qualification outcomes in the implementation ledger. Failed required support gates need resolution before the single ship decision; optional third-party tool absence does not fail that gate.
+Do not extract over the live checkout or personal runtime, or reinstate obsolete generated outputs automatically.
 
-## Historical v0.2 report (2026-09-29)
+The coordinator removed ten old 0.2 distribution directories and four formula candidates, and backed up disposable native build/upstream trees. The original 1.0 release, selected native candidate/archives/receipt, LSP tooling and `node_modules` were retained. The proven orphan `scripts/check-bun-prerequisites.mjs` was removed; canonical handoff wording and generated assets were reconciled. No historical shared diagnostic helper was removed merely because its filename looked old.
 
-The remainder records the original build and measurements. Its no-daemon, Kev, dependency and installation choices have been superseded by the current plan above. Historical commands are retained as evidence, not the current development or installation sequence.
+## Fresh cleanup artifact
 
-### Historical status
+The coordinator built **`dist/bosun-1.0.0-darwin-arm64-cleanup/`** from the cleaned candidate:
 
-**Built and tested offline on the original machine. Not installed at that checkpoint.**
-- `npm test`: 87/87 pass in 13.8 s.
-- Strict type check: clean. It ran with the TypeScript already in `~/.npm/_npx`, so there was no `npm install`.
+| Fresh build output | SHA256 |
+| --- | --- |
+| Binary | `d64cf0b87f7e414dec97dade5ab12a05bd494e05b75a964fd565c38374a9e0f4` |
+| Archive | `573d45a151c3b3ded1a6e4c6231cb0499c4b856110306ca9df4ceafe5d5a9a80` |
 
-**Nothing has been installed:**
-- no Ollama, uv, Kev or model pulls
-- no `claude mcp add` or `codex mcp add`
-- `~/.claude`, `~/.codex`, `~/.bosun` and `~/.claude-mem` are untouched
+Coordinator verification **passed**: selected **13/13 guarded source suite files**, zero failed (not a rerun of the historical full 91-file suite); **35/35 containment**; typecheck; boundaries **250 files / 1,359 edges / zero violations**; fresh static source/artifact verification; actual compiled version/help/private hook/private route/MCP; seven storage/privacy RPCs; shutdown/owner-lock reacquisition; and **10,000 notes / 21 hook injections**, with all original/group producers joined. No live hosts/models or personal runtime were used. These qualify the fresh candidate's exercised local minimum-safety scope, not complete production readiness. Static `runtimeQualification: unverified` remains appropriate.
 
-The memory layer (spec `docs/specs/2026-09-29-bosun-memory-design.md`, approved) was planned in `docs/plans/2026-09-29-bosun-memory.md` and run natively. It then went through one fresh Opus review of the whole project. Every ruling, fix and deferred minor is in `docs/plans/2026-09-29-bosun-memory-ledger.md`.
+The [cleanup qualification receipt](docs/research/checkpoints/2026-10-13-cleanup-qualification.json) binds these exercised checks to the fresh binary, archive and source digest.
 
-**Historical issue, now resolved in the design:** the hook's memory part missed the spec target. The owner subsequently approved the daemon; this is no longer a pending owner decision.
-- **Target:** p95 under 30 ms.
-- **Measured at 10,000 memories:** p95 36.6–40.1 ms (see "Measurements").
-- **Before you store anything:** the hook costs about what it did before the memory layer.
-- **Where the rest goes:** cold SQLite work in each per-prompt process.
-- **Original restriction:** the then-approved no-daemon design ruled out a long-lived memory process. The current v1.0 plan supersedes that restriction and still requires measured validation of the new path.
+Reported disk usage fell from **1.1G to 236M** for `dist/` and **733M to 53M** for `.omp/tooling/`; both original and cleaned 1.0 artifacts remain.
 
-### Historical final report (spec §12)
+## Local 1.0.0 release shipped (2026-10-13)
 
-**1. Existing architecture:** spec §2. A CommonJS Node CLI of 10 modules and 43 tests, with no memory and no MCP.
+The retained original macOS arm64 local release is `dist/bosun-1.0.0-darwin-arm64/`, containing `bosun`, `bosun-1.0.0-darwin-arm64.tar.gz`, `build.json` and `SHA256SUMS`.
 
-**2. New architecture:** [ARCHITECTURE.md](ARCHITECTURE.md), and spec §4–§8.
-- **Port:** everything is now TypeScript ESM, which Node ≥ 24 runs directly.
-- **Memory store:** curated SQLite + FTS5 in `~/.bosun/memory.db`.
-- **claude-mem:** read-only.
-- **Context manager:** ranks, dedupes and budgets context for the prompt hook (~400 tokens).
-- **MCP server:** `bosun mcp`, with 7 tools.
-- **LLM router:** feeds reviewed consolidation proposals.
-- **Split setup:** `bosun serve`, `bosun install --serve` and `--remote`.
+| Historical input | SHA256 |
+| --- | --- |
+| Local release binary | `96f3e05a1c677888bac2b928f258baacce2a56571b1c01f38f69768f1b6801a9` |
+| Local release archive | `40aa844643f03fae467494dfc0583031981d866c97b50e6388eff31e58d6df0c` |
 
-**3. Files changed:**
-- **Ported:** all of `lib/*.js` became `lib/*.ts`, plus `test/*.ts` and `bin/bosun`.
-- **New:** `lib/{log,metrics,context,llm,consolidate,mcp,serve}.ts` and `lib/memory/{types,sqlite,project,service,remote,claudemem,docs,cli,bench}.ts`.
-- **New tests:** `test/{memory,context,llm,mcp,serve}.test.ts`.
-- **Changed:** `package.json`, `tsconfig.json`, `config.default.env` (new keys only), `policy.md` (one memory rule), `README.md`, `ARCHITECTURE.md`.
-- **Size:** about 3,000 lines of `lib` and 2,200 of tests.
+The previous contained release checker exercised actual compiled startup/help/private hooks/MCP, setup, seven storage/privacy RPCs, shutdown and owner-lock reacquisition, and 10,000-note public-view delivery with 21 verified hook injections and original/group joins. Hosts/models stayed inert; only owned local RPC sockets were admitted. Historical evidence under `docs/research/checkpoints/`:
 
-**4. Dependencies:** none at runtime. `typescript` and `@types/node` were added as devDependencies, for `npm run typecheck` only.
+- `2026-10-13-v1-release-build.log`
+- `2026-10-13-v1-release-qualified-runtime.log`
+- `2026-10-13-v1-release-static.log`
+- `2026-10-13-v1-release-final-typecheck.log`
+- `2026-10-13-v1-release-qualified-source.log`
 
-**5. Features:**
-- **Store and manage:** store, search, get, update (version-checked), archive, purge, review, accept, reject and prune, with an audit event for every change.
-- **Scope:** personal, project and session categories; project isolation by git origin; `shared` memories and linked projects.
-- **Retention and privacy:** a session TTL, and private memories.
-- **Context:** injected by the hook, and available on demand over MCP.
-- **Sources:** the repo's docs index, and claude-mem read-only.
-- **LLM router:** falls back through providers, validates JSON, and keeps a usage log.
-- **Consolidation:** proposals with provenance, which wait for your review.
-- **Split setup:** a bind address, an allowlist, and a `/v1` API.
-- **Numbers:** stats, bench and eval.
+The hashes and receipts in this historical section identify **the pre-cleanup artifact**, not the fresh rebuild above. Use each selected candidate's own `SHA256SUMS`, `build.json` and matching verification receipts. Minimum-safety evidence must not be promoted to full qualification.
 
-**6. Test results:**
-- 87/87 pass offline.
-- **Coverage:** the 43 original checks ported, plus storage, conflicts, duplicates, isolation, retention, privacy, migrations, concurrent writers, FTS-safe queries, context, the hook, providers, the LLM router, consolidation, a real MCP stdio session, MCP registration and the split setup.
-- **Type check:** strict, clean.
+## Native SQLite library admission (2026-10-13)
 
-**7. Measurements:** see below; these are the only numbers quoted anywhere.
+All application callers use `src/platform/sqlite.ts`, owning the reviewed **`better-sqlite3@13.0.3`** Node-API fork. The maintained patch is `patches/better-sqlite3@13.0.3.patch`, historical SHA256 `e1020d35775b701e8c186e0b5073a74b06232ec05f2f90fc99e2d79752007fbf`. Its admitted native filename is **`bosun_sqlite.node`**: Bun 1.4.3 rejects the upstream historical filename before dlopen. Node 22.16.0 headers were build inputs only.
 
-**8. Limitations:** the "Not verified" and "Deferred minors" sections below, and ARCHITECTURE.md's "Limitations and future work".
+Two fresh sandboxed native builds previously produced identical **1,939,312-byte** binaries, SHA256 `554a3ad6a9b55b8c91af529d7832c7c52605511c32a2833f352166a136046c1d`. `scripts/sqlite-native-inputs.mjs` binds reviewed archives, patch, source, toolchain and native output; changed bytes/toolchains require review and requalification. Existing build inputs are not permission for new acquisition/install.
 
-**9. Running locally:** "Next steps" below, and README.
+Preserve owned-statement/backup finalization, retained-cursor invalidation, unfinished-FTS rollback, UDF/authorizer/error identity, exact integer/blob handling, URI/extension/defensive controls and online backup. Cleanup retains original errors and literal destination whitespace. No GC/private-pointer workaround, `node:sqlite`/Node fallback or weakened floor/lease/poisoned-writer assertions.
 
-**10. Future work (spec §9):**
-- Cognee and embeddings, but only if `bosun memory eval` shows a gap.
-- MCP protocol `2026-07-28`.
-- For the split setup: tokens and TLS, an offline queue and sync, multiple users, a Linux server.
+`src/platform/canonical-path.cjs` resolves metadata/components/links **without opening the database inode**. Ordinary Bun `realpathSync(database)` was observed releasing a cross-process POSIX read lock; fresh symlink/inode checks and metadata-only canonicalization are required. Do not replace them with identity caches.
 
-### Historical measurements
+Historical native/source evidence includes `2026-10-13-sqlite-library-{backup-edges-probe,backup-edges-build,reproducible-rebuild,storage-final-qualification,layered-final-source,layered-final-typecheck,installed-final-probe,portable-prepare,layered-source-capture,source-benchmark-metadata-after}.log`. It records 196/196 storage tests plus 35/35 containment, then 1,179/1,179 integrated source tests across 91 files plus containment and typecheck, and the original 10k source-hook/producer-join contract. These are previous candidate receipts, not fresh cleanup qualification.
 
-All on the original Mac (M5 Pro, 48 GB, Node 24.21.0, SQLite 3.53.4).
+## Deferred gates and safety boundaries
 
-**`bosun memory bench`:** 10,000 synthetic memories (seed 42), 200 queries.
+Real-model quality/Clef calibration, physical vector support and budgets, native four-host controls/tool isolation/readiness/retention/UI switching, designated-machine performance, broader compiled reproducibility, live second-machine deployment and personal installation/launchd/TCC remain deferred and separately permission-gated. Unverified automatic controls stay held; synthetic/source success never promotes them. The future one-clean-final-commit goal is not permission to commit now.
 
-| What | Result |
-|---|---|
-| store | p50 0.15 ms · p95 0.32 ms |
-| search | p50 3.83 · p95 5.53 ms |
-| context (~400 tokens) | p50 5.11 · p95 7.22 ms |
-| budget | 200/200 within ~400 tokens (max ~398, average ~315) |
-| hook memory part | p50 30.6 · p95 40.1 ms (an earlier run: 36.6) |
-| hook wall clock | p50 75 · p95 94 ms |
-| database | 14.3 MB |
+Preserve original privacy/scope/IDs/versions/hashes/audit, public-only inference screening and derivative invalidation. One daemon owns the prepared home; reads/startup do not initialize or repair unknown layouts. Lost native/COMMIT/transfer effects remain durable **unknown** with original receipts and **no replay**. Hooks remain lean, read-only and inference-free; producer-owned leases survive uncertain writes until proven OS teardown. Preserve explicit models without fallback or credential borrowing.
 
-**Hook wall clock by store** (30 runs, Kev unreachable):
+## Preserved history
 
-| Store | Time |
-|---|---|
-| no memory yet | 51 ms |
-| 10,000 memories | 73 ms |
-| before the memory layer | 48 ms |
-| bare `node -e 0` | 24 ms |
+- [Exact original HANDOFF.md](docs/research/archive/2026-10-13-handoff-pre-cleanup.md)
+- [Exact original RESUME.md](docs/research/archive/2026-10-13-resume-pre-cleanup.md)
 
-**CLI and tests:**
-- `bosun help`: 51 ms (§2 baseline 58 ms).
-- `npm test`: 87 tests in 13.8 s (§2 baseline: 43 tests in 12.8 s).
-- **Token numbers:** only estimates of what was injected (characters ÷ 4). No savings are claimed, because nothing was measured before and after.
-
-### What the original final review changed
-
-- **Private memories were reachable** in two ways:
-  - `bosun memory` was auto-allowed for the model, and the CLI prints private bodies and can purge. It now needs your approval each time.
-  - MCP could flip a memory to public and get its body back in the reply. MCP can now only mark a memory private.
-- **The hook injected unrelated notes** when a prompt shared a single word with them. A note now needs at least 2 distinct matching words (`CONTEXT_HOOK_MIN_TERMS`).
-- **Session memories didn't expire** in a long-running `bosun serve memory`.
-- **A plain re-install on a split-setup client** set up local Ollama and Kev against the remote URLs.
-- **The hook created a memory database** for users with no memories.
-- **Found during the fix pass:** a remote that drops packets, such as Tailscale being down, kept every bosun process alive for about 10 s after its work. That would have held the hook past Claude's 5 s timeout on every prompt. `bin/bosun` now flushes and exits.
-
-### Historical rulings
-
-The full list is in the ledger. The ones that change behaviour you might notice:
-- **Project identity** reads `.git` directly instead of spawning git, which saved 17 ms per prompt. An origin set through `includeIf` or `GIT_DIR` gets a path-based id instead.
-- **`bin/bosun` has a hook fast path** that loads only the hook's modules.
-- **MCP can't make a private memory public again.** Use `bosun memory update <id> --public`.
-- **Consolidation skips near-duplicates** instead of proposing them, and lists each one it skipped.
-- **Deviations from the spec are small** and are listed in the plan's "Deviations" section:
-  - `docs` has its own rowid.
-  - The memory CLI lives in `lib/memory/cli.ts`.
-  - The docs index is keyed by repo path.
-  - Clients rank remote hits locally.
-  - Tag filters are any-of.
-
-### Historical checks not verified
-
-**Memory layer:**
-- The `claude mcp add --scope user bosun -- …` and `codex mcp add bosun -- …` formats on your versions, and whether the hosts start the server correctly.
-- Whether Codex starts MCP servers in the project directory. Without `CLAUDE_PROJECT_DIR`, the project id comes from the server's cwd.
-- The `usage` fields in `claude -p --output-format json`, used by the opt-in remote LLM.
-- Ollama's handling of JSON-schema `format` for the consolidation schema.
-- A real Tailscale bind for `bosun serve`.
-- Kev's own bind address next to the kev proxy on the same port.
-
-**From before:**
-- Orca's real JSON handle fields.
-- Orca split lifetime.
-- Codex `sandbox_mode` in agent TOML.
-- `/hooks` trust persisting.
-- The GPT-6 model names on your plan.
-- `--restricted` with the subscription login.
-- Orca leaving `AGENTS.md` and `agents/` alone.
-- `CLAUDE_CODE_AUTO_COMPACT_WINDOW=65536` below the documented 100k minimum.
-- Real qwen3.6 tool calling, speed and memory at 64K.
-- `kev-0.8b` accuracy.
-
-### Historical unresolved v0.2 issues
-
-**From this build** (details in the ledger):
-- **Remote client:** a server reply `{ok:true}` without data is accepted, so the CLI shows a stack trace.
-- **Docs index:**
-  - It can throw on a file deleted mid-scan, and that fails all of `context_retrieve`.
-  - Nested repos re-index each other.
-- **Hook:** it counts access for all 20 fetched hits, not only the injected ones.
-- **Error message:** "details in bosun.log", but the log keeps only the error name and code.
-- **Server-side housekeeping:** there's no remote purge or prune route; run them on the server.
-- **Node path:** MCP registration and the launchd plists bake in the current Node path, so a Volta cleanup breaks them.
-- **Consolidation:** it considers only the newest 20 summaries since the last run.
-- **CLI:**
-  - `bosun help` got slower (39 → 51 ms) because of eager imports.
-  - There's no way to unset `--shared`.
-  - An expired session memory you restore gets re-archived.
-- **Server input:** CIDR entries aren't validated, and a `null` JSON body gives 500 instead of 400.
-- **Opt-in remote LLM:** `claude -p` runs with its default tools on summary text.
-- **Nit:** `tee()` has two identical branches.
-
-**From the first build, still standing:**
-- `-e claude` keeps `CLAUDE_CODE_OAUTH_TOKEN` and `CLAUDE_CODE_USE_FOUNDRY`.
-- Kev's bind relies on the `kev.serve` default.
-- Whitespace and CRLF get normalized on restore.
-- A second `.bak-bosun` overwrites the first.
-
-### Archived v0.2 next steps
-
-1. **Decide on the missed hook target** (see Status). Keep the in-process design, or plan a long-lived memory process.
-2. **Install:** `npm test`, then `./install.sh --host both`.
-   - Add `--replace-plugins` once you're ready to retire superpowers, mattpocock-skills and code-review.
-   - Optional, dev only: `npm install && npm run typecheck`.
-3. **Read `bosun doctor`.** It now checks the memory database and the MCP registration in each host as well.
-4. **Restart the hosts:**
-   - **Claude:** `/mcp` should list `bosun`, and `/agents` the 6 `bosun-*` agents.
-   - **Codex:** trust the hook with `/hooks`.
-5. **Try memory:**
-   - `bosun memory add -t "Use pnpm" "Always pnpm install; npm breaks the lockfile"` in a repo.
-   - A prompt about installing dependencies should show a `[bosun memory: …]` block.
-   - `bosun memory consolidate` then `bosun memory review` turns your claude-mem history into proposals.
-6. **Split setup, if you want it:** `bosun install --serve kev,llm,memory` on the server Mac, then the `bosun install --remote …` line it prints, on the laptop.
-7. **After about a week:**
-   - `bosun label` and `bosun eval` for the router.
-   - `bosun memory stats`.
-   - `bosun memory eval <queries.jsonl>` before you tune `CONTEXT_HOOK_MIN_TERMS` or `CONTEXT_HOOK_MIN_SCORE`.
-
-### Historical decisions
-
-| # | Decision | Why |
-|---|---|---|
-| D1–D10 | bosun's name, roles, skills, Kev, Orca and wiring | `docs/specs/2026-09-28-bosun-design.md` |
-| M1 | TypeScript ESM, Node ≥ 24, native type stripping | you chose a full port; no build step |
-| M2 | zero runtime deps; `typescript` and `@types/node` as devDependencies | type checking only |
-| M3 | in-process, no daemon; `bosun serve` only for the split setup | measured database costs are milliseconds |
-| M4 | `node:sqlite` + FTS5, WAL, migrations | built in and fast enough |
-| M5 | curated store plus claude-mem read-only | no duplication |
-| M6 | hand-rolled stdio MCP, protocol `2025-11-25` | the SDK would add 94 packages |
-| M7 | project = hash of the normalized git origin | clones, worktrees and machines share one project |
-| M8–M10 | Cognee, embeddings and Rust deferred; an LLM only where needed | measure first |
-| M11–M13 | per-service URLs; no tokens in v1 (bind + allowlist); local or remote store behind one interface | your call; auth comes later |
+Both archives retain the full originals without rewriting their dated history. Their relative links were authored at the repository root: interpret `docs/...`, `src/...`, `test/...` and other relative paths **from the repository root**, not from `docs/research/archive/`. Historical instructions, proposals, version freezes, host choices and old process handles are evidence, not current authorization.

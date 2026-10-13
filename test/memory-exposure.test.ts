@@ -3,415 +3,658 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { sandbox, fresh, bosun, mock, gitRepo, mcpSession } from './helpers.ts';
-import { load, P } from '../lib/config.ts';
-import { tools, handle, type Tool } from '../lib/mcp.ts';
-import { curated, retrieve } from '../lib/context.ts';
-import { memoryServer, listen } from '../lib/serve.ts';
-import { MemoryError, type Memory, type MemoryApi, type Found, type Ctx } from '../lib/memory/types.ts';
+import http from 'node:http';
+import crypto from 'node:crypto';
+import { runtimeFixture } from './runtime-fixture.ts';
+import { mcpFixture } from './mcp-fixture.ts';
 import { mayExposeMemory } from '../src/core/memory-policy.ts';
-import { MemoryService } from '../lib/memory/service.ts';
-import { openDb } from '../lib/memory/sqlite.ts';
-import { project } from '../lib/memory/project.ts';
+import {
+  modelMemoryReply,
+  modelMemoryStoreReply,
+  modelMemoryHits,
+  publicMemory,
+} from '../src/core/memory-presentation.ts';
+import { createCuratedSource } from '../src/core/memory-source.ts';
+import { createRetrieveContext } from '../src/core/use-cases/retrieve-context.ts';
+import type { Memory, Found, Ctx } from '../src/core/domain/memory.ts';
+import { MemoryError } from '../src/core/errors.ts';
+import { rpcError } from '../src/contracts/rpc.ts';
+import { contentHash } from '../src/platform/content-hash.ts';
+import { project } from '../src/platform/project.ts';
+import { DaemonOwner } from '../src/platform/daemon-owner.ts';
+import { CutoverWriter } from '../src/adapters/memory/sqlite-cutover.ts';
+import { version } from '../src/platform/assets.ts';
 
-const CTX: Ctx = { projectId: 'p_fixture', sessionId: null, linked: [] };
-const O = { budgetTokens: 400, minScore: 0, itemChars: 400 };
-const OPAQUE = { memory: { private: true } };
-const CANARY = 'PRIVATE-CONTENT-CANARY-4289';
-const FIELDS = ['id', 'title', 'body', 'tags', 'category', 'status', 'projectId', 'sessionId', 'source', 'sourceRef',
-  'hash', 'events', 'version', 'createdAt', 'updatedAt', 'expiresAt', 'accessedAt', 'accessCount', 'rank', 'matched', 'shared', 'derivative', 'toJSON'];
-const ARGS: Record<string, object> = {
-  memory_get: { id: 'm_fixture' }, memory_store: { category: 'project', title: 'Public title', body: 'Public body' },
-  memory_update: { id: 'm_fixture', expectedVersion: 1, title: 'Public edit' }, memory_delete: { id: 'm_fixture' },
-  memory_search: { query: 'Public' }, context_retrieve: { task: 'Public' },
-};
-const publicRecord = (): Found => ({
-  private: false, id: 'm_public', category: 'project', projectId: CTX.projectId, sessionId: null,
-  title: 'Public title', body: 'Public body', tags: ['public'], status: 'active', shared: false,
-  source: 'owner', sourceRef: null, hash: 'public-hash', createdAt: 1, updatedAt: Date.now(), expiresAt: null,
-  accessedAt: null, accessCount: 0, version: 1, rank: -1, matched: 1,
-});
-function denied(flag: unknown, omit = false, throws = false) {
-  const reads: string[] = [];
-  const m: Record<string, unknown> = {};
-  if (!omit) Object.defineProperty(m, 'private', { get() { reads.push('private'); if (throws) throw Error(CANARY); return flag; } });
-  for (const field of FIELDS) Object.defineProperty(m, field, { enumerable: true, get() { reads.push(field); throw Error(`${CANARY}-${field}`); } });
-  return { m: m as unknown as Found, reads };
+const CANARY = 'PRIVATE-CONTENT-CANARY-4289',
+  OPAQUE = { memory: { private: true } },
+  CTX: Ctx = { projectId: 'p_fixture', sessionId: null, linked: [] };
+const FIELDS =
+  'id title body tags category status projectId sessionId source sourceRef hash events version createdAt updatedAt expiresAt accessedAt accessCount rank matched shared derivative toJSON'.split(
+    ' ',
+  );
+const data = (value: { structuredContent?: unknown }): any => value.structuredContent;
+function noCanary(value: unknown) {
+  assert.doesNotMatch(JSON.stringify(value), /PRIVATE-CONTENT-CANARY|987654321/);
 }
-function storeFor(m: Memory, rows: Found[] = [m as Found]): MemoryApi {
+function publicRecord(projectId = CTX.projectId): Found {
   return {
-    store: async () => ({ memory: m, duplicate: true }), search: async () => rows, get: async () => m,
-    update: async () => m, delete: async () => m, accept: async () => m, reject: async () => m, close() {},
+    private: false,
+    id: 'm_public',
+    category: 'project',
+    projectId,
+    sessionId: null,
+    title: 'Public title',
+    body: 'Public body',
+    tags: ['public'],
+    status: 'active',
+    shared: false,
+    source: 'owner',
+    sourceRef: null,
+    hash: contentHash('Public title', 'Public body'),
+    createdAt: 1,
+    updatedAt: Date.now(),
+    expiresAt: null,
+    accessedAt: null,
+    accessCount: 0,
+    version: 1,
+    rank: -1,
+    matched: 1,
   };
 }
-function listFor(api: MemoryApi) { return tools(load(), process.env.HOME!, () => api); }
-async function call(list: Tool[], name: string, args = ARGS[name]): Promise<any> {
-  let reply: any;
-  await handle(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }), list, load(), (r) => { reply = r; });
-  // Exercise final serialization too: no returned adapter object should survive the projection.
-  return JSON.parse(JSON.stringify(reply)).result;
+function denied(flag: unknown, omit = false, throws = false) {
+  const reads: string[] = [],
+    value: Record<string, unknown> = {};
+  if (!omit)
+    Object.defineProperty(value, 'private', {
+      get() {
+        reads.push('private');
+        if (throws) throw Error(CANARY);
+        return flag;
+      },
+    });
+  for (const field of FIELDS)
+    Object.defineProperty(value, field, {
+      enumerable: true,
+      get() {
+        reads.push(field);
+        throw Error(CANARY + '-' + field);
+      },
+    });
+  return { value: value as unknown as Found, reads };
 }
-function noCanary(value: unknown) { assert.doesNotMatch(JSON.stringify(value), /PRIVATE-CONTENT-CANARY/); }
 
-test('model record policy denies malformed flags and throwing classifiers before reading any payload', () => {
+test('final model policy rejects malformed/inherited/throwing classifications before payload getters', () => {
   for (const flag of [true, undefined, null, 'true', 'false', 0, 1, {}, [], NaN]) {
-    const r = denied(flag);
-    assert.equal(mayExposeMemory(r.m, 'model'), false);
-    assert.deepEqual(r.reads, ['private']);
+    const row = denied(flag);
+    assert.equal(mayExposeMemory(row.value, 'model'), false);
+    assert.deepEqual(row.reads, ['private']);
   }
-  const missing = denied(undefined, true);
-  assert.equal(mayExposeMemory(missing.m, 'model'), false);
-  assert.deepEqual(missing.reads, []);
-  const throwing = denied(undefined, false, true);
-  assert.equal(mayExposeMemory(throwing.m, 'model'), false);
-  assert.deepEqual(throwing.reads, ['private']);
-  const inherited = Object.create({ private: false });
-  Object.defineProperty(inherited, 'title', { get() { throw Error(CANARY); } });
-  assert.equal(mayExposeMemory(inherited, 'model'), false);
-  for (const malformed of [null, undefined, false, 'false', [], () => false]) assert.equal(mayExposeMemory(malformed, 'model'), false);
+  const missing = denied(undefined, true),
+    throwing = denied(false, false, true),
+    inherited = denied(undefined, true);
+  Object.setPrototypeOf(inherited.value, { private: false });
+  for (const row of [missing, throwing, inherited]) {
+    assert.equal(mayExposeMemory(row.value, 'model'), false);
+    assert.ok(row.reads.every((field) => field === 'private'));
+  }
+  for (const input of [null, undefined, false, 'false', [], () => false])
+    assert.equal(mayExposeMemory(input, 'model'), false);
 });
-
-test('MCP get/store/update/delete return the same opaque receipt for private and unclassified adapter records', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    for (const flag of [true, undefined, null, 'true', 'false', 0, 1, {}, []]) for (const name of ['memory_get', 'memory_store', 'memory_update', 'memory_delete']) {
-      const r = denied(flag);
-      const api = storeFor(r.m);
-      api.store = async () => ({ memory: r.m, get duplicate(): boolean { throw Error(`${CANARY}-duplicate`); } });
-      const root = listFor(api);
-      try {
-        const result = await call(root.list, name);
-        assert.deepEqual(result.structuredContent, OPAQUE, `${name}/${typeof flag}`);
-        assert.deepEqual(JSON.parse(result.content[0].text), OPAQUE);
-        assert.deepEqual(r.reads, ['private']);
-        noCanary(result);
-      } finally { root.close(); }
-    }
-    const inherited = denied(undefined, true);
-    Object.setPrototypeOf(inherited.m, { private: false });
-    for (const r of [denied(undefined, true), denied(undefined, false, true), inherited]) {
-      const root = listFor(storeFor(r.m));
-      try { for (const name of ['memory_get', 'memory_store', 'memory_update', 'memory_delete']) assert.deepEqual((await call(root.list, name)).structuredContent, OPAQUE); }
-      finally { root.close(); }
-      assert.ok(r.reads.every((field) => field === 'private'));
-    }
-    for (const malformed of [null, undefined, [], () => false]) {
-      const root = listFor(storeFor(malformed as never));
-      try { for (const name of ['memory_get', 'memory_store', 'memory_update', 'memory_delete']) assert.deepEqual((await call(root.list, name)).structuredContent, OPAQUE); }
-      finally { root.close(); }
-    }
-  } finally { sb.cleanup(); }
+test('final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters', () => {
+  for (const flag of [true, undefined, null, 'true', 'false', 0, 1, {}, []]) {
+    const row = denied(flag);
+    assert.deepEqual(modelMemoryReply(row.value), OPAQUE);
+    assert.deepEqual(
+      modelMemoryStoreReply({
+        memory: row.value,
+        get duplicate(): boolean {
+          throw Error(CANARY);
+        },
+      }),
+      OPAQUE,
+    );
+    assert.deepEqual(row.reads, ['private', 'private']);
+    assert.deepEqual(modelMemoryReply(row.value, true), OPAQUE);
+    assert.deepEqual(row.reads, ['private', 'private']);
+  }
 });
-
-test('explicit private store/update receipts do not inspect a buggy adapter reply or duplicate state', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
+test('explicit private requests never inspect a buggy public adapter reply or duplicate state', () => {
+  let reads = 0;
+  const reply = {
+    get memory(): Memory {
+      reads++;
+      throw Error(CANARY);
+    },
+    get duplicate(): boolean {
+      reads++;
+      throw Error(CANARY);
+    },
+  };
+  assert.deepEqual(modelMemoryStoreReply(reply, true), OPAQUE);
+  const row = new Proxy(publicRecord(), {
+    get() {
+      reads++;
+      throw Error(CANARY);
+    },
+  });
+  assert.deepEqual(modelMemoryReply(row, true), OPAQUE);
+  assert.equal(reads, 0);
+});
+test('final public projection retains declared ID/hash/version and ignores serialization or derivative hooks', () => {
+  const row = publicRecord();
+  let hooks = 0;
+  for (const field of ['toJSON', 'events', 'derivative'])
+    Object.defineProperty(row, field, {
+      enumerable: true,
+      get() {
+        hooks++;
+        throw Error(CANARY);
+      },
+    });
+  Object.defineProperty(row.tags, 'toJSON', {
+    get() {
+      hooks++;
+      throw Error(CANARY);
+    },
+  });
+  const result = modelMemoryStoreReply({ memory: row, duplicate: true }) as any;
+  assert.equal(result.memory.id, row.id);
+  assert.equal(result.memory.hash, row.hash);
+  assert.equal(result.memory.version, 1);
+  assert.equal(result.duplicate, true);
+  assert.deepEqual(result.memory.tags, ['public']);
+  noCanary(result);
+  assert.equal(hooks, 0);
+  assert.ok(!('events' in publicMemory(row)));
+});
+test('curated and model search classify first and ignore array species/toJSON during real packing', async () => {
+  const hidden = [true, undefined, null, 'false', 0].map((flag) => denied(flag));
+  let hooks = 0;
+  class Rows extends Array<Found> {
+    static get [Symbol.species](): ArrayConstructor {
+      hooks++;
+      throw Error(CANARY);
+    }
+    get toJSON(): never {
+      hooks++;
+      throw Error(CANARY);
+    }
+  }
+  const rows = new Rows(...hidden.map((row) => row.value), publicRecord());
+  assert.deepEqual(
+    modelMemoryHits(rows).map((row) => row.id),
+    ['m_public'],
+  );
+  const queries: unknown[] = [];
+  const source = createCuratedSource({
+    search: async (query) => {
+      queries.push(query.includePrivate);
+      return rows;
+    },
+  });
+  assert.deepEqual(
+    (await source.search('Public', CTX, 10)).map((hit) => hit.id),
+    ['m_public'],
+  );
+  const result = await createRetrieveContext([source], {
+    now: Date.now,
+    monotonic: () => performance.now(),
+    hash: contentHash,
+    dateLabel: (at) => new Date(at).toISOString().slice(0, 10),
+    measure() {},
+  })('Public', CTX, { budgetTokens: 400, minScore: 0, itemChars: 400 });
+  assert.deepEqual(
+    result.items.map((hit) => hit.id),
+    ['m_public'],
+  );
+  noCanary(result);
+  assert.equal(hooks, 0);
+  assert.deepEqual(queries, [false, false]);
+  for (const row of hidden) assert.ok(row.reads.every((field) => field === 'private'));
+});
+test('finite storage errors never inspect messages, versions, causes or serialization hooks', () => {
+  for (const code of ['invalid', 'not_found', 'conflict', 'unavailable', CANARY]) {
     let reads = 0;
-    const api = storeFor(publicRecord());
-    api.store = async () => ({ get memory(): Memory { reads++; throw Error(CANARY); }, get duplicate(): boolean { reads++; throw Error(CANARY); } });
-    api.update = async () => new Proxy(publicRecord(), { get(_target, field) { if (field === 'then') return undefined; reads++; throw Error(CANARY); } });
-    const root = listFor(api);
-    try {
-      assert.deepEqual((await call(root.list, 'memory_store', { ...ARGS.memory_store, private: true })).structuredContent, OPAQUE);
-      assert.deepEqual((await call(root.list, 'memory_update', { ...ARGS.memory_update, private: true })).structuredContent, OPAQUE);
-      assert.equal(reads, 0);
-    } finally { root.close(); }
-  } finally { sb.cleanup(); }
+    const error = new MemoryError(code as never, CANARY, 987654321);
+    for (const field of ['message', 'current', 'cause', 'toJSON'])
+      Object.defineProperty(error, field, {
+        get() {
+          reads++;
+          throw Error(CANARY);
+        },
+      });
+    noCanary(rpcError(error));
+    assert.equal(reads, 0);
+  }
+  const error = new MemoryError('conflict', CANARY);
+  Object.defineProperty(error, 'code', {
+    get() {
+      throw Error(CANARY);
+    },
+  });
+  noCanary(rpcError(error));
 });
 
-test('MCP public replies retain known fields and duplicate/version behavior without record or tag-array toJSON', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const m = publicRecord();
-    let reads = 0;
-    for (const field of ['toJSON', 'events', 'derivative']) Object.defineProperty(m, field, { enumerable: true, get() { reads++; throw Error(CANARY); } });
-    Object.defineProperty(m.tags, 'toJSON', { get() { reads++; throw Error(CANARY); } });
-    const root = listFor(storeFor(m));
-    try {
-      for (const name of ['memory_get', 'memory_store', 'memory_update']) {
-        const r = (await call(root.list, name)).structuredContent;
-        assert.equal(r.memory.id, m.id);
-        assert.equal(r.memory.body, m.body);
-        assert.equal(r.memory.version, 1);
-        assert.deepEqual(r.memory.tags, ['public']);
-        assert.equal(r.memory.private, false);
-        assert.ok(!('events' in r.memory) && !('derivative' in r.memory) && !('rank' in r.memory));
-        if (name === 'memory_store') assert.equal(r.duplicate, true);
+async function remoteFixture(errors = false) {
+  const authorityId = crypto.randomUUID(),
+    sourceId = crypto.randomUUID(),
+    requests: any[] = [];
+  let pid = '';
+  const server = http.createServer((incoming, outgoing) => {
+    let body = '';
+    incoming.on('data', (bytes) => (body += bytes));
+    incoming.on('end', () => {
+      const input = body ? JSON.parse(body) : null;
+      requests.push(input);
+      outgoing.writeHead(200, {
+        'content-type': 'application/json',
+        'x-bosun-authority': authorityId,
+      });
+      if (incoming.url === '/v1/identity') {
+        outgoing.end(
+          JSON.stringify({
+            protocol: 1,
+            version,
+            memorySchema: 2,
+            authorityId,
+            sourceId,
+            projectId: pid,
+            serverTime: Date.now(),
+          }),
+        );
+        return;
       }
-      assert.deepEqual((await call(root.list, 'memory_delete')).structuredContent, { id: 'm_public', status: 'active' });
-      assert.equal((await call(root.list, 'memory_search')).structuredContent.hits[0].snippet, 'Public body');
-      assert.equal(reads, 0);
-    } finally { root.close(); }
-  } finally { sb.cleanup(); }
-});
-
-test('MCP search and curated packing reject private/unknown hits before getters; returned Array species/toJSON is ignored', async () => {
-  const sb = sandbox();
+      if (errors) {
+        outgoing.end(
+          JSON.stringify({
+            version: 1,
+            id: input.id,
+            ok: false,
+            error: { code: 'conflict', message: CANARY, details: { currentVersion: 987654321 } },
+          }),
+        );
+        return;
+      }
+      const publicRow = publicRecord(pid),
+        privateRow = {
+          ...publicRow,
+          private: true,
+          id: CANARY + '-id',
+          title: CANARY,
+          body: CANARY,
+          tags: [CANARY],
+          source: CANARY,
+          sourceRef: CANARY,
+          hash: CANARY,
+          version: 987654321,
+        };
+      const result =
+        input.method === 'memory.search'
+          ? {
+              hits: [
+                privateRow,
+                { ...privateRow, private: 'false' },
+                { ...privateRow, private: null },
+                { ...privateRow, private: undefined },
+                publicRow,
+              ],
+            }
+          : input.params.private === true || input.params.patch?.private === true
+            ? { memory: publicRow, duplicate: true }
+            : { memory: privateRow, duplicate: true };
+      outgoing.end(JSON.stringify({ version: 1, id: input.id, ok: true, result }));
+    });
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const url = 'http://127.0.0.1:' + (server.address() as { port: number }).port;
+  let f: Awaited<ReturnType<typeof runtimeFixture>> | undefined;
   try {
-    fresh(sb);
-    const deniedRecords = [true, undefined, null, 'false', 0].map((flag) => denied(flag));
-    let hooks = 0;
-    class ReturnedRows extends Array<Found> {
-      static get [Symbol.species](): ArrayConstructor { hooks++; throw Error(`${CANARY}-species`); }
-      get toJSON(): never { hooks++; throw Error(`${CANARY}-collection`); }
+    f = await runtimeFixture(
+      `[remote]\nauthority=${JSON.stringify(url)}\nauthorityId=${JSON.stringify(authorityId)}\n`,
+      {
+        env: {
+          BOSUN_REMOTE_TOKEN: 'Owner_fixture_credential_'.repeat(3),
+          BOSUN_REMOTE_MODEL_TOKEN: 'Model_fixture_credential_'.repeat(3),
+        },
+      },
+    );
+    pid = project(f.workspace).id;
+    return {
+      ...f,
+      requests,
+      async close() {
+        await f!.close();
+        server.closeAllConnections();
+        await new Promise<void>((resolve) => server.close(() => resolve()));
+      },
+    };
+  } catch (error) {
+    await f?.close();
+    server.closeAllConnections();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    throw error;
+  }
+}
+test('modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests', async () => {
+  const f = await remoteFixture();
+  let session: Awaited<ReturnType<typeof mcpFixture>> | undefined;
+  try {
+    session = await mcpFixture(f.env, f.workspace);
+    for (const [name, args] of [
+      ['memory_get', { id: 'm_fixture' }],
+      ['memory_store', { category: 'project', title: 'Public', body: 'Public body' }],
+      ['memory_update', { id: 'm_fixture', expectedVersion: 1, patch: { title: 'Public edit' } }],
+      ['memory_delete', { id: 'm_fixture' }],
+      [
+        'memory_store',
+        { category: 'project', title: 'Private request', body: 'Private body', private: true },
+      ],
+      ['memory_update', { id: 'm_fixture', expectedVersion: 1, patch: { private: true } }],
+    ] as const) {
+      const reply = await session.call(name, args);
+      assert.deepEqual(data(reply), OPAQUE);
+      noCanary(reply);
     }
-    const rows = new ReturnedRows(...deniedRecords.map((r) => r.m), publicRecord());
-    const api = storeFor(publicRecord(), rows);
-    const queries: unknown[] = [];
-    api.search = async (query) => { queries.push(query.includePrivate); return rows; };
-    const root = listFor(api);
-    try {
-      const search = await call(root.list, 'memory_search');
-      assert.deepEqual(search.structuredContent.hits.map((h: any) => h.id), ['m_public']);
-      const context = await call(root.list, 'context_retrieve', { task: 'Public', sources: ['curated'] });
-      assert.deepEqual(context.structuredContent.ids, ['m_public']);
-      assert.deepEqual(context.structuredContent.sources, { curated: 1 });
-      const r = await retrieve('Public', [curated(api)], CTX, O);
-      assert.deepEqual(r.items.map((h) => h.id), ['m_public']);
-      assert.deepEqual(r.sources, { curated: 1 });
-      noCanary([search, context, r]);
-      assert.equal(hooks, 0);
-      assert.deepEqual(queries, [false, false, false]);
-      for (const deniedRecord of deniedRecords) assert.deepEqual(deniedRecord.reads, ['private', 'private', 'private']);
-    } finally { root.close(); }
-  } finally { sb.cleanup(); }
+    assert.deepEqual(
+      data(await session.call('memory_search', { text: 'Public' })).hits.map((row: any) => row.id),
+      ['m_public'],
+    );
+    const packed = await session.call('context_retrieve', { task: 'Public', sources: ['curated'] });
+    assert.deepEqual(data(packed).ids, ['m_public']);
+    noCanary(packed);
+    assert.ok(
+      f.requests
+        .filter((input) => input?.method === 'memory.search')
+        .every((input) => input.params.includePrivate === false),
+    );
+    assert.equal(f.calls(), 0);
+    noCanary(session.stderr());
+  } finally {
+    await session?.close();
+    await f.close();
+  }
 });
-
-test('MCP errors carry only finite codes/text, never provider messages, current versions, causes or serialization hooks', async () => {
-  const sb = sandbox();
+test('modern remote MCP normalizes content-bearing errors and excludes failed context derivatives', async () => {
+  const f = await remoteFixture(true);
+  let session: Awaited<ReturnType<typeof mcpFixture>> | undefined;
   try {
-    fresh(sb);
-    for (const code of ['invalid', 'not_found', 'conflict', 'unavailable', `${CANARY}-code`]) {
-      let reads = 0;
-      const error = new MemoryError(code as never, CANARY, 987654321);
-      for (const field of ['message', 'current', 'cause', 'toJSON']) Object.defineProperty(error, field, { get() { reads++; throw Error(CANARY); } });
-      const api = storeFor(publicRecord());
-      for (const name of ['store', 'search', 'get', 'update', 'delete'] as const) api[name] = (async () => { throw error; }) as never;
-      const root = listFor(api);
+    session = await mcpFixture(f.env, f.workspace);
+    for (const [name, args] of [
+      ['memory_get', { id: 'm_fixture' }],
+      ['memory_store', { category: 'project', title: 'Public', body: 'Public' }],
+      ['memory_update', { id: 'm_fixture', expectedVersion: 1, patch: { title: 'Public' } }],
+      ['memory_delete', { id: 'm_fixture' }],
+      ['memory_search', { text: 'Public' }],
+    ] as const) {
+      const reply = await session.call(name, args);
+      assert.equal(reply.isError, true);
+      assert.equal(data(reply).error.code, 'conflict');
+      assert.equal(data(reply).error.details, undefined);
+      noCanary(reply);
+    }
+    const context = await session.call('context_retrieve', {
+      task: 'Public',
+      sources: ['curated'],
+    });
+    assert.deepEqual(data(context).ids, []);
+    noCanary(context);
+    noCanary(session.stderr());
+  } finally {
+    await session?.close();
+    await f.close();
+  }
+});
+test('owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows', async () => {
+  const f = await runtimeFixture();
+  let session: Awaited<ReturnType<typeof mcpFixture>> | undefined;
+  try {
+    session = await mcpFixture(f.env, f.workspace);
+    const input = {
+      category: 'project',
+      title: CANARY + ' title',
+      body: CANARY + ' body',
+      tags: ['private-canary-tag'],
+      private: true,
+    };
+    for (let n = 0; n < 2; n++)
+      assert.deepEqual(data(await session.call('memory_store', input)), OPAQUE);
+    const search = await f.cli(['memory', 'search', CANARY, '--private']);
+    assert.equal(search.code, 0, search.err);
+    const note = JSON.parse(search.out).hits[0];
+    assert.match(note.id, /^m_[0-9a-v]{9}[0-9a-f]{8}$/);
+    const read = async () =>
+      JSON.parse((await f.cli(['memory', 'get', note.id, '--events'])).out).memory;
+    const before = await read();
+    assert.equal(before.body, input.body);
+    assert.equal(before.source, 'rpc:model');
+    assert.deepEqual(
+      before.events.map((event: any) => event.op),
+      ['store'],
+    );
+    assert.deepEqual(data(await session.call('memory_get', { id: note.id })), OPAQUE);
+    for (const [name, args] of [
+      ['memory_update', { id: note.id, expectedVersion: 1, patch: { private: false } }],
+      ['memory_update', { id: note.id, expectedVersion: 1, patch: { body: CANARY + ' edit' } }],
+      ['memory_delete', { id: note.id }],
+    ] as const) {
+      const reply = await session.call(name, args);
+      assert.equal(reply.isError, true);
+      noCanary(reply);
+    }
+    assert.deepEqual(await read(), before);
+    const changed = await f.cli([
+      'memory',
+      'update',
+      note.id,
+      '--version',
+      '1',
+      '--patch',
+      JSON.stringify({ body: CANARY + ' owner edit' }),
+    ]);
+    assert.equal(changed.code, 0, changed.err);
+    assert.equal((await read()).version, 2);
+    await f.rpc('memory.delete', { id: note.id });
+    const archived = await read();
+    assert.equal(archived.version, 3);
+    assert.deepEqual(
+      archived.events.map((event: any) => event.op),
+      ['store', 'update', 'archive'],
+    );
+    await f.rpc('memory.update', { id: note.id, expectedVersion: 3, patch: { private: false } });
+    assert.equal((await read()).private, false);
+    noCanary(fs.readFileSync(path.join(f.paths.home, 'daemon.log'), 'utf8'));
+    assert.equal(f.calls(), 0);
+  } finally {
+    await session?.close();
+    await f.close();
+  }
+});
+test('native malformed flags remain opaque, immutable to models and byte-preserved through owner edits', async () => {
+  const notes: { id: string; title: string; body: string }[] = [];
+  const f = await runtimeFixture('', {
+    beforeStart(paths, workspace) {
+      const owner = new DaemonOwner(paths.owner),
+        writer = new CutoverWriter({
+          primary: paths.memory,
+          view: paths.view,
+          backups: paths.backups,
+        });
       try {
-        for (const name of Object.keys(ARGS)) {
-          const r = await call(root.list, name, name === 'context_retrieve' ? { task: 'Public', sources: ['curated'] } : ARGS[name]);
-          assert.equal(r.isError, true);
-          assert.deepEqual(r.structuredContent, { error: { code: code.startsWith('PRIVATE-') ? 'unavailable' : code } });
-          assert.doesNotMatch(JSON.stringify(r), /987654321|PRIVATE-CONTENT-CANARY/);
-        }
-        assert.equal(reads, 0);
-      } finally { root.close(); }
-    }
-    const error = new MemoryError('conflict', CANARY);
-    Object.defineProperty(error, 'code', { get() { throw Error(CANARY); } });
-    const api = storeFor(publicRecord()); api.get = async () => { throw error; };
-    const root = listFor(api);
-    try { assert.deepEqual((await call(root.list, 'memory_get')).structuredContent, { error: { code: 'unavailable' } }); }
-    finally { root.close(); }
-  } finally { sb.cleanup(); }
-});
-
-test('guarded stdio MCP excludes remote private metadata across reads/mutations/search/context even when filtering is ignored', async () => {
-  const sb = sandbox();
-  const privateRecord = { ...publicRecord(), private: true, id: `${CANARY}-id`, title: `${CANARY}-title`, body: `${CANARY}-body`, tags: [`${CANARY}-tag`],
-    source: `${CANARY}-source`, sourceRef: `${CANARY}-ref`, hash: `${CANARY}-hash`, events: [{ op: `${CANARY}-event` }],
-    version: 987654321, createdAt: 987654321, derivative: CANARY };
-  const records = [privateRecord, { ...privateRecord, private: 'false' }, { ...privateRecord, private: null }, { ...privateRecord, private: undefined }];
-  const routes = Object.fromEntries(['get', 'store', 'update', 'delete', 'search'].map((name) => [`/v1/memory/${name}`, () => ({ json: { ok: true,
-    data: name === 'search' ? [...records, publicRecord()] : name === 'store' ? { memory: privateRecord, duplicate: true } : privateRecord } })]));
-  const remote = await mock(routes);
-  try {
-    const repo = gitRepo(sb, 'repo');
-    const s = mcpSession(sb.env({ MEMORY_URL: remote.url }), repo);
-    try {
-      for (const name of ['memory_get', 'memory_store', 'memory_update', 'memory_delete']) {
-        const r = await s.call(name, ARGS[name]);
-        assert.deepEqual(r.result.structuredContent, OPAQUE);
-        noCanary(r);
-        assert.doesNotMatch(JSON.stringify(r), /987654321/);
+        writer.transaction((db) => {
+          const pid = project(workspace).id,
+            at = Date.now();
+          for (const [i, flag] of [
+            '',
+            'false',
+            -1,
+            2,
+            0.5,
+            new Uint8Array(),
+            new Uint8Array([48]),
+          ].entries()) {
+            const title = CANARY + ' title ' + i,
+              body = CANARY + ' constellation ' + i,
+              id = CANARY + '-id-' + i,
+              hash = contentHash(title, body);
+            db.prepare(
+              'INSERT INTO memories(id,category,project_id,title,body,tags,private,shared,source,source_ref,hash,created_at,updated_at,version) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,987654321)',
+            ).run(
+              id,
+              'project',
+              pid,
+              title,
+              body,
+              '["private-canary-tag"]',
+              flag,
+              flag,
+              CANARY,
+              CANARY,
+              hash,
+              at,
+              at,
+            );
+            db.prepare(
+              'INSERT INTO memory_events(memory_id,op,at,source,hash_after) VALUES(?,?,?,?,?)',
+            ).run(id, 'store', at, CANARY, CANARY);
+            notes.push({ id, title, body });
+          }
+        });
+      } finally {
+        writer.close();
+        owner.close();
       }
-      assert.deepEqual((await s.call('memory_search', ARGS.memory_search)).result.structuredContent.hits.map((h: any) => h.id), ['m_public']);
-      const r = await s.call('context_retrieve', { task: 'Public', sources: ['curated'] });
-      assert.deepEqual(r.result.structuredContent.ids, ['m_public']);
-      noCanary(r);
-      assert.ok(remote.requests.filter((r) => r.path === '/v1/memory/search').every((r) => r.body.query.includePrivate === false));
-    } finally { const done = await s.close(); assert.equal(done.code, 0); noCanary(done.lines); }
-  } finally { await remote.close(); sb.cleanup(); }
-});
-
-test('guarded stdio MCP maps remote content-bearing errors and context transport errors without derivatives', async () => {
-  const sb = sandbox();
-  const remote = await mock(Object.fromEntries(['get', 'store', 'update', 'delete', 'search'].map((name) => [`/v1/memory/${name}`, () => ({ json: {
-    ok: false, error: { code: 'conflict', message: `${CANARY}-title-body-source-hash`, current: { toJSON: CANARY, version: 987654321 } },
-  } })])));
-  try {
-    const repo = gitRepo(sb, 'repo');
-    const s = mcpSession(sb.env({ MEMORY_URL: remote.url }), repo);
+    },
+  });
+  let session: Awaited<ReturnType<typeof mcpFixture>> | undefined;
+  const raw = (id: string) => {
+    const writer = new CutoverWriter({
+      primary: f.paths.memory,
+      view: f.paths.view,
+      backups: f.paths.backups,
+    });
     try {
-      for (const name of Object.keys(ARGS)) {
-        const r = await s.call(name, name === 'context_retrieve' ? { task: 'Public', sources: ['curated'] } : ARGS[name]);
-        assert.equal(r.result.isError, true);
-        assert.equal(r.result.content[0].text, 'memory version conflict');
-        assert.deepEqual(r.result.structuredContent, { error: { code: 'conflict' } });
-        noCanary(r);
-        assert.doesNotMatch(JSON.stringify(r), /987654321/);
+      return writer.read((db) =>
+        db
+          .prepare(
+            'SELECT typeof(private) p,hex(private) pb,typeof(shared) s,hex(shared) sb FROM memories WHERE id=?',
+          )
+          .get(id),
+      );
+    } finally {
+      writer.close();
+    }
+  };
+  try {
+    session = await mcpFixture(f.env, f.workspace);
+    const publicNote = (
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: 'Constellation public',
+        body: 'Constellation public fixture',
+      })
+    ).memory;
+    for (const note of notes) {
+      const before = raw(note.id),
+        ownerBefore = await f.rpc('memory.get', { id: note.id, events: true });
+      assert.deepEqual(data(await session.call('memory_get', { id: note.id })), OPAQUE);
+      assert.deepEqual(
+        data(
+          await session.call('memory_store', {
+            category: 'project',
+            title: note.title,
+            body: note.body,
+            private: false,
+            shared: true,
+          }),
+        ),
+        OPAQUE,
+      );
+      for (const [name, args] of [
+        ['memory_update', { id: note.id, expectedVersion: 987654321, patch: { private: false } }],
+        [
+          'memory_update',
+          { id: note.id, expectedVersion: 987654321, patch: { body: note.body + ' edited' } },
+        ],
+        ['memory_delete', { id: note.id }],
+      ] as const) {
+        const reply = await session.call(name, args);
+        assert.equal(reply.isError, true);
+        noCanary(reply);
       }
-    } finally { const done = await s.close(); assert.equal(done.code, 0); noCanary(done.lines); }
-    const logFile = path.join(sb.home, '.bosun', 'bosun.log');
-    if (fs.existsSync(logFile)) assert.doesNotMatch(fs.readFileSync(logFile, 'utf8'), /PRIVATE-CONTENT-CANARY|987654321/);
-  } finally { await remote.close(); sb.cleanup(); }
-});
-
-test('HTTP curated context rejects buggy private records and maps content-bearing errors while owner endpoints remain compatible', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const r = denied(true);
-    const api = storeFor(r.m, [r.m, publicRecord()]);
-    const server = memoryServer(load(), api, ['127.0.0.1/32']);
-    const port = await listen(server, 0, '127.0.0.1');
-    const request = () => fetch(`http://127.0.0.1:${port}/v1/context/retrieve`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ctx: CTX, task: 'Public' }) });
-    try {
-      const body = await (await request()).json();
-      assert.deepEqual(body.data.items.map((h: any) => h.id), ['m_public']);
-      noCanary(body); assert.deepEqual(r.reads, ['private']);
-      const e = new MemoryError('conflict', CANARY, 987654321);
-      Object.defineProperty(e, 'current', { get() { throw Error(CANARY); } });
-      api.search = async () => { throw e; };
-      const response = await request();
-      assert.equal(response.status, 409);
-      assert.deepEqual(await response.json(), { ok: false, error: { code: 'conflict', message: 'memory version conflict' } });
-    } finally { server.closeAllConnections(); await new Promise<void>((resolve) => server.close(() => resolve())); }
-  } finally { sb.cleanup(); }
-});
-
-test('owner CLI retains private IDs/content/provenance/events and mutations; MCP private receipts reveal no duplicate or status', async () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const repo = gitRepo(sb, 'repo');
-    const s = mcpSession(sb.env(), repo);
-    try {
-      const input = { category: 'project', title: `${CANARY}-title`, body: `${CANARY}-body`, tags: ['private-canary-tag'], private: true };
-      for (let i = 0; i < 2; i++) assert.deepEqual((await s.call('memory_store', input)).result.structuredContent, OPAQUE);
-      const hits = JSON.parse((await bosun(['memory', 'search', CANARY, '--json'], { env: sb.env(), cwd: repo })).out);
-      assert.equal(hits.length, 1);
-      const id = hits[0].id;
-      assert.match(id, /^m_[0-9a-v]{9}[0-9a-f]{8}$/);
-      const get = async () => JSON.parse((await bosun(['memory', 'get', id, '--json'], { env: sb.env(), cwd: repo })).out);
-      const owner = await get();
-      assert.equal(owner.title, input.title); assert.equal(owner.body, input.body); assert.deepEqual(owner.tags, input.tags);
-      assert.equal(owner.private, true); assert.equal(owner.source, 'mcp'); assert.match(owner.hash, /^[a-f0-9]{32}$/);
-      assert.deepEqual(owner.events.map((e: any) => e.op), ['store']);
-      assert.equal((await s.call('memory_update', { id, expectedVersion: 1, private: false })).result.isError, true);
-      assert.deepEqual((await s.call('memory_get', { id })).result.structuredContent, OPAQUE);
-      assert.deepEqual((await s.call('memory_update', { id, expectedVersion: 1, body: `${CANARY}-edited` })).result.structuredContent, OPAQUE);
-      assert.equal((await get()).version, 2);
-      assert.deepEqual((await s.call('memory_delete', { id })).result.structuredContent, OPAQUE);
-      assert.deepEqual((await s.call('memory_delete', { id })).result.structuredContent, OPAQUE);
-      const archived = await get(); assert.equal(archived.status, 'archived'); assert.equal(archived.version, 3);
-      const restore = await bosun(['memory', 'update', id, '--public', '--version', '3'], { env: sb.env(), cwd: repo });
-      assert.equal(restore.code, 0); assert.equal((await get()).private, false);
-    } finally { assert.equal((await s.close()).code, 0); }
-    for (const name of ['bosun.log', 'metrics.jsonl', 'llm-usage.jsonl']) {
-      const file = path.join(P.BOSUN, name);
-      if (fs.existsSync(file)) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /PRIVATE-CONTENT-CANARY|private-canary-tag/);
+      assert.deepEqual(await f.rpc('memory.get', { id: note.id, events: true }), ownerBefore);
+      assert.deepEqual(raw(note.id), before);
+      await f.rpc('memory.update', {
+        id: note.id,
+        expectedVersion: 987654321,
+        patch: { body: note.body + ' owner edit' },
+      });
+      assert.deepEqual(raw(note.id), before);
+      await f.rpc('memory.delete', { id: note.id });
+      assert.deepEqual(raw(note.id), before);
+      const archived = (await f.rpc('memory.get', { id: note.id, events: true })).memory;
+      assert.equal(archived.id, note.id);
+      assert.equal(archived.version, 987654323);
+      assert.deepEqual(
+        archived.events.map((event: any) => event.op),
+        ['store', 'update', 'archive'],
+      );
     }
-  } finally { sb.cleanup(); }
+    const search = await session.call('memory_search', { text: 'constellation', limit: 50 });
+    assert.deepEqual(
+      data(search).hits.map((row: any) => row.id),
+      [publicNote.id],
+    );
+    noCanary(search);
+    const context = await session.call('context_retrieve', {
+      task: 'constellation',
+      sources: ['curated'],
+    });
+    assert.deepEqual(data(context).ids, [publicNote.id]);
+    noCanary(context);
+  } finally {
+    await session?.close();
+    await f.close();
+  }
 });
-
-test('guarded local stdio MCP protects malformed SQLite flags through get/duplicate/update/delete and curated context', async () => {
-  const sb = sandbox(); fresh(sb);
-  const repo = gitRepo(sb, 'legacy-flags');
-  const ctx: Ctx = { projectId: project(repo).id, sessionId: null, linked: [], source: 'owner-fixture' };
-  const owner = new MemoryService(openDb(P.DB), load());
-  const protectedNotes: Memory[] = [];
+test('native scoped context rejects caller project claims and keeps owner-only data out of model tools', async () => {
+  const f = await runtimeFixture();
+  let session: Awaited<ReturnType<typeof mcpFixture>> | undefined;
   try {
-    for (const [i, flag] of ['', 'false', -1, 2, 0.5, new Uint8Array(), new Uint8Array([48])].entries()) {
-      const note = (await owner.store({ category: 'project', title: `${CANARY}-legacy-title-${i}`, body: `${CANARY}-legacy-body-${i} constellation`,
-        tags: ['private-canary-tag'], source: `${CANARY}-source`, sourceRef: `${CANARY}-ref` }, ctx)).memory;
-      // Include canaries in record derivatives as well as payload; only the owner sees them.
-      owner.db.prepare('UPDATE memories SET id=?, private=?, shared=?, hash=?, version=987654321, created_at=987654321, updated_at=987654321 WHERE id=?')
-        .run(`${CANARY}-id-${i}`, flag, flag, `${CANARY}-hash-${i}`, note.id);
-      owner.db.prepare('UPDATE memory_events SET memory_id=?, source=?, hash_after=? WHERE memory_id=?')
-        .run(`${CANARY}-id-${i}`, `${CANARY}-event-source`, `${CANARY}-event-hash`, note.id);
-      // Keep the actual dedupe hash after proving it is also denied in get replies below.
-      protectedNotes.push({ ...note, id: `${CANARY}-id-${i}`, version: 987654321 });
-    }
-    const publicNote = (await owner.store({ category: 'project', title: 'Constellation public', body: 'Constellation public fixture', tags: ['public'] }, ctx)).memory;
-    const flags = (id: string) => owner.db.prepare('SELECT typeof(private) AS privacyType, hex(private) AS privacyBytes, typeof(shared) AS sharingType, hex(shared) AS sharingBytes FROM memories WHERE id=?').get(id)!;
-    const session = mcpSession(sb.env(), repo);
-    try {
-      for (const note of protectedNotes) {
-        const before = flags(note.id);
-        const get = await session.call('memory_get', { id: note.id });
-        assert.deepEqual(get.result.structuredContent, OPAQUE); noCanary(get); assert.doesNotMatch(JSON.stringify(get), /987654321/);
-        owner.db.prepare('UPDATE memories SET hash=? WHERE id=?').run(note.hash, note.id);
-        const duplicate = await session.call('memory_store', { category: 'project', title: note.title, body: note.body, private: false, shared: true });
-        assert.deepEqual(duplicate.result.structuredContent, OPAQUE); noCanary(duplicate);
-        const ownerDuplicate = await owner.get(note.id, ctx, { events: true });
-        assert.equal(ownerDuplicate.version, note.version); assert.equal(ownerDuplicate.events!.length, 1); assert.deepEqual(flags(note.id), before);
-        const prohibited = await session.call('memory_update', { id: note.id, expectedVersion: note.version, private: false });
-        assert.equal(prohibited.result.isError, true); noCanary(prohibited);
-        const update = await session.call('memory_update', { id: note.id, expectedVersion: note.version, body: `${note.body} edited` });
-        assert.deepEqual(update.result.structuredContent, OPAQUE); noCanary(update); assert.deepEqual(flags(note.id), before);
-        const edited = await owner.get(note.id, ctx, { events: true });
-        assert.equal(edited.id, note.id); assert.equal(edited.private, true); assert.equal(edited.version, note.version + 1);
-        assert.equal(edited.body, `${note.body} edited`); assert.deepEqual(edited.events!.map((e) => e.op), ['store', 'update']);
-      }
-      const search = await session.call('memory_search', { query: 'constellation', limit: 50 });
-      assert.deepEqual(search.result.structuredContent.hits.map((h: any) => h.id), [publicNote.id]); noCanary(search);
-      const context = await session.call('context_retrieve', { task: 'constellation', sources: ['curated'] });
-      assert.deepEqual(context.result.structuredContent.ids, [publicNote.id]); noCanary(context);
-      const packed = await retrieve('constellation', [curated(owner)], ctx, O);
-      assert.deepEqual(packed.items.map((item) => item.id), [publicNote.id]); noCanary(packed);
-      for (const note of protectedNotes) {
-        const before = flags(note.id);
-        for (let i = 0; i < 2; i++) {
-          const deleted = await session.call('memory_delete', { id: note.id });
-          assert.deepEqual(deleted.result.structuredContent, OPAQUE); noCanary(deleted);
-        }
-        const archived = await owner.get(note.id, ctx, { events: true });
-        assert.equal(archived.status, 'archived'); assert.equal(archived.version, note.version + 2); assert.deepEqual(flags(note.id), before);
-        assert.deepEqual(archived.events!.map((e) => e.op), ['store', 'update', 'archive']);
-      }
-      const valid = await session.call('memory_store', { category: 'project', title: publicNote.title, body: publicNote.body });
-      assert.equal(valid.result.structuredContent.duplicate, true); assert.equal(valid.result.structuredContent.memory.id, publicNote.id);
-      const publicEdit = await session.call('memory_update', { id: publicNote.id, expectedVersion: 1, body: 'Constellation public edited' });
-      assert.equal(publicEdit.result.structuredContent.memory.version, 2);
-      assert.deepEqual((await session.call('memory_delete', { id: publicNote.id })).result.structuredContent, { id: publicNote.id, status: 'archived' });
-      const reclassified = await owner.update(protectedNotes[0].id, { private: false, status: 'active' }, protectedNotes[0].version + 2, ctx);
-      const exposed = await session.call('memory_get', { id: reclassified.id });
-      assert.equal(exposed.result.structuredContent.memory.id, reclassified.id); assert.equal(exposed.result.structuredContent.memory.private, false);
-      assert.equal(exposed.result.structuredContent.memory.body, reclassified.body, 'explicit owner reclassification restores public behavior');
-    } finally { assert.equal((await session.close()).code, 0); }
-    for (const name of ['bosun.log', 'metrics.jsonl', 'llm-usage.jsonl']) {
-      const file = path.join(P.BOSUN, name);
-      if (fs.existsSync(file)) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /PRIVATE-CONTENT-CANARY|private-canary-tag|987654321/);
-    }
-  } finally { owner.close(); sb.cleanup(); }
+    const note = (
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: CANARY,
+        body: CANARY,
+        private: true,
+      })
+    ).memory;
+    session = await mcpFixture(f.env, f.workspace);
+    assert.equal((await f.rpc('memory.get', { id: note.id, events: true })).memory.body, CANARY);
+    const reply = await session.call('context_retrieve', {
+      task: 'Public',
+      projectId: 'p_foreign',
+      sources: ['curated'],
+    });
+    assert.equal(reply.isError, true);
+    noCanary(reply);
+    assert.ok(
+      !(await session.client.listTools()).tools.some((tool) => tool.name === 'memory_accept'),
+    );
+    assert.deepEqual(
+      data(await session.call('context_retrieve', { task: 'Public', sources: ['curated'] })).ids,
+      [],
+    );
+    assert.deepEqual(data(await session.call('memory_get', { id: note.id })), OPAQUE);
+  } finally {
+    await session?.close();
+    await f.close();
+  }
 });
-
-test('local MCP mutation replies retain classification captured inside synchronous SQLite admission', async () => {
-  const sb = sandbox(); fresh(sb);
-  const repo = gitRepo(sb, 'admitted-flags');
-  const ctx: Ctx = { projectId: project(repo).id, sessionId: null, linked: [] };
-  const owner = new MemoryService(openDb(P.DB), load());
-  const root = tools(load(), repo, () => owner);
-  try {
-    for (const name of ['memory_store', 'memory_update', 'memory_delete']) {
-      const input = { category: 'project' as const, title: `${CANARY}-${name}`, body: `${CANARY}-${name}-body` };
-      const note = (await owner.store(input, ctx)).memory;
-      owner.db.prepare("UPDATE memories SET private='' WHERE id=?").run(note.id);
-      const args = name === 'memory_store' ? input : name === 'memory_update' ? { id: note.id, expectedVersion: 1, body: `${input.body} edited` } : { id: note.id };
-      const pending = call(root.list, name, args);
-      // The local transaction and its DTO completed synchronously before the MCP await continuation.
-      const after = owner.db.prepare('SELECT status, version FROM memories WHERE id=?').get(note.id)!;
-      assert.equal(after.version, name === 'memory_store' ? 1 : 2);
-      assert.equal(after.status, name === 'memory_delete' ? 'archived' : 'active');
-      owner.db.prepare('UPDATE memories SET private=0 WHERE id=?').run(note.id);
-      const reply = await pending;
-      assert.deepEqual(reply.structuredContent, OPAQUE); noCanary(reply);
-      assert.equal((await owner.get(note.id, ctx)).private, false);
-    }
-  } finally { root.close(); sb.cleanup(); }
+test('completed mutation DTO retains captured privacy when later owner state becomes public', () => {
+  const persisted = publicRecord(),
+    captured = { ...persisted, private: true };
+  persisted.private = false;
+  assert.deepEqual(modelMemoryReply(captured), OPAQUE);
+  assert.deepEqual(modelMemoryStoreReply({ memory: captured, duplicate: false }), OPAQUE);
+  assert.equal(persisted.private, false);
 });

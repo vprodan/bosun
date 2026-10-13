@@ -1,0 +1,12 @@
+{
+  "output": "/Users/edge/Developer/bosun/dist/bosun-0.2.0-ship-safety-20261013",
+  "coverage": "static-artifact",
+  "version": "0.2.0",
+  "target": "bun-darwin-arm64",
+  "binarySha256": "712072eb1bc082af03427a1be4b818290ca0eb4597fe1e36429e79958f6c13bc",
+  "archive": "bosun-0.2.0-darwin-arm64.tar.gz",
+  "archiveSha256": "27ab0530803ee023a463d821fa59e22a9fd4bf7aadbe6c3bac6635ff7df0d856",
+  "sourceDigest": "2a74e69371be48e9581f25c64d52ca89c347b250bf9b6df0db1b43761b3a8336",
+  "runtimeQualification": "unverified",
+  "inputs": 7384
+}

@@ -1,0 +1,21 @@
+{
+  "servers": {
+    "typescript-language-server": {
+      "command": "sh",
+      "args": ["scripts/bun-check.sh", "lsp"],
+      "fileTypes": [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"],
+      "rootMarkers": ["tsconfig.json", "package.json"],
+      "warmupTimeoutMs": 20000,
+      "initOptions": {
+        "disableAutomaticTypingAcquisition": true,
+        "plugins": [],
+        "tsserver": {
+          "logVerbosity": "off",
+          "trace": "off",
+          "useSyntaxServer": "never"
+        }
+      }
+    }
+  },
+  "idleTimeoutMs": 300000
+}

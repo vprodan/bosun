@@ -1,0 +1,583 @@
+// Build-time tooling only. Never import this file from the product runtime.
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { gzipSync, gunzipSync } from "node:zlib";
+import { renderAssets } from "./generate-assets.mjs";
+import { COMPILED_SQLITE_RUNTIME } from "../src/platform/sqlite-runtime.ts";
+
+export const TARGET = "bun-darwin-arm64";
+export const COMPILE_FLAGS = Object.freeze([
+  "--compile",
+  `--target=${TARGET}`,
+  "--format=esm",
+  "--splitting",
+  "--minify",
+  "--no-compile-autoload-dotenv",
+  "--no-compile-autoload-bunfig",
+  "--no-compile-autoload-tsconfig",
+  "--no-compile-autoload-package-json",
+  // Ink's optional React DevTools path is excluded from the production artifact.
+  "--define",
+  'process.env.DEV="false"',
+  // Ink resolves this optional peer before dead code elimination. The shared
+  // compiled entry disables DEV before imports; the debugger branch stays idle.
+  "--external",
+  "react-devtools-core",
+]);
+const MAX_BINARY = 256 * 1024 * 1024;
+const MAX_INPUTS = 20000;
+const MAX_TOTAL = 256 * 1024 * 1024;
+const MAX_METADATA = 4 * 1024 * 1024;
+const GENERATED = "src/platform/generated-assets.ts";
+const ROOT_INPUTS = [
+  "package.json",
+  "package-lock.json",
+  "tsconfig.json",
+  "bin/bosun",
+  "policy.md",
+  "scripts/build.mjs",
+  "scripts/distribution.mjs",
+  "scripts/generate-assets.mjs",
+  "scripts/verify-distribution.mjs",
+  "scripts/generate-homebrew.mjs",
+];
+const VERSION =
+  /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+)*)?$/;
+const HASH = /^[0-9a-f]{64}$/;
+const hash = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
+const sorted = (values) => values.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+function relative(name) {
+  return (
+    typeof name === "string" &&
+    name.length < 512 &&
+    !/[\\\x00-\x1f\x7f]/.test(name) &&
+    name.split("/").every((part) => part && part !== "." && part !== "..")
+  );
+}
+function directory(file) {
+  const stat = fs.lstatSync(file);
+  if (
+    !stat.isDirectory() ||
+    stat.isSymbolicLink() ||
+    fs.realpathSync(file) !== file
+  )
+    throw new Error("A canonical regular directory is required");
+}
+function read(file, maximum) {
+  const before = fs.lstatSync(file);
+  if (
+    !before.isFile() ||
+    before.isSymbolicLink() ||
+    before.size > maximum ||
+    fs.realpathSync(file) !== file
+  )
+    throw new Error("Invalid or oversized distribution input");
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+  try {
+    const opened = fs.fstatSync(fd);
+    if (
+      before.dev !== opened.dev ||
+      before.ino !== opened.ino ||
+      before.size !== opened.size
+    )
+      throw new Error("Distribution input changed");
+    const bytes = fs.readFileSync(fd);
+    const after = fs.fstatSync(fd);
+    if (
+      bytes.length > maximum ||
+      before.size !== after.size ||
+      before.mtimeMs !== after.mtimeMs ||
+      before.ctimeMs !== after.ctimeMs
+    )
+      throw new Error("Distribution input changed");
+    return bytes;
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+function object(value, keys) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    sorted(Object.keys(value)).join("\0") !== sorted([...keys]).join("\0")
+  )
+    throw new Error("Invalid distribution metadata");
+}
+function digest(inputs) {
+  return hash(JSON.stringify(inputs));
+}
+function dependencyMap(value = {}) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    Array.isArray(value) ||
+    Object.keys(value).length > 256 ||
+    Object.values(value).some((version) => typeof version !== "string")
+  )
+    throw new Error("Invalid package dependencies");
+  return JSON.stringify(
+    Object.entries(value).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
+  );
+}
+function summaries(inputs) {
+  return {
+    sourceDigest: digest(inputs),
+    dependenciesDigest: digest(
+      inputs.filter((input) => input.path.startsWith("node_modules/")),
+    ),
+    assetsDigest: digest(
+      inputs.filter((input) =>
+        /^(?:roles\/|skills\/|policy\.md$)/.test(input.path),
+      ),
+    ),
+  };
+}
+
+// Freeze exactly the public source and installed locked production dependencies.
+// Ambient .env/bunfig, Git state, test files and owner directories never enter the snapshot.
+export function collectInputs(root, destination) {
+  root = path.resolve(root);
+  directory(root);
+  if (destination) {
+    destination = path.resolve(destination);
+    directory(destination);
+  }
+  const inputs = [];
+  let total = 0;
+  function add(name, bytes) {
+    if (
+      !relative(name) ||
+      inputs.length >= MAX_INPUTS ||
+      (total += bytes.length) > MAX_TOTAL
+    )
+      throw new Error("Distribution inputs exceed bounds");
+    inputs.push({ path: name, bytes: bytes.length, sha256: hash(bytes) });
+    if (destination) {
+      const target = path.join(destination, name);
+      fs.mkdirSync(path.dirname(target), { recursive: true, mode: 0o700 });
+      fs.writeFileSync(target, bytes, {
+        flag: "wx",
+        mode: name === "bin/bosun" ? 0o755 : 0o644,
+      });
+    }
+  }
+  function walk(name, sourceOnly = false, depth = 0) {
+    if (depth > 32) throw new Error("Distribution input tree exceeds bounds");
+    const current = path.join(root, name);
+    directory(current);
+    for (const entry of fs
+      .readdirSync(current, { withFileTypes: true })
+      .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+      const child = name + "/" + entry.name;
+      if (entry.isSymbolicLink())
+        throw new Error("Distribution input symlinks are prohibited");
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" && name.startsWith("node_modules/"))
+          continue; // Nested packages are copied from exact lock entries below.
+        walk(child, sourceOnly, depth + 1);
+      } else if (entry.isFile()) {
+        if (child === GENERATED) continue; // Always regenerate from the current public assets.
+        if (sourceOnly && !/\.tsx?$/.test(entry.name))
+          throw new Error("Unexpected source input");
+        add(child, read(path.join(root, child), 32 * 1024 * 1024));
+      } else throw new Error("Unexpected distribution input");
+    }
+  }
+  const packageBytes = read(path.join(root, "package.json"), 131072);
+  const lockBytes = read(path.join(root, "package-lock.json"), MAX_METADATA);
+  const pkg = JSON.parse(packageBytes);
+  const lock = JSON.parse(lockBytes);
+  if (
+    pkg.name !== "bosun" ||
+    !VERSION.test(pkg.version) ||
+    lock.lockfileVersion !== 3 ||
+    lock.name !== pkg.name ||
+    lock.version !== pkg.version
+  )
+    throw new Error("Package/lock identity mismatch");
+  const locked = lock.packages?.[""];
+  if (
+    !locked ||
+    locked.version !== pkg.version ||
+    dependencyMap(locked.dependencies) !== dependencyMap(pkg.dependencies) ||
+    dependencyMap(locked.devDependencies) !== dependencyMap(pkg.devDependencies)
+  )
+    throw new Error("Package/lock dependency mismatch");
+  for (const name of ROOT_INPUTS)
+    add(
+      name,
+      name === "package.json"
+        ? packageBytes
+        : name === "package-lock.json"
+          ? lockBytes
+          : read(path.join(root, name), MAX_METADATA),
+    );
+  walk("src", true);
+  walk("roles");
+  walk("skills");
+  const assets = renderAssets(root);
+  if (
+    assets.version !== pkg.version ||
+    Object.entries(assets.assets).some(
+      ([name, text]) =>
+        inputs.find((input) => input.path === name)?.sha256 !==
+        hash(Buffer.from(text)),
+    )
+  )
+    throw new Error("Build assets changed during snapshot");
+  add(GENERATED, Buffer.from(assets.content));
+  for (const name of sorted(Object.keys(lock.packages))) {
+    const entry = lock.packages[name];
+    if (!name || entry.dev) continue;
+    if (
+      !relative(name) ||
+      !/^node_modules\/(?:@[^/]+\/)?[^/]+(?:\/node_modules\/(?:@[^/]+\/)?[^/]+)*$/.test(
+        name,
+      ) ||
+      typeof entry.version !== "string" ||
+      entry.link ||
+      !/^sha512-[a-zA-Z0-9+/]+=*$/.test(entry.integrity ?? "")
+    )
+      throw new Error("Invalid locked production package");
+    const file = path.join(root, name, "package.json");
+    const installed = JSON.parse(read(file, 131072));
+    if (installed.version !== entry.version)
+      throw new Error("Installed production package differs from lock");
+    walk(name);
+  }
+  inputs.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  if (new Set(inputs.map((input) => input.path)).size !== inputs.length)
+    throw new Error("Duplicate distribution input");
+  return { version: pkg.version, inputs, ...summaries(inputs) };
+}
+
+export function compilerEnvironment(root, compiler) {
+  const env = {
+    PATH: `${path.dirname(compiler)}:/usr/bin:/bin`,
+    LANG: "C",
+    LC_ALL: "C",
+    TZ: "UTC",
+  };
+  for (const [key, name] of Object.entries({
+    HOME: "home",
+    XDG_CONFIG_HOME: "config",
+    XDG_DATA_HOME: "data",
+    XDG_STATE_HOME: "state",
+    XDG_CACHE_HOME: "cache",
+    TMPDIR: "tmp",
+  })) {
+    env[key] = path.join(root, name);
+    fs.mkdirSync(env[key], { mode: 0o700 });
+  }
+  env.TMP = env.TEMP = env.TMPDIR;
+  env.BUN_INSTALL_CACHE_DIR = env.XDG_CACHE_HOME;
+  env.BUN_RUNTIME_TRANSPILER_CACHE_PATH = path.join(
+    env.XDG_CACHE_HOME,
+    "transpiler",
+  );
+  return env;
+}
+
+export function verifyMachO(binary) {
+  if (
+    binary.length < 32 ||
+    binary.length > MAX_BINARY ||
+    binary.readUInt32LE(0) !== 0xfeedfacf ||
+    binary.readUInt32LE(4) !== 0x0100000c ||
+    binary.readUInt32LE(12) !== 2
+  )
+    throw new Error("Expected one macOS arm64 Mach-O executable");
+  const count = binary.readUInt32LE(16),
+    size = binary.readUInt32LE(20);
+  if (
+    !count ||
+    count > 4096 ||
+    size > 16 * 1024 * 1024 ||
+    32 + size > binary.length
+  )
+    throw new Error("Invalid Mach-O load commands");
+  let cursor = 32;
+  for (let index = 0; index < count; index++) {
+    if (cursor + 8 > 32 + size) throw new Error("Invalid Mach-O load commands");
+    const commandSize = binary.readUInt32LE(cursor + 4);
+    if (commandSize < 8 || commandSize % 8 || cursor + commandSize > 32 + size)
+      throw new Error("Invalid Mach-O load commands");
+    cursor += commandSize;
+  }
+  if (cursor !== 32 + size) throw new Error("Invalid Mach-O load commands");
+}
+
+// Fixed one-file ustar: no shell/tar process, paths, links, timestamps or owner IDs.
+export function binaryArchive(binary) {
+  const header = Buffer.alloc(512);
+  header.write("bosun", 0);
+  const octal = (value, offset, length) =>
+    header.write(
+      value.toString(8).padStart(length - 1, "0") + "\0",
+      offset,
+      length,
+      "ascii",
+    );
+  octal(0o755, 100, 8);
+  octal(0, 108, 8);
+  octal(0, 116, 8);
+  octal(binary.length, 124, 12);
+  octal(0, 136, 12);
+  header.fill(0x20, 148, 156);
+  header.write("0", 156);
+  header.write("ustar\0", 257);
+  header.write("00", 263);
+  const checksum = header.reduce((sum, value) => sum + value, 0);
+  header.write(checksum.toString(8).padStart(6, "0") + "\0 ", 148, 8, "ascii");
+  return Buffer.concat([
+    header,
+    binary,
+    Buffer.alloc(((512 - (binary.length % 512)) % 512) + 1024),
+  ]);
+}
+const archiveName = (version) => `bosun-${version}-darwin-arm64.tar.gz`;
+
+export function buildDistribution(
+  { root, output, compiler },
+  dependencies = {},
+) {
+  if (
+    (dependencies.platform ?? process.platform) !== "darwin" ||
+    (dependencies.arch ?? process.arch) !== "arm64"
+  )
+    throw new Error(
+      "Build requires native macOS arm64; cross-target downloads are prohibited",
+    );
+  output = path.resolve(output);
+  directory(path.dirname(output));
+  if (fs.existsSync(output))
+    throw new Error(
+      "Build output already exists; choose a new absent directory",
+    );
+  if (!path.isAbsolute(compiler))
+    throw new Error("An explicit already installed Bun executable is required");
+  compiler = fs.realpathSync(compiler);
+  const compilerBytes = read(compiler, MAX_BINARY);
+  if (!(fs.statSync(compiler).mode & 0o111))
+    throw new Error("Bun compiler is not executable");
+  const temp = fs.realpathSync(
+    fs.mkdtempSync(path.join(os.tmpdir(), "bosun-build-")),
+  );
+  let outputCreated = false;
+  try {
+    const env = compilerEnvironment(temp, compiler);
+    const work = path.join(temp, "source");
+    fs.mkdirSync(work, { mode: 0o700 });
+    const snapshot = collectInputs(root, work);
+    const invoke = dependencies.invoke ?? spawnSync;
+    const options = {
+      cwd: work,
+      env,
+      encoding: "utf8",
+      timeout: 120000,
+      maxBuffer: 4 * 1024 * 1024,
+      shell: false,
+    };
+    const versionResult = invoke(compiler, ["--version"], options);
+    const bunVersion = versionResult.stdout?.trim();
+    if (
+      versionResult.error ||
+      versionResult.status !== 0 ||
+      !VERSION.test(bunVersion ?? "")
+    )
+      throw new Error("Installed Bun version is unavailable");
+    if (bunVersion !== COMPILED_SQLITE_RUNTIME)
+      throw new Error("Installed Bun version is outside the pinned runtime candidate");
+    const binaryFile = path.join(temp, "bosun");
+    const args = [
+      "--no-install",
+      "build",
+      "src/app/entry.ts",
+      ...COMPILE_FLAGS,
+      "--outfile",
+      binaryFile,
+    ];
+    const result = invoke(compiler, args, options);
+    if (result.error || result.status !== 0) {
+      if (typeof result.stderr === "string")
+        process.stderr.write(result.stderr.slice(0, 32768));
+      throw new Error(
+        `Bun compilation failed (${result.status ?? result.error?.code ?? "unknown"})`,
+      );
+    }
+    const binary = read(binaryFile, MAX_BINARY);
+    verifyMachO(binary);
+    if (hash(read(compiler, MAX_BINARY)) !== hash(compilerBytes))
+      throw new Error("Compiler changed during build");
+    const metadata = {
+      schema: 1,
+      product: "bosun",
+      version: snapshot.version,
+      target: TARGET,
+      compiler: { version: bunVersion, sha256: hash(compilerBytes) },
+      flags: [...COMPILE_FLAGS],
+      ...snapshot,
+      binary: { bytes: binary.length, sha256: hash(binary) },
+      developmentDebugger: "disabled-before-imports",
+      runtimeQualification: "unverified",
+    };
+    const metadataBytes = Buffer.from(JSON.stringify(metadata, null, 2) + "\n");
+    if (metadataBytes.length > MAX_METADATA)
+      throw new Error("Distribution metadata exceeds bounds");
+    const archive = gzipSync(binaryArchive(binary), { level: 9 });
+    archive[9] = 255;
+    const files = {
+      bosun: binary,
+      "build.json": metadataBytes,
+      [archiveName(snapshot.version)]: archive,
+    };
+    fs.mkdirSync(output, { mode: 0o755 });
+    outputCreated = true;
+    for (const name of sorted(Object.keys(files)))
+      fs.writeFileSync(path.join(output, name), files[name], {
+        flag: "wx",
+        mode: name === "bosun" ? 0o755 : 0o644,
+      });
+    fs.writeFileSync(
+      path.join(output, "SHA256SUMS"),
+      sorted(Object.keys(files))
+        .map((name) => `${hash(files[name])}  ${name}\n`)
+        .join(""),
+      { flag: "wx", mode: 0o644 },
+    );
+    return verifyDistribution(output);
+  } catch (error) {
+    if (outputCreated) fs.rmSync(output, { recursive: true });
+    throw error;
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+}
+
+export function verifyDistribution(output, { root } = {}) {
+  output = path.resolve(output);
+  directory(output);
+  const metadataBytes = read(path.join(output, "build.json"), MAX_METADATA);
+  const metadata = JSON.parse(metadataBytes);
+  object(metadata, [
+    "schema",
+    "product",
+    "version",
+    "target",
+    "compiler",
+    "flags",
+    "inputs",
+    "sourceDigest",
+    "dependenciesDigest",
+    "assetsDigest",
+    "binary",
+    "developmentDebugger",
+    "runtimeQualification",
+  ]);
+  object(metadata.compiler, ["version", "sha256"]);
+  object(metadata.binary, ["bytes", "sha256"]);
+  if (
+    metadata.schema !== 1 ||
+    metadata.product !== "bosun" ||
+    !VERSION.test(metadata.version) ||
+    metadata.target !== TARGET ||
+    metadata.developmentDebugger !== "disabled-before-imports" ||
+    metadata.runtimeQualification !== "unverified" ||
+    !VERSION.test(metadata.compiler.version) ||
+    !HASH.test(metadata.compiler.sha256) ||
+    JSON.stringify(metadata.flags) !== JSON.stringify(COMPILE_FLAGS) ||
+    !Array.isArray(metadata.inputs) ||
+    !metadata.inputs.length ||
+    metadata.inputs.length > MAX_INPUTS
+  )
+    throw new Error("Invalid distribution metadata");
+  let prior = "",
+    total = 0;
+  for (const input of metadata.inputs) {
+    object(input, ["path", "bytes", "sha256"]);
+    if (
+      !relative(input.path) ||
+      input.path <= prior ||
+      !Number.isSafeInteger(input.bytes) ||
+      input.bytes < 0 ||
+      input.bytes > 32 * 1024 * 1024 ||
+      !HASH.test(input.sha256) ||
+      (total += input.bytes) > MAX_TOTAL
+    )
+      throw new Error("Invalid distribution input inventory");
+    prior = input.path;
+  }
+  for (const [name, value] of Object.entries(summaries(metadata.inputs)))
+    if (metadata[name] !== value)
+      throw new Error("Distribution input inventory checksum mismatch");
+  if (
+    !ROOT_INPUTS.every((name) =>
+      metadata.inputs.some((input) => input.path === name),
+    ) ||
+    !metadata.inputs.some((input) => input.path === GENERATED) ||
+    !metadata.inputs.some((input) => input.path === "src/app/entry.ts")
+  )
+    throw new Error("Incomplete distribution input inventory");
+  const names = sorted(["bosun", "build.json", archiveName(metadata.version)]);
+  if (
+    sorted(fs.readdirSync(output)).join("\0") !==
+    sorted([...names, "SHA256SUMS"]).join("\0")
+  )
+    throw new Error("Unexpected distribution files");
+  const files = Object.fromEntries(
+    names.map((name) => [
+      name,
+      read(
+        path.join(output, name),
+        name === "build.json" ? MAX_METADATA : MAX_BINARY,
+      ),
+    ]),
+  );
+  const sums = read(path.join(output, "SHA256SUMS"), 1024).toString("utf8");
+  if (sums !== names.map((name) => `${hash(files[name])}  ${name}\n`).join(""))
+    throw new Error("Distribution checksum mismatch");
+  const binary = files.bosun;
+  if (
+    metadata.binary.bytes !== binary.length ||
+    metadata.binary.sha256 !== hash(binary)
+  )
+    throw new Error("Binary metadata checksum mismatch");
+  if ((fs.statSync(path.join(output, "bosun")).mode & 0o777) !== 0o755)
+    throw new Error("Distribution executable mode differs");
+  verifyMachO(binary);
+  const unpacked = gunzipSync(files[archiveName(metadata.version)], {
+    maxOutputLength: MAX_BINARY + 2048,
+  });
+  if (!unpacked.equals(binaryArchive(binary)))
+    throw new Error("Distribution archive framing/content mismatch");
+  if (root) {
+    const current = collectInputs(root);
+    if (
+      current.version !== metadata.version ||
+      current.sourceDigest !== metadata.sourceDigest
+    )
+      throw new Error(
+        "Distribution source/dependencies/assets differ from checkout",
+      );
+  }
+  return {
+    coverage: "static-artifact",
+    version: metadata.version,
+    target: TARGET,
+    binarySha256: metadata.binary.sha256,
+    archive: archiveName(metadata.version),
+    archiveSha256: hash(files[archiveName(metadata.version)]),
+    sourceDigest: metadata.sourceDigest,
+    runtimeQualification: "unverified",
+    inputs: metadata.inputs.length,
+  };
+}
+
+export function homebrewFormula(output) {
+  const report = verifyDistribution(output);
+  return `# Review candidate only: compiled runtime qualification and publication remain pending.\n# Expected release location; generation does not assert this URL is published.\nclass Bosun < Formula\n  desc "OpenCode-first agent orchestration with Codex, Claude Code and shared memory"\n  homepage "https://github.com/vprodan/bosun"\n  url "https://github.com/vprodan/bosun/releases/download/v${report.version}/${report.archive}"\n  version "${report.version}"\n  sha256 "${report.archiveSha256}"\n\n  depends_on :macos\n  depends_on arch: :arm64\n\n  def install\n    bin.install "bosun"\n  end\n\n  test do\n    assert_match version.to_s, shell_output("#{bin}/bosun --version")\n  end\nend\n`;
+}

@@ -1,0 +1,38 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context: relevance and recency both count; sources are weighted (2.677667ms)
+✔ context: dedupe across sources keeps the higher score (0.188708ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (3.04175ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.110042ms)
+✔ claude-mem: this repo only, read-only; missing, off, schema mismatch and a locked database give [] and a warning (12.033875ms)
+✔ docs index: this repo's Markdown only, re-read when the mtime changes, removed files leave the index (120.581208ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (978.987167ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (504.569792ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (636.044583ms)
+✔ final hook with missing memory creates nothing and runs no model/service (107.892458ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2615.471167

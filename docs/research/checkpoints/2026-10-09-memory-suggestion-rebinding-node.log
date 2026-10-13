@@ -1,0 +1,37 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.827417ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.824ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (222.757166ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (243.818292ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (232.6855ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (137.863125ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (124.80825ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (244.05775ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (553.828042ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2254.227458

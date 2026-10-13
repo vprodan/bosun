@@ -1,0 +1,112 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context pipeline: shared hash and token estimate retain normalized SHA-256 behavior (0.634083ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (1.953791ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.523792ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.23775ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.387541ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (4.655625ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.184792ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.217458ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.144875ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.49975ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.20475ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.284375ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (0.305458ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.290375ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (0.318625ms)
+✔ context pipeline: final source selectors reject caller metadata and undeclared names while verified callbacks keep their receiver (1.200166ms)
+✔ context pipeline: actual final curated source denies records before all metadata/body getters and never touches access state (0.12325ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (71.577208ms)
+✔ core errors and deterministic Unicode text behavior (2.267166ms)
+✔ coded errors preserve causes and legacy exits while constraining untyped codes and details (0.182625ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.225708ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.25875ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.150208ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.258167ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.608667ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.075792ms)
+✔ final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery (5.337833ms)
+✔ owner CLI indexes native source chunks once and actual MCP queries return original IDs with negative abstention (780.149917ms)
+✔ classification precedes payload getters; owner indexing rejects private, proposed and foreign IDs before model metadata (246.544542ms)
+✔ disabled or empty vector sources leave defaults intact and make no model calls (404.561709ms)
+✔ source revocation during metadata or embedding prevents storage and preserves sticky original job receipt (412.352166ms)
+✔ workspace origin drift during embedding holds without derived data or replay (166.84225ms)
+✔ cancelled embedding and successful native store with lost return retain unknown and never resubmit (344.982458ms)
+✔ multi-batch indexing preserves Unicode spans and commits only after every source remains public (484.109583ms)
+✔ optional query cache rechecks current source generation, keeps sessions separate and evicts at its bound (792.136ms)
+✔ corpus revocation during a query holds the reply and cannot populate a cache from an uncertain result (270.112625ms)
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (113.08325ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (93.516333ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (137.417333ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (77.439541ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (4.023542ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (14.737625ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.480125ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (6.744958ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (12.434666ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (2.105125ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.176333ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (7.405833ms)
+✔ all public classifications precede any export/query/label payload getters (0.3065ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (5.431334ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.335333ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2573.315417ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2535.37775ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2726.163667ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (64.616291ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (498.568375ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2915.1615ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2559.457875ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2614.097542ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (1.919458ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (22.129916ms)
+✔ final model policy rejects malformed/inherited/throwing classifications before payload getters (0.803708ms)
+✔ final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters (0.2125ms)
+✔ explicit private requests never inspect a buggy public adapter reply or duplicate state (0.227125ms)
+✔ final public projection retains declared ID/hash/version and ignores serialization or derivative hooks (0.434125ms)
+✔ curated and model search classify first and ignore array species/toJSON during real packing (1.648125ms)
+✔ finite storage errors never inspect messages, versions, causes or serialization hooks (0.141ms)
+✔ modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests (606.532708ms)
+✔ modern remote MCP normalizes content-bearing errors and excludes failed context derivatives (571.572208ms)
+✔ owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows (713.610625ms)
+✔ native malformed flags remain opaque, immutable to models and byte-preserved through owner edits (1309.479834ms)
+✔ native scoped context rejects caller project claims and keeps owner-only data out of model tools (592.931042ms)
+✔ completed mutation DTO retains captured privacy when later owner state becomes public (0.119459ms)
+✔ vector evaluation requires public export and a public pinned MCP selection before payload, files or model calls (19.487083ms)
+✔ actual owner jobs and 100-query MCP D/E compare each layer, preserve owner bytes, count declared usage and hold weak synthetic gain (34677.939416ms)
+✔ changed approved source during model metadata prevents indexing inference, aborts evaluation and never retries (277.432042ms)
+✔ final CLI vector evaluation needs both public approval and the MCP surface before any model effect (101.597709ms)
+✔ optional sqlite-vec uses one selected fingerprint and source-derived SQL; closes without touching an authority DB (5.921208ms)
+✔ missing, changed, linked, hardlinked, unsafe and wrong-architecture selections degrade before any native opener (25.404417ms)
+✔ bad native version, loader failure, file drift or invalid numeric receipts close and never substitute a backend (14.253417ms)
+✔ guarded production constructor cannot load the invented native library and returns explicit degradation (4.13675ms)
+✔ native vector source uses existing scope/CAS storage, checks privacy before opening and rechecks every cache hit (150.825042ms)
+✔ native distance failure joins its connection and never populates an uncertain query cache (128.847625ms)
+✔ native library configuration is explicit and exact; missing selection preserves disabled defaults (5.32675ms)
+ℹ tests 84
+ℹ suites 0
+ℹ pass 84
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61633.662417

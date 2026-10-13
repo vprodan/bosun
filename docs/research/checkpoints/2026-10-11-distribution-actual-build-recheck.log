@@ -1,0 +1,5 @@
+7 | import devtools from 'react-devtools-core';
+                         ^
+error: Could not resolve: "react-devtools-core". Maybe you need to "bun install"?
+    at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-build-V6isRG/source/node_modules/ink/build/devtools.js:7:22
+Bun compilation failed (1)

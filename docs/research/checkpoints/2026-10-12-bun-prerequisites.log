@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "runtime": "1.4.3",
+  "executable": "/Users/edge/.bun/bin/bun",
+  "platform": "darwin",
+  "arch": "arm64",
+  "root": "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/bosun-bun-preflight.1OJspK",
+  "checks": [
+    {
+      "name": "startup and runtime HOME",
+      "status": "observed",
+      "result": {
+        "startupMatches": true,
+        "runtimeChangeHonoured": false
+      }
+    },
+    {
+      "name": "node:sqlite API and named parameters",
+      "status": "observed",
+      "result": {
+        "available": true,
+        "backup": "function",
+        "session": "function",
+        "version": "3.54.0",
+        "named": 2,
+        "extensions": true
+      }
+    },
+    {
+      "name": "CommonJS and ESM guard propagation",
+      "status": "observed",
+      "result": {
+        "fsGuard": true,
+        "sqlGuard": true,
+        "syncBuiltinESMExports": "function"
+      }
+    },
+    {
+      "name": "missing preloads and Node CLI assumptions",
+      "status": "observed",
+      "result": {
+        "nodeOptions": {
+          "exit": 0,
+          "output": "{\"loaded\":false}"
+        },
+        "explicit": {
+          "exit": 0,
+          "output": "{\"loaded\":true}"
+        }
+      }
+    },
+    {
+      "name": "native Bun API OS write boundary",
+      "status": "observed",
+      "result": {
+        "blocked": true
+      }
+    }
+  ],
+  "suiteAuthorized": false,
+  "holds": [
+    "Existing preload/launcher deliberately refuse Bun; this probe does not remove that gate.",
+    "Bun native file/process/network APIs and HTTP implementation need runtime-specific containment before application imports.",
+    "node:test runner CLI, file isolation, child propagation and SQLite/WAL behavior require separate qualification."
+  ]
+}

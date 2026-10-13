@@ -1,0 +1,133 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context pipeline: exact hash and estimate forward identities retain normalized SHA-256 behavior (0.598542ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (1.931167ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.508291ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.271458ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.428208ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (4.518916ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.20525ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.2515ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.162208ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.547916ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.207792ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.300833ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (0.323084ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.292125ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (0.331375ms)
+✔ context pipeline: real legacy delegation retains fixed metadata, receiver and denies new/prototype names before search (5.1715ms)
+✔ context pipeline: actual curated delegation denies records before all metadata/body getters (4.889334ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (70.42125ms)
+✔ final graph schema fingerprint (1.691458ms)
+✔ same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes (137.453125ms)
+✔ complete source versions are required and source changes revoke all levels inside the memory mutation transaction (117.4565ms)
+✔ legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact (53.793917ms)
+✔ scope, linked/shared eligibility and session/expiry are checked on every source and derived read (115.72775ms)
+✔ review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes (73.747291ms)
+✔ bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic (107.323167ms)
+✔ schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes (36.625292ms)
+✔ dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal (2445.284709ms)
+✔ parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants (85.70375ms)
+✔ graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay (43.123292ms)
+✔ canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads (118.709875ms)
+✔ native weighted FTS and actual excerpt packing expose supporting tail evidence with original IDs/hash and no mutation (181.461084ms)
+✔ reviewed aliases retain the original curated ID, stay scoped, and revoke on source privacy/version changes (226.560458ms)
+✔ explicit reviewed graph context remains absent from ordinary context (191.074083ms)
+✔ lexical source denies private/unclassified records before identity, payload, ranking or provenance getters (0.212708ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (552.943667ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (764.516292ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (870.958916ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (5.760833ms)
+✔ all public classifications precede any export/query/label payload getters (0.316583ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (5.307792ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.313541ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2588.567458ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2558.048875ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2689.292583ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (66.80925ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (491.568792ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2878.994333ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2567.341375ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2646.32325ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (2.246917ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (22.983375ms)
+✔ final model policy rejects malformed/inherited/throwing classifications before payload getters (0.790459ms)
+✔ final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters (0.208375ms)
+✔ explicit private requests never inspect a buggy public adapter reply or duplicate state (0.226542ms)
+✔ final public projection retains declared ID/hash/version and ignores serialization or derivative hooks (0.409791ms)
+✔ curated and model search classify first and ignore array species/toJSON during real packing (1.63775ms)
+✔ finite storage errors never inspect messages, versions, causes or serialization hooks (0.127541ms)
+✔ modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests (591.428417ms)
+✔ modern remote MCP normalizes content-bearing errors and excludes failed context derivatives (560.007583ms)
+✔ owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows (690.123042ms)
+✔ native malformed flags remain opaque, immutable to models and byte-preserved through owner edits (1265.518583ms)
+✔ native scoped context rejects caller project claims and keeps owner-only data out of model tools (570.992917ms)
+✔ completed mutation DTO retains captured privacy when later owner state becomes public (0.125292ms)
+✔ native L3/L4 overview is explicit, keeps current parent lineage and revokes with original source privacy (368.436ms)
+✔ E independently measures reviewed summaries/profiles over C, preserving original quotes and holding weak gain (3849.021708ms)
+✔ actual MCP stdio evaluates the same100-case E corpus with separate budget and no owner footprint/models (21954.3825ms)
+✔ guarded standalone MCP surface uses actual pinned protocol and never starts model tooling (16514.756334ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.80625ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.808292ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (205.075375ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (228.968459ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (226.825584ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (135.05375ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (129.888917ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (266.071083ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (572.69575ms)
+✔ privacy: direct private generate blocks every provider before config/messages/schema access (9.68825ms)
+✔ privacy: private suggestions use only the first line and no model tags (6.042375ms)
+✔ privacy: route flags/private or malformed hook markers skip inference and remote retrieval (875.415583ms)
+✔ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (147.003917ms)
+✔ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (627.929083ms)
+✔ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (121.656791ms)
+✔ privacy: nested log objects, toJSON hooks, errors/causes and unknown metadata never serialize (4.65025ms)
+✔ privacy: LLM usage ignores echoed model/token content and emits fixed error kinds (8.740042ms)
+✔ privacy: metrics reports never redisplay malformed historical metadata and leave files unchanged (4.157708ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (553.928791ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (803.850709ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (569.594ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (771.473166ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (524.402208ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (528.200083ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (535.104208ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (734.442167ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.465125ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (640.004ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (479.009542ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (633.349ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (462.588958ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (680.454417ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (490.907708ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (514.464125ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (491.875917ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.577542ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.058458ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.508209ms)
+ℹ tests 105
+ℹ suites 0
+ℹ pass 105
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84401.277417

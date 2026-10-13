@@ -1,0 +1,12 @@
+ 9 | 	this[cppdb].exec(sql);
+10 | 	return this;
+11 | };
+12 | 
+13 | exports.close = function close() {
+14 | 	this[cppdb].close();
+                  ^
+TypeError: This database connection is busy executing a query
+      at close (/Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/lib/methods/wrappers.js:14:14)
+      at /Users/edge/Developer/bosun/scripts/check-sqlite-library.mjs:72:6
+
+Bun v1.4.3 (macOS arm64)

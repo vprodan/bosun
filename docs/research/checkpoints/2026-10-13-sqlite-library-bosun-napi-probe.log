@@ -1,0 +1,12 @@
+4 | exports.prepare = function prepare(sql) {
+5 | 	return this[cppdb].prepare(sql, this, false, false);
+6 | };
+7 | 
+8 | exports.exec = function exec(sql) {
+9 | 	this[cppdb].exec(sql);
+                 ^
+TypeError: This database connection is busy executing a query
+      at exec (/Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/lib/methods/wrappers.js:9:14)
+      at /Users/edge/Developer/bosun/scripts/check-sqlite-library.mjs:71:6
+
+Bun v1.4.3 (macOS arm64)

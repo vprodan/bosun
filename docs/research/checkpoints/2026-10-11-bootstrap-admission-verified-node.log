@@ -1,0 +1,97 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (31.673334ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.319375ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (18.980041ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (15.250917ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (21.434958ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (43.1065ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (32.775292ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.36775ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (10.236875ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (43.803791ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (8.512417ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (9.207625ms)
+✔ an isolated readiness turn requires bootstrap admission before any source effects (21.77075ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (262.086916ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (484.0715ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (332.939958ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (454.599208ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (349.42175ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (439.396292ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (417.005292ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3423.439834ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (671.057041ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (442.267875ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (290.653959ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (435.425625ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (436.867ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1661.88025ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (235.583834ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (213.914125ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (163.511083ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (151.478208ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (157.963791ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (189.009833ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (151.319708ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (170.335458ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (166.276084ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (153.466542ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (149.818083ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (159.704417ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (166.880208ms)
+✔ model bootstrap admission checks the selected native quota, preserves usage and never bypasses weekly exhaustion (702.409083ms)
+✔ isolated handoff keeps summary and native bootstrap costs separate and retains usage after readiness loss (849.03475ms)
+✔ weekly exhaustion before isolated handoff prevents native bootstrap even with owner unknown-quota opt-in (424.188584ms)
+✔ pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion (1.231292ms)
+✔ native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits (0.568833ms)
+✔ native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools (18.194583ms)
+✔ default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata (18.030792ms)
+✔ fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched (11.71725ms)
+✔ wrong account/model and invalid clocks reject before atomic native quota/job changes (7.531958ms)
+✔ generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models (10.149083ms)
+✔ actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen (10.388584ms)
+✔ async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite (17.445125ms)
+✔ actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table (159.595875ms)
+✔ durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache (9.5625ms)
+✔ unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen (11.8655ms)
+✔ actual attempt ledger is selected/scoped/owner-only, preserves native totals and null unknowns, and survives restart without source payload (16.669209ms)
+✔ native usage missing: unknown components and ambiguous totals are never manufactured or added twice (8.883667ms)
+✔ native usage one-count: unknown components and ambiguous totals are never manufactured or added twice (9.157042ms)
+✔ native usage multiple: unknown components and ambiguous totals are never manufactured or added twice (8.245ms)
+✔ native usage invalid: unknown components and ambiguous totals are never manufactured or added twice (7.718834ms)
+✔ native usage lost: unknown components and ambiguous totals are never manufactured or added twice (8.503959ms)
+✔ native usage zero: unknown components and ambiguous totals are never manufactured or added twice (7.630167ms)
+✔ held/unavailable/unsupported factories make no attempt and explicit billing qualification receives selection metadata only (10.131625ms)
+✔ native start COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.919333ms)
+✔ native usage COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.726625ms)
+✔ native finish COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (10.007125ms)
+✔ actual guarded native Codex usage reaches the ledger unchanged while native billing/account and cached data stay unknown (212.120292ms)
+✔ actual guarded native Claude usage preserves reported components without adding cache or inventing effective vendor billing (131.216625ms)
+✔ actual LogTape IO hold after commit cannot erase native outcome or its durable usage row (17.439208ms)
+ℹ tests 69
+ℹ suites 0
+ℹ pass 69
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16135.649667

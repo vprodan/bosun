@@ -1,0 +1,142 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings (4.857166ms)
+✔ fresh Codex seed is persisted and independently read back with no turn/model request before readiness (133.572ms)
+✔ owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics (133.329042ms)
+✔ wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference (1261.93975ms)
+✔ empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated (394.098042ms)
+✔ pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay (791.543292ms)
+✔ cancellation request without original terminal receipt joins the process and leaves unknown effects (1196.138666ms)
+✔ fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history (146.249791ms)
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (31.307125ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.716792ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (19.196042ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (15.037584ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (22.798ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (49.758625ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (32.583625ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.503666ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (8.960084ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (45.339ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (8.736792ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (8.918208ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (261.608708ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (487.46275ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (335.525583ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (461.850334ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (347.1635ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (426.576792ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (415.934125ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3389.529417ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (688.268792ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (433.741042ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (301.17475ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (435.304666ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (438.500958ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1651.650417ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (237.826084ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (223.883125ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (169.3955ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (154.562833ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (157.962584ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (192.905959ms)
+✖ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (129.467542ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (175.590167ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (159.880625ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (165.623584ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (146.385208ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (159.083625ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (158.911083ms)
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (4.87625ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (235.265083ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.472958ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (123.75925ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (469.388541ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (380.289916ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (263.797417ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (123.795042ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (123.403833ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (313.8635ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.141375ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (92.234958ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (526.070458ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (351.374459ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (248.13425ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (122.984083ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (131.822208ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (256.447292ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (148.292417ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (184.03225ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (126.834167ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (332.625916ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (155.655875ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (127.335625ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (247.973458ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (315.169875ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.869708ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (19.39625ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (6.725375ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (5.394875ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (10.012083ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (6.327292ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (8.549542ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (24.503292ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (9.971666ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (9.026167ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (167.518333ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (17.306083ms)
+✔ pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion (1.177917ms)
+✔ native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits (0.575583ms)
+✔ native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools (17.451125ms)
+✔ default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata (17.922542ms)
+✔ fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched (11.722792ms)
+✔ wrong account/model and invalid clocks reject before atomic native quota/job changes (7.34125ms)
+✔ generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models (9.415292ms)
+✔ actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen (11.233458ms)
+✔ async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite (17.003416ms)
+✔ actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table (161.062125ms)
+✔ durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache (9.408875ms)
+✔ unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen (12.00575ms)
+ℹ tests 97
+ℹ suites 0
+ℹ pass 96
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23589.561292
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/managed-runtime.test.ts:1096:1
+✖ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (129.467542ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/managed-runtime.test.ts:1110:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }

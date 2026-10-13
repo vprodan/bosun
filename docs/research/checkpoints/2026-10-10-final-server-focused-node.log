@@ -1,0 +1,175 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes (575.64075ms)
+✖ final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS (96.505334ms)
+✖ final remote request bounds and media type errors are finite and create no memory effects (454.407708ms)
+✖ final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference (430.713ms)
+✖ foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference (426.825666ms)
+✖ final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints (409.338917ms)
+✔ explicit Clef endpoint selection preserves the model and sends only public advice; absent calibration never starts a worker or proxy (10.213667ms)
+✖ final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files (425.440583ms)
+✖ final server installation prepares one owned dormant daemon and wires no host, model or obsolete service (423.772166ms)
+✖ duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert (428.1115ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 1
+ℹ fail 9
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 284602.925084
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:180:1
+✖ final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes (575.64075ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at runtimeFixture (file:///Users/edge/Developer/bosun/test/runtime-fixture.ts:69:21)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:182:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:215:1
+✖ final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS (96.505334ms)
+  TypeError: Cannot assign to read only property 'allow' of object '#<Object>'
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:110:46)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:228:19)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:260:1
+✖ final remote request bounds and media type errors are finite and create no memory effects (454.407708ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:261:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:285:1
+✖ final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference (430.713ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:286:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:327:1
+✖ foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference (426.825666ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:331:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:375:1
+✖ final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints (409.338917ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:377:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:459:1
+✖ final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files (425.440583ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async installFixture (file:///Users/edge/Developer/bosun/test/serve.test.ts:94:13)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:460:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:485:1
+✖ final server installation prepares one owned dormant daemon and wires no host, model or obsolete service (423.772166ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async installFixture (file:///Users/edge/Developer/bosun/test/serve.test.ts:94:13)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:486:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:503:1
+✖ duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert (428.1115ms)
+  Error: Runtime logging unavailable
+      at unavailable (file:///Users/edge/Developer/bosun/src/platform/logging.ts:39:27)
+      at openRuntimeLog (file:///Users/edge/Developer/bosun/src/platform/logging.ts:109:64)
+      at startDaemon (file:///Users/edge/Developer/bosun/src/app/daemon.ts:197:28)
+      at remoteFixture (file:///Users/edge/Developer/bosun/test/remote-fixture.ts:128:20)
+      at async installFixture (file:///Users/edge/Developer/bosun/test/serve.test.ts:94:13)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:504:13)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined
+  }

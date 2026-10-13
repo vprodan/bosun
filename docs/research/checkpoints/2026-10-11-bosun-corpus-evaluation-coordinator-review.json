@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-11T21:06:26.638Z",
+  "status": "independently reviewed candidate; awaiting separate owner labels",
+  "scope": "Static source/span/gold/alternative/lineage/split/temporal review and in-memory encoding checks only; no application/evaluation/storage/provider/native call",
+  "draftSha256": "faff7fb8211f281b597d4cebe95c4338529378360323df9837194e2d58ba7a6e",
+  "reviewSha256": "bca063f08ae7962660fd1d7d40a858630f158497da68f7854a46596fcde9680d",
+  "counts": {
+    "snapshots": 22,
+    "notes": 63,
+    "cases": 100,
+    "graph": 96,
+    "gold": 141,
+    "alternatives": 282,
+    "clusters": 20,
+    "negative": 20,
+    "multiSupport": 40
+  },
+  "heldoutHistory": [
+    "bc_06_0",
+    "bc_06_1"
+  ],
+  "actualRuleDistinction": "Later controller requires application bootstrap for inference-capable controls and calls the callback whenever supplied; old displayed managed-control prefix is not evidence of an admission bypass.",
+  "futureEncoding": {
+    "bytes": 202957,
+    "sha256": "bf6942ba3992248ca0c23a14eb883fc07a9263602ef3ba2f317448e09e09e6bd",
+    "saved": false
+  },
+  "ownerReviewed": false,
+  "evaluationRan": false,
+  "modelRan": false,
+  "nativeRan": false,
+  "limitations": [
+    "Source-authored questions and manual graph proposals do not establish generated/vector quality or12 native retained sessions",
+    "Packing loss, real outcomes and provider/native/designated-machine latency remain measurements"
+  ],
+  "protectedInputsUnchanged": 11
+}

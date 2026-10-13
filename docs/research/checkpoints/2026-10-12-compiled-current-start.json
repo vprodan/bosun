@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-12T09:01:57.005Z",
+  "originalSession": 15389,
+  "status": "running; preserve and join original handle",
+  "approval": "Allow this one compiled batch",
+  "exactCommand": "node scripts/check-compiled-current.mjs --approved-current-qualification-only dist/bosun-0.2.0-darwin-arm64-current-candidate",
+  "log": "docs/research/checkpoints/2026-10-12-compiled-current-native.log",
+  "noAutomaticRetry": true
+}

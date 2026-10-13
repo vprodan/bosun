@@ -1,0 +1,42 @@
+test/memory.test.ts:9:42 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     7 │ import { DatabaseSync } from 'node:sqlite';
+     8 │ import { spawn, spawnSync } from 'node:child_process';
+   > 9 │ import { sandbox, fresh, bosun, gitRepo, REPO, type Sandbox } from './helpers.ts';
+       │                                          ^^^^
+    10 │ import { terms } from '../src/core/text.ts';
+    11 │ import { MEMORY_MIGRATIONS } from '../src/adapters/memory/sqlite-schema.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    9 │ import·{·sandbox,·fresh,·bosun,·gitRepo,·REPO,·type·Sandbox·}·from·'./helpers.ts';
+      │                                          ------                                   
+
+test/writer-lifecycle.test.ts:24:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    22 │   type CutoverPaths,
+    23 │ } from '../src/adapters/memory/sqlite-cutover.ts';
+  > 24 │ import { footprint } from './read-view-prototype.ts';
+       │        ^^^^^^^^^^^^^
+    25 │ 
+    26 │ const DAY = 86400000;
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      22   22 │     type CutoverPaths,
+      23   23 │   } from '../src/adapters/memory/sqlite-cutover.ts';
+      24      │ - import·{·footprint·}·from·'./read-view-prototype.ts';
+      25   24 │   
+      26   25 │   const DAY = 86400000;
+  
+
+Checked 16 files in 20ms. No fixes applied.
+Found 2 warnings.

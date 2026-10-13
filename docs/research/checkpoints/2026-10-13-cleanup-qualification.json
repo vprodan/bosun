@@ -1,0 +1,32 @@
+{
+  "scope": "approved-housekeeping-and-code-cleanup",
+  "restoreStash": "b830c5c24baa84d5b30895598cfaf94bb2d7205d",
+  "ignoredBackup": "/Users/edge/Developer/bosun-cleanup-backups/b830c5c24baa84d5b30895598cfaf94bb2d7205d/ignored-artifacts.tar.gz",
+  "ignoredBackupSha256": "4d3f491553adf6f892d7a5c8969073e707584f1a50e10390424f5993e648a584",
+  "backupRegularFilesVerified": 24635,
+  "artifact": "dist/bosun-1.0.0-darwin-arm64-cleanup",
+  "binarySha256": "d64cf0b87f7e414dec97dade5ab12a05bd494e05b75a964fd565c38374a9e0f4",
+  "archiveSha256": "573d45a151c3b3ded1a6e4c6231cb0499c4b856110306ca9df4ceafe5d5a9a80",
+  "sourceDigest": "27d69a8fabd54d4e7d0c5193f90bb73b2fec866979ebff29cf46dfbbb645588d",
+  "checks": {
+    "selectedGuardedSourceFilesPassed": 13,
+    "selectedGuardedSourceFilesFailed": 0,
+    "full91FileSuiteRerun": false,
+    "containmentProbesPassed": 35,
+    "typecheckPassed": true,
+    "boundaryProductionFiles": 250,
+    "boundaryResolvedEdges": 1359,
+    "boundaryViolations": 0,
+    "staticArtifactAndSourcePassed": true,
+    "compiledVersionHelpPrivateHookPrivateRouteMcpPassed": true,
+    "compiledStoragePrivacyRequests": 7,
+    "compiledShutdownReacquisitionPassed": true,
+    "compiledPublicNotes": 10000,
+    "compiledHookInjections": 21,
+    "compiledAllJoined": true
+  },
+  "liveHosts": false,
+  "liveModels": false,
+  "personalActivation": false,
+  "completeProductionQualification": false
+}

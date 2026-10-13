@@ -1,0 +1,25 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+49 |     const file=path.join(root,'s0');
+50 |     const r=launch(root,['-e', `import fs from 'node:fs';import net from 'node:net';
+51 |       const file=${JSON.stringify(file)},server=net.createServer();await new Promise(r=>server.listen(file,r));
+52 |       try{console.log(fs.realpathSync(file));}catch(e){console.log(JSON.stringify({code:e.code,message:e.message}));}
+53 |       await new Promise(r=>server.close(r));`],{guarded:false,cwd,env,encoding:'utf8',timeout:10000});
+54 |     assert.equal(r.status,0,r.stderr); assert.equal(r.stdout.trim(),file);
+                                                   ^
+AssertionError: Expected values to be strictly equal:
++ actual - expected
+
++ `{"code":"EOPNOTSUPP","message":"EOPNOTSUPP: unknown error, lstat '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/c2ZoE9X/s0'"}`
+- '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/c2ZoE9X/s0'
+
+ generatedMessage: true,
+     actual: "{\"code\":\"EOPNOTSUPP\",\"message\":\"EOPNOTSUPP: unknown error, lstat '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/c2ZoE9X/s0'\"}",
+   expected: "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/c2ZoE9X/s0",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/scripts/check-containment.mjs:54:47
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

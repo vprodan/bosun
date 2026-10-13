@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-12T09:31:47.168Z",
+  "coverage": "static-new-driver-artifact",
+  "originalBuildSession": 88330,
+  "buildTerminalExit": 0,
+  "compilerCalls": [
+    "version",
+    "static compile"
+  ],
+  "compilerCallsTerminalExit": [
+    0,
+    0
+  ],
+  "productInvocations": 0,
+  "driverSha256": "4164c1e2ecb88b73bec463a166d2f1598cb5113a82c7410ff1b77006d11e220f",
+  "pins": {
+    "binary": "bba7bfb39c530363de72e6462844b46b132088f4e738b7429430dee7af31a02a",
+    "archive": "bb776df39db6530b976708ecf92a53b8a27c552ebc742ee45f0065977163315b",
+    "metadata": "a49eeca3447549e2227fa322dbcce26abaf22f970ccf3b9ba6d7e5d5d163a651",
+    "source": "1197aa21b3ef31c052bf096e9c4099ab64188c887c9ffe35a076e74100657441",
+    "checkout": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+    "compiler": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+  },
+  "privateStaticVerifierRootRemoved": true,
+  "noReproducibilityPairClaim": true
+}

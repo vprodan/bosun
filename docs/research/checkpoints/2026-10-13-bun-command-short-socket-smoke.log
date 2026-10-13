@@ -1,0 +1,11 @@
+21 |   const { streamProcess } = await import('../src/platform/process.ts');
+22 |   const { serveLocalRpc } = await import('../src/adapters/transport/local-rpc-server.ts');
+23 |   const f = watchFixture();
+24 |   // Keep the native Unix socket below its platform byte bound, without changing
+25 |   // the production validator or the selected runtime/owner home.
+26 |   f.paths.socket = path.join(guard.root, 'metadata-socket');
+         ^
+TypeError: Attempted to assign to readonly property.
+      at /Users/edge/Developer/bosun/scripts/bun-command-smoke.mjs:26:5
+
+Bun v1.4.3 (macOS arm64)

@@ -1,0 +1,70 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ cli: help exits 0, unknown command exits 2 (385.099834ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (202.784708ms)
+✔ cli: install rejects a bad option before touching anything (194.966667ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (389.764667ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (201.008333ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (623.056875ms)
+synthetic compilation failure
+✖ distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence (21.715542ms)
+✔ distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths (28.863833ms)
+✔ distribution static verification rejects binary/checksum and metadata/inventory tampering (18.127542ms)
+✔ distribution static verification rejects changed current assets or installed dependency bytes (22.756542ms)
+✔ distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands (18.520625ms)
+✔ distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls (15.463041ms)
+✔ distribution build/compiler failure removes temporary source and leaves no candidate output (15.539542ms)
+✔ distribution Node CLIs verify without execution and refuse to overwrite a formula (175.168416ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (566.241625ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (771.42525ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (884.812583ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.637417ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (154.289875ms)
+✔ roles: bosun roles --json prints the resolved table (202.998416ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 19
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5503.428625
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:61:1
+✖ distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence (21.715542ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(f.calls[0].env[name].startsWith(f.sb.root + path.sep))
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/distribution.test.ts:70:69)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

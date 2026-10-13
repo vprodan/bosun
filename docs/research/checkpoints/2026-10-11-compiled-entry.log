@@ -1,0 +1,78 @@
+{
+  "coverage": "compiled-entry-only",
+  "binarySha256": "5a8600206ee8527c1410f833af612d2ce5afc510fd1f7ddf92ea7089f6cfe202",
+  "sourceDigest": "b0d4f9d16034d15b96ac70aada8ec47a3200847870362c14c2ab9b02ca555223",
+  "applicationSuiteRuntime": "node",
+  "checks": [
+    {
+      "args": [
+        "--version"
+      ],
+      "passed": true,
+      "failure": null,
+      "code": 0,
+      "signal": null,
+      "eofSent": true,
+      "stdoutBytes": 6,
+      "stderrBytes": 0,
+      "stdoutSha256": "1f930dd1f133c1f97a94fe3acb8db34372cf4c01ffdb2b3ff4ca72f9494121e9"
+    },
+    {
+      "args": [
+        "--help"
+      ],
+      "passed": true,
+      "failure": null,
+      "code": 0,
+      "signal": null,
+      "eofSent": true,
+      "stdoutBytes": 5468,
+      "stderrBytes": 0,
+      "stdoutSha256": "52bb180000d1a09f368ba5c84857d860810ef7e482e21d07afd6615c0345450e"
+    },
+    {
+      "args": [
+        "hook",
+        "--private"
+      ],
+      "passed": true,
+      "failure": null,
+      "code": 0,
+      "signal": null,
+      "eofSent": true,
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "args": [
+        "route",
+        "--hook",
+        "--private"
+      ],
+      "passed": true,
+      "failure": null,
+      "code": 0,
+      "signal": null,
+      "eofSent": true,
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "args": [
+        "mcp"
+      ],
+      "passed": true,
+      "failure": null,
+      "code": 0,
+      "signal": null,
+      "eofSent": true,
+      "initialized": true,
+      "stdoutBytes": 437,
+      "stderrBytes": 0,
+      "stdoutSha256": "45432ce4053042b8b7c0588333196a17469372e8c699da1501b780ec8b441e6f"
+    }
+  ],
+  "qualified": true
+}

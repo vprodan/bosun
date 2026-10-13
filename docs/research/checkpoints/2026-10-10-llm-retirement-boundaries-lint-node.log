@@ -1,0 +1,105 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ production boundary graph passes including the recorded legacy forwarding seams (844.7455ms)
+✔ boundary negative fixture: final memory composition cannot reach legacy config (79.300417ms)
+✔ boundary negative fixture: curated source policy cannot reach native writer (74.762917ms)
+✔ boundary negative fixture: normal registered reader cannot import new initialization (74.464542ms)
+✔ boundary negative fixture: jobs core cannot use an ambient clock (78.423417ms)
+✔ boundary negative fixture: jobs core cannot import durable IO (76.682917ms)
+✔ boundary negative fixture: jobs storage cannot reuse memory cutover machinery (74.524334ms)
+✔ boundary negative fixture: final jobs composition cannot import legacy rendezvous (73.642458ms)
+✔ boundary negative fixture: type-only static IO import (75.333042ms)
+✔ boundary negative fixture: reexport relative bypass (74.346292ms)
+✔ boundary negative fixture: literal dynamic import (83.602917ms)
+✔ boundary negative fixture: import type query (74.191959ms)
+✔ boundary negative fixture: tsconfig alias bypass (73.750541ms)
+✔ boundary negative fixture: package imports alias bypass (73.447916ms)
+✔ boundary negative fixture: unresolved alias (78.651875ms)
+✔ boundary negative fixture: computed dynamic import (77.98925ms)
+✔ boundary negative fixture: computed require (75.354958ms)
+✔ boundary negative fixture: require alias (72.910917ms)
+✔ boundary negative fixture: module loader escape (72.250875ms)
+✔ boundary negative fixture: property require escape (71.818916ms)
+✔ boundary negative fixture: element require escape (71.885625ms)
+✔ boundary negative fixture: import equals escape (73.075625ms)
+✔ boundary negative fixture: new graph cycle (76.259208ms)
+✔ boundary negative fixture: old graph cycle (73.58525ms)
+✔ boundary negative fixture: production test dependency (72.072625ms)
+✔ boundary negative fixture: cross adapter flat files (73.081209ms)
+✔ boundary negative fixture: cross adapter nested directories (78.541625ms)
+✔ boundary negative fixture: cross adapter kinds (75.086458ms)
+✔ boundary negative fixture: core process global (73.439875ms)
+✔ boundary negative fixture: core fetch global (79.853708ms)
+✔ boundary negative fixture: core global alias (73.629667ms)
+✔ boundary negative fixture: ambient clock alias (72.551708ms)
+✔ boundary negative fixture: actual context use case cannot reach native hashing (75.79825ms)
+✔ boundary negative fixture: actual context use case cannot use ambient timing (72.133458ms)
+✔ boundary negative fixture: context forwarding cannot restore its obsolete text helper edge (76.6575ms)
+✔ boundary negative fixture: ambient random alias (75.438042ms)
+✔ boundary negative fixture: Math object alias (72.544708ms)
+✔ boundary negative fixture: computed Math operation (70.652ms)
+✔ boundary negative fixture: new source cannot import old lib helper (77.346541ms)
+✔ boundary negative fixture: unregistered legacy file (71.459208ms)
+✔ boundary negative fixture: unrecorded forwarding edge (71.51375ms)
+✔ boundary negative fixture: memory adapter cannot reach legacy config (71.993167ms)
+✔ boundary negative fixture: memory adapter cannot read ambient config (72.566958ms)
+✔ boundary negative fixture: memory query cannot use an ambient clock (73.366083ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient timing source (77.964709ms)
+✔ boundary negative fixture: memory adapter cannot create a runtime native connection (74.521041ms)
+✔ boundary negative fixture: memory adapter cannot alias a runtime native connection (72.830625ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform clock through a package alias (78.260667ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias (74.120084ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient measurement sink (73.958375ms)
+✔ boundary negative fixture: validation cannot load runtime filesystem (76.949625ms)
+✔ boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper (71.700125ms)
+✔ boundary negative fixture: validation isolation cannot reexport an ambient helper (70.868667ms)
+✔ boundary negative fixture: memory isolation cannot alias an unreviewed contract sink (71.668209ms)
+✔ boundary negative fixture: pure validation cannot reach storage (79.163625ms)
+✔ boundary negative fixture: memory query cannot import maintenance (71.943ms)
+✔ boundary negative fixture: docs snapshot query cannot import its index use case (72.53225ms)
+✔ boundary negative fixture: docs snapshot query cannot reach filesystem helper (72.77375ms)
+✔ boundary negative fixture: docs index cannot import effectful source helper (77.092584ms)
+✔ boundary negative fixture: docs query cannot use ambient config (72.6385ms)
+✔ boundary negative fixture: docs index cannot use runtime filesystem (73.692959ms)
+✔ boundary negative fixture: docs index cannot use ambient timing (72.496333ms)
+✔ boundary negative fixture: docs query cannot alias a platform source (72.319375ms)
+✔ boundary negative fixture: docs query cannot reach unreviewed contract metrics (78.782833ms)
+✔ boundary negative fixture: docs filesystem helper cannot reach legacy state (73.369875ms)
+✔ boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer (76.435083ms)
+✔ boundary negative fixture: local hook reader cannot import writable store (71.565209ms)
+✔ boundary negative fixture: service forwarding does not allow unrelated memory internals (73.560625ms)
+✔ boundary negative fixture: unknown new production zone (73.507416ms)
+✔ AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals (76.468208ms)
+✔ isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins (72.854833ms)
+✔ boundary resolution cannot escape the checked graph through a symlink (4.874875ms)
+✔ app path aliases cannot escape the checked graph as apparent external dependencies (72.312ms)
+✔ lint: thirteen skills, frontmatter name matches the folder, descriptions long enough to trigger (1.191542ms)
+✔ lint: skills, policy and roles only reference final roles, skills and commands that exist (4.029834ms)
+✔ lint: no skill passes spec text to a shell inside double quotes (backticks and $ would run) (0.465958ms)
+✔ lint: the verify rule covers new files too (git status --short, not only git diff) (0.1175ms)
+ℹ tests 77
+ℹ suites 0
+ℹ pass 77
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6535.136875

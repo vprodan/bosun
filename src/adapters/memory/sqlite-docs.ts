@@ -1,9 +1,10 @@
 // Established-session snapshot query. Source discovery/indexing is a separate explicit operation.
-import type { DatabaseSync } from 'node:sqlite';
+import type { SqliteDatabase } from '../../platform/sqlite.ts'
 import type { Ctx } from '../../core/domain/memory.ts';
 import type { Hit } from '../../core/domain/context.ts';
-import type { ContextSource, MemoryProvider } from '../../core/ports/context-source.ts';
+import type { ContextSource } from '../../core/ports/context-source.ts';
 import { MemoryError } from '../../core/errors.ts';
+import { screenPublicText } from '../../core/secret-screen.ts';
 import { ftsQuery } from '../../core/text.ts';
 import type { SqliteSession } from './sqlite-session.ts';
 
@@ -29,7 +30,7 @@ export function docsAuthorized(scope: DocsScope, ctx: Ctx): boolean {
   // ctx is the trusted caller policy supplied by composition; it is never a model-facing project selector.
   return ctx.projectId === scope.projectId || Array.isArray(ctx.linked) && ctx.linked.includes(scope.projectId);
 }
-export class SqliteDocs implements ContextSource, MemoryProvider {
+export class SqliteDocs implements ContextSource {
   readonly id = 'docs';
   readonly name = 'docs';
   readonly trust = 'verified';
@@ -38,7 +39,7 @@ export class SqliteDocs implements ContextSource, MemoryProvider {
   readonly scope: Readonly<Required<DocsScope>>;
   #session: SqliteSession;
   constructor(session: SqliteSession, scope: DocsScope) { this.#session = session; this.scope = docsScope(scope); }
-  get db(): DatabaseSync {
+  get db(): SqliteDatabase {
     if (!this.#session.legacyDb) throw new MemoryError('unavailable', 'registered memory database is private');
     return this.#session.legacyDb;
   }
@@ -50,13 +51,14 @@ export class SqliteDocs implements ContextSource, MemoryProvider {
     const { root, projectId, excludedRoots } = this.scope; const prefix = root + '/';
     const excluded = excludedRoots.map(() => 'AND substr(d.path, 1, ?) <> ?').join(' ');
     try {
-      return this.#session.read((db) => db.prepare(`SELECT d.path, d.title, d.mtime,
+      return this.#session.read((db) => db.prepare(`SELECT d.path, d.title, d.mtime, d.body,
         snippet(docs_fts, 1, '', '', '…', 32) AS text, bm25(docs_fts) AS rank
         FROM docs_fts JOIN docs d ON d.seq = docs_fts.rowid
         WHERE docs_fts MATCH ? AND d.project_id = ? AND substr(d.path, 1, ?) = ? ${excluded}
         ORDER BY bm25(docs_fts) LIMIT ?`).all(match, projectId, prefix.length, prefix,
           ...excludedRoots.flatMap((value) => [value.length + 1, value + '/']), limit)
         .flatMap((row) => {
+          try { screenPublicText(row.body as string); screenPublicText(row.title as string); } catch { return []; }
           const id = docsRelative(root, row.path as string);
           return id === null ? [] : [{ source: 'docs', id, title: row.title as string, text: row.text as string,
             category: 'doc', rank: row.rank as number, at: row.mtime as number, accessCount: 0 }];

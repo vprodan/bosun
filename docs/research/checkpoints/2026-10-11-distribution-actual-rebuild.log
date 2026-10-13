@@ -1,0 +1,12 @@
+{
+  "output": "/Users/edge/Developer/bosun/dist/bosun-0.2.0-darwin-arm64-rebuild",
+  "coverage": "static-artifact",
+  "version": "0.2.0",
+  "target": "bun-darwin-arm64",
+  "binarySha256": "80d3df20afc467bdd7ce94a9539759b88e70a673b9b57ba871bd1ee6cae0c564",
+  "archive": "bosun-0.2.0-darwin-arm64.tar.gz",
+  "archiveSha256": "6d00cc409e3537715d462d236ee5ca4bb2e86597b2bc1e8c894a6bc0718877fc",
+  "sourceDigest": "b0d4f9d16034d15b96ac70aada8ec47a3200847870362c14c2ab9b02ca555223",
+  "runtimeQualification": "unverified",
+  "inputs": 7271
+}

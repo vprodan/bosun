@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-12T12:16:54.071Z",
+  "worker": "/root/portable_compiled_tests",
+  "workerStatus": "completed",
+  "problem": "Ordinary all/compiledcurrent tests dereferenced an ignored local compiled candidate absent from fresh checkouts",
+  "change": "Removed only exact-artifact test and unused imports; retained five meaningful Node fixture/privacy tests. Exact-artifact static verification remains in explicit qualification driver and existing evidence.",
+  "files": [
+    {
+      "path": "test/compiled-current.test.ts",
+      "bytes": 11701,
+      "sha256": "e7209e797ab4f9ef720f654c3f7e60175c001e2a9d0be332e2a8d38d28df248a"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-current-test-original.txt",
+      "bytes": 12455,
+      "sha256": "07cac844a45ffa3f923b6a16a613f6dce63f7020bf2608b2ccb9ae37255a1ca0"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-12-compiled-current-portable-node.log",
+      "bytes": 2010,
+      "sha256": "09cdf37156b2ef4ca613cab9a2ab0f275753958f2a51171b29142d297e6af552"
+    },
+    {
+      "path": "README.md",
+      "bytes": 21010,
+      "sha256": "5fb3dc1a2878d114b9079d4df9a99414b91f3b94e126ed20e901093735cf62d9"
+    }
+  ],
+  "verification": {
+    "originalSession": 99169,
+    "terminalExit": 0,
+    "originalJoined": true,
+    "applicationTests": 5,
+    "containmentTests": 19,
+    "failures": 0,
+    "cancellations": 0,
+    "skips": 0,
+    "todos": 0,
+    "durationMs": 783.724416,
+    "rootByteComparison": true,
+    "noDistDependencyReadOnlyReview": true,
+    "noProductRuntimeInvocation": true,
+    "fullSuiteRepeated": false,
+    "runtimeSourceDigest": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+    "claudeClosureDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+    "pendingRuntimeDriversAndProposalUnchanged": true
+  },
+  "historicalPin": "Consumed batch test path hash changed; exact original bytes are archived at the original SHA. No historical record was edited or current 41-pin equality claimed.",
+  "approvalReconciliation": {
+    "currentBatch": "fulfilled once at original session15389; latest answer identifies same exact approved scope, no second invocation",
+    "olderStorageFollowUp": "retired/superseded without invocation or implied approval; current approved batch passed setup and the same seven privacy RPCs on newer candidate",
+    "pending": [
+      "instrumented compiled benchmark",
+      "instrumented Claude bootstrap",
+      "final corpus labels/two Node evaluations"
+    ]
+  },
+  "branch": "main",
+  "head": "4adb3b4ca735cbe9fe9af5a0636255fa3186f075",
+  "packageVersion": "0.2.0",
+  "allFinalWorkUncommitted": true
+}

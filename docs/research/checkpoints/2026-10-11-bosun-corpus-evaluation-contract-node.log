@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "childPid": 46199,
+  "childHandleMode": "spawnSync; original child reached terminal status and joined during this call",
+  "liveToolSessionId": null,
+  "stdout": "{\"scope\":\"in-memory synthetic contract projection only; no retrieval/evaluation/storage/provider/native/model\",\"childPid\":46199,\"guardPreloaded\":true,\"datasetRejected\":true,\"wrapperRejected\":true,\"syntheticSchemaPass\":true,\"notes\":63,\"cases\":100,\"graph\":96,\"savedEvidence\":\"review-pending\",\"savedReviewedTrue\":0,\"ownerReviewedSaved\":false,\"evalRan\":false,\"storageOpened\":false,\"nativeRan\":false,\"modelsCalled\":false}\n",
+  "stderr": "",
+  "joined": true,
+  "tempRemoved": true,
+  "candidateSha256": "faff7fb8211f281b597d4cebe95c4338529378360323df9837194e2d58ba7a6e"
+}

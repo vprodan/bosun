@@ -1,7 +1,8 @@
 // Qualified rollback-journal reader. Current mutable WAL primaries are held, never opened immutable.
 import fs from 'node:fs';
+import { realpathWithoutOpen } from '../../platform/canonical-path.cjs';
 import path from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../../platform/sqlite.ts'
 import { CATEGORIES, type Ctx, type Found, type Memory, type Query } from '../../core/domain/memory.ts';
 import { MemoryError } from '../../core/errors.ts';
 import type { MemoryReader } from '../../core/ports/memory.ts';
@@ -24,7 +25,7 @@ const text = (v: unknown, max: number): v is string => typeof v === 'string' && 
 const timestamp = (v: unknown): boolean => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 && v <= 8_640_000_000_000_000;
 
 export class SqliteReadOnly implements MemoryReader {
-  #db: DatabaseSync | null = null;
+  #db: SqliteDatabase | null = null;
   #now: () => number;
   #nonExpiringOnly: boolean;
   constructor(file: string, now: () => number, options: { nonExpiringOnly?: boolean } = {}) {
@@ -35,7 +36,7 @@ export class SqliteReadOnly implements MemoryReader {
     try {
       if (typeof file !== 'string' || !path.isAbsolute(file) || file.includes('\0') || path.resolve(file) !== file) unavailable('path');
       if (!fs.existsSync(file)) unavailable('missing');
-      if (fs.realpathSync(file) !== file || !fs.statSync(file).isFile()) unavailable('path');
+      if (realpathWithoutOpen(file) !== file || !fs.statSync(file).isFile()) unavailable('path');
       const size = fs.statSync(file).size;
       if (size < 100 || size > MAX_BYTES) unavailable('size');
       const header = Buffer.alloc(100);
@@ -45,7 +46,7 @@ export class SqliteReadOnly implements MemoryReader {
       if (header[18] === 2 || header[19] === 2) unavailable('wal_requires_writes');
       if (header[18] !== 1 || header[19] !== 1) unavailable('format');
       if (['-journal', '-wal', '-shm'].some((suffix) => present(file + suffix))) unavailable('journal_pending');
-      this.#db = new DatabaseSync(file, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
+      this.#db = new SqliteDatabase(file, { readOnly: true, allowExtension: false, defensive: true, enableDoubleQuotedStringLiterals: false });
       // Exclusive connection mode is the measured zero-write backstop if journal state races the preflight.
       this.#db.exec('PRAGMA query_only=ON; PRAGMA temp_store=MEMORY; PRAGMA busy_timeout=0; PRAGMA locking_mode=EXCLUSIVE;');
       this.read(() => {
@@ -178,7 +179,7 @@ export function openHookMemory(options: { primary: string; view?: string; source
     for (;;) {
       if (present(ancestor)) {
         const s = fs.lstatSync(ancestor);
-        if (s.isSymbolicLink() || fs.realpathSync(ancestor) !== ancestor || (ancestor === view ? !s.isFile() : !s.isDirectory())) unavailable('path');
+        if (s.isSymbolicLink() || realpathWithoutOpen(ancestor) !== ancestor || (ancestor === view ? !s.isFile() : !s.isDirectory())) unavailable('path');
         found = ancestor === view; break;
       }
       const parent = path.dirname(ancestor); if (parent === ancestor) unavailable('path'); ancestor = parent;

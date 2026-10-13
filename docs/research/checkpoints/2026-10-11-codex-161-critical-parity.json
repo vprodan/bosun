@@ -1,0 +1,47 @@
+{
+  "versions": [
+    "0.160.0",
+    "0.161.0"
+  ],
+  "nativeQualification": "unverified",
+  "result": [
+    {
+      "name": "ThreadBackgroundTerminalsListParams",
+      "identical": true,
+      "sha256": "4ca8ba307e0f635b2be4291ad034d484f2568066e3f68a95c9744f4e45b9503a",
+      "definition": "pub struct ThreadBackgroundTerminalsListParams { pub thread_id: String, #[ts(optional = nullable)] pub cursor: Option<String>, #[ts(optional = nullable)] pub limit: Option<u32>, }"
+    },
+    {
+      "name": "ThreadBackgroundTerminal",
+      "identical": true,
+      "sha256": "6f04e6b14531eab6bf9d5c5bbf920811adbcc2f219073c79774057cddc4af462",
+      "definition": "pub struct ThreadBackgroundTerminal { pub item_id: String, pub process_id: String, pub command: String, pub cwd: LegacyAppPathString, pub os_pid: Option<u32>, pub cpu_percent: Option<f64>, pub rss_kb: Option<u64>, }"
+    },
+    {
+      "name": "ThreadBackgroundTerminalsListResponse",
+      "identical": true,
+      "sha256": "90b8245e69289e9896c507fc7efee9eacbfb72a04d12f817b118cb377e2b128e",
+      "definition": "pub struct ThreadBackgroundTerminalsListResponse { pub data: Vec<ThreadBackgroundTerminal>, pub next_cursor: Option<String>, }"
+    },
+    {
+      "name": "AgentRoleToml",
+      "identical": true,
+      "sha256": "8e25687d2f9a0407b5050189d5e8e20e98cef139465258218260995d4860886b"
+    },
+    {
+      "name": "AgentsToml",
+      "identical": true,
+      "sha256": "c186b7d27b27ba33cfa03f79e22a533a0d02274c89f2436fcb42aeb623984b5b"
+    },
+    {
+      "name": "RawMcpServerConfig",
+      "identical": true,
+      "sha256": "163b2ad42aae68bc89529b9197964c9ed0e62332324d0a1e80df2d0c63c725f9"
+    },
+    {
+      "name": "SandboxWorkspaceWrite",
+      "identical": true,
+      "sha256": "a90203325e1bb1c3ed7fbd89689448c64b32368668f2e93d7418549416b84e70"
+    }
+  ]
+}

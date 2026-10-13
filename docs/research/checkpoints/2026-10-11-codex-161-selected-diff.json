@@ -1,0 +1,107 @@
+[
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "Thread",
+    "found": [
+      false,
+      false
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "ThreadStartParams",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "ThreadStartResponse",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "ThreadBackgroundTerminalsList",
+    "found": [
+      false,
+      false
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "ThreadInjectItemsParams",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+    "name": "ThreadTokenUsage",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  },
+  {
+    "file": "codex-rs/exec/src/cli.rs",
+    "name": "Cli",
+    "found": [
+      true,
+      true
+    ],
+    "same": false,
+    "previous": "pub struct Cli {\n    /// Action to perform. If omitted, runs a new non-interactive session.\n    #[command(subcommand)]\n    pub command: Option<Command>,\n\n    /// Error out when config.toml contains fields that are not recognized by this version of Codex.\n    #[arg(long = \"strict-config\", global = true, default_value_t = false)]\n    pub strict_config: bool,\n\n    #[clap(flatten)]\n    pub shared: ExecSharedCliOptions,\n\n    /// Source classification for newly created or forked threads.\n    #[arg(long = \"thread-source\", value_name = \"SOURCE\", global = true)]\n    pub thread_source: Option<ThreadSource>,\n\n    /// Allow running Codex outside a Git repository.\n    #[arg(long = \"skip-git-repo-check\", global = true, default_value_t = false)]\n    pub skip_git_repo_check: bool,\n\n    /// Run without persisting session files to disk.\n    #[arg(long = \"ephemeral\", global = true, default_value_t = false)]\n    pub ephemeral: bool,\n\n    /// Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`.\n    #[arg(long = \"ignore-user-config\", global = true, default_value_t = false)]\n    pub ignore_user_config: bool,\n\n    /// Do not load user or project execpolicy `.rules` files.\n    #[arg(long = \"ignore-rules\", global = true, default_value_t = false)]\n    pub ignore_rules: bool,\n\n    /// Path to a JSON Schema file describing the model's final response shape.\n    #[arg(long = \"output-schema\", value_name = \"FILE\", global = true)]\n    pub output_schema: Option<PathBuf>,\n\n    #[clap(skip)]\n    pub config_overrides: CliConfigOverrides,\n\n    /// Specifies color settings for use in the output.\n    #[arg(long = \"color\", value_enum, default_value_t = Color::Auto)]\n    pub color: Color,\n\n    /// Print events to stdout as JSONL.\n    #[arg(\n        long = \"json\",\n        alias = \"experimental-json\",\n        default_value_t = false,\n        global = true\n    )]\n    pub json: bool,\n\n    /// Specifies file where the last message from the agent should be written.\n    #[arg(\n        long = \"output-last-message\",\n        short = 'o',\n        value_name = \"FILE\",\n        global = true\n    )]\n    pub last_message_file: Option<PathBuf>,\n\n    /// Initial instructions for the agent. If not provided as an argument (or\n    /// if `-` is used), instructions are read from stdin. If stdin is piped and\n    /// a prompt is also provided, stdin is appended as a `<stdin>` block.\n    #[arg(value_name = \"PROMPT\", value_hint = clap::ValueHint::Other)]\n    pub prompt: Option<String>,\n}",
+    "current": "pub struct Cli {\n    /// Action to perform. If omitted, runs a new non-interactive session.\n    #[command(subcommand)]\n    pub command: Option<Command>,\n\n    /// Error out when config.toml contains fields that are not recognized by this version of Codex.\n    #[arg(long = \"strict-config\", global = true, default_value_t = false)]\n    pub strict_config: bool,\n\n    #[clap(flatten)]\n    pub shared: ExecSharedCliOptions,\n\n    /// Source classification for newly created or forked threads.\n    #[arg(long = \"thread-source\", value_name = \"SOURCE\", global = true)]\n    pub thread_source: Option<ThreadSource>,\n\n    /// Request an experimental Cyber access program for this turn (OpenAI provider only).\n    /// Omit to use server defaults. Not supported with review; fork requires a prompt.\n    #[arg(long, value_enum, value_name = \"PROGRAM\", global = true)]\n    pub cyber_access_program: Option<CyberAccessProgramCliArg>,\n\n    /// Allow running Codex outside a Git repository.\n    #[arg(long = \"skip-git-repo-check\", global = true, default_value_t = false)]\n    pub skip_git_repo_check: bool,\n\n    /// Run without persisting session files to disk.\n    #[arg(long = \"ephemeral\", global = true, default_value_t = false)]\n    pub ephemeral: bool,\n\n    /// Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`.\n    #[arg(long = \"ignore-user-config\", global = true, default_value_t = false)]\n    pub ignore_user_config: bool,\n\n    /// Do not load user or project execpolicy `.rules` files.\n    #[arg(long = \"ignore-rules\", global = true, default_value_t = false)]\n    pub ignore_rules: bool,\n\n    /// Path to a JSON Schema file describing the model's final response shape.\n    #[arg(long = \"output-schema\", value_name = \"FILE\", global = true)]\n    pub output_schema: Option<PathBuf>,\n\n    #[clap(skip)]\n    pub config_overrides: CliConfigOverrides,\n\n    /// Specifies color settings for use in the output.\n    #[arg(long = \"color\", value_enum, default_value_t = Color::Auto)]\n    pub color: Color,\n\n    /// Print events to stdout as JSONL.\n    #[arg(\n        long = \"json\",\n        alias = \"experimental-json\",\n        default_value_t = false,\n        global = true\n    )]\n    pub json: bool,\n\n    /// Specifies file where the last message from the agent should be written.\n    #[arg(\n        long = \"output-last-message\",\n        short = 'o',\n        value_name = \"FILE\",\n        global = true\n    )]\n    pub last_message_file: Option<PathBuf>,\n\n    /// Initial instructions for the agent. If not provided as an argument (or\n    /// if `-` is used), instructions are read from stdin. If stdin is piped and\n    /// a prompt is also provided, stdin is appended as a `<stdin>` block.\n    #[arg(value_name = \"PROMPT\", value_hint = clap::ValueHint::Other)]\n    pub prompt: Option<String>,\n}"
+  },
+  {
+    "schema": "AgentsToml",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  },
+  {
+    "schema": "AgentTypeConfig",
+    "found": [
+      false,
+      false
+    ],
+    "same": true
+  },
+  {
+    "schema": "AgentConfigToml",
+    "found": [
+      false,
+      false
+    ],
+    "same": true
+  },
+  {
+    "schema": "FeaturesToml",
+    "found": [
+      false,
+      false
+    ],
+    "same": true
+  },
+  {
+    "schema": "SandboxWorkspaceWrite",
+    "found": [
+      true,
+      true
+    ],
+    "same": true
+  }
+]

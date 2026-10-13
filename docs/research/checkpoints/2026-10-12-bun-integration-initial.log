@@ -1,0 +1,355 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 26 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 27 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 28 - unknown suites/options and prohibited runtimes fail closed
+Containment: 28/28 probes passed; application suites not imported.
+Guarded Bun file 1/9: distribution.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:
+(pass) distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence [20.76ms]
+(pass) distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths [24.23ms]
+(pass) distribution static verification rejects binary/checksum and metadata/inventory tampering [15.77ms]
+(pass) distribution static verification rejects changed current assets or installed dependency bytes [18.92ms]
+(pass) distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands [15.26ms]
+(pass) distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls [13.75ms]
+(pass) distribution refuses compiler version drift before compiling and cleans its temporary snapshot [26.81ms]
+synthetic compilation failure
+(pass) distribution build/compiler failure removes temporary source and leaves no candidate output [13.51ms]
+426 |     const verify = run("verify-distribution.mjs", [
+427 |       f.output,
+428 |       "--source",
+429 |       f.root,
+430 |     ]);
+431 |     assert.equal(verify.status, 0, verify.stderr);
+                 ^
+AssertionError: Bun checks require the OS sandbox; no unguarded fallback
+
+
+1 !== 0
+
+ generatedMessage: false,
+     actual: 1,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/distribution.test.ts:431:12
+      at run (node:async_hooks:144:29)
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:45)
+      at node:test:1591:20
+(fail) distribution Node CLIs verify without execution and refuse to overwrite a formula [34.29ms]
+(pass) shared source entry admits a private hook before configuration or malformed input [36.34ms]
+484 |         process.execPath,
+485 |         ["--input-type=module", "-e", source],
+486 |         { cwd: sb.root, env: sb.env({ DEV: "true" }), encoding: "utf8" },
+487 |       );
+488 |       assert.equal(result.status, 0, result.stderr);
+489 |       assert.equal(result.stdout, compiled ? "false" : "true");
+                   ^
+AssertionError: Expected values to be strictly equal:
+
+'false' !== 'true'
+
+ generatedMessage: true,
+     actual: "false",
+   expected: "true",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/distribution.test.ts:489:14
+      at run (node:async_hooks:144:29)
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:45)
+      at node:test:1591:20
+(fail) shared entry Node fixture: compiled policy disables the optional debugger before lazy imports while Node development retains DEV [19.33ms]
+
+ 9 pass
+ 2 fail
+Ran 11 tests across 1 file. [255.00ms]
+Guarded Bun file 2/9: handoff-artifacts.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-artifacts.test.ts:
+(pass) manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests [19.88ms]
+(pass) owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes [7.44ms]
+(pass) import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work [9.94ms]
+(pass) two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten [8.18ms]
+(pass) actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen [10.49ms]
+
+ 5 pass
+ 0 fail
+Ran 5 tests across 1 file. [93.00ms]
+Guarded Bun file 3/9: handoff-checkout.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-checkout.test.ts:
+(pass) portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs [37.62ms]
+(pass) portable worktree metadata reads common refs while retaining the selected worktree HEAD [29.46ms]
+
+ 2 pass
+ 0 fail
+Ran 2 tests across 1 file. [83.00ms]
+Guarded Bun file 4/9: handoff.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff.test.ts:
+(pass) durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source [13.91ms]
+(pass) unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source [8.66ms]
+(pass) bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt [40.88ms]
+(pass) concurrent ownership changes during summary cancel destination bootstrap and do not replay source work [7.29ms]
+(pass) actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay [8.45ms]
+(pass) an isolated readiness turn requires bootstrap admission before any source effects [20.48ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [118.00ms]
+Guarded Bun file 5/9: managed-runtime.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/managed-runtime.test.ts:
+(pass) owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects [200.11ms]
+216 |     async function wait(id: string, state: string) {
+217 |       const deadline = Date.now() + 5000;
+218 |       for (;;) {
+219 |         const value = await rpc('job.get', { id });
+220 |         if (value.state === state) return value;
+221 |         if (Date.now() > deadline) assert.fail(JSON.stringify(value));
+                                                ^
+AssertionError: {"id":"c4936a84-7a36-4563-b7fb-eabd665c3b4d","projectId":"p_8ad11682828d9602","requestId":"ms_hof_87172f41f2ceeaa2d32f80dc319e07227d1a98f3382678cda16c12b1b4b0ebb2","taskId":"9e134278-3b67-484c-9e8a-13639c087950","runnerId":"bosun-managed-handoff","state":"unknown","version":3,"createdAt":1791841413396,"updatedAt":1791841413411,"cancelRequested":false,"reason":"runner_lost","ownerOnly":true,"allowUnknownQuota":false}
+ generatedMessage: false,
+     actual: undefined,
+   expected: undefined,
+   operator: "fail",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at wait (/Users/edge/Developer/bosun/test/managed-runtime.test.ts:221:43)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:444:15
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:427:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text [5172.19ms]
+528 |         await f.wait(queued.job.id, 'unknown');
+529 |         const value = (await f.rpc('managed.get', { id: started.id })).ownership;
+530 |         assert.equal(value.phase, 'held');
+531 |         assert.equal(value.session.sessionId, started.ownership.session.sessionId);
+532 |         assert.equal(value.session.generation, 0);
+533 |         assert.equal(f.generations.length, 1);
+                     ^
+AssertionError: Expected values to be strictly equal:
+
+0 !== 1
+
+ generatedMessage: true,
+     actual: 0,
+   expected: 1,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:533:16
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:505:13
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) synthetic managed handoff invented-summary remains held without dispatch or retry [173.18ms]
+528 |         await f.wait(queued.job.id, 'unknown');
+529 |         const value = (await f.rpc('managed.get', { id: started.id })).ownership;
+530 |         assert.equal(value.phase, 'held');
+531 |         assert.equal(value.session.sessionId, started.ownership.session.sessionId);
+532 |         assert.equal(value.session.generation, 0);
+533 |         assert.equal(f.generations.length, 1);
+                     ^
+AssertionError: Expected values to be strictly equal:
+
+0 !== 1
+
+ generatedMessage: true,
+     actual: 0,
+   expected: 1,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:533:16
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:505:13
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) synthetic managed handoff seed-acknowledgement remains held without dispatch or retry [157.92ms]
+528 |         await f.wait(queued.job.id, 'unknown');
+529 |         const value = (await f.rpc('managed.get', { id: started.id })).ownership;
+530 |         assert.equal(value.phase, 'held');
+531 |         assert.equal(value.session.sessionId, started.ownership.session.sessionId);
+532 |         assert.equal(value.session.generation, 0);
+533 |         assert.equal(f.generations.length, 1);
+                     ^
+AssertionError: Expected values to be strictly equal:
+
+0 !== 1
+
+ generatedMessage: true,
+     actual: 0,
+   expected: 1,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:533:16
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:505:13
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) synthetic managed handoff source-drift remains held without dispatch or retry [158.05ms]
+528 |         await f.wait(queued.job.id, 'unknown');
+529 |         const value = (await f.rpc('managed.get', { id: started.id })).ownership;
+530 |         assert.equal(value.phase, 'held');
+531 |         assert.equal(value.session.sessionId, started.ownership.session.sessionId);
+532 |         assert.equal(value.session.generation, 0);
+533 |         assert.equal(f.generations.length, 1);
+                     ^
+AssertionError: Expected values to be strictly equal:
+
+0 !== 1
+
+ generatedMessage: true,
+     actual: 0,
+   expected: 1,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:533:16
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:505:13
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) synthetic managed handoff checkout-drift remains held without dispatch or retry [157.75ms]
+216 |     async function wait(id: string, state: string) {
+217 |       const deadline = Date.now() + 5000;
+218 |       for (;;) {
+219 |         const value = await rpc('job.get', { id });
+220 |         if (value.state === state) return value;
+221 |         if (Date.now() > deadline) assert.fail(JSON.stringify(value));
+                                                ^
+AssertionError: {"id":"7892f882-478b-41d4-854e-c1a87812c6f3","projectId":"p_8ad11682828d9602","requestId":"ms_hof_7307f8916ef2f113740eb0d37c3f743c612dc808e38563371473cdf80095b983","taskId":"230335f0-6a2d-4360-9166-f029319665bd","runnerId":"bosun-managed-handoff","state":"unknown","version":3,"createdAt":1791841419204,"updatedAt":1791841419216,"cancelRequested":false,"reason":"runner_lost","ownerOnly":true,"allowUnknownQuota":false}
+ generatedMessage: false,
+     actual: undefined,
+   expected: undefined,
+   operator: "fail",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at wait (/Users/edge/Developer/bosun/test/managed-runtime.test.ts:221:43)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:565:15
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:552:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry [5162.36ms]
+216 |     async function wait(id: string, state: string) {
+217 |       const deadline = Date.now() + 5000;
+218 |       for (;;) {
+219 |         const value = await rpc('job.get', { id });
+220 |         if (value.state === state) return value;
+221 |         if (Date.now() > deadline) assert.fail(JSON.stringify(value));
+                                                ^
+AssertionError: {"id":"75356506-e2c9-4590-a45c-fa3b767704f5","projectId":"p_8ad11682828d9602","requestId":"ms_hof_87172f41f2ceeaa2d32f80dc319e07227d1a98f3382678cda16c12b1b4b0ebb2","taskId":"819e3634-4807-4029-9e43-5902c0bbb4f3","runnerId":"bosun-managed-handoff","state":"unknown","version":3,"createdAt":1791841429979,"updatedAt":1791841430050,"cancelRequested":false,"reason":"runner_lost","ownerOnly":true,"allowUnknownQuota":false}
+ generatedMessage: false,
+     actual: undefined,
+   expected: undefined,
+   operator: "fail",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at wait (/Users/edge/Developer/bosun/test/managed-runtime.test.ts:221:43)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:611:15
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:598:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints [10775.82ms]
+216 |     async function wait(id: string, state: string) {
+217 |       const deadline = Date.now() + 5000;
+218 |       for (;;) {
+219 |         const value = await rpc('job.get', { id });
+220 |         if (value.state === state) return value;
+221 |         if (Date.now() > deadline) assert.fail(JSON.stringify(value));
+                                                ^
+AssertionError: {"id":"0b435627-72ee-43a1-bbad-0e2d619af96e","projectId":"p_8ad11682828d9602","requestId":"ms_hof_87172f41f2ceeaa2d32f80dc319e07227d1a98f3382678cda16c12b1b4b0ebb2","taskId":"5375fa09-ff35-40b0-aa1d-398a0e00d270","runnerId":"bosun-managed-handoff","state":"unknown","version":3,"createdAt":1791841435161,"updatedAt":1791841435172,"cancelRequested":false,"reason":"runner_lost","ownerOnly":true,"allowUnknownQuota":false}
+ generatedMessage: false,
+     actual: undefined,
+   expected: undefined,
+   operator: "fail",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at wait (/Users/edge/Developer/bosun/test/managed-runtime.test.ts:221:43)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:658:15
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:653:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model [5174.76ms]
+216 |     async function wait(id: string, state: string) {
+217 |       const deadline = Date.now() + 5000;
+218 |       for (;;) {
+219 |         const value = await rpc('job.get', { id });
+220 |         if (value.state === state) return value;
+221 |         if (Date.now() > deadline) assert.fail(JSON.stringify(value));
+                                                ^
+AssertionError: {"id":"afb6fd29-f4f8-433a-bc64-f42ba2022187","projectId":"p_8ad11682828d9602","requestId":"ms_hof_71b853e61535afc3a07d11bd85732aaf58f1ba9405945c7dda7527af8873b615","taskId":"b1940590-660b-4af2-bf7b-71d6e6bdb7f8","runnerId":"bosun-managed-handoff","state":"unknown","version":3,"createdAt":1791841440353,"updatedAt":1791841440363,"cancelRequested":false,"reason":"runner_lost","ownerOnly":true,"allowUnknownQuota":false}
+ generatedMessage: false,
+     actual: undefined,
+   expected: undefined,
+   operator: "fail",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at wait (/Users/edge/Developer/bosun/test/managed-runtime.test.ts:221:43)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:757:15
+      at gitEnvelope (/Users/edge/Developer/bosun/test/git-fixture.ts:21:18)
+      at /Users/edge/Developer/bosun/test/managed-runtime.test.ts:688:11
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication [5193.37ms]
+Terminated: 15
+rm: /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/bosun-bun-driver.vhNar5: No such file or directory

@@ -1,8 +1,9 @@
 // Explicit admitted indexing; injected source operations are synchronous and must never return partial enumeration as complete.
 import { BosunError, MemoryError } from '../../core/errors.ts';
-import type { DatabaseSync } from 'node:sqlite';
+import type { SqliteDatabase } from '../../platform/sqlite.ts'
 import { docsRelative, docsScope, type DocsScope } from './sqlite-docs.ts';
 import type { SqliteSession } from './sqlite-session.ts';
+import { screenPublicText } from '../../core/secret-screen.ts';
 
 export const DOCS_MAX_FILES = 2000;
 export const DOCS_MAX_BYTES = 256 * 1024;
@@ -18,7 +19,7 @@ export type DocsMeasurement = { op: 'docs.index'; ms: number; ok: boolean; n: nu
 export type DocsIndexDependencies = {
   enumerate(root: string): DocsEnumeration;
   inspect(root: string, relative: string, knownMtime?: number, readBody?: boolean): DocsFile;
-  checkStorage(db: DatabaseSync, reservedBytes: number): boolean;
+  checkStorage(db: SqliteDatabase, reservedBytes: number): boolean;
   monotonic(): number;
   measure(value: DocsMeasurement): void;
 };
@@ -101,9 +102,11 @@ export class SqliteDocsIndex {
       if (!Number.isSafeInteger(source.mtime) || source.mtime < 0 || !Number.isSafeInteger(source.bytes) || source.bytes < 0 || source.bytes > DOCS_MAX_BYTES) return held();
       if (source.body === undefined) {
         if (!old || source.mtime !== old.mtime || !Number.isSafeInteger(old.bytes) || old.bytes < 0) return held();
+        try { screenPublicText(old.body); if (old.title) screenPublicText(old.title); } catch { remove.push(file); continue; }
         scopedBytes += old.bytes;
       } else {
         if (typeof source.title !== 'string' || typeof source.body !== 'string' || source.title.length > 200 || source.body.length > DOCS_MAX_BYTES) return held();
+        try { screenPublicText(source.title); screenPublicText(source.body); } catch { if (old) remove.push(file); continue; }
         // Upper bound UTF-8 allocation/storage for injected strings without an ambient encoder.
         scopedBytes += (file.length + source.title.length + source.body.length) * 3;
         if (!old || old.mtime !== source.mtime || old.title !== source.title || old.body !== source.body) {

@@ -1,0 +1,94 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ current artifact static verification uses the pinned archived variant and exact pure dependencies without executing it (7.066583ms)
+✖ current entry probes send exactly five Node-fixture entries and initialize MCP before stdin EOF; absent join cannot pass (5.194ms)
+✔ current seven-request recipe runs actual owned Node SQLite/UDS privacy checks with an inert primary and zero native selections (179.566ms)
+✖ current foreground receipt reports controlled cancellation and positive Node original/group join without inventing exit0 (4.199ms)
+✖ current benchmark validator requires successful report and root join; failed benchmark parents never authorize nested-tree cleanup (4.418625ms)
+✔ current driver refuses an unapproved scope before artifact or product runtime operations (105.675166ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 501.234625
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/compiled-current.test.ts:67:1
+✖ current artifact static verification uses the pinned archived variant and exact pure dependencies without executing it (7.066583ms)
+  Error: bosun test containment: write outside run root
+      at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:17:35)
+      at checkFile (/Users/edge/Developer/bosun/scripts/test-preload.cjs:85:70)
+      at fs.openSync (/Users/edge/Developer/bosun/scripts/test-preload.cjs:128:49)
+      at read (file:///private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-490wzl/sandboxes/case-M884qY/static-verifier/scripts/distribution.mjs:78:17)
+      at verifyDistribution (file:///private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-490wzl/sandboxes/case-M884qY/static-verifier/scripts/distribution.mjs:464:25)
+      at verifyCurrentArtifact (file:///Users/edge/Developer/bosun/scripts/check-compiled-current.mjs:61:20)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/compiled-current.test.ts:70:20)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/compiled-current.test.ts:77:1
+✖ current entry probes send exactly five Node-fixture entries and initialize MCP before stdin EOF; absent join cannot pass (5.194ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/compiled-current.test.ts:82:14)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/compiled-current.test.ts:127:1
+✖ current foreground receipt reports controlled cancellation and positive Node original/group join without inventing exit0 (4.199ms)
+  Error: readiness
+      at file:///Users/edge/Developer/bosun/scripts/check-compiled-current.mjs:185:83
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Object.ready (file:///Users/edge/Developer/bosun/scripts/check-compiled-current.mjs:185:13)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/compiled-current.test.ts:131:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/compiled-current.test.ts:145:1
+✖ current benchmark validator requires successful report and root join; failed benchmark parents never authorize nested-tree cleanup (4.418625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/compiled-current.test.ts:149:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

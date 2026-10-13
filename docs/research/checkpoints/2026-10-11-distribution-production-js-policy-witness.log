@@ -1,0 +1,9 @@
+Coverage: production JavaScript policy witness; no runtime executed.
+Source digest: b0d4f9d16034d15b96ac70aada8ec47a3200847870362c14c2ab9b02ca555223
+Compiler status: 0
+Entry policy precedes its first lazy import: 32 208
+Entry policy excerpt: // @bun
+if(process.versions.bun)process.env.DEV="false";var argv=process.argv.slice(2),code;
+Optional debugger import is dominated by DEV=true: dashboard-g4awqkew.js
+External optional peer remains in dedicated lazy chunk: devtools-t3pjxgj7.js
+Policy/source witness passed; compiled runtime qualification remains unverified.

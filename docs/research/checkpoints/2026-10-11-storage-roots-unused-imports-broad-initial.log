@@ -1,0 +1,253 @@
+src/adapters/hosts/opencode/control.ts:12:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    10 │   AdmissionFence,
+    11 │   Quiescence,
+  > 12 │   FreshReadiness,
+       │   ^^^^^^^^^^^^^^
+    13 │ } from '../../../core/domain/session.ts';
+    14 │ import type { ManagedSessionControl } from '../../../core/ports/host.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      10   10 │     AdmissionFence,
+      11   11 │     Quiescence,
+      12      │ - ··FreshReadiness,
+      13   12 │   } from '../../../core/domain/session.ts';
+      14   13 │   import type { ManagedSessionControl } from '../../../core/ports/host.ts';
+  
+
+src/adapters/hosts/opencode/native.ts:8:10 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     6 │ import type { Env } from '../../../core/domain/inference.ts';
+     7 │ import type { RunEvent, RunSpec } from '../../../core/ports/runner.ts';
+   > 8 │ import { httpJson, protocolBase } from '../../../platform/http-json.ts';
+       │          ^^^^^^^^
+     9 │ import { decodeHealth, decodeMessages, decodeSession, OPENCODE_VERSION, type ModelSelection } from './protocol.ts';
+    10 │ 
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    8 │ import·{·httpJson,·protocolBase·}·from·'../../../platform/http-json.ts';
+      │          ----------                                                     
+
+src/adapters/hosts/opencode/native.ts:9:10 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     7 │ import type { RunEvent, RunSpec } from '../../../core/ports/runner.ts';
+     8 │ import { httpJson, protocolBase } from '../../../platform/http-json.ts';
+   > 9 │ import { decodeHealth, decodeMessages, decodeSession, OPENCODE_VERSION, type ModelSelection } from './protocol.ts';
+       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    10 │ 
+    11 │ export type OpenCodeRunnerSettings = {
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    9 │ import·{·decodeHealth,·decodeMessages,·decodeSession,·OPENCODE_VERSION,·type·ModelSelection·}·from·'./protocol.ts';
+      │          --------------                               ------------------                                           
+
+src/adapters/memory/sqlite-graph.ts:24:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    22 │   CONSOLIDATION_LIMITS,
+    23 │   type ConsolidationClaim,
+  > 24 │   type ConsolidationRequest,
+       │   ^^^^^^^^^^^^^^^^^^^^^^^^^
+    25 │   type ConsolidationStorage,
+    26 │   type ConsolidationWindow,
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      22   22 │     CONSOLIDATION_LIMITS,
+      23   23 │     type ConsolidationClaim,
+      24      │ - ··type·ConsolidationRequest,
+      25   24 │     type ConsolidationStorage,
+      26   25 │     type ConsolidationWindow,
+  
+
+src/app/cli.ts:10:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+     8 │ import { version, roleDefinitions } from '../platform/assets.ts';
+     9 │ import { loadRuntimeConfig, renderRuntimeConfig } from '../platform/config.ts';
+  > 10 │ import { loadHookConfig } from '../platform/hook-config.ts';
+       │        ^^^^^^^^^^^^^^^^^^
+    11 │ import { readRuntimeManifest } from '../platform/manifest.ts';
+    12 │ import { callLocalRpc } from '../adapters/transport/local-rpc.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+       8    8 │   import { version, roleDefinitions } from '../platform/assets.ts';
+       9    9 │   import { loadRuntimeConfig, renderRuntimeConfig } from '../platform/config.ts';
+      10      │ - import·{·loadHookConfig·}·from·'../platform/hook-config.ts';
+      11   10 │   import { readRuntimeManifest } from '../platform/manifest.ts';
+      12   11 │   import { callLocalRpc } from '../adapters/transport/local-rpc.ts';
+  
+
+src/app/dispatcher.ts:15:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    13 │   modelMemoryStoreReply,
+    14 │   modelMemoryHits,
+  > 15 │   opaqueMemory,
+       │   ^^^^^^^^^^^^^
+  > 16 │   publicMemory,
+       │   ^^^^^^^^^^^^
+    17 │ } from '../core/memory-presentation.ts';
+    18 │ import { BosunError } from '../core/errors.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+     13  13 │     modelMemoryStoreReply,
+     14  14 │     modelMemoryHits,
+     15     │ - ··opaqueMemory,
+     16     │ - ··publicMemory,
+     17  15 │   } from '../core/memory-presentation.ts';
+     18  16 │   import { BosunError } from '../core/errors.ts';
+  
+
+src/app/managed.ts:6:28 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+    4 │ import type { RuntimeConfig, HostId } from '../core/domain/config.ts';
+    5 │ import type { Env } from '../core/domain/inference.ts';
+  > 6 │ import type { AgentRunner, RunSpec } from '../core/ports/runner.ts';
+      │                            ^^^^^^^
+    7 │ import type { ManagedSessionDriver } from '../core/ports/host.ts';
+    8 │ import type { ManagedSession } from '../core/domain/session.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    6 │ import·type·{·AgentRunner,·RunSpec·}·from·'../core/ports/runner.ts';
+      │                            --------                                 
+
+test/consolidation.test.ts:5:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    3 │ import assert from 'node:assert/strict';
+    4 │ import crypto from 'node:crypto';
+  > 5 │ import fs from 'node:fs';
+      │        ^^
+    6 │ import path from 'node:path';
+    7 │ import { DatabaseSync } from 'node:sqlite';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      3   3 │   import assert from 'node:assert/strict';
+      4   4 │   import crypto from 'node:crypto';
+      5     │ - import·fs·from·'node:fs';
+      6   5 │   import path from 'node:path';
+      7   6 │   import { DatabaseSync } from 'node:sqlite';
+  
+
+test/consolidation.test.ts:6:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    4 │ import crypto from 'node:crypto';
+    5 │ import fs from 'node:fs';
+  > 6 │ import path from 'node:path';
+      │        ^^^^
+    7 │ import { DatabaseSync } from 'node:sqlite';
+    8 │ import { sandbox, fresh, gitRepo, mock } from './helpers.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      4   4 │   import crypto from 'node:crypto';
+      5   5 │   import fs from 'node:fs';
+      6     │ - import·path·from·'node:path';
+      7   6 │   import { DatabaseSync } from 'node:sqlite';
+      8   7 │   import { sandbox, fresh, gitRepo, mock } from './helpers.ts';
+  
+
+test/context-pipeline.test.ts:8:19 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     6 │ import { spawnSync } from 'node:child_process';
+     7 │ import { createHash } from 'node:crypto';
+   > 8 │ import { sandbox, fresh, REPO } from './helpers.ts';
+       │                   ^^^^^
+     9 │ import {
+    10 │   createRetrieveContext,
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+    8 │ import·{·sandbox,·fresh,·REPO·}·from·'./helpers.ts';
+      │                   -------                           
+
+test/embedding-storage.test.ts:4:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    2 │ import test from 'node:test';
+    3 │ import assert from 'node:assert/strict';
+  > 4 │ import fs from 'node:fs';
+      │        ^^
+    5 │ import path from 'node:path';
+    6 │ import crypto from 'node:crypto';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      2   2 │   import test from 'node:test';
+      3   3 │   import assert from 'node:assert/strict';
+      4     │ - import·fs·from·'node:fs';
+      5   4 │   import path from 'node:path';
+      6   5 │   import crypto from 'node:crypto';
+  
+
+test/opencode-control.test.ts:5:8 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This import is unused.
+  
+    3 │ import assert from 'node:assert/strict';
+    4 │ import crypto from 'node:crypto';
+  > 5 │ import fs from 'node:fs';
+      │        ^^
+    6 │ import { BosunError } from '../src/core/errors.ts';
+    7 │ import type { ManagedSession } from '../src/core/domain/session.ts';
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+       3    3 │   import assert from 'node:assert/strict';
+       4    4 │   import crypto from 'node:crypto';
+       5      │ - import·fs·from·'node:fs';
+       6    5 │   import { BosunError } from '../src/core/errors.ts';
+       7    6 │   import type { ManagedSession } from '../src/core/domain/session.ts';
+  
+
+Checked 335 files in 39ms. No fixes applied.
+Found 12 warnings.

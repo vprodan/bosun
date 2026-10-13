@@ -1,0 +1,68 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context: relevance and recency both count; sources are weighted (2.563917ms)
+✔ context: dedupe across sources keeps the higher score (0.194125ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (3.160042ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.096417ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (913.190041ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (467.189875ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (608.524625ms)
+✔ final hook with missing memory creates nothing and runs no model/service (103.130875ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (574.77ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (788.55175ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (908.234292ms)
+✔ final memory CLI preserves duplicates, versions, private flags, purge audit, explicit proposal review and scoped stats (540.574291ms)
+✔ memory: store/get/search round trip, FTS ranking, tags filter, limit cap, access counted (22.465666ms)
+✔ memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all (7.470208ms)
+✔ memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key (6.615417ms)
+✔ memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope (7.413417ms)
+✔ memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags (17.621334ms)
+✔ memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one (11.606458ms)
+✔ project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote (105.6655ms)
+✔ memory: session memories expire into archived on open; prune purges old archived ones (7.983292ms)
+✔ memory: validation limits, and error messages never quote content (6.813459ms)
+✔ memory: user text never becomes FTS syntax (8.732666ms)
+✔ memory: concurrent writers wait instead of failing; a new database opened by three processes at once migrates once (531.745667ms)
+✔ migrations: fresh → latest; v1 → v2; a failing migration rolls back and leaves the database as it was; file mode 0600 (7.958583ms)
+✔ memory: private memories stay out of search unless asked (6.987833ms)
+✔ memory bench: measured numbers, no owner files or unsupported retrieval timings (5095.784709ms)
+✔ benchmark requires a successful child, valid envelope and exact synthetic note identities (0.364667ms)
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+✔ explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats (63471.569583ms)
+✔ memory: an expired session memory leaves search in a long-running process, not only on the next open (6.969375ms)
+✔ final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes (1086.028416ms)
+✔ final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS (463.970417ms)
+✔ final remote request bounds and media type errors are finite and create no memory effects (465.62325ms)
+✔ final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference (1001.776584ms)
+✔ foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference (1750.231417ms)
+✔ final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints (668.944125ms)
+✔ explicit Clef endpoint selection preserves the model and sends only public advice; absent calibration never starts a worker or proxy (2.436667ms)
+✔ final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files (1338.27975ms)
+✔ final server installation prepares one owned dormant daemon and wires no host, model or obsolete service (1038.166ms)
+✔ duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert (1826.54775ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84794.942416

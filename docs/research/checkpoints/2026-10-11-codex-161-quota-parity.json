@@ -1,0 +1,135 @@
+{
+  "nativeQualification": "unverified",
+  "result": [
+    {
+      "name": "AccountReadResponse",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/AccountReadResponse.ts",
+          "status": 404,
+          "sha256": null
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/AccountReadResponse.ts",
+          "status": 404,
+          "sha256": null
+        }
+      ],
+      "previous": null,
+      "current": null
+    },
+    {
+      "name": "AccountRateLimitsReadResponse",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/AccountRateLimitsReadResponse.ts",
+          "status": 404,
+          "sha256": null
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/AccountRateLimitsReadResponse.ts",
+          "status": 404,
+          "sha256": null
+        }
+      ],
+      "previous": null,
+      "current": null
+    },
+    {
+      "name": "RateLimitSnapshot",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/RateLimitSnapshot.ts",
+          "status": 200,
+          "sha256": "491f3b9351b49e67d0cf6abcf86e6e86775d4cad3bc20d8e44abc9055565c813"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/RateLimitSnapshot.ts",
+          "status": 200,
+          "sha256": "491f3b9351b49e67d0cf6abcf86e6e86775d4cad3bc20d8e44abc9055565c813"
+        }
+      ]
+    },
+    {
+      "name": "RateLimitWindow",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/RateLimitWindow.ts",
+          "status": 200,
+          "sha256": "d1c57b5226a87ef3c02643835d62fe2c95b78c6c37cd53fd4aeccf68be9a7f1b"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/RateLimitWindow.ts",
+          "status": 200,
+          "sha256": "d1c57b5226a87ef3c02643835d62fe2c95b78c6c37cd53fd4aeccf68be9a7f1b"
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/Account.ts",
+          "status": 200,
+          "sha256": "122259e3439c0c0f63e53a2f2e0028a9e6f153b3bc16c1a705f640b98ff8bf37"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/Account.ts",
+          "status": 200,
+          "sha256": "122259e3439c0c0f63e53a2f2e0028a9e6f153b3bc16c1a705f640b98ff8bf37"
+        }
+      ]
+    },
+    {
+      "name": "ConfigReadParams",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ConfigReadParams.ts",
+          "status": 200,
+          "sha256": "3bf81d288ea2d597f8977114d726e5554de97e3a164b56a692b772132efdafad"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ConfigReadParams.ts",
+          "status": 200,
+          "sha256": "3bf81d288ea2d597f8977114d726e5554de97e3a164b56a692b772132efdafad"
+        }
+      ]
+    },
+    {
+      "name": "ConfigReadResponse",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ConfigReadResponse.ts",
+          "status": 200,
+          "sha256": "9efa2d02c6ccb42cf509010727c9d27b4ac3783ac8b47e41f92eb6556848cb15"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ConfigReadResponse.ts",
+          "status": 200,
+          "sha256": "9efa2d02c6ccb42cf509010727c9d27b4ac3783ac8b47e41f92eb6556848cb15"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "server": {
+    "version": "2.0.27", "pid": 4242,
+    "urls": ["http://127.0.0.1:4096"], "paths": { "tmp": "/fixture/tmp" }
+  },
+  "session": {
+    "data": {
+      "id": "ses_fixture", "projectID": "prj_fixture", "agent": "build",
+      "model": { "id": "gpt-6.1-sol", "providerID": "openai", "variant": "high" },
+      "cost": 19,
+      "tokens": { "input": 500000, "output": 900000, "reasoning": 10000, "cache": { "read": 600000, "write": 800000 } },
+      "time": { "created": 1000, "updated": 100000, "idle": 100000 },
+      "title": "Invented public fixture", "location": { "directory": "/fixture/project" },
+      "permissions": [{ "action": "*", "resource": "*", "effect": "deny" }]
+    }
+  },
+  "page": {
+    "data": [
+      { "id": "msg_idle_new", "type": "idle", "time": { "created": 100000 }, "outcome": "succeeded" },
+      {
+        "id": "msg_assistant_new", "type": "assistant", "agent": "build",
+        "model": { "id": "gpt-6.1-sol", "providerID": "openai", "variant": "high" },
+        "time": { "created": 99000, "streamed": 99980, "completed": 99990 },
+        "finish": "stop", "cost": 0.01,
+        "tokens": { "input": 2300, "output": 400, "reasoning": 50, "cache": { "read": 2100, "write": 200 } },
+        "content": [
+          { "type": "text", "text": "Invented public result." },
+          { "type": "reasoning", "text": "Not exported." },
+          { "type": "tool", "id": "tool_fixture", "name": "read", "time": { "created": 99001, "completed": 99900 },
+            "state": { "status": "completed", "input": { "file": "fixture.md" }, "content": [{ "type": "text", "text": "Not exported." }] } }
+        ]
+      },
+      { "id": "msg_user_new", "type": "user", "time": { "created": 98000 }, "text": "Invented public task." },
+      { "id": "msg_idle_old", "type": "idle", "time": { "created": 97000 }, "outcome": "succeeded" },
+      {
+        "id": "msg_assistant_old", "type": "assistant", "agent": "build",
+        "model": { "id": "gpt-6.1-sol", "providerID": "openai", "variant": "high" },
+        "time": { "created": 96000, "completed": 96990 }, "finish": "stop",
+        "tokens": { "input": 500000, "output": 60000, "reasoning": 7000, "cache": { "read": 200000, "write": 300000 } },
+        "content": [{ "type": "text", "text": "Invented earlier result." }]
+      },
+      { "id": "msg_user_old", "type": "user", "time": { "created": 95000 }, "text": "Invented earlier task." }
+    ],
+    "cursor": {}
+  },
+  "active": { "data": {} }
+}

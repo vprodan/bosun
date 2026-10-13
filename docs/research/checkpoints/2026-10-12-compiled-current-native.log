@@ -1,0 +1,177 @@
+{
+  "coverage": "compiled-current-entry-sqlite-synthetic-benchmark",
+  "pins": {
+    "binary": "8466c8ffabab081687bd737d6aa610138c74abe8aa3c21a5694757df0b217176",
+    "archive": "eff6591f0810b20eb2666b5a0827da344c24db5372175846ca7958ac312287ee",
+    "metadata": "19a528774461db0e3ad0cf116589bfceff447808101faa4471fd9ebf95cf2b55",
+    "source": "a06890a071197bd9fc2b6948e0bc97dac918ce8b564a59442f09a598f4c29367",
+    "checkout": "a484016981086346c94b1ba72eb11a8c884edac4d9905bc9fac34dcbd2c74bab",
+    "compiler": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5",
+    "variant": "bb7bd6da321e5107a82fb728532cfff4069feb488f40e1cf8a6d697447e674ae",
+    "generator": "69ac97416f32430352f9a1b26b513c1fafcc62b81766d1a97ea69265c4ece00f",
+    "sqliteRuntime": "12287d5e5c3eb481a00f5609a1bbc429ed248ee147bfb382a75714ed4d20a2a4",
+    "oldRuntimeDriver": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109",
+    "process": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b"
+  },
+  "applicationSuiteRuntime": "node",
+  "checks": [
+    {
+      "check": "version",
+      "args": [
+        "--version"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 687.7813750000001,
+      "stdoutBytes": 6,
+      "stdoutSha256": "1f930dd1f133c1f97a94fe3acb8db34372cf4c01ffdb2b3ff4ca72f9494121e9",
+      "eofSent": true,
+      "passed": true
+    },
+    {
+      "check": "help",
+      "args": [
+        "--help"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 43.778084000000035,
+      "stdoutBytes": 5468,
+      "stdoutSha256": "e3b696ffad97bf2760e5b8d0e859f8f99ed42322823269cb59f9e129c3f7827c",
+      "eofSent": true,
+      "passed": true
+    },
+    {
+      "check": "private-hook",
+      "args": [
+        "hook",
+        "--private"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 8.957208000000037,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "eofSent": true,
+      "passed": true
+    },
+    {
+      "check": "private-route-hook",
+      "args": [
+        "route",
+        "--hook",
+        "--private"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 8.243291,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "eofSent": true,
+      "passed": true
+    },
+    {
+      "check": "mcp-initialize-eof",
+      "args": [
+        "mcp"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 58.42049999999995,
+      "stdoutBytes": 437,
+      "stdoutSha256": "45432ce4053042b8b7c0588333196a17469372e8c699da1501b780ec8b441e6f",
+      "initialized": true,
+      "eofSent": true,
+      "passed": true
+    },
+    {
+      "check": "disposable-setup",
+      "args": [
+        "setup"
+      ],
+      "joined": true,
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "wallMs": 74.85595799999987,
+      "stdoutBytes": 210,
+      "stdoutSha256": "900112a9ab6dca96b22d765a11abfcf07afc8ea945c833d1dd8002830725b756"
+    },
+    {
+      "check": "seven-owned-sqlite-rpcs",
+      "requests": 7,
+      "originalMutations": 2,
+      "privateOwnerReadable": true,
+      "modelPrivateOverrideRejected": true,
+      "modelPrivateSearchExcluded": true,
+      "modelPrivateContextExcluded": true,
+      "ownerStatusReceived": true
+    },
+    {
+      "check": "foreground-daemon-completion",
+      "args": [
+        "daemon",
+        "run"
+      ],
+      "joined": true,
+      "code": null,
+      "signal": null,
+      "error": "cancelled",
+      "wallMs": 105.40412500000002,
+      "stdoutBytes": 19,
+      "stdoutSha256": "db7efce35b4641f74f7a467fa08c2922e8937f2d60acc8473dfb8dffa8cb57c4",
+      "controlledCancellation": true,
+      "gracefulExitCode": "unqualified-not-exposed-on-controlled-cancellation"
+    },
+    {
+      "check": "owned-shutdown-artifacts",
+      "socketAbsent": true,
+      "ownerRegularPrivate": true,
+      "ownerJournalAbsent": true,
+      "ownerLockIndependentlyReacquired": false
+    },
+    {
+      "check": "one-synthetic-compiled-benchmark",
+      "args": [
+        "memory",
+        "bench",
+        "--n",
+        "10000",
+        "--public-view"
+      ],
+      "joined": true,
+      "code": 1,
+      "signal": null,
+      "error": null,
+      "wallMs": 2494.1435,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": false
+    }
+  ],
+  "compiledRootInvocationsAttempted": 8,
+  "compiledInvocationsPlannedMaximum": 29,
+  "nestedHookInvocationsReportedJoined": null,
+  "rootsJoined": true,
+  "benchmarkVerified": false,
+  "benchmark": null,
+  "peakDiskBytes": 123816649,
+  "privateTreeRemoved": false,
+  "retainedPrivateTree": "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-current-qualification-go1wKH",
+  "nativeHostDelivery": "unqualified",
+  "nativeToolPrivacy": "unqualified",
+  "realDataOrModelQuality": "unqualified",
+  "gracefulDaemonExitCode": "unqualified",
+  "qualifiedForThisScope": false,
+  "failure": "one-synthetic-compiled-benchmark"
+}

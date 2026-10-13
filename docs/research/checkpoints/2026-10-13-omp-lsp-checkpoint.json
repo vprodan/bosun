@@ -1,0 +1,46 @@
+{
+  "configuration": ".omp/lsp.json",
+  "launcher": "sh scripts/bun-check.sh lsp",
+  "server": "typescript-language-server@6.0.2",
+  "typescript": "6.0.3",
+  "runtime": "Bun 1.4.3",
+  "integrity": "sha512-Ph7Ql+xkUJvMamnkh1h+aKP6HxLR7lrWIYkPn9/LZBkJdJZgtIj7OoVhkDYtQ7zFPTPmqZHOVXaUKGyz9M2q1Q==",
+  "installationScope": "explicitly approved isolated project tooling",
+  "applicationDependenciesChanged": false,
+  "existingLockfilesChanged": false,
+  "lifecycleScriptsExecuted": false,
+  "smoke": {
+    "reload": "Reloaded typescript-language-server",
+    "definition": {
+      "file": "src/core/ports/host.ts",
+      "line": 1,
+      "symbol": "Capability",
+      "result": "src/core/domain/inference.ts:5:13"
+    },
+    "references": {
+      "file": "src/core/domain/config.ts",
+      "line": 2,
+      "symbol": "HostId",
+      "count": 24
+    },
+    "currentSourceDefinition": {
+      "file": "src/adapters/hosts/opencode/host.ts",
+      "line": 10,
+      "symbol": "renderOpenCodeHookPlugin",
+      "result": "src/adapters/hosts/opencode/hook-plugin.ts:5:17"
+    },
+    "currentBridgeReferences": {
+      "file": "src/adapters/hosts/omp/managed-bridge.ts",
+      "line": 14,
+      "symbol": "renderOmpManagedBridge",
+      "count": 3
+    },
+    "capabilities": ["definition", "references", "hover", "rename", "implementation", "code-actions"],
+    "observedProcessCommands": [
+      "/Users/edge/.bun/bin/bun --no-env-file --no-install /Users/edge/Developer/bosun/.omp/tooling/typescript-language-server-6.0.2/lib/cli.mjs --stdio --log-level 1",
+      "/Users/edge/.bun/bin/bun /Users/edge/Developer/bosun/node_modules/typescript/lib/tsserver.js --useInferredProjectPerProjectRoot --disableAutomaticTypingAcquisition --cancellationPipeName <isolated-temp>/tscancellation* --locale en --validateDefaultNpmLocation --useNodeIpc"
+    ]
+  },
+  "ompHostQualified": false,
+  "sqliteRuntimeQualified": false
+}

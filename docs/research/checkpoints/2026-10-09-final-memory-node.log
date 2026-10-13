@@ -1,0 +1,140 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context pipeline: exact hash and estimate forward identities retain normalized SHA-256 behavior (0.572ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (1.838292ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.497959ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.241667ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.41575ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (4.391458ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.208875ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.251417ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.159125ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.656916ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.194834ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.330084ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (1.0625ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.337708ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (0.30175ms)
+✔ context pipeline: real legacy delegation retains fixed metadata, receiver and denies new/prototype names before search (5.466917ms)
+✔ context pipeline: actual curated delegation denies records before all metadata/body getters (4.534209ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (70.0385ms)
+✔ new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view (134.660167ms)
+✔ final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance (114.646459ms)
+✔ final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only (143.166167ms)
+✔ curated final source rejects private/unclassified payload getters before projection (0.204ms)
+✔ expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive (122.633083ms)
+✔ lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently (66.981083ms)
+✔ native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay (67.135792ms)
+✔ startup dependency failure closes both registered handles without releasing shared daemon authority (66.643583ms)
+✔ explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage (69.847625ms)
+✔ explicit format1 publication retains cached writer fencing and requires explicit runtime restart (72.056208ms)
+✔ explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes (61.998875ms)
+✔ one shared method table applies real schemas and privacy before prompt getters (2.045209ms)
+✔ actual UDS methods share scoped memory/context and keep private owner records out of model replies/mutations (206.8195ms)
+✔ actual job methods persist request dedupe, selected execution, scoped progress and explicit cancellation (91.602167ms)
+✔ docs complete enumeration: native failed ls-files after root success preserves indexed rows (52.816084ms)
+✔ docs complete enumeration: 2001 files holds without deleting an unvisited existing row (280.800375ms)
+✔ docs timestamp-preserving edit: plain refreshes content without writing unchanged snapshots (83.725041ms)
+✔ docs timestamp-preserving edit: registered refreshes content without writing unchanged snapshots (122.225959ms)
+✔ docs descriptor close failure holds indexing and retries only its still-open source descriptor (37.084709ms)
+✔ docs regular source: outside symlink is rejected before reading private bytes (36.120041ms)
+✔ docs scope: query and parent index preserve another configured project beneath the root (44.558875ms)
+✔ ContextSource docs acceptance: plain actual query snapshot and admitted index (46.259958ms)
+✔ ContextSource docs acceptance: registered actual query snapshot and admitted index (89.293333ms)
+✔ docs disposition: plain stable rejects remove owned rows only; transient/race holds all (55.608ms)
+✔ docs disposition: registered stable rejects remove owned rows only; transient/race holds all (93.258583ms)
+✔ docs native count boundary: exactly 2000 accepted, incomplete/overflow listings hold; no content telemetry (939.740083ms)
+✔ docs native file bound and aggregate hold are atomic; metrics failure cannot change committed receipt (77.65675ms)
+✔ docs actual worktree roots and nested repositories preserve absolute keys and exclude ambiguous same-project descendants (118.253541ms)
+✔ docs native incomplete listing and process output overflow hold existing rows without source reads (531.95425ms)
+✔ docs native short read and file mutation during descriptor read hold before deletion, with no outside reads (51.674208ms)
+✔ docs registered READY lease permits snapshot SELECT while holding index writes; release revokes HOLD and fences old writer (92.845292ms)
+✔ docs storage reservation and post-DML check: plain hold/rollback and finite metadata (44.153208ms)
+✔ docs storage reservation and post-DML check: registered hold/rollback and finite metadata (70.792792ms)
+✔ final daemon docs CLI/MCP: foreign project canaries, explicit indexing and held snapshot preservation (657.475833ms)
+✔ final daemon docs CLI/MCP: nested repository canaries, explicit indexing and held snapshot preservation (648.800542ms)
+✔ docs direct child import has no ambient config, filesystem, git, indexing or measurement closure (65.042375ms)
+✔ docs compatibility refresh preserves ambiguous nested rows, replaces exclusion scope, and fails closed on a later hold (81.816125ms)
+✔ docs source mutation after the admitted preflight rolls back every source DML and keeps errors content-free (62.802334ms)
+✔ docs actual oversized source plus WAL: plain existing 64MiB admission remains held (101.09325ms)
+✔ docs actual oversized source plus WAL: registered existing 64MiB admission remains held (116.037042ms)
+✔ docs native COMMIT followed by error preserves finite unknown receipt, committed row/FTS and fenced session (54.594584ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (550.478167ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (765.962792ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (865.488958ms)
+✔ final model policy rejects malformed/inherited/throwing classifications before payload getters (0.786583ms)
+✔ final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters (0.201916ms)
+✔ explicit private requests never inspect a buggy public adapter reply or duplicate state (0.227167ms)
+✔ final public projection retains declared ID/hash/version and ignores serialization or derivative hooks (0.40975ms)
+✔ curated and model search classify first and ignore array species/toJSON during real packing (1.663ms)
+✔ finite storage errors never inspect messages, versions, causes or serialization hooks (0.13725ms)
+✔ modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests (581.676417ms)
+✔ modern remote MCP normalizes content-bearing errors and excludes failed context derivatives (557.643417ms)
+✔ owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows (701.992125ms)
+✔ native malformed flags remain opaque, immutable to models and byte-preserved through owner edits (1269.015417ms)
+✔ native scoped context rejects caller project claims and keeps owner-only data out of model tools (559.446459ms)
+✔ completed mutation DTO retains captured privacy when later owner state becomes public (0.13025ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.78625ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.802333ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (206.162625ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (224.927875ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (222.667208ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (134.108416ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (252.039ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (557.01475ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (534.693417ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (794.225875ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (566.747708ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (754.669291ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (511.727375ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (516.772084ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (523.270042ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (657.745709ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.400792ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (560.441917ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (461.089208ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (632.536625ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (456.333166ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (673.073458ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (479.339792ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (530.922625ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (484.834167ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (9.706584ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (6.373167ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.924042ms)
+✔ new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution (217.9575ms)
+✔ final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement (125.533ms)
+✔ actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review (135.175917ms)
+✔ final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer (233.729833ms)
+✔ disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference (115.087333ms)
+✔ actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime (260.956875ms)
+✔ actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes (236.120041ms)
+✔ final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution (119.699583ms)
+✔ real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout (603.151917ms)
+✔ final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior (681.852833ms)
+ℹ tests 112
+ℹ suites 0
+ℹ pass 112
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27306.633709

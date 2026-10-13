@@ -1,0 +1,65 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ native weighted FTS and actual excerpt packing expose supporting tail evidence with original IDs/hash and no mutation (201.103541ms)
+✔ reviewed aliases retain the original curated ID, stay scoped, and revoke on source privacy/version changes (264.201917ms)
+✔ explicit reviewed graph context remains absent from ordinary context (208.061375ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (5.674791ms)
+✔ all public classifications precede any export/query/label payload getters (0.324041ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (6.058292ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.331375ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2586.751458ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2570.028084ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2710.690125ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (67.955708ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (489.226209ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2802.37875ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2538.017542ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2633.385417ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (2.013417ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (22.75925ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (540.6325ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (793.591833ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (575.273459ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (770.452375ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (520.283125ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (523.622708ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (531.784375ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (661.423541ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.443458ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (632.366041ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (467.160708ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (636.767459ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (449.206083ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (672.990375ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (481.81975ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (512.052542ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (488.249916ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.654083ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.176458ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.879541ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27099.631459

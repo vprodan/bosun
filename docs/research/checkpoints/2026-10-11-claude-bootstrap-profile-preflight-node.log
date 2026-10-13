@@ -1,0 +1,6 @@
+{
+  "code": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "/Users/edge/Developer/bosun/scripts/test-preload.cjs:17\nconst fail = (message) => { throw new Error(`bosun test containment: ${message}`); };\n                            ^\n\nError: bosun test containment: missing or noncanonical run root\n    at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:17:35)\n    at Object.<anonymous> (/Users/edge/Developer/bosun/scripts/test-preload.cjs:57:74)\n    at Module._compile (node:internal/modules/cjs/loader:1854:14)\n    at Object..js (node:internal/modules/cjs/loader:1985:10)\n    at Module.load (node:internal/modules/cjs/loader:1577:32)\n    at Module._load (node:internal/modules/cjs/loader:1379:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.require (node:internal/modules/cjs/loader:1600:12)\n    at node:internal/modules/cjs/loader:2146:12\n    at loadPreloadModules (node:internal/process/pre_execution:711:5)\n\nNode.js v24.16.0\n"
+}

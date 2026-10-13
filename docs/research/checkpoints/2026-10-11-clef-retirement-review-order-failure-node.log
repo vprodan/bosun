@@ -1,0 +1,264 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (16.33775ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (23.015459ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (5.715334ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (5.451125ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (3.214208ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (1.7755ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (5.188875ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (3.65525ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (6.509042ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (53.025708ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (72.576542ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (3.966042ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.517834ms)
+✔ upgrade reviews exact supported Kev plist and explicit new endpoint without probing, installing or retaining its confidence (16.456125ms)
+✔ unowned, malformed, changed, linked and foreign-user legacy definitions hold before upgrade effects or service discovery (47.814167ms)
+✖ one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay (6.597292ms)
+✖ already stopped Kev definition archives without repeating bootout, while absent service makes no native call (95.123125ms)
+✖ actual stop followed by lost native return retains original plist/backup and a held attempt without another stop (6.856333ms)
+✖ archive unlink followed by lost return preserves retained native backup and never repeats any upgrade effects (6.722458ms)
+✖ retired backup corruption or an unowned replacement definition makes status/duplicate apply held without mutation (6.140167ms)
+✔ legacy launchd list selection is restricted to the exact router label and current CLI exposes its review options (2.820417ms)
+✖ actual owner CLI plans hash-based Kev adoption and applies the single supported upgrade through scoped service control (17.079167ms)
+✔ start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart (2192.375792ms)
+✔ restart with a lost actual stop acknowledgement holds its original operation without starting or replaying (1141.196209ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.256334ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2103.121125ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1244.098166ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1227.253083ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1802.969667ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1526.452334ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1228.8865ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1230.932792ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2650.560708ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (461.286542ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1309.403ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1318.279458ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1505.64225ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.323667ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (329.076083ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (296.419584ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (291.598084ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (267.846291ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1027.341792ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (262.222833ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (269.984416ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (296.520917ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (811.336542ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (402.197792ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (458.2145ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (284.482666ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (271.453917ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (149.211625ms)
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (94.688042ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (137.724ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (124.690084ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (893.470958ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1218.734375ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (560.628042ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (66.196542ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (70.390542ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (74.297958ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (82.563333ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (180.341791ms)
+✔ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (568.406625ms)
+✔ final binary hook handles a closed stdout pipe without late EPIPE errors or a retained public-view lease (344.599208ms)
+✔ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (898.941583ms)
+✔ local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop (2032.409667ms)
+✔ actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes (139.686125ms)
+✔ production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS (71.838958ms)
+✔ v2 publication fences cached memory/docs writers and old prepared statements; reopened writers revoke until explicit republish (122.456667ms)
+✔ same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view (63.817666ms)
+✔ multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup (807.421333ms)
+✔ final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects (615.389875ms)
+✔ publication preserves established non-generator IDs and excludes malformed private flags before reading public content (49.57525ms)
+✔ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (528.885917ms)
+✔ explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them (822.900375ms)
+✔ actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher (581.467333ms)
+✔ publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY (179.843875ms)
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14458768,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":30.07,"latencyQualification":"unqualified"}
+✔ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2065.598584ms)
+✔ public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data (1243.912125ms)
+✔ publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors (209.25175ms)
+✔ post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD (113.703625ms)
+✔ publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired (259.108541ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.66575ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.093917ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.911917ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (17.929792ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.807875ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.498584ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (54.406542ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.500459ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.17975ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.140292ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.277333ms)
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+✔ qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures (30.73375ms)
+✔ read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied (13.450333ms)
+✔ read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events (11.987917ms)
+✔ read-only bounds and escaped query text use finite diagnostics with zero file changes (9.717541ms)
+✔ unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects (17.373084ms)
+✔ missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files (15.494291ms)
+✔ read-only reader checks injected deadlines and safely holds corrupt required schemas without writes (10.104791ms)
+✔ read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history (13.516333ms)
+✔ read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension (22.644375ms)
+✔ final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference (287.403ms)
+✔ final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls (220.621083ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.204333ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (48.121833ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (121.321708ms)
+✔ upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte (108.204083ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (169.541959ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (110.181375ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (110.23025ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (32.668083ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (31.586083ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (32.43075ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (31.249125ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (32.766292ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (103.91375ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (34.674084ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (35.298125ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (74.450416ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (68.207667ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (113.060375ms)
+ℹ tests 123
+ℹ suites 0
+ℹ pass 117
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45470.062375
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:204:1
+✖ one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay (6.597292ms)
+  Error: Legacy router review changed; retain the original definition
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:283:11)
+      at Object.apply (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:93:5)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:208:24)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'conflict',
+    exitCode: 3,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:234:1
+✖ already stopped Kev definition archives without repeating bootout, while absent service makes no native call (95.123125ms)
+  Error: Legacy router review changed; retain the original definition
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:283:11)
+      at Object.apply (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:93:5)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:240:30)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'conflict',
+    exitCode: 3,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:250:1
+✖ actual stop followed by lost native return retains original plist/backup and a held attempt without another stop (6.856333ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: Legacy router review changed; retain the original definition
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:255:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: Legacy router review changed; retain the original definition
+        at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:283:11)
+        at Object.apply (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:93:5)
+        at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:256:9)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1306:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+        at Test.postRun (node:internal/test_runner/test:1447:19)
+        at Test.run (node:internal/test_runner/test:1372:12)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:897:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:275:1
+✖ archive unlink followed by lost return preserves retained native backup and never repeats any upgrade effects (6.722458ms)
+  Error: ENOENT: no such file or directory, lstat '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-3QwPyT/sandboxes/case-38xQsE/home/.bosun/upgrade.json'
+      at Object.lstatSync (node:fs:1710:25)
+      at target.<computed> [as lstatSync] (/Users/edge/Developer/bosun/scripts/test-preload.cjs:97:15)
+      at identity (file:///Users/edge/Developer/bosun/src/platform/private-file.ts:21:19)
+      at readPrivateFile (file:///Users/edge/Developer/bosun/src/platform/private-file.ts:33:16)
+      at upgradeStatus (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:237:45)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:286:21)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'lstat',
+    path: '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-3QwPyT/sandboxes/case-38xQsE/home/.bosun/upgrade.json'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:299:1
+✖ retired backup corruption or an unowned replacement definition makes status/duplicate apply held without mutation (6.140167ms)
+  Error: Legacy router review changed; retain the original definition
+      at applyUpgrade (file:///Users/edge/Developer/bosun/src/app/upgrade.ts:283:11)
+      at Object.apply (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:93:5)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:304:30)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:897:18)
+      at Test.postRun (node:internal/test_runner/test:1447:19)
+      at Test.run (node:internal/test_runner/test:1372:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'conflict',
+    exitCode: 3,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:332:1
+✖ actual owner CLI plans hash-based Kev adoption and applies the single supported upgrade through scoped service control (17.079167ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"conflict","message":"Request conflicts with current state"}}
+  
+  
+  3 !== 0
+  
+      at cli (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:344:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:378:20)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 3,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

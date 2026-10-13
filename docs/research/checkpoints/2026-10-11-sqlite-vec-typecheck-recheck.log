@@ -1,0 +1,2 @@
+../../../../../../../../Users/edge/Developer/bosun/test/sqlite-vec.test.ts(108,75): error TS2353: Object literal may only specify known properties, and 'dateLabel' does not exist in type 'MemoryDependencies'.
+../../../../../../../../Users/edge/Developer/bosun/test/sqlite-vec.test.ts(115,89): error TS2353: Object literal may only specify known properties, and 'title' does not exist in type 'EmbeddingRecord'.

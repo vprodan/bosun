@@ -1,0 +1,798 @@
+{
+  "status": "source-inspection",
+  "nativeQualification": "unverified",
+  "files": [
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/Thread.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/Thread.ts",
+          "status": 200,
+          "sha256": "a6a528b2d88115ff3fe8db1c32ced5a90a1af3ec3fa0cfe39106931d6cccebd6"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/Thread.ts",
+          "status": 200,
+          "sha256": "a6a528b2d88115ff3fe8db1c32ced5a90a1af3ec3fa0cfe39106931d6cccebd6"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartParams.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartParams.ts",
+          "status": 200,
+          "sha256": "0303dcced2de5d056ba552a810dde3cf5d5cf699da9353abdfc788599829881c"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartParams.ts",
+          "status": 200,
+          "sha256": "0303dcced2de5d056ba552a810dde3cf5d5cf699da9353abdfc788599829881c"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartResponse.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartResponse.ts",
+          "status": 200,
+          "sha256": "2ecc3c074f9f4092ee0e8703e9c2bcecbe9544cf70663c15e82b325a1fd2efcf"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStartResponse.ts",
+          "status": 200,
+          "sha256": "2ecc3c074f9f4092ee0e8703e9c2bcecbe9544cf70663c15e82b325a1fd2efcf"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadParams.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadParams.ts",
+          "status": 200,
+          "sha256": "c24743cb5655b4c71a853a2a290412d78e1a27e0278f2a0cde9bd9d9b78118a8"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadParams.ts",
+          "status": 200,
+          "sha256": "c24743cb5655b4c71a853a2a290412d78e1a27e0278f2a0cde9bd9d9b78118a8"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadResponse.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadResponse.ts",
+          "status": 200,
+          "sha256": "09d84ab28738dd7f906f7adf4dc741e745d5ee826029653f4d7741c4953a7b42"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadReadResponse.ts",
+          "status": 200,
+          "sha256": "09d84ab28738dd7f906f7adf4dc741e745d5ee826029653f4d7741c4953a7b42"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsParams.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsParams.ts",
+          "status": 200,
+          "sha256": "9c663da2e2a569daa4d0cc0b684eb6d67fde98cc980d7d239a98cf2226b67fb8"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsParams.ts",
+          "status": 200,
+          "sha256": "9c663da2e2a569daa4d0cc0b684eb6d67fde98cc980d7d239a98cf2226b67fb8"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsResponse.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsResponse.ts",
+          "status": 200,
+          "sha256": "2a9673eb6a45c2d7d822e2474a3523c3a2e9019477379bf6ae2e2c7875d28582"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadInjectItemsResponse.ts",
+          "status": 200,
+          "sha256": "2a9673eb6a45c2d7d822e2474a3523c3a2e9019477379bf6ae2e2c7875d28582"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListParams.ts",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListParams.ts",
+          "status": 404,
+          "sha256": null
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListParams.ts",
+          "status": 404,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListResponse.ts",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListResponse.ts",
+          "status": 404,
+          "sha256": null
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadBackgroundTerminalsListResponse.ts",
+          "status": 404,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/TurnStartParams.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartParams.ts",
+          "status": 200,
+          "sha256": "aee116ebc86d05a738ae7cdace79f791a8b99a85693c3a005c295eb7e08b647c"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartParams.ts",
+          "status": 200,
+          "sha256": "aee116ebc86d05a738ae7cdace79f791a8b99a85693c3a005c295eb7e08b647c"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/TurnStartResponse.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartResponse.ts",
+          "status": 200,
+          "sha256": "974c520197188b7399836fda0ef1b11e43df618d25295463d2e229e1efa88ffd"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnStartResponse.ts",
+          "status": 200,
+          "sha256": "974c520197188b7399836fda0ef1b11e43df618d25295463d2e229e1efa88ffd"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/TurnInterruptParams.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnInterruptParams.ts",
+          "status": 200,
+          "sha256": "643034c3d25c23c7700236d4d1ff16286565786d48148e85b0c4761fe46d3804"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/TurnInterruptParams.ts",
+          "status": 200,
+          "sha256": "643034c3d25c23c7700236d4d1ff16286565786d48148e85b0c4761fe46d3804"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadTokenUsageUpdatedNotification.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadTokenUsageUpdatedNotification.ts",
+          "status": 200,
+          "sha256": "53ce4421d686b8a7f9a86c5ad54de2a7dceecfb95df74fa5f441947e136f063d"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadTokenUsageUpdatedNotification.ts",
+          "status": 200,
+          "sha256": "53ce4421d686b8a7f9a86c5ad54de2a7dceecfb95df74fa5f441947e136f063d"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/TokenUsage.ts",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/TokenUsage.ts",
+          "status": 404,
+          "sha256": null
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/TokenUsage.ts",
+          "status": 404,
+          "sha256": null
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/TokenUsageBreakdown.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/TokenUsageBreakdown.ts",
+          "status": 200,
+          "sha256": "e983f21175fdfdf1a239e26cd8916e1cb765bc0cb7904e2bd9cc83ffe325c8a7"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/TokenUsageBreakdown.ts",
+          "status": 200,
+          "sha256": "e983f21175fdfdf1a239e26cd8916e1cb765bc0cb7904e2bd9cc83ffe325c8a7"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadStatus.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStatus.ts",
+          "status": 200,
+          "sha256": "374f9ea8a23a06808bda3435d0854aa92303547bc87a92046b6af22b6e962352"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadStatus.ts",
+          "status": 200,
+          "sha256": "374f9ea8a23a06808bda3435d0854aa92303547bc87a92046b6af22b6e962352"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/schema/typescript/v2/ThreadItem.ts",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadItem.ts",
+          "status": 200,
+          "sha256": "047df9febb13b40263fb5b0abe244171c4dcb5e83229bbf9efba31abae840746"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/schema/typescript/v2/ThreadItem.ts",
+          "status": 200,
+          "sha256": "047df9febb13b40263fb5b0abe244171c4dcb5e83229bbf9efba31abae840746"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+          "status": 200,
+          "sha256": "d5e626a8f3bade6865a6274642a607124bea49cf3ebdbc202f70e8d2a976dafb"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+          "status": 200,
+          "sha256": "ee738dfe716fbbd61eb97006714d2c6bf31d6c7dae425ca6d6e60b648b701c6f"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/core/config.schema.json",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/core/config.schema.json",
+          "status": 200,
+          "sha256": "7ce31bde1ed6ef15c53a96ba460bb1d0fb7b99fd9ab719b567c94c474f62b023"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/core/config.schema.json",
+          "status": 200,
+          "sha256": "5e2edb4a621e0ad5312d56a184e2656a697673cf57b4b91f620f33e2fb591489"
+        }
+      ],
+      "selectedCurrent": {
+        "agents": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgentsToml"
+            }
+          ],
+          "description": "Agent-related settings (thread limits, etc.)."
+        },
+        "mcp_servers": {
+          "additionalProperties": {
+            "$ref": "#/definitions/RawMcpServerConfig"
+          },
+          "default": {},
+          "description": "Definition for MCP servers that Codex can reach out to for tool calls.",
+          "type": "object"
+        },
+        "notify": {
+          "default": null,
+          "description": "Optional external command to spawn for end-user notifications.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "model_reasoning_effort": {
+          "$ref": "#/definitions/ReasoningEffort"
+        },
+        "sandbox_mode": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SandboxMode"
+            }
+          ],
+          "description": "Sandbox mode to use."
+        }
+      },
+      "agentDefinitions": {
+        "McpServerAuth": {
+          "description": "Authentication flow for an HTTP MCP server. Explicit credentials take precedence for OAuth and ChatGPT; EMA rejects alternate credentials and fallback.",
+          "oneOf": [
+            {
+              "description": "Use stored MCP OAuth credentials when available. Starting an OAuth login is a separate operation.",
+              "enum": [
+                "oauth"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Use the current ChatGPT session for servers on the trusted first-party ChatGPT origin. If no ChatGPT session provider is available, startup can still fall back to stored OAuth credentials.",
+              "enum": [
+                "chatgpt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Exchange an enterprise IdP refresh token for resource-specific authorization. Alternate credentials and ordinary OAuth fallback are not permitted.",
+              "enum": [
+                "ema_auth"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "McpServerEnvVar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "McpServerIdpOAuthConfig": {
+          "additionalProperties": false,
+          "properties": {
+            "client_id": {
+              "description": "Public OAuth client registered with that enterprise IdP.",
+              "type": "string"
+            },
+            "issuer": {
+              "description": "Issuer used for enterprise OAuth discovery and identity validation.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "client_id",
+            "issuer"
+          ],
+          "type": "object"
+        },
+        "McpServerOAuthConfig": {
+          "additionalProperties": false,
+          "description": "Client settings for MCP OAuth login or enterprise token exchange.",
+          "properties": {
+            "authorization_server_issuer": {
+              "description": "Expected resource authorization server issuer for EMA token exchange.",
+              "type": "string"
+            },
+            "callback_port": {
+              "description": "Fixed callback port that takes precedence over Codex's global OAuth callback port.",
+              "format": "uint16",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "callback_url": {
+              "description": "Registered callback URL associated with this OAuth client.",
+              "type": "string"
+            },
+            "client_id": {
+              "description": "Explicit OAuth client identifier to present during authorization and token exchange.",
+              "type": "string"
+            },
+            "client_secret": {
+              "description": "OAuth client secret used for token exchange with a pre-registered client.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "McpServerToolConfig": {
+          "additionalProperties": false,
+          "description": "Per-tool settings for a single MCP server tool.",
+          "properties": {
+            "approval_mode": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/AppToolApproval"
+                }
+              ],
+              "description": "Approval mode for this tool."
+            },
+            "output_token_limit": {
+              "description": "Token budget for this tool's output, before the standard 20% serialization allowance.",
+              "format": "uint",
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "PluginMcpServerConfig": {
+          "additionalProperties": false,
+          "description": "Policy settings for a plugin-provided MCP server.\n\nThis intentionally excludes transport settings: plugin manifests own how the MCP server is launched, while host config owns enablement, auth, and tool policy.",
+          "properties": {
+            "default_tools_approval_mode": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/AppToolApproval"
+                }
+              ],
+              "description": "Approval mode for tools in this server unless a tool override exists."
+            },
+            "disabled_tools": {
+              "description": "Explicit deny-list of tools. These tools are removed after applying `enabled_tools`.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "enabled": {
+              "default": true,
+              "description": "When `false`, Codex skips initializing this plugin MCP server.",
+              "type": "boolean"
+            },
+            "enabled_tools": {
+              "description": "Explicit allow-list of tools exposed from this server.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "tools": {
+              "additionalProperties": {
+                "$ref": "#/definitions/McpServerToolConfig"
+              },
+              "description": "Per-tool policy settings keyed by tool name.",
+              "type": "object"
+            }
+          },
+          "type": "object"
+        },
+        "RawMcpServerConfig": {
+          "additionalProperties": false,
+          "description": "Raw MCP config shape used for deserialization and supported-field JSON Schema generation.\n\nFields that are accepted only to produce targeted validation errors should be skipped in the generated schema.\n\nKeep `TryFrom<RawMcpServerConfig> for McpServerConfig` exhaustively destructuring this struct so new TOML fields cannot be added here without updating the validation/mapping logic that produces [`McpServerConfig`].",
+          "properties": {
+            "args": {
+              "default": null,
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "auth": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/McpServerAuth"
+                }
+              ],
+              "default": null
+            },
+            "bearer_token_env_var": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            },
+            "cwd": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/LegacyAppPathString"
+                }
+              ],
+              "default": null
+            },
+            "default_tools_approval_mode": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/AppToolApproval"
+                }
+              ],
+              "default": null
+            },
+            "disabled_tools": {
+              "default": null,
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "enabled": {
+              "default": null,
+              "type": "boolean"
+            },
+            "enabled_tools": {
+              "default": null,
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "env": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": null,
+              "type": "object"
+            },
+            "env_http_headers": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": null,
+              "type": "object"
+            },
+            "env_vars": {
+              "default": null,
+              "items": {
+                "$ref": "#/definitions/McpServerEnvVar"
+              },
+              "type": "array"
+            },
+            "environment_id": {
+              "default": null,
+              "type": "string"
+            },
+            "http_headers": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "http_headers_helper": {
+              "type": "string"
+            },
+            "name": {
+              "default": null,
+              "description": "Legacy display-name field accepted for backward compatibility.",
+              "type": "string"
+            },
+            "oauth": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/McpServerOAuthConfig"
+                }
+              ],
+              "default": null
+            },
+            "oauth_resource": {
+              "default": null,
+              "type": "string"
+            },
+            "omit_tools_from": {
+              "default": null,
+              "items": {
+                "$ref": "#/definitions/ToolExposureSurface"
+              },
+              "type": "array"
+            },
+            "required": {
+              "default": null,
+              "type": "boolean"
+            },
+            "scopes": {
+              "default": null,
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "startup_readiness": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/McpStartupReadiness"
+                }
+              ],
+              "default": null,
+              "description": "Whether startup requires a live connection or can use a valid cached tool catalog."
+            },
+            "startup_timeout_ms": {
+              "default": null,
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "startup_timeout_sec": {
+              "default": null,
+              "format": "double",
+              "type": "number"
+            },
+            "supports_parallel_tool_calls": {
+              "default": null,
+              "type": "boolean"
+            },
+            "tool_input_schema_max_bytes": {
+              "default": null,
+              "description": "UTF-8 byte threshold for compacting each ordinary MCP tool input schema. Defaults to 5,000 bytes. Code Mode also uses an explicitly configured limit when rendering each tool's input type. Larger limits preserve more parameter descriptions.",
+              "format": "uint",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "tool_timeout_sec": {
+              "default": null,
+              "format": "double",
+              "type": "number"
+            },
+            "tools": {
+              "additionalProperties": {
+                "$ref": "#/definitions/McpServerToolConfig"
+              },
+              "default": null,
+              "type": "object"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "ReasoningEffort": {
+          "description": "A non-empty reasoning effort value advertised by the model.",
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    },
+    {
+      "file": "codex-rs/exec/src/cli.rs",
+      "same": false,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/exec/src/cli.rs",
+          "status": 200,
+          "sha256": "6abb86feb8fac2a192b34a617634527d0747b6d7fa09ee4827c0dc95abbe2f75"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/exec/src/cli.rs",
+          "status": 200,
+          "sha256": "66643e8b3d5964b70cb8f231fb309312376272fb3ea87bcb6849f44cf112f8f6"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/exec/src/exec_events.rs",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/exec/src/exec_events.rs",
+          "status": 200,
+          "sha256": "dafa872d7e86a099e56e28a329dcb9c03db90ed768c3b88cca8c91d46dc1d0e5"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/exec/src/exec_events.rs",
+          "status": 200,
+          "sha256": "dafa872d7e86a099e56e28a329dcb9c03db90ed768c3b88cca8c91d46dc1d0e5"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/protocol/src/protocol.rs",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/protocol/src/protocol.rs",
+          "status": 200,
+          "sha256": "d3d3d384da91b2824c10091de4331a2bc26ec5474887ed0aef1e3f3c4ae110f4"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/protocol/src/protocol.rs",
+          "status": 200,
+          "sha256": "d3d3d384da91b2824c10091de4331a2bc26ec5474887ed0aef1e3f3c4ae110f4"
+        }
+      ]
+    },
+    {
+      "file": "codex-rs/history/src/rollout_payload.rs",
+      "same": true,
+      "versions": [
+        {
+          "version": "0.160.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.160.0/codex-rs/history/src/rollout_payload.rs",
+          "status": 200,
+          "sha256": "ac6c17fda98ecc6377132ac9a34fb4771e902632b943decc94261961891a3598"
+        },
+        {
+          "version": "0.161.0",
+          "url": "https://raw.githubusercontent.com/openai/codex/rust-v0.161.0/codex-rs/history/src/rollout_payload.rs",
+          "status": 200,
+          "sha256": "ac6c17fda98ecc6377132ac9a34fb4771e902632b943decc94261961891a3598"
+        }
+      ]
+    }
+  ]
+}

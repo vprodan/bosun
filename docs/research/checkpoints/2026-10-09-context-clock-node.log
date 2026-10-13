@@ -1,0 +1,46 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ context pipeline: exact hash and estimate forward identities retain normalized SHA-256 behavior (0.529791ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (1.668375ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.459334ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.23325ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.392667ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (3.980334ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.189209ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.217458ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.157792ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.498917ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.183875ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.258292ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (0.30825ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.250042ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (0.263708ms)
+✔ context pipeline: real legacy delegation retains fixed metadata, receiver and denies new/prototype names before search (4.863792ms)
+✔ context pipeline: actual curated delegation denies records before all metadata/body getters (3.980709ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (60.898459ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.392958

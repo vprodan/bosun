@@ -1,0 +1,54 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ final run selects OpenCode by default and preserves each explicit native host, model, effort and literal task (199.767167ms)
+✔ final read-only run uses restricted native Claude tools and holds unqualified Codex without changing host or model (502.906125ms)
+✖ final queued native run retains auth and cwd, clears parent controls and preserves unknown native exits without replay (719.399583ms)
+✔ final revision-bound review captures the whole checkout from a subdirectory, selects the read-only vendor and holds unsafe selections (1321.569ms)
+✔ run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns (875.295583ms)
+✔ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (657.338583ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4542.861625
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:208:1
+✖ final queued native run retains auth and cwd, clears parent controls and preserves unknown native exits without replay (719.399583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 2
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:262:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 2,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

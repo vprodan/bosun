@@ -1,0 +1,6 @@
+{
+  "packageDir": "node_modules/better-sqlite3",
+  "scriptsRun": false,
+  "network": false,
+  "next": "sh scripts/bun-check.sh sqlite-native-build --package-dir node_modules/better-sqlite3"
+}

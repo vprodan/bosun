@@ -1,6 +1,7 @@
 # Model baseline — checked 2026-10-03
 
 Refresh official sources before model/config changes. These are candidate choices, not a promise that a particular account or client exposes them.
+Repository path map updated 2026-10-10; model availability and API settings below retain the 2026-10-03 verification date.
 
 | Exact model ID | Starting use case | Bosun interpretation |
 |---|---|---|
@@ -19,7 +20,7 @@ The Codex/Work UI can expose additional labels or settings, including Ultra depe
 
 Compare reasoning settings on the same task before increasing all roles to maximum effort. A model's advertised API context capacity does not prove the usable context or auto-compaction limit in Codex.
 
-## Bosun v0.2 configuration map
+## Bosun model bindings
 
 | Setting/source | Purpose | Current repository default |
 |---|---|---|
@@ -30,7 +31,7 @@ Compare reasoning settings on the same task before increasing all roles to maxim
 | `WORKER_BY_CODEX` | `bosun run -e codex` | `gpt-6-luna:high` |
 | Main session | Owned by the host's model selection | No bosun setting |
 
-Confirm this table against the checkout before editing. `lib/config.ts` parses `model:effort`; `lib/exec.ts` passes the model with `-m` and effort as `model_reasoning_effort`. Environment values override `~/.bosun/config.env`, which overrides repository defaults. Updating a default does not override an existing user value. The planned v1.0 TOML configuration is not the v0.2 parser.
+The role defaults are defined in `src/core/domain/config.ts`. `src/platform/config.ts` reads `BOSUN_HOME/config.toml` and the documented environment overrides; `src/app/native-runners.ts` selects the host runner, and each host adapter renders its own model and effort arguments. Inspect those files and the selected adapter before changing a binding. Preserve explicit TOML and environment choices. A documented upstream model ID still does not prove access in the installed client.
 
 Example candidate for a requested review upgrade: `REVIEW_BY_CODEX=gpt-6.1-sol:high`. This reference does not apply that change. Existing Sonnet-only research instructions remain explicit choices.
 

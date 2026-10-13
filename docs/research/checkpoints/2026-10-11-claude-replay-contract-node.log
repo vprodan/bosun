@@ -1,0 +1,78 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness (390.640834ms)
+✔ private/malformed/secret bootstrap input refuses before content access or native delivery (197.054833ms)
+✔ native bootstrap lost-append joins the original process and never retries or reports readiness (136.414833ms)
+✔ native bootstrap wrong-seed joins the original process and never retries or reports readiness (197.582541ms)
+✔ native bootstrap wrong-user joins the original process and never retries or reports readiness (192.388875ms)
+✔ native bootstrap wrong-session joins the original process and never retries or reports readiness (192.832416ms)
+✔ native bootstrap model-turn joins the original process and never retries or reports readiness (191.628041ms)
+✔ native control timeout holds until original producer termination and hides raw errors (236.357417ms)
+✔ native control error holds until original producer termination and hides raw errors (194.955417ms)
+✔ native control foreign-id holds until original producer termination and hides raw errors (190.159291ms)
+✔ native permission and hook requests are explicitly denied without reading or exposing their payloads (194.884208ms)
+✔ selection validation and unsupported native version precede stream startup (207.955458ms)
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (4.999084ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (235.697917ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.488208ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (127.773917ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (468.771208ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (375.143625ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (259.829917ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (127.561958ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (128.941708ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (320.201292ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.158167ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (97.612ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (526.993375ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (355.83175ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (251.508375ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (125.438416ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (135.78475ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (262.554209ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (145.559042ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (182.77825ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (131.237916ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (330.590209ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (154.156333ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (133.597542ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (246.922625ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (311.298042ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.866375ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (17.938417ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (7.214791ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (4.743333ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (7.710083ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (4.971125ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (6.960042ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (20.189667ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (8.714667ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (9.239625ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (165.485625ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (16.439375ms)
+ℹ tests 50
+ℹ suites 0
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8523.946916

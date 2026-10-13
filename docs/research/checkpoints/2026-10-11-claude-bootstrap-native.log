@@ -1,0 +1,27 @@
+{
+  "coverage": "owned-native-bootstrap-protocol-only",
+  "sourceDigest": "1a90d3dbcbd4d4e8e3d02f02afb175e019063c0e0dbf6e9e78d805d2ff4be946",
+  "binarySha256": "97a01e5bc74a199e67189435d0331ea3a24eac2e07db4b76d9148c5b0386138f",
+  "stage": "sandbox-syntax",
+  "checks": [
+    {
+      "args": [
+        "-f",
+        "/private/tmp/bosun-claude-bootstrap-HkPqBp/native.sb",
+        "/usr/bin/true"
+      ],
+      "code": null,
+      "signal": "SIGABRT",
+      "failed": false,
+      "groupJoined": true,
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "providerRequests": 0,
+  "joined": true,
+  "cleaned": true,
+  "nativeAutomaticQualification": "unverified"
+}

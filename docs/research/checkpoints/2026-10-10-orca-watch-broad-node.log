@@ -1,0 +1,254 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Orca selection respects the session executable and avoids the Linux screen reader (0.564875ms)
+✔ native card update pins local host and checkout, sends literal argv and stores hashes rather than comment content (620.610041ms)
+✔ private, credential, accessor, model and invalid status inputs have no Git or Orca effect (36.066333ms)
+✔ unsupported versions, missing or remote host identities, and foreign worktree paths never update a card (512.102792ms)
+✔ same-origin foreign checkout cannot read or retry the original card receipt (499.298625ms)
+✔ lost native response stays unknown, blocks another update and supports explicit reviewed acknowledgement without replay (956.145875ms)
+✔ card shutdown aborts and waits for native update closure before releasing the shared authority (454.134667ms)
+✔ lost intent COMMIT preserves one original card and does not replay after reopen (342.515791ms)
+✔ lost terminal COMMIT preserves one original card and does not replay after reopen (462.696792ms)
+✔ malformed or mismatched positive response remains unknown and receipt tampering is withheld (433.197583ms)
+✔ actual CLI skips outside Orca, requires public comments, and uses owner RPC with exact receipts (642.455291ms)
+✔ cli: help exits 0, unknown command exits 2 (392.817541ms)
+✔ cli: doctor reports problems in an empty sandbox without crashing (203.264125ms)
+✔ cli: install rejects a bad option before touching anything (200.64ms)
+✔ cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services (407.044292ms)
+✔ cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged (205.355292ms)
+✔ cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact (575.523083ms)
+✔ one shared method table applies real schemas and privacy before prompt getters (1.868375ms)
+✔ actual UDS methods share scoped memory/context and keep private owner records out of model replies/mutations (210.315166ms)
+✔ actual job methods persist request dedupe, selected execution, scoped progress and explicit cancellation (90.953042ms)
+✔ buildRun: the four executor paths (6.469ms)
+✔ buildReview + hostNow: other vendor, read-only (4.07075ms)
+✖ run (inline): exact call, token stripped, stdin spec, guards (217.2705ms)
+✔ run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns (941.025875ms)
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (226.295291ms)
+✖ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (648.095666ms)
+✔ actual Hono SSE uses one native scoped writer, excludes owner rows/content, resumes exact cursor and disconnect never cancels jobs (87.323875ms)
+✔ closed SSE projection ignores unknown content/getters, rejects malformed metadata, and never serializes raw callback errors (37.111209ms)
+✔ invalid event mutation/body is refused before dispatch and native subscriptions are capped, closed by admission stop (36.652792ms)
+✔ event lifetime terminates finite producers, stops polling, and creates no job effects (121.501042ms)
+✔ drain retains native authority until an in-flight SSE callback positively settles after disconnect (28.191834ms)
+✔ actual paused native SSE consumer reaches bounded backpressure hold before lifetime expiry and polling stops (104.422958ms)
+✔ default30-day boundary compacts only settled scoped content and preserves original receipt/version/request without payload reads or replay after reopen (18.77825ms)
+✔ daily aggregates keep scope/day/exact model/effort/billing vendor and observed account pools separate and expose incomplete totals honestly (27.355583ms)
+✔ unknown billing/account identity never merges independent attempts, while verified local totals may aggregate in the same authority (13.864833ms)
+✔ bounded prune and permanent receipt/daily capacity hold without erasing uncertain effects, fresh jobs or replay evidence (12.72025ms)
+✔ daily group capacity blocks a different model/account atomically without deleting its original attempt or result (11.543708ms)
+✔ queued/held/unknown jobs and their uncertainty payloads, quota latches, managed ownership and handoff references survive pruning (14.53275ms)
+✔ native prune before COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen (11.107834ms)
+✔ native prune after COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen (10.824667ms)
+✔ daily counter overflow rolls prune back and preserves original attempt/receipt capacity instead of manufacturing a total (10.967584ms)
+✔ configured drain grace allows running native completion without cancellation and leaves queued work undispatched (7.944625ms)
+✔ drain deadline requests cancellation but cannot release authority or settle until the synthetic native process positively exits (55.888333ms)
+✔ positive configured grace never waits for unstarted admission or dispatches it after shutdown (7.848334ms)
+✔ uncertain prune receipt synchronously aborts the existing active control and retains native authority until its positive settlement (10.848375ms)
+✔ automatic bounded retention frees pressure only after age boundary and preserves owner-only receipt isolation (8.608209ms)
+✔ invalid grace policies are finite and never acquire an owner lock or install a new runtime (2.858542ms)
+✔ replaced native owner file cannot leave a cached writer authoritative beside a newly acquired owner (12.280625ms)
+✔ background owner work follows queued interactive, admin and summary work while preserving FIFO within each class (15.701875ms)
+✔ public classification cannot admit known credentials; a tainted native result preserves successful owner outcome but is withheld from model (8.14075ms)
+✔ known credentials in job selection/identity/path metadata are refused before persistence, admission, callbacks or dispatch (7.629666ms)
+✔ jobs persist selected runner/model/effort/access/cwd and bounded owner result; events contain no source payload (9.675708ms)
+✔ request idempotency and scope survive native reopen without reading duplicate prompt getters or dispatching (11.460917ms)
+✔ native owner jobs deny model payload/result/metadata access and owner-only creation before prompt getters (8.012792ms)
+✔ privacy classification precedes every prompt/task getter, storage write, admission and runner call (10.878292ms)
+✔ bounded queue and admission holds are durable, explicit release preserves selection, cancellation is known before dispatch (10.590542ms)
+✔ active cancellation becomes unknown without runner completion (8.110583ms)
+✔ active cancellation retains positive actual runner outcome (8.602709ms)
+✔ nonzero native done is failed; provider loss/oversize produces finite unknown metadata without provider text (10.7595ms)
+✔ drain closes neither jobs nor native authority while late runner completion is still pending (9.655458ms)
+✔ drain aborts admission before payload/runner dispatch and leaves unstarted queued work persisted (6.526709ms)
+✔ queued cancellation aborts pending admission and cannot later become a hold or dispatch (7.527166ms)
+✔ real killed daemon reopens running as persisted, explicit recovery marks unknown and never dispatches it (89.567958ms)
+✔ actual native start COMMIT then error persists running and finite unknown, fences dispatch and recovers without replay (9.495625ms)
+✔ native queue CAS, rollback/busy proof, scope and close are enforced by the actual owned SQLite store (8.8475ms)
+✔ native event capacity reserves terminal recovery instead of consuming it with runner progress (7.524959ms)
+✔ native BEGIN then error positively rolls back and leaves the store usable with no job/events (6.203875ms)
+✔ unrelated job/authority layouts are rejected before journal or schema writes (5.613125ms)
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (5.68725ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (267.396291ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.3925ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (144.555875ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (495.7805ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (397.253625ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (302.359709ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (155.504792ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (186.045458ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (380.545125ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.235ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (133.684292ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (558.082209ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (376.995833ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (292.2595ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (143.973041ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (161.447167ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (281.39575ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (173.079917ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (203.749209ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (144.216709ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (355.90875ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (173.882167ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (150.875083ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (262.664459ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (360.9815ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.829959ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (19.242834ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (6.385625ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (5.077917ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (9.223292ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (5.304125ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (7.569084ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (21.558709ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (8.80375ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (8.665459ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (168.986542ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (22.427041ms)
+✔ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (664.990292ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (526.428875ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (527.21825ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (540.726333ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (476.203167ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (836.277167ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (121.675209ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (367.605208ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (567.930125ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (426.193584ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (433.991208ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (405.062583ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (648.817125ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (686.772625ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (327.946791ms)
+✔ native snapshot binds base/head/branch, staged version, working bytes/mode and untracked bodies without changing checkout (289.669709ms)
+✔ content changes invalidate revision even with restored mtime and the same Git status; staged-only, mode, untracked and branch changes also invalidate (531.957ms)
+✔ private classification precedes base getters/Git and known credentials or credential-store paths never enter review material (102.483208ms)
+✔ deleted directories are captured as missing, external symlinks are withheld, and source payload budgets refuse partial reviews (253.340334ms)
+✔ configured clean/process filters are rejected before native status/diff and never execute (48.860125ms)
+✔ exact file batches bound the whole checkout but disclose only selected changes, use literal pathspecs and preserve coverage (566.022208ms)
+✔ review queues an exact public read-only owner job, links atomically and preserves original selection on duplicate requests (307.811875ms)
+✔ changed content before dispatch holds a review without inference or replay, and stale evidence cannot be released by a quota override (386.630375ms)
+✔ positive review outcome is preserved while later source changes invalidate its evidence instead of approving or rerunning it (347.8045ms)
+✔ owner/model/privacy boundaries refuse getters before payload and same-origin clone status is denied before foreign content capture (170.301ms)
+✔ lost review job/link COMMIT retains one original queued request across reopen without another model or artifact (142.369375ms)
+✔ tampered stored snapshot hash is withheld before inference without rewriting the original evidence or manufacturing freshness (138.00025ms)
+✔ actual review CLI/UDS requires public classification, uses exact read-only selection and reports source staleness without approval (523.782583ms)
+✔ roles: every role parses and renders for Claude and Codex with its configured model (6.665208ms)
+✔ final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication (5.29925ms)
+✔ final run dispatches the explicitly selected executor model through its owner job without changing role configuration (146.014334ms)
+✔ roles: bosun roles --json prints the resolved table (207.774208ms)
+✔ final run literal, public file and real stdin all reach one pinned native executor with isolated parent controls and original dedupe (1819.168666ms)
+✔ nested run rejects before task file, configuration getters, queue writes or native discovery (113.317375ms)
+✔ run rejects missing/ambiguous/oversized and credential-bearing task input before owner jobs or native effects (312.795666ms)
+✔ services: plist is valid XML with escaped argv, env and workdir (22.773125ms)
+✔ services: vge compares dotted versions numerically (3.640875ms)
+✔ services: migration aliases reject an invalid receipt selection before touching launchd (598.318458ms)
+✔ services: svcOn retries a failing launchctl bootstrap before giving up (1800.739625ms)
+✔ native creation checks out only the pinned commit, keeps dirty source files, filters auth/env and disables hooks (139.232125ms)
+✔ native prune preview is read only and binds clean, unlocked, merged Git state and durable ownership (468.227417ms)
+✔ ignored worktree files also prevent prune, and no foreign or unowned worktree is adopted (228.919875ms)
+✔ queued, held, running and unknown jobs in an owned path prevent prune while settled jobs do not (518.715458ms)
+✔ lost final COMMIT preserves one positively created worktree and its ready record without replay after reopen (100.210667ms)
+✔ bounded permanent workspace capacity preserves unknown intents and owner isolation rather than evicting receipts (46.752292ms)
+✔ lost positive Git receipt remains unknown across duplicate requests and daemon reopen without another creation (189.5335ms)
+✔ model requests are denied before params, Git or registry access and known credentials are refused before a new intent (29.571542ms)
+✔ same-origin clones remain separate workspace authorities and a removed/rebound path cannot qualify pruning (187.166958ms)
+✔ external checkout filters and existing destinations are held without running hooks, overwrite or automatic cleanup (78.5795ms)
+✔ lost reservation COMMIT fences the shared authority before Git, preserves original intent and never replays on reopen (50.112875ms)
+✔ actual daemon/Commander workspace create/list/reconcile/prune-preview share native state, deny models and preserve the worktree (309.043084ms)
+✔ workspace shutdown aborts and waits native creation settlement while the existing daemon owner remains held (30.140916ms)
+✔ filters added after creation cannot execute during reconciliation or dispatch, even with a quota opt-in (275.004833ms)
+✔ spin atomically maps a pinned job to one owned worktree and dedupes before prompt getters or another launch (271.677958ms)
+✔ worktree job enqueue refuses stale versions and collisions with ordinary jobs or another workspace without changing selected work (251.504834ms)
+✔ privacy and credential screening precede spin worktree effects, and model requests cannot create or queue owned work (30.379042ms)
+✔ dispatch revalidates the exact worktree after enqueue and cannot bypass changed identity with allow-unknown-quota (184.534583ms)
+✔ unknown creation prevents spin enqueue or replay, while positive workspace intent is retained for owner inspection (97.349083ms)
+✔ job-map COMMIT loss keeps exactly one queued job/link and dedupes after reopen without another worktree or submission (183.624666ms)
+✔ retention preserves the workspace-to-original-job mapping and original no-replay receipt without archived task content (275.297709ms)
+✔ actual spin/workspace-run CLI dispatches through the same native job authority with exact model and scoped branch (585.236083ms)
+ℹ tests 167
+ℹ suites 0
+ℹ pass 164
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39787.199416
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:71:1
+✖ run (inline): exact call, token stripped, stdin spec, guards (217.2705ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:80:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:134:1
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (226.295291ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /nothing to review/. Input:
+  
+  ''
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:143:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /nothing to review/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:176:1
+✖ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (648.095666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  124 !== 1
+  
+      at file:///Users/edge/Developer/bosun/test/exec.test.ts:193:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:184:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 124,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

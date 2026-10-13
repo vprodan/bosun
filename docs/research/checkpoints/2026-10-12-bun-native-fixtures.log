@@ -1,0 +1,1300 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 26 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 27 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 28 - unknown suites/options and prohibited runtimes fail closed
+Containment: 28/28 probes passed; application suites not imported.
+Guarded Bun file 1/5: claude-client.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-client.test.ts:
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:68:45)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness [3.42ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:93:45)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) private/malformed/secret bootstrap input refuses before content access or native delivery [2.28ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap lost-append joins the original process and never retries or reports readiness [1.92ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap wrong-seed joins the original process and never retries or reports readiness [1.79ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap wrong-user joins the original process and never retries or reports readiness [1.94ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap wrong-session joins the original process and never retries or reports readiness [2.32ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap model-turn joins the original process and never retries or reports readiness [2.45ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:107:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native bootstrap extra-content joins the original process and never retries or reports readiness [2.35ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:118:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native control timeout holds until original producer termination and hides raw errors [2.13ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:118:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native control error holds until original producer termination and hides raw errors [1.80ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:118:51)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native control foreign-id holds until original producer termination and hides raw errors [1.80ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:128:52)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native permission and hook requests are explicitly denied without reading or exposing their payloads [1.98ms]
+144 |   try {
+145 |     for (const selection of [{ sessionId: 'foreign' }, { model: '--help' }, { effort: 'unsupported' }])
+146 |       await assert.rejects(connectClaudeStream({ ...f.options, ...selection }, signal()));
+147 |     assert.deepEqual(f.calls(), []);
+148 |     fs.writeFileSync(f.options.command!, '#!/usr/bin/env node\nprocess.stdout.write("0.0.0 (Claude Code)\\n")', { mode: 0o700 });
+149 |     await assert.rejects(connectClaudeStream(f.options, signal()), error => error instanceof BosunError && error.code === 'unverified');
+                       ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/claude-client.test.ts:149:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async waitForActual (node:assert:359:24)
+      at async assert.rejects (node:assert:434:77)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:149:18)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) selection validation and unsupported native version precede stream startup [3.56ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:157:26)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native text-block replay and versioned session-state notifications stay exact without becoming readiness claims [1.87ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:171:26)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) managed Claude removes inherited transcript suppression rather than setting a false-looking string [2.39ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:185:24)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Claude diagnostics distinguish accepted initialization from a later read failure without native payloads [2.20ms]
+199 | 
+200 | test('Claude failed initialization diagnostics retain only fixed phases and finite native exits', async () => {
+201 |   for (const mode of ['init-error', 'init-timeout', 'init-exit', 'init-signal']) {
+202 |     const f = fixture(mode), diagnostics: ClaudeConnectionDiagnostic[] = [];
+203 |     try {
+204 |       await assert.rejects(connectClaudeStream({ ...f.options, requestTimeoutMs: 100,
+                         ^
+AssertionError: The "unknown" validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function: unknown],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/claude-client.test.ts:204:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async waitForActual (node:assert:359:24)
+      at async assert.rejects (node:assert:434:77)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:204:20)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Claude failed initialization diagnostics retain only fixed phases and finite native exits [3.05ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:232:26)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) throwing or rejecting Claude diagnostic observers do not change append, read, denial or positive join [1.90ms]
+60 |   // https://code.claude.com/docs/en/agent-sdk/sessions
+61 |   delete env.CLAUDE_CODE_SKIP_PROMPT_HISTORY;
+62 |   delete env.CLAUDECODE; delete env.CLAUDE_EFFORT; delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+63 |   diagnostic({ phase: 'version-detection' });
+64 |   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
+65 |   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                      ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectClaudeStream (/Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:65:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/claude-client.test.ts:251:24)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Claude closed callback never claims join when synthetic group termination remains uncertain after the real parent exited [1.91ms]
+
+ 0 pass
+ 19 fail
+Ran 19 tests across 1 file. [61.00ms]
+Guarded Bun file 2/5: claude-transcript.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-transcript.test.ts:
+(pass) Claude assigned transcript is independently retained and content hashes do not claim readiness [7.99ms]
+(pass) Claude private/unclassified binding and seed requests reject before consulting path or text getters [4.23ms]
+(pass) Claude root readback rejects foreign identities, ancestry, synthetic histories and seed changes finitely [91.57ms]
+(pass) Claude fresh seed readback accepts one exact text block and rejects extra user/assistant or metadata rows [36.61ms]
+(pass) Claude reader only uses the assigned namespace and refuses symlink, hardlink and nonprivate files [34.23ms]
+(pass) Claude binding repeats directory, cwd and file identities before each independently retained read [30.55ms]
+(pass) Claude retained reads reject write/replacement/parent races while the original descriptor is open [23.02ms]
+(pass) Claude append-only linear history extends a binding, while prior accepted rows remain immutable [36.14ms]
+(pass) Claude unknown, partial, overbound and invalid-encoding JSONL stays held without exposing raw content [46.52ms]
+(pass) Claude public evidence admits exact users and completed exact-model assistants and keeps native private metadata local [7.63ms]
+(pass) Claude public evidence refuses unadmitted user text, changed models, uncompleted frames and foreign completion claims [43.03ms]
+(pass) Claude private text/block classifications, credentials and tool results are held before public evidence can escape [37.99ms]
+(pass) Claude evidence validates the full source after a cursor and keeps UTF-8 bounded windows incremental [23.28ms]
+(pass) Claude evidence rejects private request/user classification before disk access and binds cursors to the original inode [8.47ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [450.00ms]
+Guarded Bun file 3/5: codex-control.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/codex-control.test.ts:
+(pass) Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings [4.89ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:200:19)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) fresh Codex seed is persisted and independently read back with no turn/model request before readiness [3.73ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:243:19)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics [2.76ms]
+132 | }
+133 | const records = (
+134 |   sb: Sandbox,
+135 | ): { argv?: string[]; pid?: number; request?: { method: string; params: Record<string, any> } }[] =>
+136 |   fs
+137 |     .readFileSync(sb.out, 'utf8')
+           ^
+ENOENT: no such file or directory, open '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/t4vSA2S/sandboxes/case-ZEjoNi/stub.jsonl'
+    path: "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/t4vSA2S/sandboxes/case-ZEjoNi/stub.jsonl",
+ syscall: "open",
+   errno: -2,
+    code: "ENOENT"
+
+      at records (/Users/edge/Developer/bosun/test/codex-control.test.ts:137:6)
+      at <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:317:9)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference [4.12ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:334:38)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated [3.31ms]
+132 | }
+133 | const records = (
+134 |   sb: Sandbox,
+135 | ): { argv?: string[]; pid?: number; request?: { method: string; params: Record<string, any> } }[] =>
+136 |   fs
+137 |     .readFileSync(sb.out, 'utf8')
+           ^
+ENOENT: no such file or directory, open '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/t4vSA2S/sandboxes/case-tzMsY5/stub.jsonl'
+    path: "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/t4vSA2S/sandboxes/case-tzMsY5/stub.jsonl",
+ syscall: "open",
+   errno: -2,
+    code: "ENOENT"
+
+      at records (/Users/edge/Developer/bosun/test/codex-control.test.ts:137:6)
+      at <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:363:18)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) lost creation receipt retains original native history and prevents repeating the same source request [3.21ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:381:21)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay [2.21ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:408:19)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) cancellation request without original terminal receipt joins the process and leaves unknown effects [2.26ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:437:19)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history [2.43ms]
+65 | const own = (v: object, key: string): unknown => Object.getOwnPropertyDescriptor(v, key)?.value;
+66 | const fail = (
+67 |   code: 'invalid' | 'unverified' | 'unavailable' | 'cancelled' = 'unavailable',
+68 |   unknown = false,
+69 | ) =>
+70 |   new BosunError(
+       ^
+error: Codex managed source unavailable
+ exitCode: 1,
+  details: {
+  currentVersion: undefined,
+  outcome: "unknown",
+},
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:70:3)
+      at create (/Users/edge/Developer/bosun/src/adapters/hosts/codex/control.ts:484:13)
+      at async prepared (/Users/edge/Developer/bosun/test/codex-control.test.ts:143:30)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:498:19)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex fresh generation creates an independent root and joins the retired process before destination dispatch [2.53ms]
+37 |     const safe: CutoverReason = ['path', 'identity', 'schema', 'state', 'backup', 'busy', 'storage', 'runtime', 'input', 'receipt_unknown'].includes(reason) ? reason : 'storage';
+38 |     super(safe === 'input' ? 'invalid' : 'unavailable', `memory cutover unavailable (${safe})`, safe === 'receipt_unknown' ? { details: { outcome: 'unknown' } } : undefined);
+39 |     this.reason = safe;
+40 |   }
+41 | }
+42 | function fail(reason: CutoverReason): never { throw new CutoverError(reason); }
+                                                         ^
+error: memory cutover unavailable (runtime)
+ exitCode: 1,
+  details: undefined,
+   reason: "runtime",
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:42:53)
+      at mapped (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:84:29)
+      at cutoverMemory (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:427:24)
+      at setupRuntime (/Users/edge/Developer/bosun/src/app/setup.ts:34:11)
+      at <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:575:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) [73.36ms]
+37 |     const safe: CutoverReason = ['path', 'identity', 'schema', 'state', 'backup', 'busy', 'storage', 'runtime', 'input', 'receipt_unknown'].includes(reason) ? reason : 'storage';
+38 |     super(safe === 'input' ? 'invalid' : 'unavailable', `memory cutover unavailable (${safe})`, safe === 'receipt_unknown' ? { details: { outcome: 'unknown' } } : undefined);
+39 |     this.reason = safe;
+40 |   }
+41 | }
+42 | function fail(reason: CutoverReason): never { throw new CutoverError(reason); }
+                                                         ^
+error: memory cutover unavailable (runtime)
+ exitCode: 1,
+  details: undefined,
+   reason: "runtime",
+     code: "unavailable"
+
+      at fail (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:42:53)
+      at mapped (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:84:29)
+      at cutoverMemory (/Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:427:24)
+      at setupRuntime (/Users/edge/Developer/bosun/src/app/setup.ts:34:11)
+      at <anonymous> (/Users/edge/Developer/bosun/test/codex-control.test.ts:575:13)
+      at run (node:async_hooks:144:29)
+      at <anonymous> (node:test:1445:26)
+      at executeTestNode (node:test:1448:45)
+      at <anonymous> (node:test:1591:20)
+(fail) production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) [45.86ms]
+
+ 1 pass
+ 11 fail
+Ran 12 tests across 1 file. [215.00ms]
+Guarded Bun file 4/5: native-runners.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/native-runners.test.ts:
+(pass) Codex constructor is inert and privacy screening precedes content, options and executable discovery [5.26ms]
+53 |         || !text(spec.prompt, 32768) || !spec.prompt.trim()) throw new BosunError('invalid', 'Invalid Codex request');
+54 |       screenPublicText(spec.prompt);
+55 |       if (spec.signal.aborted) throw new BosunError('cancelled', 'Codex execution cancelled');
+56 |       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+57 |       const detected = await detect(env);
+58 |       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                          ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/codex/runner.ts:58:38)
+(fail) Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution [4.08ms]
+(pass) Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes [2.87ms]
+207 | 
+208 | test('Codex native version mismatch never starts an agent or substitutes an older protocol', async () => {
+209 |   const sb = sandbox();
+210 |   try {
+211 |     const runner = createCodexRunner({ env: env(sb, jsonl(rows), 0, '0.159.0') });
+212 |     assert.equal((await runner.detect(env(sb, jsonl(rows), 0, '0.159.0'))).version, '0.159.0');
+                 ^
+AssertionError: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- '0.159.0'
+
+ generatedMessage: true,
+     actual: undefined,
+   expected: "0.159.0",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:212:12
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) Codex native version mismatch never starts an agent or substitutes an older protocol [3.92ms]
+238 |         { type: 'turn.completed', usage: { input_tokens: -1, output_tokens: 12 } },
+239 |       ]),
+240 |     ]) {
+241 |       sb.reset();
+242 |       const observed: RunEvent[] = [];
+243 |       await assert.rejects(
+                         ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Codex executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:243:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+53 |         || !text(spec.prompt, 32768) || !spec.prompt.trim()) throw new BosunError('invalid', 'Invalid Codex request');
+54 |       screenPublicText(spec.prompt);
+55 |       if (spec.signal.aborted) throw new BosunError('cancelled', 'Codex execution cancelled');
+56 |       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+57 |       const detected = await detect(env);
+58 |       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                          ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/codex/runner.ts:58:38)
+(fail) Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry [4.12ms]
+267 |   const observed: RunEvent[] = [];
+268 |   try {
+269 |     const script = `#!/usr/bin/env node\nconst fs=require('node:fs');if(process.argv.includes('--version')){process.stdout.write('codex-cli ${CODEX_VERSION}\\n');}else{fs.writeFileSync(process.env.STUB_OUT,String(process.pid));process.on('SIGTERM',()=>{});process.stdout.write(${JSON.stringify(jsonl(rows))});setInterval(()=>{},1000);}\n`;
+270 |     fs.writeFileSync(path.join(sb.bin, 'codex'), script, { mode: 0o755 });
+271 |     const runner = createCodexRunner({ env: sb.env(), timeoutMs: 150, killGraceMs: 20 });
+272 |     await assert.rejects(
+                       ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Codex executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:272:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+53 |         || !text(spec.prompt, 32768) || !spec.prompt.trim()) throw new BosunError('invalid', 'Invalid Codex request');
+54 |       screenPublicText(spec.prompt);
+55 |       if (spec.signal.aborted) throw new BosunError('cancelled', 'Codex execution cancelled');
+56 |       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+57 |       const detected = await detect(env);
+58 |       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                          ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/codex/runner.ts:58:38)
+(fail) Codex native completion followed by a stuck process times out and awaits actual termination [3.19ms]
+303 |   let pid = 0;
+304 |   try {
+305 |     const script = `#!/usr/bin/env node\nif(process.argv.includes('--version')){process.stdout.write('codex-cli ${CODEX_VERSION}\\n');}else{require('node:fs').writeFileSync(process.env.STUB_OUT,String(process.pid));process.on('SIGTERM',()=>{});process.stdout.write(${JSON.stringify(jsonl(rows.slice(0, 5)))});setInterval(()=>{},1000);}\n`;
+306 |     fs.writeFileSync(path.join(sb.bin, 'codex'), script, { mode: 0o755 });
+307 |     const runner = createCodexRunner({ env: sb.env(), killGraceMs: 20 });
+308 |     await assert.rejects(
+                       ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Codex executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:308:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+53 |         || !text(spec.prompt, 32768) || !spec.prompt.trim()) throw new BosunError('invalid', 'Invalid Codex request');
+54 |       screenPublicText(spec.prompt);
+55 |       if (spec.signal.aborted) throw new BosunError('cancelled', 'Codex execution cancelled');
+56 |       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+57 |       const detected = await detect(env);
+58 |       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                          ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/codex/runner.ts:58:38)
+(fail) Codex cancellation stops native work before the iterator and queued ownership can drain [2.81ms]
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout [4.45ms]
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude edit jobs expose file editing only; native aliases resolve without changing model families [2.88ms]
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude preserves native overflow protection and explicit native context/compaction choices [3.38ms]
+(pass) Claude public classification and unsupported controls are checked before content, env and native probes [3.56ms]
+573 | 
+574 | test('Claude native version mismatch holds the requested host without fallback or execution', async () => {
+575 |   const sb = sandbox();
+576 |   try {
+577 |     const runner = createClaudeRunner({ env: claudeEnv(sb, '', 0, '2.1.247') });
+578 |     await assert.rejects(
+                       ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:578:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude native version mismatch holds the requested host without fallback or execution [2.91ms]
+606 |       ],
+607 |     ];
+608 |     for (const values of variants) {
+609 |       sb.reset();
+610 |       const observed: RunEvent[] = [];
+611 |       await assert.rejects(async () => {
+                         ^
+AssertionError: The "unknown" validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function: unknown],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:611:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt [3.40ms]
+639 |         { ...base[3], subtype: 'error_max_turns', is_error: true, result: 'ERROR_CANARY' },
+640 |       ]),
+641 |     ]) {
+642 |       sb.reset();
+643 |       const observed: RunEvent[] = [];
+644 |       await assert.rejects(
+                         ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:644:20
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry [3.65ms]
+674 |   const controller = new AbortController();
+675 |   let pid = 0;
+676 |   try {
+677 |     const script = `#!/usr/bin/env node\nif(process.argv.includes('--version')){process.stdout.write('${CLAUDE_VERSION} (Claude Code)\\n');}else{require('node:fs').writeFileSync(process.env.STUB_OUT,String(process.pid));process.on('SIGTERM',()=>{});process.stdout.write(${JSON.stringify(jsonl(claudeRows(sb).slice(0, 2)))});setInterval(()=>{},1000);}\n`;
+678 |     fs.writeFileSync(path.join(sb.bin, 'claude'), script, { mode: 0o755 });
+679 |     await assert.rejects(
+                       ^
+AssertionError: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Claude executable unavailable
+ generatedMessage: true,
+   expected: [Function],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:679:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+115 |       };
+116 |       delete env.CLAUDECODE;
+117 |       delete env.CLAUDE_EFFORT;
+118 |       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
+119 |       const detected = await detect(env);
+120 |       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
+                                           ^
+error: Claude executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/claude/runner.ts:120:38)
+(fail) Claude cancellation after native text awaits process termination and never claims a successful result [3.76ms]
+53 |         || !text(spec.prompt, 32768) || !spec.prompt.trim()) throw new BosunError('invalid', 'Invalid Codex request');
+54 |       screenPublicText(spec.prompt);
+55 |       if (spec.signal.aborted) throw new BosunError('cancelled', 'Codex execution cancelled');
+56 |       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+57 |       const detected = await detect(env);
+58 |       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                          ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at run (/Users/edge/Developer/bosun/src/adapters/hosts/codex/runner.ts:58:38)
+(fail) final native registry loads only the selected host, preserves explicit native home and performs no probes [3.22ms]
+763 |         effort: input.effort,
+764 |       },
+765 |       scope,
+766 |     );
+767 |     await jobs.runQueued();
+768 |     assert.equal(jobs.get(scope, submitted.job.id).state, 'succeeded');
+                 ^
+AssertionError: Expected values to be strictly equal:
++ actual - expected
+
++ 'unknown'
+- 'succeeded'
+
+ generatedMessage: true,
+     actual: "unknown",
+   expected: "succeeded",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:768:12
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) actual durable job dispatcher executes the selected native Codex once and persists the positive result [15.62ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:837:20)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio [3.13ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:884:20)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials [2.76ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:920:28)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex native app-server malformed/foreign response loss closes the process and never retries [3.32ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:951:20)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex native metadata errors are finite and discarded without token or provider message exposure [3.16ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:977:28)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored [2.71ms]
+1005 | });
+1006 | 
+1007 | test('Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state', async () => {
+1008 |   const sb = sandbox();
+1009 |   try {
+1010 |     await assert.rejects(
+                        ^
+AssertionError: The "unknown" validation function is expected to return "true". Received false
+
+Caught error:
+
+Error: Codex executable unavailable
+ generatedMessage: true,
+   expected: [Function: unknown],
+   operator: "rejects",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at expectedException (node:assert:327:33)
+      at expectsError (node:assert:395:20)
+      at assert.rejects (node:assert:434:17)
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:1010:18
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async waitForActual (node:assert:359:24)
+      at async assert.rejects (node:assert:434:77)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:1010:18)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state [3.63ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async read (/Users/edge/Developer/bosun/src/adapters/hosts/codex/quota-source.ts:18:24)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:1084:33)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches [3.56ms]
+33 |   if (!path.isAbsolute(options.cwd) || options.cwd.includes('\0')) throw new BosunError('invalid', 'Invalid Codex workspace');
+34 |   const requestTimeout = options.requestTimeoutMs ?? 10000;
+35 |   if (!Number.isSafeInteger(requestTimeout) || requestTimeout < 1 || requestTimeout > 60000) throw new BosunError('invalid', 'Invalid Codex request timeout');
+36 |   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
+37 |   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
+38 |   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
+                                      ^
+error: Codex executable unavailable
+ exitCode: 1,
+  details: undefined,
+     code: "unavailable"
+
+      at connectCodexAppServer (/Users/edge/Developer/bosun/src/adapters/hosts/codex/client.ts:38:34)
+      at async read (/Users/edge/Developer/bosun/src/adapters/hosts/codex/quota-source.ts:18:24)
+      at async <anonymous> (/Users/edge/Developer/bosun/test/native-runners.test.ts:1135:17)
+      at async <anonymous> (node:test:1445:26)
+      at async executeTestNode (node:test:1448:63)
+(fail) native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance [2.75ms]
+1231 |         allowUnknownQuota: true,
+1232 |       },
+1233 |       scope,
+1234 |     ).job;
+1235 |     await jobs.runQueued();
+1236 |     assert.equal(jobs.get(scope, submitted.id).state, 'held');
+                  ^
+AssertionError: Expected values to be strictly equal:
+
+'unknown' !== 'held'
+
+ generatedMessage: true,
+     actual: "unknown",
+   expected: "held",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/native-runners.test.ts:1236:12
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+(fail) actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery [10.54ms]
+
+ 3 pass
+ 23 fail
+Ran 26 tests across 1 file. [132.00ms]
+Guarded Bun file 5/5: opencode-runner.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-runner.test.ts:
+(pass) OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters [1.66ms]
+(pass) native OpenCode 2 HTTP run binds an explicit root, model colons, cwd/variant and deny-all permissions; V2 step usage is exclusive [14.88ms]
+(pass) edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable [7.55ms]
+(pass) Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite [8.19ms]
+(pass) completed native message remains buffered until idle; early consumer return leaves no active native request [13.92ms]
+(pass) unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP [9.05ms]
+(pass) fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session [12.15ms]
+(pass) missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped [45.43ms]
+(pass) lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes [14.27ms]
+(pass) abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown [12.97ms]
+(pass) timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort [249.92ms]
+(pass) actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen [24.27ms]
+(pass) V2 inbox admission is not completion; changed ID/session/text/delivery/attachments remain unknown without replay [34.77ms]
+(pass) lost V2 root receipt never adopts an arbitrary root, sends input, deletes history or retries creation [2.22ms]
+(pass) V2 server identity, native catalog/variant overlay and owned session bindings repeat immediately before effects [9.51ms]
+(pass) V2 complete history reaches an empty terminal page and follows only encoded body cursors at the original endpoint [15.95ms]
+(pass) V2 native inactivity without the original terminal remains unknown, even with completed assistant/tool records [154.69ms]
+(pass) V2 hidden native inputs/control changes and unallowed code-mode/MCP/shell tools cannot produce completion [61.74ms]
+(pass) V2 repeated completed history catches native content drift before yielding any result [7.85ms]
+(pass) V2 interruption never targets a changed server process or native ownership binding [6.75ms]
+(pass) actual durable job executes V2 once, retains the selected model/variant and positive result, and deduplicates after restart [20.46ms]
+(pass) V2 useful multi-page history remains bounded; duplicate IDs and excessive source windows never truncate into success [21.72ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [773.00ms]
+Guarded Bun files: 2/5 passed; 3 failed.

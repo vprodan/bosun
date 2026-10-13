@@ -1,0 +1,7 @@
+{
+  "path": ".omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/build/Release/bosun_sqlite.node",
+  "sha256": "a52fc28279f80676714cda3192405e02e65d3465c679655e5b825141d7f91988",
+  "bytes": 1939312,
+  "provenance": ".omp/tooling/sqlite-native-13.0.3/builds/build-exy87o/provenance.json",
+  "qualification": "not-run"
+}

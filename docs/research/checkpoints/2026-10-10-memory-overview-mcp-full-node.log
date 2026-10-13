@@ -1,0 +1,2270 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ production boundary graph passes including the recorded legacy forwarding seams (892.5195ms)
+✔ boundary negative fixture: final memory composition cannot reach legacy config (80.087292ms)
+✔ boundary negative fixture: curated source policy cannot reach native writer (85.74625ms)
+✔ boundary negative fixture: normal registered reader cannot import new initialization (76.271583ms)
+✔ boundary negative fixture: jobs core cannot use an ambient clock (76.577125ms)
+✔ boundary negative fixture: jobs core cannot import durable IO (76.023417ms)
+✔ boundary negative fixture: jobs storage cannot reuse memory cutover machinery (79.002125ms)
+✔ boundary negative fixture: final jobs composition cannot import legacy rendezvous (81.259459ms)
+✔ boundary negative fixture: type-only static IO import (73.684958ms)
+✔ boundary negative fixture: reexport relative bypass (81.113583ms)
+✔ boundary negative fixture: literal dynamic import (75.090042ms)
+✔ boundary negative fixture: import type query (73.470083ms)
+✔ boundary negative fixture: tsconfig alias bypass (73.810334ms)
+✔ boundary negative fixture: package imports alias bypass (75.34925ms)
+✔ boundary negative fixture: unresolved alias (78.099333ms)
+✔ boundary negative fixture: computed dynamic import (73.167334ms)
+✔ boundary negative fixture: computed require (73.415125ms)
+✔ boundary negative fixture: require alias (73.637208ms)
+✔ boundary negative fixture: module loader escape (79.6825ms)
+✔ boundary negative fixture: property require escape (72.807375ms)
+✔ boundary negative fixture: element require escape (74.094291ms)
+✔ boundary negative fixture: import equals escape (79.266208ms)
+✔ boundary negative fixture: new graph cycle (75.401584ms)
+✔ boundary negative fixture: old graph cycle (77.483791ms)
+✔ boundary negative fixture: production test dependency (78.688292ms)
+✔ boundary negative fixture: cross adapter flat files (72.586542ms)
+✔ boundary negative fixture: cross adapter nested directories (75.92725ms)
+✔ boundary negative fixture: cross adapter kinds (80.49ms)
+✔ boundary negative fixture: core process global (76.014666ms)
+✔ boundary negative fixture: core fetch global (73.203375ms)
+✔ boundary negative fixture: core global alias (72.2815ms)
+✔ boundary negative fixture: ambient clock alias (74.127875ms)
+✔ boundary negative fixture: actual context use case cannot reach native hashing (73.436833ms)
+✔ boundary negative fixture: actual context use case cannot use ambient timing (78.107125ms)
+✔ boundary negative fixture: context forwarding cannot restore its obsolete text helper edge (75.021166ms)
+✔ boundary negative fixture: ambient random alias (74.034541ms)
+✔ boundary negative fixture: Math object alias (73.817458ms)
+✔ boundary negative fixture: computed Math operation (73.744958ms)
+✔ boundary negative fixture: new source cannot import old lib helper (75.1815ms)
+✔ boundary negative fixture: unregistered legacy file (75.741417ms)
+✔ boundary negative fixture: unrecorded forwarding edge (74.360417ms)
+✔ boundary negative fixture: memory adapter cannot reach legacy config (75.083125ms)
+✔ boundary negative fixture: memory adapter cannot read ambient config (82.405625ms)
+✔ boundary negative fixture: memory query cannot use an ambient clock (72.078375ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient timing source (75.280166ms)
+✔ boundary negative fixture: memory adapter cannot create a runtime native connection (79.996167ms)
+✔ boundary negative fixture: memory adapter cannot alias a runtime native connection (73.218209ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform clock through a package alias (75.150667ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias (74.218917ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient measurement sink (81.284917ms)
+✔ boundary negative fixture: validation cannot load runtime filesystem (73.833708ms)
+✔ boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper (72.413791ms)
+✔ boundary negative fixture: validation isolation cannot reexport an ambient helper (73.00175ms)
+✔ boundary negative fixture: memory isolation cannot alias an unreviewed contract sink (80.604ms)
+✔ boundary negative fixture: pure validation cannot reach storage (75.41175ms)
+✔ boundary negative fixture: memory query cannot import maintenance (73.686333ms)
+✔ boundary negative fixture: docs snapshot query cannot import its index use case (72.660667ms)
+✔ boundary negative fixture: docs snapshot query cannot reach filesystem helper (74.829667ms)
+✔ boundary negative fixture: docs index cannot import effectful source helper (80.595375ms)
+✔ boundary negative fixture: docs query cannot use ambient config (73.4775ms)
+✔ boundary negative fixture: docs index cannot use runtime filesystem (74.4525ms)
+✔ boundary negative fixture: docs index cannot use ambient timing (76.794ms)
+✔ boundary negative fixture: docs query cannot alias a platform source (74.81875ms)
+✔ boundary negative fixture: docs query cannot reach unreviewed contract metrics (77.662709ms)
+✔ boundary negative fixture: docs filesystem helper cannot reach legacy state (78.0365ms)
+✔ boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer (73.90475ms)
+✔ boundary negative fixture: local hook reader cannot import writable store (74.564417ms)
+✔ boundary negative fixture: service forwarding does not allow unrelated memory internals (79.604333ms)
+✔ boundary negative fixture: unknown new production zone (73.492458ms)
+✔ AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals (74.374042ms)
+✔ isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins (75.375916ms)
+✔ boundary resolution cannot escape the checked graph through a symlink (4.395875ms)
+✔ app path aliases cannot escape the checked graph as apparent external dependencies (73.250875ms)
+✔ Orca selection respects the session executable and avoids the Linux screen reader (0.57325ms)
+✔ native card update pins local host and checkout, sends literal argv and stores hashes rather than comment content (643.404708ms)
+✔ private, credential, accessor, model and invalid status inputs have no Git or Orca effect (41.711208ms)
+✔ unsupported versions, missing or remote host identities, and foreign worktree paths never update a card (513.82425ms)
+✔ same-origin foreign checkout cannot read or retry the original card receipt (496.997458ms)
+✔ lost native response stays unknown, blocks another update and supports explicit reviewed acknowledgement without replay (1010.405709ms)
+✔ card shutdown aborts and waits for native update closure before releasing the shared authority (425.071875ms)
+✔ lost intent COMMIT preserves one original card and does not replay after reopen (313.646125ms)
+✔ lost terminal COMMIT preserves one original card and does not replay after reopen (449.747708ms)
+✔ malformed or mismatched positive response remains unknown and receipt tampering is withheld (439.34225ms)
+✔ actual CLI skips outside Orca, requires public comments, and uses owner RPC with exact receipts (648.224416ms)
+✔ native successful verification fingerprints executable/args/environment, stores only outcome/digest and contributes current recorded evidence (1211.014583ms)
+✔ nonzero native exits remain failed evidence while a positive command that changes checkout is never usable for the original revision (1984.547833ms)
+✔ changed executable contents with restored mtime hold queued verification and invalidate previous command evidence without another process (771.169375ms)
+✔ explicit later checks of a changed executable keep prior receipts visible and count the latest version with exact literal arguments (1906.759834ms)
+✔ private/model/credential inputs are refused before command getters or execution, and Bun commands are never admitted (274.75175ms)
+✔ native timeout retains unknown receipts, block new requests for unsettled command effects and never replay on reopen (1781.102958ms)
+✔ lost terminal outcome COMMIT preserves job and evidence atomically and cannot rerun the native command after reopening (970.627209ms)
+✔ explicit running cancellation waits native closure, preserves unknown effects and keeps the owner until settlement (1051.139792ms)
+✔ archived job telemetry preserves permanent verification outcome, original request/link and usable current evidence (935.666417ms)
+✔ actual CLI verification uses the same owner authority, reports recorded-command evidence and protects the reserved runner/model tools (1185.998583ms)
+✔ external ClaudeMem ContextSource constructor is inert and native rollback queries leave every byte unchanged (15.196042ms)
+✔ external public classification and exact project/native-session scope precede payload; unreviewed and stale references stay held (17.687375ms)
+✔ external readOnly/query_only denies DML and avoids unclassified external FTS derivatives (11.249708ms)
+✔ external bounded approved payload, malformed storage and reference overflow stay excluded before projection (11.53975ms)
+✔ external source revision changes during native query hold the result without changing the external body (10.224166ms)
+✔ optional external source holds missing with no repair, personal discovery or file changes (9.63475ms)
+✔ optional external source holds corrupt with no repair, personal discovery or file changes (10.296625ms)
+✔ optional external source holds version with no repair, personal discovery or file changes (10.305125ms)
+✔ optional external source holds unknown-version with no repair, personal discovery or file changes (9.983292ms)
+✔ optional external source holds schema with no repair, personal discovery or file changes (9.953125ms)
+✔ optional external source holds view with no repair, personal discovery or file changes (10.262959ms)
+✔ optional external source holds journal with no repair, personal discovery or file changes (10.433875ms)
+✔ optional external source holds wal with no repair, personal discovery or file changes (9.405416ms)
+✔ optional external source holds symlink with no repair, personal discovery or file changes (10.204208ms)
+✔ optional external source holds oversized with no repair, personal discovery or file changes (64.345542ms)
+✔ optional external source holds locked with no repair, personal discovery or file changes (10.534417ms)
+✔ optional external source holds deadline with no repair, personal discovery or file changes (9.799208ms)
+✔ final memory composition retrieves external references without copying observations, and optional failures retain curated/docs (99.901125ms)
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (16.99ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (22.520458ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (5.834125ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (5.592833ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (3.314292ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (2.474917ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (4.174958ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (3.435459ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (6.082542ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (54.026584ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (72.9275ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (4.283625ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.524708ms)
+✖ cli: help exits 0, unknown command exits 2 (198.866583ms)
+✖ cli: doctor reports problems in an empty sandbox without crashing (202.718125ms)
+✖ cli: install rejects a bad option before touching anything (197.506708ms)
+✖ cli: install and uninstall check every config file before changing anything (196.391667ms)
+✖ cli: doctor notices Ollama.app lost bosun env (reboot) (203.741167ms)
+✖ cli: uninstall only removes what bosun added (its link, its .zshrc line, its launchctl values) (197.171166ms)
+✔ config: defaults, then config.env, then env; partial config keeps defaults; setKey (6.418416ms)
+✔ config: spec, role, hosts, harness (5.414958ms)
+✔ config: paths follow HOME at call time, so tests switch sandboxes without reloading modules (8.136708ms)
+✔ config: HOME takes precedence over the runtime homedir implementation (3.462ms)
+✔ consolidation source classification, full credential screening and native-plan policy precede provider access (1.445625ms)
+✔ one bounded generation produces source-version/hash citations and exact selected-model provenance, without accepted fact mutation (0.703875ms)
+✔ invented quote/reference/parent/authority, extra fields, model substitution and malformed output remain unknown with no retry (0.784583ms)
+✔ reviewed merge/duplicate suggestions cite two sources and preserve both source versions rather than modifying originals (0.152125ms)
+✔ late cancellation discards provider output and missing native usage stays unknown (0.177833ms)
+✔ real queued consolidation persists only references, publishes before generation, and atomically stores proposals/cursor without changing L1 facts (202.113083ms)
+✔ cursor progress is oldest-first/bounded, skips denied payloads, and processed versions do not starve newer public facts (154.577708ms)
+✔ atomic output/backpressure races roll back all proposals and cursor progress, retaining the exact owner-visible reservation (237.2235ms)
+✔ lost native COMMIT preserves one batch/cursor with unknown receipt; restart never replays the reserved source window (116.354958ms)
+✔ retained source reservations survive a fresh memory runtime; explicit abandon skips unknown work without modifying accepted facts (145.32025ms)
+✔ source privacy changes during HTTP invalidate the entire batch atomically and retain a sticky reservation without replay (452.381791ms)
+✔ invented output retains reservations, default20 backlog prevents generation, and empty output advances known completed sources (473.151791ms)
+✔ native HTTP cancellation is unknown with a retained source reservation and no late publication or automatic retry (124.905583ms)
+✔ local model metadata rejects cloud aliases and disabled scheduling enqueues nothing; idle checks and close wait for the pending enqueue callback (1.473667ms)
+✔ configured native-plan providers are refused; compatible API needs explicit opt-in and independent positive admission (138.356709ms)
+✔ source changes between publication and provider dispatch are rechecked without sending any model payload (125.482833ms)
+✔ context pipeline: exact hash and estimate forward identities retain normalized SHA-256 behavior (0.579542ms)
+✔ context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics (1.825459ms)
+✔ context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible (0.479208ms)
+✔ context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score (0.258708ms)
+✔ context pipeline: real greedy token edges, one-character truncation, min score and empty terms (0.411125ms)
+✔ context pipeline: bounded large task query and matched term gating precede payload access (4.179458ms)
+✔ context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work (0.193541ms)
+✔ context pipeline: mismatched hit identity and undeclared throwing getters never expose content (0.232708ms)
+✔ context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope (0.149042ms)
+✔ context pipeline: malformed options and trusted scope fail with finite errors before provider calls (0.505667ms)
+✔ context pipeline: malformed verified metadata and dependency functions fail before callback acquisition (0.200208ms)
+✔ context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors (0.272458ms)
+✔ context pipeline: excessive callback/source counts hold before returned hit payload getters (0.310209ms)
+✔ context pipeline: timing and sink failures preserve completed results and exact provider-domain errors (0.285416ms)
+✔ context pipeline: semantic clock, hash and day failures hold output with finite errors (0.302209ms)
+✔ context pipeline: real legacy delegation retains fixed metadata, receiver and denies new/prototype names before search (5.70725ms)
+✔ context pipeline: actual curated delegation denies records before all metadata/body getters (3.84375ms)
+✔ context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects (67.963375ms)
+✔ context: relevance and recency both count; sources are weighted (3.409666ms)
+✔ context: dedupe across sources keeps the higher score (0.365958ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (4.153833ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.202ms)
+✔ claude-mem: this repo only, read-only; missing, off, schema mismatch and a locked database give [] and a warning (10.781666ms)
+✔ docs index: this repo's Markdown only, re-read when the mtime changes, removed files leave the index (100.609041ms)
+✖ hook: memory block plus router hint in one additionalContext; silent below threshold; private left out; latency recorded (115.279792ms)
+✖ hook: one valid line per memory for multi-line bodies and a 50 KB prompt; fails open with a broken database (115.312375ms)
+✖ hook: a prompt that shares just one common word with unrelated memories stays silent; a relevant one still gets its note (333.53625ms)
+✖ hook: without a memory database it creates none (users who never store anything pay nothing) (115.625209ms)
+✔ core extraction retains class/function identity and deterministic Unicode text behavior (2.280959ms)
+✔ coded errors preserve causes/legacy exits but constrain untyped codes/details and finite logs (6.154416ms)
+✔ routing risk overrides low confidence, while ordinary uncertain decisions stay silent (0.240042ms)
+✔ new routing contract rejects private/unknown/unclassified input before text access or port calls (0.257083ms)
+✔ routing sanitizes provider extras and uses only the trusted configured label (0.119417ms)
+✔ routing rejects malformed decisions/config and respects abort/null without a fallback model (0.26625ms)
+✔ omitted/unsupported/unverified capabilities fail closed; selection does not probe a host (0.19525ms)
+✔ model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible (0.08725ms)
+✔ legacy retrieval neither calls new/unverified source IDs nor admits mismatched source hits (4.561417ms)
+✔ static registry loads only the selected legacy adapter and performs no probe/inference at creation (15.510292ms)
+✔ legacy adapter contract independently refuses private/unknown input before HTTP (4.105625ms)
+✔ legacy wire contract rejects invalid outcomes and discards response echoes (1.448ms)
+✔ Router contract (legacy Kev): public decision and deterministic high-risk fence (1.391291ms)
+✔ Router contract (legacy Kev): private/unknown input never reaches transport (0.402541ms)
+✔ new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view (124.092ms)
+✔ final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance (99.459333ms)
+✔ final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only (133.196584ms)
+✔ curated final source rejects private/unclassified payload getters before projection (0.1855ms)
+✔ expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive (111.797083ms)
+✔ lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently (64.615042ms)
+✔ native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay (60.889ms)
+✔ startup dependency failure closes both registered handles without releasing shared daemon authority (60.9115ms)
+✔ explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage (72.86675ms)
+✔ explicit format1 publication retains cached writer fencing and requires explicit runtime restart (73.620959ms)
+✔ explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes (63.99925ms)
+✔ one shared method table applies real schemas and privacy before prompt getters (1.974417ms)
+✔ actual UDS methods share scoped memory/context and keep private owner records out of model replies/mutations (210.222709ms)
+✔ actual job methods persist request dedupe, selected execution, scoped progress and explicit cancellation (91.489292ms)
+✔ actual Ink views render stable closed metadata, preserve unknown counts/billing and distinguish weekly holds without terminal injection (38.050625ms)
+✔ dashboard refuses model audience and noninteractive live mode before filesystem/socket/terminal effects (0.3655ms)
+✔ actual CLI/daemon dashboard snapshot uses scoped metadata only and handoff listing cannot disclose another project or model audience (238.926542ms)
+✔ dashboard actions refuse model callers, disconnected/missing selections and unknown effects before any socket access (0.277667ms)
+✔ dashboard lost mutation receipt stays unknown, is never retried and needs a fresh observed version for manual reconciliation (2.063875ms)
+✔ dashboard explicit release preserves quota holds, uses the selected scope only and never starts unknown or foreign jobs (169.747ms)
+✔ dashboard explicit running cancellation is acknowledged without claiming positive completion or retrying unknown effects (162.000583ms)
+✔ live Ink dashboard reacts to native UDS job events and quits with synthetic streams restored and no job cancellation (473.630042ms)
+✔ live Ink keys bind cancel/release to the selected job, preserve a hold and restore the terminal after explicit actions (786.02925ms)
+[?25h
+✔ deterministic policy uses operations and narrow paths; no delegation and exact model restrictions precede risk or read-only allowance (1.049833ms)
+✔ policy validation denies accessors and credential-shaped scope without getter effects (0.231083ms)
+✔ high-risk, no-delegation and exact-model rules hold before quota/runner callbacks and remain held through explicit release (44.365959ms)
+✔ model editing needs declared scope and cannot spoof owner origin; explicit owner task and scoped low-risk model task preserve chosen model (36.629417ms)
+✔ actual CLI run policy controls are enforced in the same durable executor, independent of quota opt-in or model selection (155.109542ms)
+✔ docs complete enumeration: native failed ls-files after root success preserves indexed rows (53.062ms)
+✔ docs complete enumeration: 2001 files holds without deleting an unvisited existing row (296.554042ms)
+✔ docs timestamp-preserving edit: plain refreshes content without writing unchanged snapshots (85.868333ms)
+✔ docs timestamp-preserving edit: registered refreshes content without writing unchanged snapshots (130.962708ms)
+✔ docs descriptor close failure holds indexing and retries only its still-open source descriptor (38.90975ms)
+✔ docs regular source: outside symlink is rejected before reading private bytes (37.508084ms)
+✔ docs scope: query and parent index preserve another configured project beneath the root (46.678875ms)
+✔ ContextSource docs acceptance: plain actual query snapshot and admitted index (48.905333ms)
+✔ ContextSource docs acceptance: registered actual query snapshot and admitted index (90.732791ms)
+✔ docs disposition: plain stable rejects remove owned rows only; transient/race holds all (58.81825ms)
+✔ docs disposition: registered stable rejects remove owned rows only; transient/race holds all (96.447375ms)
+✔ docs native count boundary: exactly 2000 accepted, incomplete/overflow listings hold; no content telemetry (954.368875ms)
+✔ docs native file bound and aggregate hold are atomic; metrics failure cannot change committed receipt (80.570041ms)
+✔ docs actual worktree roots and nested repositories preserve absolute keys and exclude ambiguous same-project descendants (122.995042ms)
+✔ docs native incomplete listing and process output overflow hold existing rows without source reads (288.421667ms)
+✔ docs native short read and file mutation during descriptor read hold before deletion, with no outside reads (52.630291ms)
+✔ docs registered READY lease permits snapshot SELECT while holding index writes; release revokes HOLD and fences old writer (97.480708ms)
+✔ docs storage reservation and post-DML check: plain hold/rollback and finite metadata (48.165042ms)
+✔ docs storage reservation and post-DML check: registered hold/rollback and finite metadata (77.106333ms)
+✔ final daemon docs CLI/MCP: foreign project canaries, explicit indexing and held snapshot preservation (677.735917ms)
+✔ final daemon docs CLI/MCP: nested repository canaries, explicit indexing and held snapshot preservation (673.843375ms)
+✔ docs direct child import has no ambient config, filesystem, git, indexing or measurement closure (66.8395ms)
+✔ docs compatibility refresh preserves ambiguous nested rows, replaces exclusion scope, and fails closed on a later hold (84.169375ms)
+✔ docs source mutation after the admitted preflight rolls back every source DML and keeps errors content-free (64.978792ms)
+✔ docs actual oversized source plus WAL: plain existing 64MiB admission remains held (100.614583ms)
+✔ docs actual oversized source plus WAL: registered existing 64MiB admission remains held (116.379459ms)
+✔ docs native COMMIT followed by error preserves finite unknown receipt, committed row/FTS and fenced session (54.668542ms)
+✔ empty doctor reports missing preparation without creating a home, database, config or native process (15.992708ms)
+✔ prepared runtime diagnostics preserve IDs, modes, bytes and WAL sidecars while reporting native/schema qualification honestly (80.989375ms)
+✔ SQLite diagnostics never recover a journal or create shared memory, including live WAL and corrupt files (11.044291ms)
+✔ unsafe runtime parents and rebounded files are held before foreign payload reads (5.101959ms)
+✔ model and malformed doctor commands refuse before path/config getters or storage effects (7.789042ms)
+✔ changed profiles, invalid manifests and stale hook bindings are held with finite metadata and no repair (315.047875ms)
+✔ buildRun: the four executor paths (7.049458ms)
+✔ buildReview + hostNow: other vendor, read-only (5.043208ms)
+✖ run (inline): exact call, token stripped, stdin spec, guards (215.264958ms)
+✖ run (watch): runs in the Orca split, falls back inline, detects a closed or dead split (215.254416ms)
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (225.689958ms)
+✖ run (watch, hardening): split target, no double run, atomic exit code, timeout stops the executor, tricky text, pruning (208.28425ms)
+✔ final external registry is inert; exact owner review metadata enables source context without observation copies and later source edits revoke it (158.435ms)
+✔ final graph schema fingerprint (1.841542ms)
+✔ same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes (126.835334ms)
+✔ complete source versions are required and source changes revoke all levels inside the memory mutation transaction (109.564042ms)
+✔ legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact (50.905958ms)
+✔ scope, linked/shared eligibility and session/expiry are checked on every source and derived read (111.040083ms)
+✔ review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes (70.166ms)
+✔ bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic (98.912792ms)
+✔ schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes (33.367875ms)
+✔ dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal (2492.777125ms)
+✔ parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants (88.96625ms)
+✔ graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay (43.116625ms)
+✔ canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads (121.237708ms)
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (33.010917ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.648ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (21.496042ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (15.002125ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (21.84975ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (42.766958ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (32.907417ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.38075ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (10.189917ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (43.777583ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (9.370209ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (9.3275ms)
+✔ actual local hook keeps the rollback connection lock through native write callback, then releases while still alive (162.790959ms)
+✔ delayed router leaves no local lease: committed privatization is reflected before hook packing/output (185.225083ms)
+✔ failed write and signal cancellation tear down the one-shot process before release; no cached frame can flush later (280.433167ms)
+✔ actual OS pipe backpressure cancels delivery without a late frame, then releases the native writer lock (383.590209ms)
+✔ unconfirmed stdout cancellation retains the lease until one-shot process teardown (389.465958ms)
+✔ regular-file stdout omits local memory before DB open; advisory output remains valid and records n0 (120.624625ms)
+✔ final binary hook handles a real closed stdout pipe without late EPIPE errors or a retained public-view lease (526.642167ms)
+✔ oversized UTF-8 memory is discarded and its lock released before advisory handoff, with truthful n0 (158.391875ms)
+✔ actual rollback hook omits finite-expiry notes before packing through backpressure and event-loop stalls (1973.623209ms)
+✔ opencode plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (366.126209ms)
+✔ codex plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (532.5775ms)
+✔ claude plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files (393.633166ms)
+✔ private, credential, stale, unsupported or modified plans have no profile/configuration effect (88.727417ms)
+✔ running daemon authority prevents installation and stale plan/undo versions preserve original profiles (303.5195ms)
+✔ undo refuses content drift and preserves the profile and unrelated data (349.525084ms)
+✔ undo refuses extra-file drift and preserves the profile and unrelated data (349.784709ms)
+✔ undo refuses symlink drift and preserves the profile and unrelated data (358.790833ms)
+✔ undo refuses hardlink drift and preserves the profile and unrelated data (353.52625ms)
+✔ undo refuses mode drift and preserves the profile and unrelated data (351.33375ms)
+✔ lost positive profile rename receipt stays unknown, duplicate apply does not recreate, and explicit verified undo retires it (373.747584ms)
+✔ partial install receipt loss retains mismatched staged files for review without changing outside data (139.827875ms)
+✔ lost intent manifest receipt returns the saved original and never recreates a host profile (111.171042ms)
+✔ lost terminal manifest receipt returns the saved original and never recreates a host profile (338.599625ms)
+✔ metadata detection/session parsing never executes native hosts or classifies unknown prompts as public (84.597583ms)
+✔ profile doctor refuses rebound parent directories before reading foreign payloads (309.317209ms)
+✔ actual Commander plan export refuses overwrite, requires reviewed apply and denies model mutation before file reads (360.927375ms)
+✔ Codex reuses matching user project skills, preserves unrelated files and never owns their removal (460.300166ms)
+✔ changed project skill links hold undo and a new request cannot adopt links owned by another profile (422.783291ms)
+✔ lost project skill link receipt remains unknown without recreation and explicit undo removes only matching new links (413.985375ms)
+✔ opencode preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit (955.727709ms)
+✔ codex preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit (1071.045375ms)
+✔ claude preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit (996.165959ms)
+✔ native version mismatch, ambiguous version output and nonzero probe cannot launch a UI or substitute a host (1549.256667ms)
+✔ profile, configuration, receipt, workspace and review drift hold before native probes (400.452791ms)
+✔ drift during version inspection is rechecked before foreground effects, including executable replacement (1409.355375ms)
+✔ model and malformed launch requests reject before home/config/secret getters; preview never reads auth (347.363417ms)
+✔ explicit terminal shutdown waits for positive native parent close without claiming managed tool quiescence (1251.409167ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.93675ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2242.245375ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1241.787792ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1262.253708ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1850.546ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1560.466209ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1252.947ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1252.10375ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2657.621542ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (455.026ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1328.567334ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1326.762667ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1525.738083ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.566708ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (448.93125ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (291.717792ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (290.26025ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (275.859083ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1082.311125ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (267.372958ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (281.102042ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (303.96125ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (842.891584ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (412.609875ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (687.015792ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (291.522709ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (278.563625ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (148.093916ms)
+✔ actual Hono SSE uses one native scoped writer, excludes owner rows/content, resumes exact cursor and disconnect never cancels jobs (88.912708ms)
+✔ closed SSE projection ignores unknown content/getters, rejects malformed metadata, and never serializes raw callback errors (37.72825ms)
+✔ invalid event mutation/body is refused before dispatch and native subscriptions are capped, closed by admission stop (38.64625ms)
+✔ event lifetime terminates finite producers, stops polling, and creates no job effects (120.042792ms)
+✔ drain retains native authority until an in-flight SSE callback positively settles after disconnect (29.019ms)
+✔ actual paused native SSE consumer reaches bounded backpressure hold before lifetime expiry and polling stops (110.23175ms)
+✔ default30-day boundary compacts only settled scoped content and preserves original receipt/version/request without payload reads or replay after reopen (19.707458ms)
+✔ daily aggregates keep scope/day/exact model/effort/billing vendor and observed account pools separate and expose incomplete totals honestly (27.709917ms)
+✔ unknown billing/account identity never merges independent attempts, while verified local totals may aggregate in the same authority (13.423959ms)
+✔ bounded prune and permanent receipt/daily capacity hold without erasing uncertain effects, fresh jobs or replay evidence (13.473125ms)
+✔ daily group capacity blocks a different model/account atomically without deleting its original attempt or result (11.248417ms)
+✔ queued/held/unknown jobs and their uncertainty payloads, quota latches, managed ownership and handoff references survive pruning (13.689959ms)
+✔ native prune before COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen (10.683792ms)
+✔ native prune after COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen (10.920375ms)
+✔ daily counter overflow rolls prune back and preserves original attempt/receipt capacity instead of manufacturing a total (9.923ms)
+✔ configured drain grace allows running native completion without cancellation and leaves queued work undispatched (7.916375ms)
+✔ drain deadline requests cancellation but cannot release authority or settle until the synthetic native process positively exits (57.204625ms)
+✔ positive configured grace never waits for unstarted admission or dispatches it after shutdown (6.822334ms)
+✔ uncertain prune receipt synchronously aborts the existing active control and retains native authority until its positive settlement (11.3115ms)
+✔ automatic bounded retention frees pressure only after age boundary and preserves owner-only receipt isolation (8.923291ms)
+✔ invalid grace policies are finite and never acquire an owner lock or install a new runtime (3.738875ms)
+✔ replaced native owner file cannot leave a cached writer authoritative beside a newly acquired owner (12.213667ms)
+✔ background owner work follows queued interactive, admin and summary work while preserving FIFO within each class (16.095417ms)
+✔ public classification cannot admit known credentials; a tainted native result preserves successful owner outcome but is withheld from model (9.142542ms)
+✔ known credentials in job selection/identity/path metadata are refused before persistence, admission, callbacks or dispatch (6.749625ms)
+✔ jobs persist selected runner/model/effort/access/cwd and bounded owner result; events contain no source payload (10.63975ms)
+✔ request idempotency and scope survive native reopen without reading duplicate prompt getters or dispatching (11.155708ms)
+✔ native owner jobs deny model payload/result/metadata access and owner-only creation before prompt getters (9.178458ms)
+✔ privacy classification precedes every prompt/task getter, storage write, admission and runner call (9.922625ms)
+✔ bounded queue and admission holds are durable, explicit release preserves selection, cancellation is known before dispatch (10.805208ms)
+✔ active cancellation becomes unknown without runner completion (9.297416ms)
+✔ active cancellation retains positive actual runner outcome (7.927375ms)
+✔ nonzero native done is failed; provider loss/oversize produces finite unknown metadata without provider text (10.665875ms)
+✔ drain closes neither jobs nor native authority while late runner completion is still pending (9.724459ms)
+✔ drain aborts admission before payload/runner dispatch and leaves unstarted queued work persisted (7.267709ms)
+✔ queued cancellation aborts pending admission and cannot later become a hold or dispatch (6.723542ms)
+✔ real killed daemon reopens running as persisted, explicit recovery marks unknown and never dispatches it (95.242583ms)
+✔ actual native start COMMIT then error persists running and finite unknown, fences dispatch and recovers without replay (10.725ms)
+✔ native queue CAS, rollback/busy proof, scope and close are enforced by the actual owned SQLite store (8.129958ms)
+✔ native event capacity reserves terminal recovery instead of consuming it with runner progress (7.472333ms)
+✔ native BEGIN then error positively rolls back and leaves the store usable with no job/events (6.109875ms)
+✔ unrelated job/authority layouts are rejected before journal or schema writes (6.547958ms)
+✔ native weighted FTS and actual excerpt packing expose supporting tail evidence with original IDs/hash and no mutation (199.540292ms)
+✔ reviewed aliases retain the original curated ID, stay scoped, and revoke on source privacy/version changes (231.496291ms)
+✔ explicit reviewed graph context remains absent from ordinary context (192.971875ms)
+✔ lexical source denies private/unclassified records before identity, payload, ranking or provenance getters (0.19975ms)
+✔ lint: thirteen skills, frontmatter name matches the folder, descriptions long enough to trigger (2.395333ms)
+✔ lint: skills, policy and roles only reference final roles, skills and commands that exist (4.160416ms)
+✔ lint: no skill passes spec text to a shell inside double quotes (backticks and $ would run) (0.47075ms)
+✔ lint: the verify rule covers new files too (git status --short, not only git diff) (0.115084ms)
+✔ llm: Ollama success sends the schema and context size and reads token counts (20.388667ms)
+✔ llm: timeout, retry then success, bad JSON and schema violations fail without retrying (825.296333ms)
+✔ llm: fallback chain; the remote provider only when opted in, allowed, and not private; the usage log has no content (215.3185ms)
+✔ consolidate: proposals with provenance; exact and near duplicates are skipped; invalid output writes nothing; review accepts (17.34225ms)
+✖ memory cli: consolidate end to end, and add --auto takes the LLM title and tags unless given (226.155ms)
+✔ actual installed LogTape/file/redaction emits closed JSON metadata and no console, raw error, path, account or content canaries (20.68275ms)
+✔ native private rotation is bounded, each new leaf stays0600 and valid logs resume without unknown file adoption (557.572042ms)
+✔ log symlink is held without permission repair or content overwrite (5.043958ms)
+✔ log mode is held without permission repair or content overwrite (3.569417ms)
+✔ log unknown is held without permission repair or content overwrite (3.562958ms)
+✔ log directory is held without permission repair or content overwrite (3.354542ms)
+✔ post-open path replacement holds logging without touching the replacement; second global logger cannot steal first policy (10.596625ms)
+✔ invalid wall clock never becomes a content-bearing initialization record or partial log leaf (3.074208ms)
+✔ actual daemon opens its structured log after owner admission; a losing start cannot append or steal logging policy (101.274292ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (265.176166ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (500.662542ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (341.535042ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (466.610458ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (355.08625ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (438.615334ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (431.7135ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3665.083209ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (706.208709ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (461.405084ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (298.432209ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (458.560791ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (449.850084ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1748.860667ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (246.718791ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (219.570208ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (167.758084ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (159.382375ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (159.107125ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (187.9305ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (159.451125ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (188.343083ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (171.068708ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (152.606583ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (151.519208ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (153.851708ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (169.972458ms)
+✔ final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations (562.348208ms)
+✔ final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs (776.017ms)
+✔ final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt (901.596292ms)
+✔ final memory CLI preserves duplicates, versions, private flags, purge audit, explicit proposal review and scoped stats (546.635208ms)
+✔ memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries (5.723958ms)
+✔ all public classifications precede any export/query/label payload getters (0.330375ms)
+✔ closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields (5.615625ms)
+✔ quality denominator retains missed positive labels and separately counts negative injections (0.351042ms)
+✔ actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models (2612.62125ms)
+✔ raw recall cannot hide a missed query or evidence removed by actual item truncation (2587.049708ms)
+✔ final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources (2713.815458ms)
+✔ changed source aborts evaluation without reading owner state or retrying callbacks (65.6355ms)
+✔ native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit (496.248417ms)
+✔ standalone guarded memory evaluation implements the roadmap FTS interface (2949.120459ms)
+✔ A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held (2562.379834ms)
+✔ reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation (2642.494667ms)
+✔ graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects (1.956292ms)
+✔ near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification (22.444417ms)
+✔ final model policy rejects malformed/inherited/throwing classifications before payload getters (0.8315ms)
+✔ final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters (0.20875ms)
+✔ explicit private requests never inspect a buggy public adapter reply or duplicate state (0.245209ms)
+✔ final public projection retains declared ID/hash/version and ignores serialization or derivative hooks (0.423667ms)
+✔ curated and model search classify first and ignore array species/toJSON during real packing (1.686ms)
+✔ finite storage errors never inspect messages, versions, causes or serialization hooks (0.141917ms)
+✔ modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests (603.599042ms)
+✔ modern remote MCP normalizes content-bearing errors and excludes failed context derivatives (570.450708ms)
+✔ owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows (711.138833ms)
+✔ native malformed flags remain opaque, immutable to models and byte-preserved through owner edits (1317.496458ms)
+✔ native scoped context rejects caller project claims and keeps owner-only data out of model tools (578.854ms)
+✔ completed mutation DTO retains captured privacy when later owner state becomes public (0.129084ms)
+✔ native L3/L4 overview is explicit, keeps current parent lineage and revokes with original source privacy (368.372125ms)
+✔ E independently measures reviewed summaries/profiles over C, preserving original quotes and holding weak gain (3837.917ms)
+✔ actual MCP stdio evaluates the same100-case E corpus with separate budget and no owner footprint/models (22226.818834ms)
+✔ guarded standalone MCP surface uses actual pinned protocol and never starts model tooling (16674.789333ms)
+✔ MemoryStore acceptance: plain direct adapter (12.954333ms)
+✔ MemoryStore acceptance: plain legacy composition (10.894083ms)
+✔ MemoryStore acceptance: registered direct adapter (100.145ms)
+✔ MemoryStore acceptance: registered legacy composition (101.58175ms)
+✔ direct plain query/projection has unchanged storage footprint, scope/flags and deterministic expiry (10.424709ms)
+✔ direct registered query/projection has unchanged storage footprint, scope/flags and deterministic expiry (98.773791ms)
+✔ direct plain explicit retention/touch/prune uses frozen policy and injected timestamps (6.169167ms)
+✔ direct registered explicit retention/touch/prune uses frozen policy and injected timestamps (44.670583ms)
+✔ direct plain semantic clock/expiry failures leave existing rows/events/generation unchanged (7.74825ms)
+✔ direct registered semantic clock/expiry failures leave existing rows/events/generation unchanged (74.277333ms)
+✔ direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held (59.630583ms)
+✔ legacy composition retains constructor/read expiry and best-effort touch on an actual SQLite session (7.515667ms)
+✔ direct plain post-commit sink/timing failures preserve result, events and generation (5.524625ms)
+✔ direct registered post-commit sink/timing failures preserve result, events and generation (46.082791ms)
+✔ direct dependencies fail before DML, transactions roll back and lifecycle cleanup preserves the original error (6.705625ms)
+✔ validation schemas/validator and native session helpers retain exact legacy forwarding identity (0.168292ms)
+✔ direct adapter imports and works under a synthetic HOME with unusable ambient config and no owner filesystem effects (74.444041ms)
+✔ direct plain expired session restore renews the current default and survives reopen until the new boundary (7.088667ms)
+✔ direct registered expired session restore renews the current default and survives reopen until the new boundary (44.985042ms)
+✔ direct plain restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (9.675375ms)
+✔ direct registered restoration preserves unexpired/normal/non-session deadlines and omitted raw flags (148.9835ms)
+✔ direct plain zero session TTL disables expiry for creation and explicit expired restore (6.5025ms)
+✔ direct registered zero session TTL disables expiry for creation and explicit expired restore (37.327ms)
+✔ direct plain restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (8.339167ms)
+✔ direct registered restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations (121.638792ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.830917ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.810917ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (210.251959ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (229.890666ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (230.815708ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (136.208125ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (126.820417ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (260.896375ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (569.129417ms)
+✔ memory: store/get/search round trip, FTS ranking, tags filter, limit cap, access counted (29.530667ms)
+✔ memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all (8.482083ms)
+✔ memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key (7.138542ms)
+✔ memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope (8.454209ms)
+✔ memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags (26.180667ms)
+✔ memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one (16.919833ms)
+✔ project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote (105.824625ms)
+✔ memory: session memories expire into archived on open; prune purges old archived ones (9.701709ms)
+✔ memory: validation limits, and error messages never quote content (7.386125ms)
+✔ memory: user text never becomes FTS syntax (9.963833ms)
+✔ memory: concurrent writers wait instead of failing; a new database opened by three processes at once migrates once (632.5055ms)
+✔ migrations: fresh → latest; v1 → v2; a failing migration rolls back and leaves the database as it was; file mode 0600 (12.200375ms)
+✔ memory: private memories stay out of search unless asked; logs and metrics never hold content (7.738458ms)
+✔ memory bench: measured numbers, no owner files or unsupported retrieval timings (5084.063667ms)
+✔ benchmark requires a successful child, valid envelope and exact synthetic note identities (0.345666ms)
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+✔ explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats (62778.76225ms)
+✔ memory: an expired session memory leaves search in a long-running process, not only on the next open (7.281709ms)
+✔ generative construction is inert and denied classification precedes content/config/schema getters (0.955083ms)
+✔ Ollama wire preserves explicit model/schema/context/output bounds and projects validated text/JSON/usage (17.890459ms)
+✔ explicit model override is preserved; metadata health does not generate, download or switch models (5.573166ms)
+✔ mismatched/unfinished/truncated/tool-bearing/bad-schema responses never become summaries or retries (7.679875ms)
+✔ input/model/schema bounds and explicit loopback policy fail before HTTP with finite errors (0.563333ms)
+✔ timeout preserves one finite unknown generation; absent native token counters remain unknown (12.964959ms)
+✔ deterministic credential screening withholds explicitly public inputs before any generation (0.374667ms)
+✔ configured compatible provider sends one tool-free schema request with only the declared credential and exact model (2.53325ms)
+✔ compatible refusals, truncation, tools, model drift and invalid outputs are finite unknown and never retried (4.08625ms)
+✔ compatible denied input precedes credential access; missing credentials never silently become anonymous or borrowed authentication (0.193708ms)
+✔ final provider registry is inert, loads only configured selection and refuses unqualified native summary isolation (0.247292ms)
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (4.699959ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (222.729333ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.391333ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (132.642917ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (480.259541ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (384.3705ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (256.418375ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (128.875458ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (127.791458ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (299.257041ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.277583ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (95.502ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (536.856041ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (361.07275ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (254.030292ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (125.555084ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (134.202042ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (253.356ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (147.414541ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (187.715834ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (127.431ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (332.165875ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (156.424166ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (128.125958ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (245.542083ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (319.367709ms)
+✔ default disabled notification flow never reads/reserves/recovers/probes/delivers, including hostile event/sink/storage getters (12.477833ms)
+✔ committed ready/done generations are opaque, scoped, deduped across actual SQLite reopen and never copy previews into callbacks or state receipts (13.654708ms)
+✔ actual held/released/failed events notify exact state versions while preserving chosen job outcome and excluding model/permission previews (13.272167ms)
+✔ missing/unsupported sink is honestly held with a finite scoped reason and no callback attempt or automatic retry (23.218167ms)
+✔ unknown callback outcome is durably sticky and cannot be retried after restart or by duplicate current events (10.666125ms)
+✔ bounded durable notification pressure cannot erase deliveries or change successful jobs to make space (11.3185ms)
+✔ pending-finalization enqueue race starts a bounded successor pump and settled waits for it without another event (7.620125ms)
+✔ native macOS command uses fixed script/closed argv and selected clean env; process exit0 acknowledges submission with UI unknown (101.328542ms)
+✔ notification shutdown aborts/waits the pending callback while daemon owner remains held, preserving late positive acknowledgement (8.138583ms)
+✔ lost notification start COMMIT receipt never replays and cannot erase the original positive job outcome (10.322042ms)
+✔ lost notification finish COMMIT receipt never replays and cannot erase the original positive job outcome (11.163333ms)
+✔ managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP (1.240166ms)
+✔ native managed creation proves owned empty root/model/cwd/access/variant; exact noReply seed has native part/message/hash readback (28.4235ms)
+✔ native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection (19.761167ms)
+✔ root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed (20.445125ms)
+✔ arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP (8.438958ms)
+✔ wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed (24.216875ms)
+✔ readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts (34.734209ms)
+✔ local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts (14.691458ms)
+✔ owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof (15.463917ms)
+✔ uncertain create/seed/turn effects are held without deletion or automatic effect replay (18.099542ms)
+✔ fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact (88.077167ms)
+✔ staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS (16.073208ms)
+✔ fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation (49.673167ms)
+✔ source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools (44.468791ms)
+✔ fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation (12.645625ms)
+✔ managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result (59.4405ms)
+✔ concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt (9.441708ms)
+✔ native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy (39.735417ms)
+✔ unsupported selections/input limits and native version mismatch fail without unintended mutations (3.977708ms)
+✔ owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference (22.05075ms)
+✔ incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors (29.495083ms)
+✔ capture privacy and native ownership gates precede cursor/source getters and all HTTP (6.305375ms)
+✔ capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window (74.3245ms)
+✔ bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence (7.88025ms)
+✔ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (16.731334ms)
+✔ paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage (199.705167ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.887458ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (20.901291ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (8.063833ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (7.298292ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (10.817041ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (6.928583ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (11.449166ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (35.741ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (13.341417ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (11.878666ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (167.094917ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (18.529875ms)
+✔ OpenCode pinned v1 codecs retain model/variant and omit content, paths, cost and accumulated tokens (1.099125ms)
+✔ OpenCode exact version/metadata mismatches fail with fixed actual coded errors (0.885709ms)
+✔ OpenCode latest completed step is only an input candidate, never cumulative billed usage or verified occupancy (0.245459ms)
+✔ OpenCode stale/future/pending/model-switch/reset samples are unknown rather than zero or safe to hand off (0.181667ms)
+✔ OpenCode pure fresh-root/noReply recipes preserve explicit selections without proving readiness or sending HTTP (0.310541ms)
+✔ OpenCode private/unknown recipes and codecs reject before text/selection/record property access (0.134292ms)
+✔ OpenCode SSE fixture uses pinned global envelope and message.updated properties sessionID/info, with no content replay (0.699916ms)
+✔ OpenCode explicitly selected probe performs only GET metadata reads and never becomes native Codex/Claude (15.753666ms)
+✔ OpenCode probe rejects private/unknown/malformed selection and generation before config/HTTP (0.186125ms)
+✔ OpenCode probe version/errors/foreign sessions/abort hold without retries or raw diagnostic echoes (11.901833ms)
+✔ OpenCode fixture success leaves every managed capability held with no automatic handoff or control calls (0.118917ms)
+✖ card: no-op outside Orca, sets status + comment inside, usage without args (389.63975ms)
+✖ spin: claude agent gets the spec literally plus the footer; outside Orca or nested is refused (201.521417ms)
+✖ spin: local agent opens a terminal running bosun run; --stacked bases on the current branch (219.84475ms)
+✖ execJob: a streamed Claude run shows progress in the pane and hands main only the final result (197.4185ms)
+✖ spin: defaults to the host agent, sanitizes --name, and refuses a result without a worktree id (200.335916ms)
+✔ card: rejects a malformed status (194.2365ms)
+✖ owner plan reads only filesystem/header metadata; real CLI preserves live and closed WAL footprints (204.925583ms)
+✖ real owner CLI applies independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer (201.619958ms)
+✔ closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects (20.052334ms)
+✔ stale source or WAL identity plans fail before native open without further footprint changes (31.146666ms)
+✔ filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them (36.657083ms)
+✔ plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers (62.54525ms)
+✔ plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation (12.908333ms)
+✖ owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects (1739.021875ms)
+✔ native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified (10.349083ms)
+✔ admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused (2214.787625ms)
+✖ READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply (224.931375ms)
+✔ saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked (34.060084ms)
+✔ owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text (8.515291ms)
+✔ local owner wrapper rejects getter/proxy/hidden extra request fields before composition or native effects (8.580375ms)
+✔ owner dependency getters and proxies reject before filesystem inspection or private error serialization (8.372667ms)
+✔ non-synchronous owner validation is refused under native admission before any artifact or floor mutation (6627.638583ms)
+✖ real CLI reviews absent-leaf creation and legacy modes without SQLite, then applies a fresh strict candidate (200.196167ms)
+✔ preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched (28.205666ms)
+✔ preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects (188.738625ms)
+✖ a real existing READY view stays blocked before any preparation permission action (217.294834ms)
+✔ preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths (63.104709ms)
+✔ preparation pins all actionable and creation-parent descriptors before any permission effect (8.221917ms)
+✔ all pinned source, WAL and SHM metadata is rechecked before the first fchmod (24.663833ms)
+✔ descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes (16.54125ms)
+✔ partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan (54.101416ms)
+✔ created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening (36.355791ms)
+✔ owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release (19.172375ms)
+✔ preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields (12.116333ms)
+✖ real preparation CLI rejects unexpected flags/positionals/duplicate options/remote and prints finite partial-outcome guidance (1537.56375ms)
+✖ real CLI quotes exact reviewed action paths containing spaces and control characters without changing storage (198.952709ms)
+✔ preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem (8.706125ms)
+✔ explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles (481.323708ms)
+✖ recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged (209.971625ms)
+✔ multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted (38.109625ms)
+✔ wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML (22.356166ms)
+✔ recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched (95.332958ms)
+✔ recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view (65.082708ms)
+✖ actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects (269.942333ms)
+✔ recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference (4405.227625ms)
+✖ real CLI recovery requires strict source/retain/attestation options and completes reviewed native recovery (1545.823458ms)
+✔ recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures (16.272583ms)
+✖ restore plan saves independent new epoch before effects and real CLI opens only leased rollback view (243.128791ms)
+✖ actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities (317.89ms)
+✔ retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority (73.825ms)
+✔ readers observe only pending filename and never open retained owner JSON or backup bytes (67.167542ms)
+✖ pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes (414.104708ms)
+✔ unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage (2360.240625ms)
+✔ stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery (2052.143084ms)
+✔ native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML (224.58625ms)
+✔ explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss (546.505417ms)
+✔ seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival (1302.712834ms)
+✔ fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles (364.404416ms)
+✔ owner capsule reads stay bounded and reject growth between metadata validation and descriptor use (91.051625ms)
+✔ post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay (76.569167ms)
+✖ strict restore CLI and independently bound tokens refuse missing attestation, extra inputs and wrong epochs without effects (1381.135084ms)
+✔ completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup (259.565ms)
+✔ pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data (331.899ms)
+✔ restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps (98.629084ms)
+✔ privacy: direct private generate blocks every provider before config/messages/schema access (9.634667ms)
+✔ privacy: private suggestions use only the first line and no model tags (5.813375ms)
+✔ privacy: route flags/private or malformed hook markers skip inference and remote retrieval (873.828667ms)
+✔ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (148.880375ms)
+✔ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (639.248125ms)
+✔ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (126.758208ms)
+✔ privacy: nested log objects, toJSON hooks, errors/causes and unknown metadata never serialize (4.722583ms)
+✔ privacy: LLM usage ignores echoed model/token content and emits fixed error kinds (9.027083ms)
+✔ privacy: metrics reports never redisplay malformed historical metadata and leave files unchanged (4.088875ms)
+✔ selected model/role/provider choices round-trip deterministically as closed TOML and valid Agent Skills with no extra resource files (6.156792ms)
+✔ export never reads auth/env names, accounts, endpoints, commands, homes or unselected configuration (0.37525ms)
+✔ owner authorization and denied review classification precede any input/config/profile instruction getters (0.613166ms)
+✔ sanitized reviewed instructions omit email/account/URL/absolute Unix/Windows/home/socket paths and credential exports fail closed (0.80275ms)
+✔ imports reject unknown schema/capabilities, extra executable/ownership/auth fields and unsafe text with finite errors (1.246208ms)
+✔ tampered Skill frontmatter/instructions/resources and unsupported reviewed fences cannot acquire import authority (0.912375ms)
+✔ dry install preview shows conflicts and exact choices, unresolved capabilities/reconfiguration and never mutates current settings (0.746292ms)
+✔ native CLI auth remains external and verified capabilities do not approve a portable provenance claim or auto-install (0.291209ms)
+✔ actual same-memory.db current reviewed L4 export is read-only and source privacy/version/revocation immediately blocks further exports (123.218917ms)
+✔ duplicates, malformed names, unknown selected roles/providers and imported credential placeholders cannot change source selections (0.687625ms)
+✔ machine paths with forward-slash Windows, Unicode POSIX, prefixed roots, UNC and named homes are withheld in exported and imported text (1.450917ms)
+✔ inherited, accessor, throwing and malformed capability entries cannot become verified or leak into previews (0.678625ms)
+✔ public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint (82.9265ms)
+✔ public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only (125.666416ms)
+✔ independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade (110.928333ms)
+✔ schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged (788.520334ms)
+✔ canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery (1102.156042ms)
+✔ reader independently enforces encoded and row ceilings inside the physical bound without projecting content (553.027125ms)
+✔ source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold (59.181625ms)
+✔ malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content (62.4835ms)
+✔ encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters (72.058292ms)
+✔ retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation (77.280333ms)
+✔ lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot (164.37225ms)
+✖ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (281.530375ms)
+✔ actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory (926.370417ms)
+✔ local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop (2053.699292ms)
+✔ actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes (147.119125ms)
+✔ production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS (69.487666ms)
+✔ v2 publication fences cached real v1 MemoryService/Docs and old prepared statements; reopened writers revoke until explicit republish (142.891292ms)
+✔ same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view (67.216708ms)
+✔ multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup (828.787209ms)
+✖ actual memory publish CLI uses explicit local composition, rejects plain/missing/remote/extraneous input without source creation (234.561375ms)
+✔ publication preserves established non-generator IDs and excludes malformed private flags before reading public content (49.62475ms)
+✖ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (239.724583ms)
+✔ explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them (849.2635ms)
+✔ actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher (759.893458ms)
+✔ publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY (175.875791ms)
+✖ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2579.504625ms)
+✔ public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data (1232.897083ms)
+✔ publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors (211.730083ms)
+✔ post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD (112.444042ms)
+✔ publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired (266.9685ms)
+✔ pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion (1.208959ms)
+✔ native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits (0.564875ms)
+✔ native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools (18.337958ms)
+✔ default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata (18.368833ms)
+✔ fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched (10.573333ms)
+✔ wrong account/model and invalid clocks reject before atomic native quota/job changes (8.20325ms)
+✔ generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models (9.746875ms)
+✔ actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen (10.310208ms)
+✔ async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite (17.857875ms)
+✔ actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table (160.602167ms)
+✔ durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache (9.613875ms)
+✔ unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen (11.650417ms)
+Read-view native qualification: {"node":"v24.16.0","sqlite":"3.53.0","patchedWalReset":true,"backup":"function","unsafeProbes":"enabled-test-prototype","function":"function","setAuthorizer":"function","serialize":"function","deserialize":"function","isTransaction":"boolean"}
+✔ read-view qualification: actual native version/APIs before any multi-connection WAL probe (0.652542ms)
+✔ read-view qualification: READY rollback lease preserves public IDs/scope and leaves primary/view footprint unchanged (16.208167ms)
+✔ read-view qualification: old already-prepared INSERT/UPDATE/DELETE/touch/expiry are fenced after floor cutover (11.839625ms)
+✔ read-view qualification: retained lease blocks supported revocation through packing/delivery; release then permits commit and HOLD (12.910708ms)
+✔ read-view qualification: primary write admission serializes publishers/mutators; aborted primary DML leaves durable HOLD (12.713542ms)
+✔ read-view qualification: deferred isTransaction is not publisher write admission (10.567375ms)
+✔ read-view qualification: actual legacy MemoryService mutations/expiry cannot bypass floor through another connection (13.038417ms)
+✔ read-view qualification: shared/project/expiry mutations revoke current generation, and readers reapply expiry (13.013084ms)
+✔ read-view qualification: SQLite-aware pre-floor backup under admission is exact, owner-only and separate from public view (15.981041ms)
+✔ read-view qualification: SIGKILL at HOLD/primary commit/view build/READY preserves conservative recoverability (344.606625ms)
+✔ read-view qualification: trusted-application floor does not protect uncontrolled schema removal or UDF spoofing (26.349417ms)
+✔ read-view qualification: early-close cached delivery and view-inode replacement remain explicit activation blockers (16.838ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (548.78ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (810.535958ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (580.8265ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (774.850292ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (526.119291ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (530.89425ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (537.550625ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (742.69ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.432ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (643.490084ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (473.226875ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (648.308708ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (455.37975ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (676.02575ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (492.674208ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (524.384209ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (493.395ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.600916ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.444625ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.369833ms)
+✔ native snapshot binds base/head/branch, staged version, working bytes/mode and untracked bodies without changing checkout (294.451292ms)
+✔ content changes invalidate revision even with restored mtime and the same Git status; staged-only, mode, untracked and branch changes also invalidate (543.391792ms)
+✔ private classification precedes base getters/Git and known credentials or credential-store paths never enter review material (108.716666ms)
+✔ deleted directories are captured as missing, external symlinks are withheld, and source payload budgets refuse partial reviews (262.398375ms)
+✔ configured clean/process filters are rejected before native status/diff and never execute (49.9715ms)
+✔ exact file batches bound the whole checkout but disclose only selected changes, use literal pathspecs and preserve coverage (573.43125ms)
+✔ review queues an exact public read-only owner job, links atomically and preserves original selection on duplicate requests (321.411542ms)
+✔ changed content before dispatch holds a review without inference or replay, and stale evidence cannot be released by a quota override (390.017875ms)
+✔ positive review outcome is preserved while later source changes invalidate its evidence instead of approving or rerunning it (357.62225ms)
+✔ owner/model/privacy boundaries refuse getters before payload and same-origin clone status is denied before foreign content capture (180.012542ms)
+✔ lost review job/link COMMIT retains one original queued request across reopen without another model or artifact (145.229292ms)
+✔ tampered stored snapshot hash is withheld before inference without rewriting the original evidence or manufacturing freshness (135.901333ms)
+✔ actual review CLI/UDS requires public classification, uses exact read-only selection and reports source staleness without approval (536.3055ms)
+✔ roles: every role parses and renders for Claude and Codex with its configured model (6.965333ms)
+✖ roles: bosun roles --json prints the resolved table (196.2205ms)
+✔ record projection selects finite metadata, rejects accessor/extra fields and never serializes arbitrary nested content (1.145ms)
+✔ real final classification records random scoped metadata, label CAS history and diagnostic stats without model input or hashes (175.279958ms)
+✔ recorded observations are project-bound; model callers cannot list or label them and MCP exposes no feedback tool (580.558125ms)
+✔ legacy inspection filters malformed or duplicate IDs and rejects links/oversize without rewriting original raw logs (117.667333ms)
+✔ lost actual label COMMIT preserves its original native event, fences storage, and stale CAS cannot replay it on reopen (117.50275ms)
+✔ historical labels stay read-only references with unknown time; explicit daemon feedback overrides them without copying raw files (116.21575ms)
+✔ actual observation capacity remains bounded, and source change after label DML rolls back label and original history (574.568292ms)
+✔ lost native observation COMMIT returns usable advice with its unknown original ID and records no prompt or automatic retry (122.326334ms)
+✔ final routing retains lane/risk policy while hooks stay silent without notes and perform no inference for any host (1595.555291ms)
+✔ final router evaluation reports frozen development thresholds and keeps corrupt historical labels separate from held-out evidence (127.467375ms)
+✔ final router evaluation rejects an insufficient corpus and documents the complete required split (111.780292ms)
+✔ entire corpus privacy is checked before any task payload, including the last held-out entry (0.865292ms)
+✔ fixed split rejects duplicate tasks/references, repository or session leakage, missing categories, model skew and credentials (10.824583ms)
+✔ threshold freezes only development evidence; held-out relabeling cannot tune it and synthetic/imported metrics cannot qualify calibration (3.17525ms)
+✔ deterministic permissions/model/no-delegation fences remain authoritative and risk-miss/outcome metrics expose harmful offered hints (1.782041ms)
+✔ final CLI offline analysis uses the complete corpus, reports outcome uncertainty, leaves sources/config intact and calls no model (142.41375ms)
+✔ native capture evaluates development first, persists its selection before held-out requests and never sends labels or verification data to the classifier (585.826416ms)
+✔ public declaration and source pin reject private late cases, secret input and external/symlink paths before inference or artifacts (119.690292ms)
+✔ a dataset change during capture preserves one unknown original job, never starts held-out capture and never replays the request (130.956417ms)
+✔ reviewed digest mismatch holds before generation; a tagged model is never silently evaluated with different weights (131.989708ms)
+✔ lost actual frozen-file publication retains its original selection after20 calls and starts no held-out request or replay (219.401083ms)
+✔ cancellation during held-out capture keeps the frozen selection and unknown job without more inference or release (231.738625ms)
+✔ outcome proof resolves an actual closed revision-bound check; owner assertions and mismatched revisions remain unverified (1171.404542ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.44675ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (15.115292ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (4.487958ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (24.033083ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (2.271042ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (3.972417ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (55.448667ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.460542ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.185667ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.601959ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.266333ms)
+✔ new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution (221.5825ms)
+✔ final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement (127.953167ms)
+✔ actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review (139.659583ms)
+✔ final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer (240.878292ms)
+✔ disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference (112.731708ms)
+✔ actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime (266.862667ms)
+✔ actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes (242.76375ms)
+✔ final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution (127.38775ms)
+✔ real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout (617.626125ms)
+✔ final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior (681.63ms)
+✔ runtime paths are explicit and path calculation does not create files (0.681791ms)
+✔ shipped roles and skills resolve from embedded assets in a synthetic working directory (0.615458ms)
+✔ final project scope preserves existing clone/worktree/non-repo identities and configured links (5.835125ms)
+✔ shared envelopes reject skew/extra fields and normalize provider errors (0.299ms)
+✔ native UDS RPC preserves concurrent request identity and uses protected socket (15.526417ms)
+✔ malformed and oversized requests never invoke dispatch; stopped admission stays closed (4.23675ms)
+✔ lost mutation reply has unknown outcome and is never automatically repeated (32.746792ms)
+✔ oversized successful replies preserve uncertainty instead of claiming a failed mutation (2.537833ms)
+✔ unsafe socket parents and existing ordinary files are not adopted or deleted (0.456708ms)
+✔ native process streaming preserves split UTF8/stdin and reports positive process close (40.277ms)
+✔ native process cancellation waits for close and kills an ordinary worker ignoring TERM (48.280083ms)
+✔ oversized native lines and stderr stop the process without exposing its error content (53.848833ms)
+✔ native process channel permits bounded interactive stdin and positive peer acknowledgement (29.949709ms)
+✔ native cancellation kills an ordinary descendant even when its parent closes first (77.786083ms)
+✔ real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names (9.273208ms)
+✔ config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding (16.239875ms)
+✔ split: bosun serve memory + RemoteStore give the same results as the local store, operation by operation (53.229ms)
+✖ split: the allowlist rejects other sources (403); bind never defaults to 0.0.0.0; CIDR matching (330.728333ms)
+✖ split: an unreachable, hanging or foreign memory server — the hook fails open in time, CLI and MCP say unavailable (107.751083ms)
+✖ split: doctor checks the memory server and warns on a version mismatch; the remote model is checked via /api/tags (200.782833ms)
+✔ split: bosun serve kev forwards to Kev and applies the allowlist (9.952709ms)
+✖ install --remote writes the URLs, skips local Ollama and Kev, registers MCP; uninstall restores the config; bad options change nothing (958.990583ms)
+✖ install --serve sets up only the listed services on the bind address; uninstall removes them (196.139125ms)
+✖ install: re-running a plain install on a split-setup client keeps the remote URLs and sets up no local Ollama or Kev (196.997083ms)
+✔ split: a memory or Kev host that never replies — the hook still exits within its budget (107.646709ms)
+✔ services: plist is valid XML with escaped argv, env and workdir (24.541291ms)
+✔ services: vge compares dotted versions numerically (3.798542ms)
+✖ services: start/stop reject an unknown target before touching launchd (196.044209ms)
+✔ services: svcOn retries a failing launchctl bootstrap before giving up (1778.152541ms)
+✔ cutover native qualification: pinned schema and owner artifact format (12.361833ms)
+✔ cutover holds write admission across exact native backup and persistent floor; old prepared DML is fenced (19.746125ms)
+✔ cutover registration requires actual wrapper admission; old read snapshots and cached handles cannot mutate (38.425542ms)
+✔ cutover process crashes recover with fresh exact backups before commit, or reconcile committed floor without doubleapply (373.049625ms)
+✔ cutover failed callbacks/errors are finite and restart never reuses a stale backup (23.833584ms)
+✔ cutover never returns messages/causes from mutated typed errors or hostile exception prototypes (17.990208ms)
+✔ cutover unknown schema, corrupt storage, symlinks and artifact collisions fail closed without overwrite (32.468125ms)
+✔ cutover recovery holds inode/epoch swaps, backup tampering and unknown floor/gate definitions (121.992458ms)
+✔ cutover validates initial dependencies before reserving artifacts; the first committed gate is recoverable (58.249125ms)
+✔ cutover refuses successful receipts when final post-commit checkpoint changes source/view/artifact/epoch (59.116042ms)
+✔ cutover cleanup failures remain finite, release native admission and reconcile the committed attempt (23.775542ms)
+✔ registered writer rollback failure poisons and closes the connection rather than leaving admission alive (17.720375ms)
+✔ registered writer invalidation respects a lease on the same rollback gate inode and never precedes primary admission (24.001083ms)
+✔ registered writer refuses a coordinated same-inode source/view epoch change after registration (17.203458ms)
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+✔ qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures (26.838459ms)
+✔ read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied (15.116583ms)
+✔ read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events (12.376083ms)
+✔ read-only bounds and escaped query text use finite diagnostics with zero file changes (10.48175ms)
+✔ unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects (19.536166ms)
+✔ missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files (13.85625ms)
+✔ read-only reader checks injected deadlines and safely holds corrupt required schemas without writes (10.035625ms)
+✔ read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history (13.496959ms)
+✔ read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension (24.425833ms)
+✔ final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference (291.067375ms)
+✔ final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls (225.160791ms)
+✔ summary policy screens every event before provider access, including late-window credentials and denied throwing content (1.215542ms)
+✔ bounded chunked summaries retain exact source hashes/cursors and aggregate only known usage without a hidden model switch (1.277792ms)
+✔ invented quotes, missing references, extra authority fields, duplicates and empty selections never become a summary or trigger retries (0.413208ms)
+✔ actual CLI/UDS/daemon/provider summary job publishes immutable cited artifacts, preserves authority and supports one incremental public window (222.081458ms)
+✔ invented provider output leaves the durable job unknown with no artifact, and private evidence is refused before enqueue or HTTP (138.041625ms)
+✔ cancellation during generation persists unknown without publishing late output, replaying or losing shutdown authority (126.923958ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.196083ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (45.184334ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (116.328375ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (171.805584ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (111.152083ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (105.00875ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (32.492708ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (31.304125ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.449584ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (31.244959ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (31.518875ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (104.631834ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (34.414834ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (33.53625ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (76.446709ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (66.461875ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (109.936541ms)
+✔ actual attempt ledger is selected/scoped/owner-only, preserves native totals and null unknowns, and survives restart without source payload (16.529292ms)
+✔ native usage missing: unknown components and ambiguous totals are never manufactured or added twice (8.173084ms)
+✔ native usage one-count: unknown components and ambiguous totals are never manufactured or added twice (9.248208ms)
+✔ native usage multiple: unknown components and ambiguous totals are never manufactured or added twice (9.33225ms)
+✔ native usage invalid: unknown components and ambiguous totals are never manufactured or added twice (7.714958ms)
+✔ native usage lost: unknown components and ambiguous totals are never manufactured or added twice (8.115666ms)
+✔ native usage zero: unknown components and ambiguous totals are never manufactured or added twice (7.654625ms)
+✔ held/unavailable/unsupported factories make no attempt and explicit billing qualification receives selection metadata only (10.243291ms)
+✔ native start COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.827458ms)
+✔ native usage COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (10.1755ms)
+✔ native finish COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (10.247875ms)
+✔ actual guarded native Codex usage reaches the ledger unchanged while native billing/account and cached data stay unknown (134.688666ms)
+✔ actual guarded native Claude usage preserves reported components without adding cache or inventing effective vendor billing (131.146542ms)
+✔ actual LogTape IO hold after commit cannot erase native outcome or its durable usage row (18.837ms)
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Codex
+  ✓ agents bosun_*, rules in AGENTS.md (~/.codex), skills in ~/.agents/skills, hook in ~/.codex/hooks.json, MCP server bosun
+  ! one-time: start codex, run /hooks and trust the bosun route hook (Codex skips untrusted hooks)
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Codex
+  ✓ agents bosun_*, rules in AGENTS.md (~/.codex), skills in ~/.agents/skills, hook in ~/.codex/hooks.json, MCP server bosun
+  ! one-time: start codex, run /hooks and trust the bosun route hook (Codex skips untrusted hooks)
+
+==> Codex
+  ✓ agents bosun_*, rules in AGENTS.md (~/.codex + Orca), skills in ~/.agents/skills, hook in ~/.codex/hooks.json, MCP server bosun
+  ! one-time: start codex, run /hooks and trust the bosun route hook (Codex skips untrusted hooks)
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Codex
+  ✓ agents bosun_*, rules in AGENTS.md (~/.codex), skills in ~/.agents/skills, hook in ~/.codex/hooks.json, MCP server bosun
+  ! one-time: start codex, run /hooks and trust the bosun route hook (Codex skips untrusted hooks)
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+
+==> Codex
+  ✓ agents bosun_*, rules in AGENTS.md (~/.codex), skills in ~/.agents/skills, hook in ~/.codex/hooks.json, MCP server bosun
+  ! one-time: start codex, run /hooks and trust the bosun route hook (Codex skips untrusted hooks)
+
+==> Claude Code
+  ✓ agents bosun-*, 13 skills, rules in ~/.claude/CLAUDE.md, hook + permissions in settings.json (backup: .bak-bosun), MCP server bosun
+✔ wire: claude + codex twice is idempotent, keeps user config, unwire restores it (452.789958ms)
+✔ wire: invalid settings.json stops before any write (4.530542ms)
+✔ wire: without the other CLI there is no cross row and review falls back to same-vendor (3.827834ms)
+✔ wire: inside Orca, Codex rules + agents also go to Orca's codex home; the hook only to ~/.codex; unwire cleans both (356.84725ms)
+✔ wire: a broken hooks.json stops unwire before it changes anything (263.260209ms)
+✔ wire: an unmatched bosun marker stops wiring and unwiring instead of eating user text (4.653333ms)
+✔ wire: the Codex block says bosun commands run outside the sandbox; the Claude block does not; rule lists stay unbroken (4.554917ms)
+✔ wire: --replace-plugins is sticky across re-installs until uninstall (437.052541ms)
+✔ wire: files bosun created are removed on unwire; files it changed are backed up; a user file it moved aside comes back (381.3405ms)
+✔ wire: bosun memory is never auto-allowed — the CLI shows private bodies and can purge, so the host must ask first (0.138666ms)
+✔ native creation checks out only the pinned commit, keeps dirty source files, filters auth/env and disables hooks (141.306417ms)
+✔ native prune preview is read only and binds clean, unlocked, merged Git state and durable ownership (473.043833ms)
+✔ ignored worktree files also prevent prune, and no foreign or unowned worktree is adopted (225.054625ms)
+✔ queued, held, running and unknown jobs in an owned path prevent prune while settled jobs do not (536.480458ms)
+✔ lost final COMMIT preserves one positively created worktree and its ready record without replay after reopen (102.293333ms)
+✔ bounded permanent workspace capacity preserves unknown intents and owner isolation rather than evicting receipts (47.57175ms)
+✔ lost positive Git receipt remains unknown across duplicate requests and daemon reopen without another creation (188.50275ms)
+✔ model requests are denied before params, Git or registry access and known credentials are refused before a new intent (30.581375ms)
+✔ same-origin clones remain separate workspace authorities and a removed/rebound path cannot qualify pruning (188.163292ms)
+✔ external checkout filters and existing destinations are held without running hooks, overwrite or automatic cleanup (79.408ms)
+✔ lost reservation COMMIT fences the shared authority before Git, preserves original intent and never replays on reopen (50.355084ms)
+✔ actual daemon/Commander workspace create/list/reconcile/prune-preview share native state, deny models and preserve the worktree (311.28025ms)
+✔ workspace shutdown aborts and waits native creation settlement while the existing daemon owner remains held (30.854417ms)
+✔ filters added after creation cannot execute during reconciliation or dispatch, even with a quota opt-in (279.326291ms)
+✔ spin atomically maps a pinned job to one owned worktree and dedupes before prompt getters or another launch (278.918666ms)
+✔ worktree job enqueue refuses stale versions and collisions with ordinary jobs or another workspace without changing selected work (258.949333ms)
+✔ privacy and credential screening precede spin worktree effects, and model requests cannot create or queue owned work (30.500666ms)
+✔ dispatch revalidates the exact worktree after enqueue and cannot bypass changed identity with allow-unknown-quota (188.554875ms)
+✔ unknown creation prevents spin enqueue or replay, while positive workspace intent is retained for owner inspection (98.512334ms)
+✔ job-map COMMIT loss keeps exactly one queued job/link and dedupes after reopen without another worktree or submission (187.720917ms)
+✔ retention preserves the workspace-to-original-job mapping and original no-replay receipt without archived task content (274.563542ms)
+✔ actual spin/workspace-run CLI dispatches through the same native job authority with exact model and scoped branch (590.052208ms)
+✔ cached read rejects actual oversized primary before callback (22.925041ms)
+✔ cached read rejects actual oversized wal before callback (19.117334ms)
+✔ cached transaction rejects actual oversized primary before callback (18.426875ms)
+✔ cached transaction rejects actual oversized wal before callback (16.738875ms)
+✔ native large source/FTS transaction is refused without committed row/event/floor changes (102.663708ms)
+✔ registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt (522.820083ms)
+✔ error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer (22.950084ms)
+✔ error before native COMMIT retains exact domain identity only after successful rollback (19.819584ms)
+✔ error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write (27.112375ms)
+✔ cached read rejects changed journal before callback without repair (17.105292ms)
+✔ cached read rejects changed wal-mode before callback without repair (16.743417ms)
+✔ cached read rejects changed parent-mode before callback without repair (16.957042ms)
+✔ cached read rejects changed wal-link before callback without repair (16.214708ms)
+✔ cached transaction rejects changed journal before callback without repair (15.754167ms)
+✔ cached transaction rejects changed wal-mode before callback without repair (16.031666ms)
+✔ cached transaction rejects changed parent-mode before callback without repair (15.85675ms)
+✔ cached transaction rejects changed wal-link before callback without repair (17.142208ms)
+✔ native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (23.678625ms)
+✔ native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (23.060875ms)
+✔ native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (31.166416ms)
+✔ eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML (391.499167ms)
+✔ driver PRAGMA prepare failure clears private authorization and callback controls remain denied (24.997667ms)
+Native dirty-page qualification: { spill: true, before: 94792, pending: 4317792, committed: 4375472 }
+Native dirty-page qualification: { spill: false, before: 94792, pending: 94792, committed: 4375472 }
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false
+}
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false
+}
+✔ post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay (19.538917ms)
+✔ native dirty-page probe observes cache_spill=true before actual commit (23.709541ms)
+✔ native dirty-page probe observes cache_spill=false before actual commit (22.256666ms)
+✔ native FTS xSync allocation occurs at actual COMMIT (14.505417ms)
+✔ native FTS xSync page-limit failure occurs at actual COMMIT (11.877083ms)
+✔ registered real store covers constructor expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit (148.017416ms)
+✔ registered long-lived get/search expiry and prune use synchronous admission, preserving archive/purge events (82.005292ms)
+✔ registered docs indexes insert/update/delete with FTS and owns a private close lifecycle (141.782916ms)
+✖ registered owner CLI uses loaded path overrides and retains private reads, mutation and purge (237.390375ms)
+✖ plain real owner CLI unshares with owner/linked access, audit parity and early conflict rejection (261.196583ms)
+✖ registered real owner CLI unshares with owner/linked access, audit parity and early conflict rejection (276.098291ms)
+✖ plain real owner CLI unsharing preserves a malformed private flag and owner-only content (229.9345ms)
+✖ registered real owner CLI unsharing preserves a malformed private flag and owner-only content (245.494208ms)
+✖ plain real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen (229.083708ms)
+✖ registered real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen (239.917416ms)
+✖ plain real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks (255.822542ms)
+✖ registered real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks (301.697ms)
+✖ registered stdio MCP keeps private replies opaque, conflict codes finite and docs on the real admission root (263.901083ms)
+✖ registered authoritative serve ignores client MEMORY_URL and preserves owner API/private data and safe context (238.852125ms)
+✔ registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle (76.212958ms)
+✔ registered discovery holds pending/unknown/mismatched roots before legacy chmod/migration (285.519208ms)
+✔ registered domain errors retain class/currentVersion after rollback while hostile proxy errors stay finite (62.351542ms)
+✔ read-only doctor memory inspection creates no files, holds WAL before native open and verifies rollback without writes (7.164917ms)
+✖ actual doctor leaves absent memory absent and the existing WAL database/sidecars unchanged (201.936334ms)
+ℹ tests 1010
+ℹ suites 0
+ℹ pass 951
+ℹ fail 59
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 351658.759459
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:8:1
+✖ cli: help exits 0, unknown command exits 2 (198.866583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /bosun run/. Input:
+  
+  'Usage: bosun [options] [command]\n' +
+    '\n' +
+    'OpenCode-first agent orchestration and scoped memory.\n' +
+    '\n' +
+    'Options:\n' +
+    '  -V, --version                         output the version number\n' +
+    '  -h, --help                            display help for command\n' +
+    '\n' +
+    'Commands:\n' +
+    '  status                                Inspect the existing daemon.\n' +
+    '  managed                               Explicit owned native sources through\n' +
+    '                                        the existing daemon executor.\n' +
+    '  upgrade                               Reviewed upgrade from the supported\n' +
+    '                                        legacy home.\n' +
+    '  dashboard [options]                   Inspect scoped jobs, quota, usage and\n' +
+    '                                        handoff metadata.\n' +
+    '  route [options] <text>                Request public Clef advice; calibration\n' +
+    '                                        gates automatic dispatch.\n' +
+    '  router                                Inspect decision readiness and\n' +
+    '                                        content-free observation feedback.\n' +
+    '  notifications                         Inspect opt-in opaque local\n' +
+    '                                        notifications.\n' +
+    '  workspace                             Create committed Git worktrees and\n' +
+    '                                        preview their cleanup.\n' +
+    '  spin [options] [prompt]               Create one owned committed worktree and\n' +
+    '                                        queue a pinned native job.\n' +
+    '  review [options]                      Queue an explicitly public\n' +
+    '                                        revision-bound read-only native review.\n' +
+    '  check                                 Run an explicit owner verification\n' +
+    '                                        command bound to a review revision.\n' +
+    '  card [options] [status] [comment...]  Update the enclosing local Orca worktree\n' +
+    '                                        card with an owner receipt.\n' +
+    '  setup                                 Initialize a new private runtime;\n' +
+    '                                        install no hosts or models.\n' +
+    '  onboard [options]                     Inspect setup progress and show the next\n' +
+    '                                        reviewed owner action.\n' +
+    '  install                               Review and apply an owned binary and\n' +
+    '                                        dormant daemon definition.\n' +
+    '  doctor                                Inspect local preparation without\n' +
+    '                                        opening databases or probing native\n' +
+    '                                        services.\n' +
+    '  host                                  Plan, manage and explicitly launch owned\n' +
+    '                                        native host profiles.\n' +
+    '  config                                Inspect and validate TOML settings.\n' +
+    '  roles                                 List shipped roles and configured model\n' +
+    '                                        bindings.\n' +
+    '  daemon                                Run the single local authority.\n' +
+    '  memory                                Read and curate scoped memory through\n' +
+    '                                        the daemon.\n' +
+    '  remote-view                           Explicitly cache public remote notes;\n' +
+    '                                        release before source changes.\n' +
+    '  graph                                 Review scoped memory artifacts and their\n' +
+    '                                        current source lineage.\n' +
+    '  consolidation                         Queue bounded public-memory proposals\n' +
+    '                                        for owner review.\n' +
+    '  profile                               Export selected portable preferences and\n' +
+    '                                        preview imports without applying\n' +
+    '                                        changes.\n' +
+    '  docs\n' +
+    '  quota                                 Inspect durable quota metadata or\n' +
+    '                                        refresh the selected supported source.\n' +
+    '  usage [options]                       Inspect scoped native attempt counts;\n' +
+    '                                        unknown billing/components stay null.\n' +
+    '  handoff                               Create and transfer a public task\n' +
+    '                                        artifact for manual review.\n' +
+    '  claude-mem                            Approve metadata references after\n' +
+    '                                        reviewing observations in the native\n' +
+    '                                        application.\n' +
+    '  context [options] <task>\n' +
+    '  job                                   Inspect and control durable jobs.\n' +
+    '  run [options] <prompt>\n' +
+    '  mcp                                   Bridge MCP stdio tools to the existing\n' +
+    '                                        daemon.\n' +
+    '  rpc <method> <json>                   Call a shared method for diagnostics.\n' +
+    '  help [command]                        display help for command\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:13:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Usage: bosun [options] [command]\n\nOpenCode-first agent orchestration and scoped memory.\n\nOptions:\n  -V, --version                         output the version number\n  -h, --help                            display help for command\n\nCommands:\n  status                                Inspect the existing daemon.\n  managed                               Explicit owned native sources through\n                                        the existing daemon executor.\n  upgrade                               Reviewed upgrade from the supported\n                                        legacy home.\n  dashboard [options]                   Inspect scoped jobs, quota, usage and\n                                        handoff metadata.\n  route [options] <text>                Request public Clef advice; calibration\n                                        gates automatic dispatch.\n  router                                Inspect decision readiness and\n                                        content-free observation feedback.\n  notifications                         Inspect opt-in opaque local\n                                        notifications.\n  workspace                             Create committed Git worktrees and\n                                        preview their cleanup.\n  spin [options] [prompt]               Create one owned committed worktree and\n                                        queue a pinned native job.\n  review [options]                      Queue an explicitly public\n                                        revision-bound read-only native review.\n  check                                 Run an explicit owner verification\n                                        command bound to a review revision.\n  card [options] [status] [comment...]  Update the enclosing local Orca worktree\n                                        card with an owner receipt.\n  setup                                 Initialize a new private runtime;\n                                        install no hosts or models.\n  onboard [options]                     Inspect setup progress and show the next\n                                        reviewed owner action.\n  install                               Review and apply an owned binary and\n                                        dormant daemon definition.\n  doctor                                Inspect local preparation without\n                                        opening databases or probing native\n                                        services.\n  host                                  Plan, manage and explicitly launch owned\n                                        native host profiles.\n  config                                Inspect and validate TOML settings.\n  roles                                 List shipped roles and configured model\n                                        bindings.\n  daemon                                Run the single local authority.\n  memory                                Read and curate scoped memory through\n                                        the daemon.\n  remote-view                           Explicitly cache public remote notes;\n                                        release before source changes.\n  graph                                 Review scoped memory artifacts and their\n                                        current source lineage.\n  consolidation                         Queue bounded public-memory proposals\n                                        for owner review.\n  profile                               Export selected portable preferences and\n                                        preview imports without applying\n                                        changes.\n  docs\n  quota                                 Inspect durable quota metadata or\n                                        refresh the selected supported source.\n  usage [options]                       Inspect scoped native attempt counts;\n                                        unknown billing/components stay null.\n  handoff                               Create and transfer a public task\n                                        artifact for manual review.\n  claude-mem                            Approve metadata references after\n                                        reviewing observations in the native\n                                        application.\n  context [options] <task>\n  job                                   Inspect and control durable jobs.\n  run [options] <prompt>\n  mcp                                   Bridge MCP stdio tools to the existing\n                                        daemon.\n  rpc <method> <json>                   Call a shared method for diagnostics.\n  help [command]                        display help for command\n',
+    expected: /bosun run/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:18:1
+✖ cli: doctor reports problems in an empty sandbox without crashing (202.718125ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /router hook missing: bosun install/. Input:
+  
+  '{\n' +
+    '  "prepared": false,\n' +
+    '  "coverage": "filesystem-metadata",\n' +
+    '  "checks": [\n' +
+    '    {\n' +
+    '      "id": "runtime.home",\n' +
+    '      "state": "missing",\n' +
+    '      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n' +
+    '      "required": true\n' +
+    '    }\n' +
+    '  ],\n' +
+    '  "nativeCalls": false,\n' +
+    '  "databaseOpened": false,\n' +
+    '  "schemaQualification": "unverified"\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:23:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{\n  "prepared": false,\n  "coverage": "filesystem-metadata",\n  "checks": [\n    {\n      "id": "runtime.home",\n      "state": "missing",\n      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n      "required": true\n    }\n  ],\n  "nativeCalls": false,\n  "databaseOpened": false,\n  "schemaQualification": "unverified"\n}\n',
+    expected: /router hook missing: bosun install/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:29:1
+✖ cli: install rejects a bad option before touching anything (197.506708ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unknown option --bogus/. Input:
+  
+  "error: unknown option '--bogus'\n"
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:34:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "error: unknown option '--bogus'\n",
+    expected: /unknown option --bogus/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:39:1
+✖ cli: install and uninstall check every config file before changing anything (196.391667ms)
+  AssertionError [ERR_ASSERTION]: install
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:46:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:53:1
+✖ cli: doctor notices Ollama.app lost bosun env (reboot) (203.741167ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Ollama\.app lost bosun env/. Input:
+  
+  '{\n' +
+    '  "prepared": false,\n' +
+    '  "coverage": "filesystem-metadata",\n' +
+    '  "checks": [\n' +
+    '    {\n' +
+    '      "id": "runtime.home",\n' +
+    '      "state": "missing",\n' +
+    '      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n' +
+    '      "required": true\n' +
+    '    }\n' +
+    '  ],\n' +
+    '  "nativeCalls": false,\n' +
+    '  "databaseOpened": false,\n' +
+    '  "schemaQualification": "unverified"\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:59:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{\n  "prepared": false,\n  "coverage": "filesystem-metadata",\n  "checks": [\n    {\n      "id": "runtime.home",\n      "state": "missing",\n      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n      "required": true\n    }\n  ],\n  "nativeCalls": false,\n  "databaseOpened": false,\n  "schemaQualification": "unverified"\n}\n',
+    expected: /Ollama\.app lost bosun env/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:63:1
+✖ cli: uninstall only removes what bosun added (its link, its .zshrc line, its launchctl values) (197.171166ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'uninstall'
+  (Did you mean install?)
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/cli.test.ts:76:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/context.test.ts:139:1
+✖ hook: memory block plus router hint in one additionalContext; silent below threshold; private left out; latency recorded (115.279792ms)
+  SyntaxError: Unexpected end of JSON input
+      at JSON.parse (<anonymous>)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/context.test.ts:146:28)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/context.test.ts:163:1
+✖ hook: one valid line per memory for multi-line bodies and a 50 KB prompt; fails open with a broken database (115.312375ms)
+  SyntaxError: Unexpected end of JSON input
+      at JSON.parse (<anonymous>)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/context.test.ts:171:28)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/context.test.ts:186:1
+✖ hook: a prompt that shares just one common word with unrelated memories stays silent; a relevant one still gets its note (333.53625ms)
+  SyntaxError: Unexpected end of JSON input
+      at JSON.parse (<anonymous>)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/context.test.ts:203:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/context.test.ts:207:1
+✖ hook: without a memory database it creates none (users who never store anything pay nothing) (115.625209ms)
+  SyntaxError: Unexpected end of JSON input
+      at JSON.parse (<anonymous>)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/context.test.ts:213:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:69:1
+✖ run (inline): exact call, token stripped, stdin spec, guards (215.264958ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:78:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:101:1
+✖ run (watch): runs in the Orca split, falls back inline, detects a closed or dead split (215.254416ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 4
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:111:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:144:1
+✖ review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review (225.689958ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /nothing to review/. Input:
+  
+  ''
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:153:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /nothing to review/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:186:1
+✖ run (watch, hardening): split target, no double run, atomic exit code, timeout stops the executor, tricky text, pruning (208.28425ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"unavailable","message":"Service unavailable"}}
+  
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/exec.test.ts:203:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/llm.test.ts:117:1
+✖ memory cli: consolidate end to end, and add --auto takes the LLM title and tags unless given (226.155ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'consolidate'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/llm.test.ts:128:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:12:1
+✖ card: no-op outside Orca, sets status + comment inside, usage without args (389.63975ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:18:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:27:1
+✖ spin: claude agent gets the spec literally plus the footer; outside Orca or nested is refused (201.521417ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /needs Orca/. Input:
+  
+  '{"error":{"code":"invalid","message":"Invalid request"}}\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:30:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{"error":{"code":"invalid","message":"Invalid request"}}\n',
+    expected: /needs Orca/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:52:1
+✖ spin: local agent opens a terminal running bosun run; --stacked bases on the current branch (219.84475ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--agent'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:62:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:72:1
+✖ execJob: a streamed Claude run shows progress in the pane and hands main only the final result (197.4185ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command '_exec'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:85:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:94:1
+✖ spin: defaults to the host agent, sanitizes --name, and refuses a result without a worktree id (200.335916ms)
+  AssertionError [ERR_ASSERTION]: {"error":{"code":"invalid","message":"Invalid request"}}
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:99:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:48:1
+✖ owner plan reads only filesystem/header metadata; real CLI preserves live and closed WAL footprints (204.925583ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:58:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:64:1
+✖ real owner CLI applies independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer (201.619958ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:68:103)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:173:1
+✖ owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects (1739.021875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:183:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:213:1
+✖ READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply (224.931375ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:223:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:334:1
+✖ real CLI reviews absent-leaf creation and legacy modes without SQLite, then applies a fresh strict candidate (200.196167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:341:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:425:1
+✖ a real existing READY view stays blocked before any preparation permission action (217.294834ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:433:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:615:1
+✖ real preparation CLI rejects unexpected flags/positionals/duplicate options/remote and prints finite partial-outcome guidance (1537.56375ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /tightened modes or created directories may remain/. Input:
+  
+  "error: unknown command 'cutover'\n"
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:624:39)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "error: unknown command 'cutover'\n",
+    expected: /tightened modes or created directories may remain/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:633:1
+✖ real CLI quotes exact reviewed action paths containing spaces and control characters without changing storage (198.952709ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:638:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:739:1
+✖ recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged (209.971625ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:759:132)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:839:1
+✖ actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects (269.942333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:849:134)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:878:1
+✖ real CLI recovery requires strict source/retain/attestation options and completes reviewed native recovery (1545.823458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:888:171)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:81:1
+✖ restore plan saves independent new epoch before effects and real CLI opens only leased rollback view (243.128791ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-restore.test.ts:93:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:98:1
+✖ actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities (317.89ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-restore.test.ts:109:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:227:1
+✖ pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes (414.104708ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-restore.test.ts:255:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:477:1
+✖ strict restore CLI and independently bound tokens refuse missing attestation, extra inputs and wrong epochs without effects (1381.135084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-restore.test.ts:494:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:339:1
+✖ actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization (281.530375ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /PUBLIC-VIEW-HANDOFF-CANARY/. Input:
+  
+  ''
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/public-reader.test.ts:348:44)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '',
+    expected: /PUBLIC-VIEW-HANDOFF-CANARY/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:159:1
+✖ actual memory publish CLI uses explicit local composition, rejects plain/missing/remote/extraneous input without source creation (234.561375ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--json'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/publication.test.ts:162:107)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:192:1
+✖ completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission (239.724583ms)
+  Error: memory cutover unavailable (storage)
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:41:53)
+      at mapped (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:86:3)
+      at publishMemoryView (file:///Users/edge/Developer/bosun/src/adapters/memory/sqlite-cutover.ts:1004:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/publication.test.ts:195:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unavailable',
+    exitCode: 1,
+    details: undefined,
+    reason: 'storage'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:299:1
+✖ 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation (2579.504625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/publication.test.ts:338:57)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/roles.test.ts:44:1
+✖ roles: bosun roles --json prints the resolved table (196.2205ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--json'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/roles.test.ts:48:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:65:1
+✖ split: the allowlist rejects other sources (403); bind never defaults to 0.0.0.0; CIDR matching (330.728333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:91:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:96:1
+✖ split: an unreachable, hanging or foreign memory server — the hook fails open in time, CLI and MCP say unavailable (107.751083ms)
+  SyntaxError: Unexpected end of JSON input
+      at JSON.parse (<anonymous>)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:109:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:129:1
+✖ split: doctor checks the memory server and warns on a version mismatch; the remote model is checked via /api/tags (200.782833ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /memory server http:\/\/127\.0\.0\.1:\d+ \(bosun 0\.0\.1, schema v1\)/. Input:
+  
+  '{\n' +
+    '  "prepared": false,\n' +
+    '  "coverage": "filesystem-metadata",\n' +
+    '  "checks": [\n' +
+    '    {\n' +
+    '      "id": "runtime.home",\n' +
+    '      "state": "missing",\n' +
+    '      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n' +
+    '      "required": true\n' +
+    '    }\n' +
+    '  ],\n' +
+    '  "nativeCalls": false,\n' +
+    '  "databaseOpened": false,\n' +
+    '  "schemaQualification": "unverified"\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:134:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{\n  "prepared": false,\n  "coverage": "filesystem-metadata",\n  "checks": [\n    {\n      "id": "runtime.home",\n      "state": "missing",\n      "detail": "Runtime is not prepared; use setup or the supported upgrade.",\n      "required": true\n    }\n  ],\n  "nativeCalls": false,\n  "databaseOpened": false,\n  "schemaQualification": "unverified"\n}\n',
+    expected: /memory server http:\/\/127\.0\.0\.1:\d+ \(bosun 0\.0\.1, schema v1\)/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:161:1
+✖ install --remote writes the URLs, skips local Ollama and Kev, registers MCP; uninstall restores the config; bad options change nothing (958.990583ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--host'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:172:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:185:1
+✖ install --serve sets up only the listed services on the bind address; uninstall removes them (196.139125ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--serve'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:191:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:204:1
+✖ install: re-running a plain install on a split-setup client keeps the remote URLs and sets up no local Ollama or Kev (196.997083ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--host'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/serve.test.ts:210:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/services.test.ts:38:1
+✖ services: start/stop reject an unknown target before touching launchd (196.044209ms)
+  AssertionError [ERR_ASSERTION]: start
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/services.test.ts:44:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: "error: unknown command 'start'\n(Did you mean status?)\n",
+    expected: /target must be ollama, router or all/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:125:1
+✖ registered owner CLI uses loaded path overrides and retains private reads, mutation and purge (237.390375ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--json'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:130:106)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:142:36
+✖ plain real owner CLI unshares with owner/linked access, audit parity and early conflict rejection (261.196583ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--json'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:150:100)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:142:36
+✖ registered real owner CLI unshares with owner/linked access, audit parity and early conflict rejection (276.098291ms)
+  AssertionError [ERR_ASSERTION]: error: unknown option '--json'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:150:100)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:179:36
+✖ plain real owner CLI unsharing preserves a malformed private flag and owner-only content (229.9345ms)
+  AssertionError [ERR_ASSERTION]: error: required option '--version <number>' not specified
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:185:111)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:179:36
+✖ registered real owner CLI unsharing preserves a malformed private flag and owner-only content (245.494208ms)
+  AssertionError [ERR_ASSERTION]: error: required option '--version <number>' not specified
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:185:111)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:191:36
+✖ plain real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen (229.083708ms)
+  AssertionError [ERR_ASSERTION]: error: required option '--version <number>' not specified
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:195:111)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:191:36
+✖ registered real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen (239.917416ms)
+  AssertionError [ERR_ASSERTION]: error: required option '--version <number>' not specified
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:195:111)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:218:36
+✖ plain real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks (255.822542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + true
+  - undefined
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:236:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:218:36
+✖ registered real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks (301.697ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + true
+  - undefined
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:236:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:260:1
+✖ registered stdio MCP keeps private replies opaque, conflict codes finite and docs on the real admission root (263.901083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   error: {
+  +     code: 'invalid',
+  +     message: 'Invalid request'
+  -   memory: {
+  -     private: true
+      }
+    }
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:265:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { error: { code: 'invalid', message: 'Invalid request' } },
+    expected: { memory: { private: true } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:277:1
+✖ registered authoritative serve ignores client MEMORY_URL and preserves owner API/private data and safe context (238.852125ms)
+  Error: synthetic serve exited before readiness
+      at ChildProcess.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:285:62)
+      at Object.onceWrapper (node:events:631:26)
+      at ChildProcess.emit (node:events:521:24)
+      at ChildProcess._handle.onexit (node:internal/child_process:295:12)
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:371:1
+✖ actual doctor leaves absent memory absent and the existing WAL database/sidecars unchanged (201.936334ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /memory database absent/. Input:
+  
+  '{\n' +
+    '  "prepared": false,\n' +
+    '  "coverage": "filesystem-metadata",\n' +
+    '  "checks": [\n' +
+    '    {\n' +
+    '      "id": "runtime.home",\n' +
+    '      "state": "held",\n' +
+    '      "detail": "Runtime directory permissions or identity require review.",\n' +
+    '      "required": true\n' +
+    '    }\n' +
+    '  ],\n' +
+    '  "nativeCalls": false,\n' +
+    '  "databaseOpened": false,\n' +
+    '  "schemaQualification": "unverified"\n' +
+    '}\n'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:375:62)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{\n  "prepared": false,\n  "coverage": "filesystem-metadata",\n  "checks": [\n    {\n      "id": "runtime.home",\n      "state": "held",\n      "detail": "Runtime directory permissions or identity require review.",\n      "required": true\n    }\n  ],\n  "nativeCalls": false,\n  "databaseOpened": false,\n  "schemaQualification": "unverified"\n}\n',
+    expected: /memory database absent/,
+    operator: 'match',
+    diff: 'simple'
+  }

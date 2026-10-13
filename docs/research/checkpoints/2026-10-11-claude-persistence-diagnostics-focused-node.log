@@ -1,0 +1,47 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness (403.098459ms)
+✔ private/malformed/secret bootstrap input refuses before content access or native delivery (189.057417ms)
+✔ native bootstrap lost-append joins the original process and never retries or reports readiness (131.328334ms)
+✔ native bootstrap wrong-seed joins the original process and never retries or reports readiness (192.535667ms)
+✔ native bootstrap wrong-user joins the original process and never retries or reports readiness (191.473ms)
+✔ native bootstrap wrong-session joins the original process and never retries or reports readiness (192.825166ms)
+✔ native bootstrap model-turn joins the original process and never retries or reports readiness (237.471333ms)
+✔ native bootstrap extra-content joins the original process and never retries or reports readiness (188.988917ms)
+✔ native control timeout holds until original producer termination and hides raw errors (235.194417ms)
+✔ native control error holds until original producer termination and hides raw errors (186.102708ms)
+✔ native control foreign-id holds until original producer termination and hides raw errors (185.812458ms)
+✔ native permission and hook requests are explicitly denied without reading or exposing their payloads (196.688834ms)
+✔ selection validation and unsupported native version precede stream startup (210.680166ms)
+✔ native text-block replay and versioned session-state notifications stay exact without becoming readiness claims (384.745334ms)
+✔ managed Claude removes inherited transcript suppression rather than setting a false-looking string (759.462ms)
+✔ Claude diagnostics distinguish accepted initialization from a later read failure without native payloads (214.022166ms)
+✔ Claude failed initialization diagnostics retain only fixed phases and finite native exits (710.307458ms)
+✔ throwing or rejecting Claude diagnostic observers do not change append, read, denial or positive join (390.292125ms)
+✔ Claude closed callback never claims join when synthetic group termination remains uncertain after the real parent exited (188.53575ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5469.668042

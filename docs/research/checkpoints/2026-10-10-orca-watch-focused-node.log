@@ -1,0 +1,249 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (459.465209ms)
+✖ standalone terminal creation uses a host-qualified workspace and never launches a native agent (327.490375ms)
+✖ native lost receipt stays held across restart; late pane observation never runs a second job (356.707333ms)
+✖ native malformed receipt stays held across restart; late pane observation never runs a second job (365.172208ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (497.842042ms)
+✖ closed or uncertain pane observation preserves the original job state and never changes execution ownership (366.760417ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (123.11ms)
+✖ lost watch intent COMMIT preserves the finite original receipt without replay (329.570584ms)
+✖ lost watch completion COMMIT preserves the finite original receipt without replay (319.223292ms)
+✖ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (322.940625ms)
+✖ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (4050.633083ms)
+✖ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (353.664209ms)
+✖ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (120.28725ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 2
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8195.554208
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:19:1
+✖ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (459.465209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'opened'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:27:12
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:21:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'opened',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:51:1
+✖ standalone terminal creation uses a host-qualified workspace and never launches a native agent (327.490375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'opened'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:55:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:53:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'opened',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:61:43
+✖ native lost receipt stays held across restart; late pane observation never runs a second job (356.707333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'unknown'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:66:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:63:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:61:43
+✖ native malformed receipt stays held across restart; late pane observation never runs a second job (365.172208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'unknown'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:66:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:63:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:95:1
+✖ closed or uncertain pane observation preserves the original job state and never changes execution ownership (366.760417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== 'closed'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:101:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:97:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: 'closed',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:126:30
+✖ lost watch intent COMMIT preserves the finite original receipt without replay (329.570584ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///Users/edge/Developer/bosun/test/orca.test.ts:131:5
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:128:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:126:30
+✖ lost watch completion COMMIT preserves the finite original receipt without replay (319.223292ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///Users/edge/Developer/bosun/test/orca.test.ts:131:5
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:128:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:145:1
+✖ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (322.940625ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///Users/edge/Developer/bosun/test/orca.test.ts:150:5
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:147:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:161:1
+✖ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (4050.633083ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(performance.now() < deadline)
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:167:41
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:163:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:175:1
+✖ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (353.664209ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:182:62
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:178:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:186:1
+✖ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (120.28725ms)
+  Error: bosun test containment: read outside run root/repository
+      at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:17:35)
+      at checkFile (/Users/edge/Developer/bosun/scripts/test-preload.cjs:85:70)
+      at target.<computed> [as realpathSync] (/Users/edge/Developer/bosun/scripts/test-preload.cjs:95:7)
+      at createNodeJobObserver (file:///Users/edge/Developer/bosun/src/platform/watch-command.ts:13:25)
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:189:22)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)

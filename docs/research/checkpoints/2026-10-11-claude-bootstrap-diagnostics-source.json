@@ -1,0 +1,58 @@
+{
+  "sourceDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+  "entries": [
+    [
+      "scripts/check-claude-metadata.mjs",
+      "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059"
+    ],
+    [
+      "src/adapters/hosts/claude/client.ts",
+      "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec"
+    ],
+    [
+      "src/adapters/hosts/claude/runner.ts",
+      "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303"
+    ],
+    [
+      "src/adapters/hosts/claude/transcript.ts",
+      "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34"
+    ],
+    [
+      "src/core/domain/inference.ts",
+      "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891"
+    ],
+    [
+      "src/core/domain/route.ts",
+      "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e"
+    ],
+    [
+      "src/core/domain/task.ts",
+      "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9"
+    ],
+    [
+      "src/core/errors.ts",
+      "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f"
+    ],
+    [
+      "src/core/policy.ts",
+      "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b"
+    ],
+    [
+      "src/core/ports/runner.ts",
+      "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e"
+    ],
+    [
+      "src/core/secret-screen.ts",
+      "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e"
+    ],
+    [
+      "src/platform/private-file.ts",
+      "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9"
+    ],
+    [
+      "src/platform/process.ts",
+      "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b"
+    ]
+  ],
+  "qualification": "unexecuted new source closure; preceding native approvals are consumed"
+}

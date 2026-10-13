@@ -1,0 +1,45 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (816.639208ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (573.267042ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (563.055416ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (513.692917ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (491.235375ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (790.740042ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (124.397667ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (366.649042ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (621.663791ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (421.089583ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (416.151834ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (395.798708ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (638.2585ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (638.316459ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (330.548625ms)
+✔ spin keeps the literal task and selected model in its owned daemon job when an Orca pane cannot bind the new worktree (627.599708ms)
+✔ revision-bound review uses the same metadata observer and original read-only selected job (804.215167ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9341.177333

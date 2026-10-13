@@ -1,0 +1,182 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - canonical metadata follows symlinks before parent traversal and contains missing tails
+ok 6 - symlink HOME escape fails before application evaluation
+ok 7 - every host/XDG/temp root is mandatory and contained
+ok 8 - direct test invocation fails before application evaluation
+ok 9 - clean environment excludes inherited credentials and user configuration
+ok 10 - child custom environment regains mandatory preload
+ok 11 - escaped child environment and cwd are rejected before spawn
+ok 12 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 13 - shell and PATH fallback cannot bypass process guard
+ok 14 - outside writes and symlink writes fail
+ok 15 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 16 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 17 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 18 - prototype and instance SQLite constructors preserve guarded identities before native opens
+ok 19 - real credential/config reads fail
+ok 20 - git and plutil external/config mutations fail
+ok 21 - fetch external and unregistered loopback endpoints fail
+ok 22 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 23 - registered ephemeral HTTP mocks remain usable
+ok 24 - HTTP and HTTPS validate merged URL/options destinations before native delegation
+ok 25 - registered HTTP and HTTPS URL/options/callback and IPC mock signatures remain usable
+ok 26 - only registered synthetic local sockets can be connected
+ok 27 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 28 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 29 - native fetch cannot follow a registered mock redirect into a real service
+ok 30 - OS barrier contains native files and SQLite even without the JS preload
+ok 31 - OS process barrier refuses an external shell even without the JS preload
+ok 32 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 33 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 34 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 35 - unknown suites/options and prohibited runtimes fail closed
+Containment: 35/35 probes passed; application suites not imported.
+Guarded Bun file 1/6: cli.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:
+(pass) cli: help exits 0, unknown command exits 2 [146.47ms]
+(pass) cli: doctor reports problems in an empty sandbox without crashing [89.69ms]
+(pass) cli: install rejects a bad option before touching anything [85.45ms]
+(pass) cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services [147.26ms]
+(pass) cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged [90.11ms]
+(pass) cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact [159.26ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [759.00ms]
+Guarded Bun file 2/6: distribution.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:
+170 |   const f = fixture();
+171 |   try {
+172 |     const report = f.build();
+173 |     assert.equal(report.coverage, "static-artifact");
+174 |     assert.equal(report.runtimeQualification, "unverified");
+175 |     assert.equal(report.version, "0.2.0");
+                 ^
+AssertionError: Expected values to be strictly equal:
+
+'1.0.0' !== '0.2.0'
+
+ generatedMessage: true,
+     actual: "1.0.0",
+   expected: "0.2.0",
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/test/distribution.test.ts:175:12
+      at run (node:async_hooks:144:29)
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:45)
+      at node:test:1591:20
+(fail) distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence [3158.30ms]
+(pass) distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths [5061.84ms]
+(pass) distribution static verification rejects binary/checksum and metadata/inventory tampering [3202.17ms]
+(pass) distribution static verification rejects changed current assets or installed dependency bytes [4764.94ms]
+(pass) distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands [3237.80ms]
+(pass) distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls [3077.45ms]
+(pass) distribution source admission rejects native and authoritative Bun lock tampering without synthetic trust [3494.11ms]
+synthetic compilation failure
+(pass) distribution build/compiler failure removes temporary source and leaves no candidate output [3231.01ms]
+(pass) distribution Bun CLIs verify without execution and refuse to overwrite a formula [4204.31ms]
+(pass) shared source entry admits a private hook before configuration or malformed input [45.73ms]
+
+ 9 pass
+ 1 fail
+Ran 10 tests across 1 file. [33.50s]
+Guarded Bun file 3/6: host-installation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/host-installation.test.ts:
+(pass) omp plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [138.04ms]
+(pass) opencode plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [114.78ms]
+(pass) codex plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [123.79ms]
+(pass) claude plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [126.67ms]
+(pass) only the pinned OpenCode 2 standalone overlay exceeds ordinary launch environment bounds in plans and receipts [100.23ms]
+(pass) private, credential, stale, unsupported or modified plans have no profile/configuration effect [60.16ms]
+(pass) running daemon authority prevents installation and stale plan/undo versions preserve original profiles [86.39ms]
+(pass) undo refuses content drift and preserves the profile and unrelated data [91.70ms]
+(pass) undo refuses extra-file drift and preserves the profile and unrelated data [87.54ms]
+(pass) undo refuses symlink drift and preserves the profile and unrelated data [93.25ms]
+(pass) undo refuses hardlink drift and preserves the profile and unrelated data [93.69ms]
+(pass) undo refuses mode drift and preserves the profile and unrelated data [91.45ms]
+(pass) lost positive profile rename receipt stays unknown, duplicate apply does not recreate, and explicit verified undo retires it [108.70ms]
+(pass) partial install receipt loss retains mismatched staged files for review without changing outside data [66.27ms]
+(pass) lost intent manifest receipt returns the saved original and never recreates a host profile [61.61ms]
+(pass) lost terminal manifest receipt returns the saved original and never recreates a host profile [101.12ms]
+(pass) metadata detection/session parsing never executes native hosts or classifies unknown prompts as public [55.17ms]
+(pass) profile doctor refuses rebound parent directories before reading foreign payloads [90.91ms]
+(pass) actual Commander plan export refuses overwrite, requires reviewed apply and denies model mutation before file reads [111.72ms]
+(pass) Codex reuses matching user project skills, preserves unrelated files and never owns their removal [109.48ms]
+(pass) changed project skill links hold undo and a new request cannot adopt links owned by another profile [104.17ms]
+(pass) lost project skill link receipt remains unknown without recreation and explicit undo removes only matching new links [110.80ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [2.20s]
+Guarded Bun file 4/6: installation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/installation.test.ts:
+(pass) reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files [139.93ms]
+(pass) explicit existing link replacement retains the original inode and restores it on exact undo [106.74ms]
+(pass) explicit existing file replacement retains the original inode and restores it on exact undo [108.25ms]
+(pass) Homebrew deployment references its stable opt path and never copies/removes the externally owned binary [102.46ms]
+(pass) stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent [579.74ms]
+(pass) edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo [105.56ms]
+(pass) actual ready manifest rename with a lost return fences activation and does not repeat the binary copy [99.00ms]
+(pass) actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes [110.53ms]
+(pass) edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable [306.48ms]
+(pass) rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable [172.05ms]
+(pass) wrong executable version and source mutation during the version probe preserve manifest and install destinations [190.07ms]
+(pass) lost actual undo rename retains original receipts and data; a second undo cannot replay restoration [103.44ms]
+(pass) doctor detects installed file drift through filesystem checks without opening memory or executing services [104.69ms]
+(pass) retained installation capacity repeats under native admission before any new intent or external effect [82.42ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [2.38s]
+Guarded Bun file 5/6: roles.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/roles.test.ts:
+(pass) final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication [4.88ms]
+(pass) final run dispatches the explicitly selected executor model through its owner job without changing role configuration [94.89ms]
+(pass) roles: bosun roles --json prints the resolved table [90.37ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [260.00ms]
+Guarded Bun file 6/6: upgrade.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/upgrade.test.ts:
+(pass) legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials [0.96ms]
+(pass) read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified [40.28ms]
+(pass) actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config [67.77ms]
+(pass) upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte [56.93ms]
+(pass) upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model [98.08ms]
+(pass) config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access [62.37ms]
+(pass) reviewed legacy modes are narrowed while original content and completed run receipts remain untouched [58.08ms]
+(pass) upgrade new-file refuses before any runtime intent or original-file mutation [29.89ms]
+(pass) upgrade source-bytes refuses before any runtime intent or original-file mutation [30.68ms]
+(pass) upgrade unsettled-run refuses before any runtime intent or original-file mutation [29.42ms]
+(pass) upgrade symlink refuses before any runtime intent or original-file mutation [29.96ms]
+(pass) upgrade hardlink refuses before any runtime intent or original-file mutation [29.71ms]
+(pass) idle cached old writer cannot bypass the newly installed native SQL floor [56.84ms]
+(pass) unknown legacy SQLite schema is held without changing original database or config bytes [31.88ms]
+(pass) actual live legacy writer admission prevents migration and no busy failure is retried [33.51ms]
+(pass) config edited after native migration stays intact and cannot activate a stale imported model selection [44.48ms]
+(pass) actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay [45.73ms]
+(pass) actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay [57.97ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [876.00ms]
+Guarded Bun files: 5/6 passed; 1 failed.

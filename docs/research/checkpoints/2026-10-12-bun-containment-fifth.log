@@ -1,0 +1,49 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - missing HOME fails before application evaluation
+ok 3 - outside HOME fails before application evaluation
+ok 4 - symlink HOME escape fails before application evaluation
+ok 5 - every host/XDG/temp root is mandatory and contained
+ok 6 - direct test invocation fails before application evaluation
+ok 7 - clean environment excludes inherited credentials and user configuration
+25 | function run(source, extra = {}) {
+26 |   return launch(root, ['-e', source], {
+27 |     cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000,
+28 |   });
+29 | }
+30 | function good(source) { const r = run(source); assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`); }
+                                                           ^
+AssertionError: 
+2 | 
+3 |     import assert from 'node:assert/strict'; import { spawnSync } from 'node:child_process';
+4 |     const env = { ...process.env }; delete env.NODE_OPTIONS;
+5 |     const r = spawnSync(process.execPath, ['-e', "const assert=require('node:assert/strict'), fs=require('node:fs'); assert.ok(globalThis[Symbol.for('bosun.test.guard')]); assert.throws(()=>fs.writeFileSync(\"/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/orQCS3O/escape\",'bad'),/containment/);"], {env, encoding:'utf8'});
+               ^
+AssertionError: Expected values to be strictly equal:
+
+null !== 0
+
+ generatedMessage: true,
+     actual: null,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cuhHwDU/work/[eval]:5:12
+
+Bun v1.4.3 (macOS arm64)
+
+
+1 !== 0
+
+ generatedMessage: false,
+     actual: 1,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at good (/Users/edge/Developer/bosun/scripts/check-containment.mjs:30:55)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

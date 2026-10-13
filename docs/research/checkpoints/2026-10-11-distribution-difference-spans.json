@@ -1,0 +1,113 @@
+{
+  "coverage": "static-owned-binary-difference-inspection",
+  "runtimeExecuted": false,
+  "files": [
+    {
+      "file": "dist/bosun-0.2.0-darwin-arm64/bosun",
+      "sha256": "5a8600206ee8527c1410f833af612d2ce5afc510fd1f7ddf92ea7089f6cfe202"
+    },
+    {
+      "file": "dist/bosun-0.2.0-darwin-arm64-rebuild/bosun",
+      "sha256": "80d3df20afc467bdd7ce94a9539759b88e70a673b9b57ba871bd1ee6cae0c564"
+    }
+  ],
+  "bytesDifferent": 262,
+  "spans": [
+    {
+      "start": 64207312,
+      "end": 64207331,
+      "context": [
+        "....8...L...l.......................(...@...T...l.............@.0afe8e13538bc7ebC00000010.......l.../$bunfs/root/entry-4rr0b9ff.js......~...",
+        "....8...L...l.......................(...@...T...l............rW.08265292fc661009C00000010.......l.../$bunfs/root/entry-4rr0b9ff.js........|."
+      ]
+    },
+    {
+      "start": 64207388,
+      "end": 64207407,
+      "context": [
+        "c7ebC00000010.......l.../$bunfs/root/entry-4rr0b9ff.js......~...0afe8e13538bc7ebC00000002.......!.:./$bunfs/root/entry-b5dvbzp7.js..........",
+        "1009C00000010.......l.../$bunfs/root/entry-4rr0b9ff.js........|.08265292fc661009C00000002.......!.:./$bunfs/root/entry-b5dvbzp7.js........>."
+      ]
+    },
+    {
+      "start": 64207464,
+      "end": 64207483,
+      "context": [
+        "c7ebC00000002.......!.:./$bunfs/root/entry-b5dvbzp7.js..........0afe8e13538bc7ebC00000009.......u...0afe8e13538bc7ebC00000008.........).defa",
+        "1009C00000002.......!.:./$bunfs/root/entry-b5dvbzp7.js........>.08265292fc661009C00000009.......\".<.08265292fc661009C00000008.........).defa"
+      ]
+    },
+    {
+      "start": 64207500,
+      "end": 64207519,
+      "context": [
+        "/entry-b5dvbzp7.js..........0afe8e13538bc7ebC00000009.......u...0afe8e13538bc7ebC00000008.........).default.....X.5.path.......crypto......",
+        "/entry-b5dvbzp7.js........>.08265292fc661009C00000009.......\".<.08265292fc661009C00000008.........).default.....X.5.path.......crypto......"
+      ]
+    },
+    {
+      "start": 64208188,
+      "end": 64208207,
+      "context": [
+        "nfs/root/entry-h37xknvb.js..........readEvaluationFile......T...0afe8e13538bc7ebC00000001.......Z...0afe8e13538bc7ebC00000000.......EPc.proc",
+        "nfs/root/entry-h37xknvb.js..........readEvaluationFile......8./.08265292fc661009C00000001.......q...08265292fc661009C00000000.......EPc.proc"
+      ]
+    },
+    {
+      "start": 64208224,
+      "end": 64208243,
+      "context": [
+        "readEvaluationFile......T...0afe8e13538bc7ebC00000001.......Z...0afe8e13538bc7ebC00000000.......EPc.process.....o.L.PassThrough.....6`..runM",
+        "readEvaluationFile......8./.08265292fc661009C00000001.......q...08265292fc661009C00000000.......EPc.process.....o.L.PassThrough.....6`..runM"
+      ]
+    },
+    {
+      "start": 64208588,
+      "end": 64208607,
+      "context": [
+        "EventEmitter........stripVTControlCharacters.....3..main....8...0afe8e13538bc7ebC00000004........_..createCodexHost.....;.../$bunfs/root/ent",
+        "EventEmitter........stripVTControlCharacters.....3..main.......08265292fc661009C00000004........_..createCodexHost.....;.../$bunfs/root/ent"
+      ]
+    },
+    {
+      "start": 64208712,
+      "end": 64208731,
+      "context": [
+        "/$bunfs/root/entry-dcxvzft6.js..........createClaudeHost......C.0afe8e13538bc7ebC00000003..........inspectOnboarding.........d.renderOnboar",
+        "/$bunfs/root/entry-dcxvzft6.js..........createClaudeHost.......08265292fc661009C00000003..........inspectOnboarding.........d.renderOnboar"
+      ]
+    },
+    {
+      "start": 64209320,
+      "end": 64209339,
+      "context": [
+        "allation.....V.undoHostInstallation......K.launchHost.......y..0afe8e13538bc7ebC00000005.........8.createOpenCodeControl.........../$bunfs/",
+        "allation.....V.undoHostInstallation......K.launchHost..........08265292fc661009C00000005.........8.createOpenCodeControl.........../$bunfs/"
+      ]
+    },
+    {
+      "start": 64209456,
+      "end": 64209475,
+      "context": [
+        "nfs/root/entry-w92msqdf.js........T.createOpenCodeRunner....]...0afe8e13538bc7ebC00000006...........CODEX_VERSION...........createCodexRunne",
+        "nfs/root/entry-w92msqdf.js........T.createOpenCodeRunner....g1).08265292fc661009C00000006...........CODEX_VERSION...........createCodexRunne"
+      ]
+    },
+    {
+      "start": 64209808,
+      "end": 64209827,
+      "context": [
+        "st......i.%.RemoteViewReadOnly......\\%..openHookMemory.......V:.0afe8e13538bc7ebC00000011...........CLEF_DEFAULT_MODEL........V.CLEF_QUALIFI",
+        "st......i.%.RemoteViewReadOnly......\\%..openHookMemory.........08265292fc661009C00000011...........CLEF_DEFAULT_MODEL........V.CLEF_QUALIFI"
+      ]
+    },
+    {
+      "start": 74124530,
+      "end": 74124593,
+      "context": [
+        "...b...?.z....P..........T<...[4;..0.W.{.....55...8q&..(...m6..kgd.......+../.....R.s{+8.W......aKr...u:?.n.z._....o.v.{...V..t.^..z.=vS..4.U./G.....1.i....P.em...ma.....R.....R",
+        "...b...?.z....P..........T<...[4;..0.W.{.....55...8q&..(..u.........c.!.2f..d.d..qF!(.v2...e.I. z..#peb.L.y...S8...>H.{...V..t.^..z.=vS..4.U./G.....1.i....P.em...ma.....R.....R"
+      ]
+    }
+  ]
+}

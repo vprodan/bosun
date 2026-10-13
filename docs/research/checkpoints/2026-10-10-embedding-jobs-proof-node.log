@@ -1,0 +1,69 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ owner CLI indexes native source chunks once and actual MCP queries return original IDs with negative abstention (762.122458ms)
+✔ classification precedes payload getters; owner indexing rejects private, proposed and foreign IDs before model metadata (246.210125ms)
+✔ disabled or empty vector sources leave defaults intact and make no model calls (405.6385ms)
+✔ source revocation during metadata or embedding prevents storage and preserves sticky original job receipt (412.054917ms)
+✔ workspace origin drift during embedding holds without derived data or replay (172.12325ms)
+✔ cancelled embedding and successful native store with lost return retain unknown and never resubmit (353.547916ms)
+✔ multi-batch indexing preserves Unicode spans and commits only after every source remains public (494.956708ms)
+✔ optional query cache rechecks current source generation, keeps sessions separate and evicts at its bound (766.164791ms)
+✔ corpus revocation during a query holds the reply and cannot populate a cache from an uncertain result (263.007334ms)
+✔ registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces (114.58725ms)
+✔ private/unclassified/proposed/expired source capture and forged input hashes produce no vector data (95.15475ms)
+✔ source privacy, version, archive and purge delete derived bytes inside the original admitted transaction (136.107459ms)
+✔ actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay (75.425292ms)
+✔ entire embedding batch is classified before any payload and before model metadata/generation (4.102042ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (15.025292ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.519375ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (7.117958ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (11.252583ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (2.126083ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.19275ms)
+✔ remote embedding jobs and vector queries use only the authority corpus and preserve source privacy revocation (631.4225ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (518.781583ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (806.569292ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (571.442833ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (779.987791ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (529.8215ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (524.495042ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (540.013666ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (737.610208ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.442458ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (646.048584ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (475.685583ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (649.199041ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (463.254667ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (696.717917ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (502.41625ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (530.706833ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (490.846208ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.598541ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.625375ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.465958ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15182.120791

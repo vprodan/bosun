@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-12T11:45:55.035Z",
+  "status": "source-backed product guide complete; runtime qualification remains incomplete",
+  "worker": "/root/delivery_guide",
+  "workerStatus": "completed",
+  "files": [
+    {
+      "path": "docs/upgrade-and-install.md",
+      "bytes": 15964,
+      "sha256": "2a6f8a8cd19e57834eab67af408c6c04a98ba1f4218909f187c95936ffb8f705"
+    },
+    {
+      "path": "README.md",
+      "bytes": 20865,
+      "sha256": "77ecd2a7453fbff64313ad39fc5cfd4ff14987fa5fe97a351af4b3dae49064b1"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "bytes": 19949,
+      "sha256": "a8de6c3993adf0f751d5c96c82030798b5699cc2a336fb7635c94fbd93c73a04"
+    }
+  ],
+  "validation": {
+    "markdownFiles": 3,
+    "localLinks": 77,
+    "localAnchors": 2,
+    "balancedFences": true,
+    "whitespaceExit": 0,
+    "appTestsRun": false,
+    "sourceDigestUnchanged": "0d053310d840abd41b722ffe662d1fdac2c2096190a7612303fe7e517161cf2e",
+    "benchmarkDriverSha256": "4164c1e2ecb88b73bec463a166d2f1598cb5113a82c7410ff1b77006d11e220f",
+    "benchmarkProposalSha256": "f93f9825896bf939ac22ab274595d36b4d8d31615642f198d157a391aa87c863",
+    "pendingClaudeClosureFilesUnchanged": 13
+  },
+  "sourceReviewed": [
+    "src/app/cli.ts",
+    "src/app/upgrade.ts",
+    "src/app/upgrade-router.ts",
+    "src/adapters/memory/sqlite-cutover.ts",
+    "src/app/installation.ts",
+    "src/app/installation-service.ts",
+    "src/app/host-install.ts",
+    "src/app/onboarding.ts",
+    "src/app/setup.ts",
+    "src/core/domain/installation.ts",
+    "test/upgrade.test.ts",
+    "test/installation.test.ts",
+    "test/installation-service.test.ts"
+  ],
+  "findings": [
+    "upgrade uses saved wrapper hash; installation/host use planHash",
+    "installation service actions use current receipt version and stable operation request ID; reconcile observes original without replay",
+    "supported upgrade applies only closed original schema1 source; stop clients before final plan; no deletion of live WAL/SHM/journal",
+    "backups/source identity/model choices/privacy/audit and unknown outcomes remain retained",
+    "profile/binary/service undo boundaries and foreground onboarding are documented; permanent deployment remains separate"
+  ],
+  "pausedThenResumed": true,
+  "goalCurrentStatus": "active",
+  "pendingScopes": [
+    "instrumented compiled benchmark",
+    "instrumented Claude bootstrap",
+    "final corpus labels/two Node evaluations",
+    "older corrected compiled storage"
+  ],
+  "noneOfPendingScopesAuthorizedByGoalResume": true
+}

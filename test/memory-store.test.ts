@@ -5,13 +5,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
 import { sandbox, REPO } from './helpers.ts';
 import { footprint } from './read-view-prototype.ts';
-import { MIGRATIONS, contentHash, plainSession as legacySession, tx as legacyTx } from '../lib/memory/sqlite.ts';
-import { MemoryService, FIELDS as legacyFields, PATCH as legacyPatch, cleanTags as legacyCleanTags } from '../lib/memory/service.ts';
-import { validate as legacyValidate } from '../lib/util.ts';
-import type { Cfg } from '../lib/config.ts';
+import { MEMORY_MIGRATIONS } from '../src/adapters/memory/sqlite-schema.ts';
+import { contentHash } from '../src/platform/content-hash.ts';
 import { SqliteMemoryStore, type MemoryDependencies, type MemoryMeasurement } from '../src/adapters/memory/sqlite-store.ts';
 import { plainSession, tx, type SqliteSession } from '../src/adapters/memory/sqlite-session.ts';
 import { queryGet, querySearch } from '../src/adapters/memory/sqlite-query.ts';
@@ -38,21 +36,20 @@ function dependencies() {
   };
   return { deps, clock, metrics };
 }
-async function fixture(registered = false, compatible = false) {
+async function fixture(registered = false) {
   const sb = sandbox();
   const storage = path.join(sb.root, 'storage');
   const primaryDir = path.join(storage, 'primary'); const viewDir = path.join(storage, 'view'); const backups = path.join(storage, 'backups');
   for (const dir of [storage, primaryDir, viewDir, backups]) fs.mkdirSync(dir, { mode: 0o700 });
   const paths = { primary: path.join(primaryDir, 'memory.db'), view: path.join(viewDir, 'public.db'), backups };
-  const db = new DatabaseSync(paths.primary); fs.chmodSync(paths.primary, 0o600);
+  const db = new SqliteDatabase(paths.primary); fs.chmodSync(paths.primary, 0o600);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA busy_timeout=0; PRAGMA wal_autocheckpoint=0;');
-  db.exec(MIGRATIONS[0]);
+  db.exec(MEMORY_MIGRATIONS[0]);
   db.exec('CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL); INSERT INTO schema_migrations VALUES(1,0);');
   if (registered) await cutoverMemory({ paths, now: () => 1_800_000_000_000, id: crypto.randomUUID });
   const session: SqliteSession = registered ? new CutoverWriter(paths) : plainSession(db);
   const d = dependencies();
-  const cfg: Cfg = { MEMORY_SESSION_TTL_DAYS: '3', MEMORY_PURGE_AFTER_DAYS: '5' };
-  const store = compatible ? new MemoryService(session, cfg) : new SqliteMemoryStore(session, d.deps);
+  const store = new SqliteMemoryStore(session, d.deps);
   return { sb, paths, db, session, store, ...d,
     generation() { return registered ? Number(db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation) : 0; },
     state() { return session.read((native) => { const memories = native.prepare('SELECT * FROM memories ORDER BY seq'); memories.setReadBigInts(true); return { memories: memories.all(), events: native.prepare('SELECT * FROM memory_events ORDER BY id').all() }; }); },
@@ -60,9 +57,31 @@ async function fixture(registered = false, compatible = false) {
     close() { store.close(); if (registered) db.close(); sb.cleanup(); },
   };
 }
+test('plain memory close releases retained native statements and active FTS write locks without committing unfinished changes', async () => {
+  const f = await fixture();
+  let reopened: SqliteDatabase | undefined;
+  try {
+    const memory = (await f.store.store({ category: 'project', title: 'Retained constellation', body: 'Committed constellation body' }, A)).memory;
+    const retained = f.db.prepare('SELECT title FROM memories WHERE id=?');
+    assert.equal(retained.get(memory.id)!.title, memory.title);
+    f.db.exec('BEGIN IMMEDIATE');
+    f.db.prepare('UPDATE memories SET title=? WHERE id=?').run('Uncommitted nebula', memory.id);
+    assert.equal(f.db.prepare("SELECT count(*) AS n FROM memories_fts WHERE memories_fts MATCH 'nebula'").get()!.n, 1);
+    f.store.close();
+    assert.equal(f.db.isOpen, false);
+    assert.throws(() => retained.get(memory.id));
+    reopened = new SqliteDatabase(f.paths.primary);
+    reopened.exec('PRAGMA busy_timeout=0; BEGIN IMMEDIATE');
+    assert.equal(reopened.prepare('SELECT title FROM memories WHERE id=?').get(memory.id)!.title, memory.title);
+    assert.equal(reopened.prepare("SELECT count(*) AS n FROM memories_fts WHERE memories_fts MATCH 'constellation'").get()!.n, 1);
+    assert.equal(reopened.prepare("SELECT count(*) AS n FROM memories_fts WHERE memories_fts MATCH 'nebula'").get()!.n, 0);
+    reopened.exec('ROLLBACK');
+  } finally { reopened?.close(); f.close(); }
+});
 
-for (const registered of [false, true]) for (const compatible of [false, true]) test(`MemoryStore acceptance: ${registered ? 'registered' : 'plain'} ${compatible ? 'legacy composition' : 'direct adapter'}`, async () => {
-  const f = await fixture(registered, compatible); const s: MemoryStore = f.store;
+
+for (const registered of [false, true]) test(`MemoryStore acceptance: ${registered ? 'registered' : 'plain'} direct adapter`, async () => {
+  const f = await fixture(registered); const s: MemoryStore = f.store;
   try {
     const m = (await s.store({ category: 'project', title: '  Constellation tooling  ', body: ' Use pnpm for constellation tooling. ', tags: ['tools', 'tools'] }, A)).memory;
     assert.match(m.id, /^m_[0-9a-v]{9}[0-9a-f]{8}$/); assert.equal(m.hash, contentHash(m.title, m.body)); assert.deepEqual(m.tags, ['tools']);
@@ -91,7 +110,7 @@ for (const registered of [false, true]) for (const compatible of [false, true]) 
     assert.deepEqual(f.session.read((native) => native.prepare('SELECT op FROM memory_events WHERE memory_id=? ORDER BY id').all(m.id)).map((e) => e.op), ['store', 'update', 'archive', 'purge']);
     await assert.rejects(s.store({ category: 'project', title: 'PRIVATE INVALID'.repeat(20), body: 'invalid' }, A), (e) => code('invalid')(e) && !(e as Error).message.includes('PRIVATE INVALID'));
     if (registered) {
-      assert.throws(() => f.store.db, code('unavailable')); assert.deepEqual(Object.keys(f.store).filter((k) => k !== 'cfg'), []);
+      assert.throws(() => f.store.db, code('unavailable')); assert.deepEqual(Object.keys(f.store), []);
       assert.throws(() => f.db.prepare("UPDATE memories SET private=1 WHERE id=?").run(protectedNote.id), /no such function/);
       assert.throws(() => f.session.read((native) => native), CutoverError);
       assert.throws(() => f.session.transaction(async () => undefined), CutoverError);
@@ -181,14 +200,14 @@ for (const registered of [false, true]) test(`direct ${registered ? 'registered'
 
 test('direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held', async () => {
   const f = await fixture(true);
-  let lease: DatabaseSync | undefined; let current: SqliteMemoryStore | undefined;
+  let lease: SqliteDatabase | undefined; let current: SqliteMemoryStore | undefined;
   try {
     const m = (await f.store.store({ category: 'personal', title: 'Lease constellation', body: 'Lease constellation body' }, A)).memory;
     const expired = (await f.store.store({ category: 'session', title: 'Held restore', body: 'Held restore session body', ttlDays: 1 }, A)).memory;
     f.clock.value = expired.expiresAt!; f.store.expire();
     await publishMemoryView({ paths: f.paths, now: () => f.clock.value, id: crypto.randomUUID });
     current = new SqliteMemoryStore(new CutoverWriter(f.paths), f.deps);
-    lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('PRAGMA query_only=ON; PRAGMA busy_timeout=0; BEGIN;');
+    lease = new SqliteDatabase(f.paths.view, { readOnly: true }); lease.exec('PRAGMA query_only=ON; PRAGMA busy_timeout=0; BEGIN;');
     assert.equal(lease.prepare('SELECT state FROM bosun_public_state').get()!.state, 'READY');
     const state = f.db.prepare('SELECT title,body,version,access_count FROM memories WHERE id=?').get(m.id); const generation = f.generation();
     assert.equal((await current.search({ text: 'constellation', touch: true }, A))[0].id, m.id);
@@ -201,31 +220,10 @@ test('direct registered queries remain usable under a retained view lease while 
     lease.exec('ROLLBACK'); lease.close(); lease = undefined;
     await assert.rejects(f.store.update(expired.id, { status: 'active' }, 2, A), CutoverError, 'cached pre-publication writer remains fenced for restore');
     const restored = await current.update(expired.id, { status: 'active' }, 2, A); assert.equal(restored.expiresAt, f.clock.value + 3 * DAY); assert.equal(restored.version, 3);
-    const gate = new DatabaseSync(f.paths.view, { readOnly: true });
+    const gate = new SqliteDatabase(f.paths.view, { readOnly: true });
     try { assert.equal(gate.prepare('SELECT state FROM bosun_public_state').get()!.state, 'HOLD'); } finally { gate.close(); }
     assert.equal((await current.update(m.id, { private: true }, 1, A)).version, 2);
   } finally { try { lease?.exec('ROLLBACK'); } catch {} lease?.close(); current?.close(); f.close(); }
-});
-
-test('legacy composition retains constructor/read expiry and best-effort touch on an actual SQLite session', async () => {
-  const f = await fixture(); const now = Date.now;
-  try {
-    const m = (await f.store.store({ category: 'session', title: 'Compatibility', body: 'Compatibility fixture', ttlDays: 1 }, A)).memory;
-    let failWrites = false;
-    const session: SqliteSession = { legacyDb: f.db, read: (fn) => f.session.read(fn), transaction: (fn) => { if (failWrites) throw new Error('busy fixture'); return f.session.transaction(fn); }, close() {} };
-    const cfg: Cfg = { MEMORY_SESSION_TTL_DAYS: '3', MEMORY_PURGE_AFTER_DAYS: '5' };
-    Date.now = () => m.expiresAt!;
-    const legacy = new MemoryService(session, cfg);
-    assert.deepEqual((await legacy.get(m.id, A, { events: true })).events!.map((e) => e.op), ['store', 'expire']);
-    const live = (await legacy.store({ category: 'project', title: 'Live compatibility', body: 'Live compatibility body' }, A)).memory;
-    await legacy.search({ text: '   ' }, A); assert.equal((await legacy.get(live.id, A)).accessCount, 0, 'whitespace lists without FTS touch');
-    failWrites = true; assert.equal((await legacy.search({ text: 'compatibility' }, A))[0].id, live.id); assert.equal((await legacy.get(live.id, A)).accessCount, 0);
-    failWrites = false; await legacy.search({ text: 'compatibility' }, A); assert.equal((await legacy.get(live.id, A)).accessCount, 1);
-    const future = (await legacy.store({ category: 'session', title: 'Future', body: 'Future expiry', ttlDays: 1 }, A)).memory;
-    Date.now = () => future.expiresAt!;
-    assert.equal((await legacy.get(future.id, A)).status, 'archived');
-    assert.deepEqual(await legacy.search({ text: 'future', touch: false }, A), []);
-  } finally { Date.now = now; f.close(); }
 });
 
 for (const registered of [false, true]) test(`direct ${registered ? 'registered' : 'plain'} post-commit sink/timing failures preserve result, events and generation`, async () => {
@@ -251,7 +249,7 @@ for (const registered of [false, true]) test(`direct ${registered ? 'registered'
     assert.equal(captured.at(-1)!.ok, false); assert.equal(captured[0].chars, receipt.memory.body.length);
     if (registered) {
       await publishMemoryView({ paths: f.paths, now: () => f.clock.value, id: crypto.randomUUID });
-      const gate = new DatabaseSync(f.paths.view, { readOnly: true });
+      const gate = new SqliteDatabase(f.paths.view, { readOnly: true });
       try {
         assert.equal(gate.prepare('SELECT state FROM bosun_public_state').get()!.state, 'READY');
         await assert.rejects(s.update(receipt.memory.id, { body: 'PRIVATE stale writer body' }, 1, A), CutoverError);
@@ -289,18 +287,11 @@ test('direct dependencies fail before DML, transactions roll back and lifecycle 
     assert.throws(() => new SqliteMemoryStore(closing, { ...f.deps, retention: { sessionTtlDays: NaN, purgeAfterDays: 5 } }), code('invalid'));
     assert.equal(closed, 1);
     const s = new SqliteMemoryStore(closing, f.deps); assert.throws(() => s.close(), /close fixture/); assert.equal(closed, 2);
-    const failingClock = new Error('PRIVATE constructor clock');
-    const legacySession: SqliteSession = { ...f.session, close() { closed++; throw new Error('cleanup fixture'); } };
-    const prior = Date.now; Date.now = () => { throw failingClock; };
-    try { assert.throws(() => new MemoryService(legacySession, { MEMORY_SESSION_TTL_DAYS: '3', MEMORY_PURGE_AFTER_DAYS: '5' }), (e) => e === failingClock); }
-    finally { Date.now = prior; }
-    assert.equal(closed, 3);
+    assert.equal(closed, 2);
   } finally { f.close(); }
 });
 
-test('validation schemas/validator and native session helpers retain exact legacy forwarding identity', () => {
-  assert.equal(legacyValidate, validate); assert.equal(legacyFields, FIELDS); assert.equal(legacyPatch, PATCH); assert.equal(legacyCleanTags, cleanTags);
-  assert.equal(legacySession, plainSession); assert.equal(legacyTx, tx);
+test('validation schemas and native session helpers retain source identity and validate inputs', () => {
   const cases: [Parameters<typeof validate>[0], unknown, string | null][] = [
     [{ type: 'object', required: ['title'], properties: { title: FIELDS.title }, additionalProperties: false }, {}, '$.title: required'],
     [FIELDS.title, 'PRIVATE'.repeat(40), '$: longer than 200'], [FIELDS.tags, ['PRIVATE tag'], '$[0]: invalid format'],
@@ -317,10 +308,10 @@ test('direct adapter imports and works under a synthetic HOME with unusable ambi
     const owner = path.join(sb.home, '.bosun'); fs.mkdirSync(owner, { mode: 0o700 });
     fs.writeFileSync(path.join(owner, 'config.env'), 'PRIVATE invalid ambient config', { mode: 0o600 });
     const before = footprint(owner);
-    const source = `import {DatabaseSync} from 'node:sqlite';
+    const source = `import {SqliteDatabase} from ${JSON.stringify(path.join(REPO, 'src/platform/sqlite.ts'))};
       import {SqliteMemoryStore} from ${JSON.stringify(path.join(REPO, 'src/adapters/memory/sqlite-store.ts'))};
       import {plainSession} from ${JSON.stringify(path.join(REPO, 'src/adapters/memory/sqlite-session.ts'))};
-      const db=new DatabaseSync(':memory:'); db.exec(${JSON.stringify(MIGRATIONS[0])});
+      const db=new SqliteDatabase(':memory:'); db.exec(${JSON.stringify(MEMORY_MIGRATIONS[0])});
       const s=new SqliteMemoryStore(plainSession(db),{now:()=>100,retention:{sessionTtlDays:4,purgeAfterDays:8},id:()=> 'm_fixture',hash:()=> '0'.repeat(32),monotonic:()=>0,measure() {}});
       const ctx={projectId:'p_fixture',sessionId:'s_fixture',linked:[]};
       const m=(await s.store({category:'session',title:'Synthetic',body:'Synthetic body'},ctx)).memory;
@@ -349,7 +340,7 @@ for (const registered of [false, true]) test(`direct ${registered ? 'registered'
     for (const key of ['id', 'hash', 'createdAt', 'source', 'sourceRef', 'projectId', 'sessionId', 'tags', 'private', 'shared', 'accessedAt', 'accessCount'] as const) assert.deepEqual(restored[key], m[key], key);
     assert.equal(f.generation(), before + (registered ? 2 : 0));
     if (registered) reopened = new SqliteMemoryStore(new CutoverWriter(f.paths), f.deps);
-    else reopened = new SqliteMemoryStore(plainSession(new DatabaseSync(f.paths.primary)), f.deps);
+    else reopened = new SqliteMemoryStore(plainSession(new SqliteDatabase(f.paths.primary)), f.deps);
     assert.deepEqual(await reopened.get(m.id, A), restored);
     const audited = await reopened.get(m.id, A, { events: true });
     assert.deepEqual(audited.events!.map((e) => [e.op, e.at, e.source, e.hashBefore, e.hashAfter]), [
@@ -418,7 +409,7 @@ for (const registered of [false, true]) test(`direct ${registered ? 'registered'
     f.clock.value = 8_640_000_000_000_000;
     const created = (await zero.store({ category: 'session', title: 'No expiry', body: 'No expiry creation' }, A)).memory; assert.equal(created.expiresAt, null);
     assert.equal(zero.expire(), 0); assert.equal((await zero.get(m.id, A)).status, 'active');
-    reopened = new SqliteMemoryStore(registered ? new CutoverWriter(f.paths) : plainSession(new DatabaseSync(f.paths.primary)), f.deps);
+    reopened = new SqliteMemoryStore(registered ? new CutoverWriter(f.paths) : plainSession(new SqliteDatabase(f.paths.primary)), f.deps);
     assert.equal((await reopened.get(m.id, A)).expiresAt, null); assert.equal(reopened.expire(), 0);
   } finally { reopened?.close(); f.close(); }
 });

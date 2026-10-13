@@ -1,0 +1,16 @@
+54 |   const retained = native.prepare('select * from notes'); retained.all();
+55 |   const nativeReport = { sqlite: native.prepare('select sqlite_version() version').get().version,
+56 |     function: typeof native.function, authorizer: typeof native.setAuthorizer, backup: typeof native.backup,
+57 |     finalize: typeof retained.finalize };
+58 |   native.close(true);
+59 |   const second = new Database(nativeFile, { readonly: false });
+                      ^
+SQLiteError: flags must include SQLITE_OPEN_READONLY or SQLITE_OPEN_READWRITE
+      errno: 21,
+ byteOffset: -1,
+       code: "SQLITE_MISUSE"
+
+      at new Database (bun:sqlite:262:28)
+      at /Users/edge/Developer/bosun/scripts/check-bun-sqlite.mjs:59:18
+
+Bun v1.4.3 (macOS arm64)

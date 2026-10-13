@@ -1,0 +1,209 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - OS process barrier refuses an external shell even without the JS preload
+ok 26 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 27 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 28 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 29 - unknown suites/options and prohibited runtimes fail closed
+Containment: 29/29 probes passed; application suites not imported.
+Guarded Bun file 1/9: core.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/core.test.ts:
+(pass) core errors and deterministic Unicode text behavior [2.85ms]
+(pass) coded errors preserve causes and legacy exits while constraining untyped codes and details [0.12ms]
+(pass) routing risk overrides low confidence, while ordinary uncertain decisions stay silent [0.41ms]
+(pass) new routing contract rejects private/unknown/unclassified input before text access or port calls [0.43ms]
+(pass) routing sanitizes provider extras and uses only the trusted configured label [0.12ms]
+(pass) routing rejects malformed decisions/config and respects abort/null without a fallback model [0.37ms]
+(pass) omitted/unsupported/unverified capabilities fail closed; selection does not probe a host [0.20ms]
+(pass) model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible [0.04ms]
+(pass) final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery [4.23ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [29.00ms]
+Guarded Bun file 2/9: distribution.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:
+(pass) distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence [26.68ms]
+(pass) distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths [25.60ms]
+(pass) distribution static verification rejects binary/checksum and metadata/inventory tampering [16.46ms]
+(pass) distribution static verification rejects changed current assets or installed dependency bytes [23.50ms]
+(pass) distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands [18.07ms]
+(pass) distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls [15.36ms]
+(pass) distribution refuses compiler version drift before compiling and cleans its temporary snapshot [27.63ms]
+synthetic compilation failure
+(pass) distribution build/compiler failure removes temporary source and leaves no candidate output [14.34ms]
+(pass) distribution Bun CLIs verify without execution and refuse to overwrite a formula [121.59ms]
+(pass) shared source entry admits a private hook before configuration or malformed input [40.70ms]
+(pass) shared Bun entry disables the optional debugger before lazy imports for source and compiled policy fixtures [40.63ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [390.00ms]
+Guarded Bun file 3/9: handoff-artifacts.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-artifacts.test.ts:
+(pass) manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests [24.17ms]
+(pass) owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes [8.36ms]
+(pass) import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work [11.13ms]
+(pass) two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten [9.42ms]
+(pass) actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen [13.78ms]
+
+ 5 pass
+ 0 fail
+Ran 5 tests across 1 file. [111.00ms]
+Guarded Bun file 4/9: handoff-checkout.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-checkout.test.ts:
+(pass) portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs [47.08ms]
+(pass) portable worktree metadata reads common refs while retaining the selected worktree HEAD [37.52ms]
+
+ 2 pass
+ 0 fail
+Ran 2 tests across 1 file. [102.00ms]
+Guarded Bun file 5/9: handoff.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff.test.ts:
+(pass) durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source [14.96ms]
+(pass) unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source [9.07ms]
+(pass) bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt [51.13ms]
+(pass) concurrent ownership changes during summary cancel destination bootstrap and do not replay source work [8.35ms]
+(pass) actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay [9.85ms]
+(pass) an isolated readiness turn requires bootstrap admission before any source effects [20.77ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [135.00ms]
+Guarded Bun file 6/9: opencode-control.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:
+(pass) managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP [1.78ms]
+(pass) V2 managed creation proves an owned empty root; API instruction seeding has exact idle/hash readback without an inference or inbox item [16.16ms]
+(pass) native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection [14.14ms]
+(pass) root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed [12.57ms]
+(pass) arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP [5.91ms]
+(pass) wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed [14.97ms]
+(pass) readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts [24.20ms]
+(pass) local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts [10.69ms]
+(pass) owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof [10.10ms]
+(pass) uncertain create/seed/turn effects are held without deletion or automatic effect replay [12.96ms]
+(pass) fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact [72.17ms]
+(pass) staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS [14.70ms]
+(pass) fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation [45.56ms]
+(pass) source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools [33.71ms]
+(pass) fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation [10.42ms]
+(pass) managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result [54.01ms]
+(pass) concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt [8.24ms]
+(pass) native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy [38.78ms]
+(pass) unsupported selections/input limits and native version mismatch fail without unintended mutations [4.28ms]
+(pass) owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference [19.99ms]
+(pass) incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors [28.57ms]
+(pass) capture privacy and native ownership gates precede cursor/source getters and all HTTP [6.05ms]
+(pass) capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window [73.92ms]
+(pass) bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence [5.68ms]
+(pass) paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history [16.04ms]
+(pass) paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage [181.43ms]
+(pass) V2 seed PUT requires exact 204 acknowledgement and independent native readback; failures never fall back to prompt or retry [12.43ms]
+(pass) V2 acknowledgement cannot accept another instruction entry, parked inbox input, changed seed key or a busy root [16.14ms]
+(pass) V2 instruction-entry seed identity participates in incremental evidence without inventing native user-message IDs [11.54ms]
+(pass) V2 process replacement holds native controls before seeding, dispatch, capture or interruption [7.07ms]
+(pass) V2 known prior context cannot change between prompt admission and completion without holding the new turn [11.74ms]
+
+ 31 pass
+ 0 fail
+Ran 31 tests across 1 file. [818.00ms]
+Guarded Bun file 7/9: opencode-v2.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-v2.test.ts:
+(pass) OpenCode 2 source/version pin and V2 metadata projections omit native content, paths and billing [1.20ms]
+(pass) OpenCode 2 does not accept a V1 health, session or WithParts message envelope [0.69ms]
+(pass) OpenCode 2 malformed metadata, counts, message types, cursors and duplicate IDs fail closed [0.77ms]
+(pass) OpenCode 2 idle marker binds a completed turn; latest inference input is a candidate, never active occupancy [0.33ms]
+(pass) OpenCode 2 pending, streaming, failed, incomplete and inactive-without-idle turns remain unknown [0.73ms]
+(pass) OpenCode 2 stale/future, explicit model/variant drift and resets stay held without reordering native sequence [0.80ms]
+(pass) OpenCode 2 native inactive scope is only this process foreground, never tool or background quiescence [0.04ms]
+(pass) OpenCode 2 opaque body cursors remain metadata, not followable URLs or evidence completeness [0.09ms]
+(pass) OpenCode 2 fresh-root and parked seed recipes use only V2 fields and prove no readiness [0.36ms]
+(pass) OpenCode 2 private/unclassified codecs and recipes reject before record, model and text access [0.12ms]
+(pass) OpenCode 2 repeated session/process bindings hold read-only observations on drift with no retry [22.81ms]
+(pass) OpenCode 2 a server-supplied cursor or connection URL is never followed by the metadata probe [1.84ms]
+(pass) OpenCode 2 response/deadline/page limits stop a single attempt without exposing endpoint diagnostics [55.18ms]
+(pass) OpenCode 2 successful metadata fixtures cannot authorize automatic handoff or any control method [0.12ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [104.00ms]
+Guarded Bun file 8/9: opencode.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode.test.ts:
+(pass) OpenCode pinned v1 codecs retain model/variant and omit content, paths, cost and accumulated tokens [1.06ms]
+(pass) OpenCode exact version/metadata mismatches fail with fixed actual coded errors [0.88ms]
+(pass) OpenCode latest completed step is only an input candidate, never cumulative billed usage or verified occupancy [0.27ms]
+(pass) OpenCode stale/future/pending/model-switch/reset samples are unknown rather than zero or safe to hand off [0.15ms]
+(pass) OpenCode pure fresh-root/noReply recipes preserve explicit selections without proving readiness or sending HTTP [0.21ms]
+(pass) OpenCode private/unknown recipes and codecs reject before text/selection/record property access [0.07ms]
+(pass) OpenCode SSE fixture uses pinned global envelope and message.updated properties sessionID/info, with no content replay [0.59ms]
+(pass) OpenCode explicitly selected probe performs only GET metadata reads and never becomes native Codex/Claude [7.53ms]
+(pass) OpenCode probe rejects private/unknown/malformed selection and generation before config/HTTP [0.24ms]
+(pass) OpenCode probe version/errors/foreign sessions/abort hold without retries or raw diagnostic echoes [5.78ms]
+(pass) OpenCode fixture success leaves every managed capability held with no automatic handoff or control calls [0.11ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [35.00ms]
+Guarded Bun file 9/9: runtime.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/runtime.test.ts:
+(pass) runtime paths are explicit and path calculation does not create files [0.76ms]
+(pass) shipped roles and skills resolve from embedded assets in a synthetic working directory [0.27ms]
+(pass) final project scope preserves existing clone/worktree/non-repo identities and configured links [3.04ms]
+(pass) shared envelopes reject skew/extra fields and normalize provider errors [0.21ms]
+(pass) native UDS RPC preserves concurrent request identity and uses protected socket [12.37ms]
+(pass) malformed and oversized requests never invoke dispatch; stopped admission stays closed [4.58ms]
+(pass) lost mutation reply has unknown outcome and is never automatically repeated [33.26ms]
+(pass) oversized successful replies preserve uncertainty instead of claiming a failed mutation [2.25ms]
+(pass) unsafe socket parents and existing ordinary files are not adopted or deleted [0.50ms]
+(pass) native process streaming preserves split UTF8/stdin and reports positive process close [31.09ms]
+(pass) native process cancellation waits for close and kills an ordinary worker ignoring TERM [38.95ms]
+(pass) oversized native lines and stderr stop the process without exposing its error content [37.63ms]
+(pass) native process channel permits bounded interactive stdin and positive peer acknowledgement [21.97ms]
+(pass) native cancellation kills an ordinary descendant even when its parent closes first [52.69ms]
+(pass) real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names [10.82ms]
+(pass) config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding [3.80ms]
+
+ 16 pass
+ 0 fail
+Ran 16 tests across 1 file. [300.00ms]
+Guarded Bun files: 9/9 passed; 0 failed.

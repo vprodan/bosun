@@ -1,0 +1,6 @@
+{
+  "code": 0,
+  "signal": null,
+  "stdout": "{\"guardedNode\":true,\"profileAssertions\":7,\"sourceDigest\":\"1a90d3dbcbd4d4e8e3d02f02afb175e019063c0e0dbf6e9e78d805d2ff4be946\",\"profileSha256\":\"5a5267a9d347e51e04514e1c0ca1ea9ab10de3fd9f52ee1aeb0dcc588e5c4efe\",\"nativeExecuted\":false,\"sandboxExecuted\":false,\"packageDownloaded\":false}\n",
+  "stderr": ""
+}

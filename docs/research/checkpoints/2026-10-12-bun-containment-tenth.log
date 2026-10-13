@@ -1,0 +1,49 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 26 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+185 |     const file=path.join(root,'runner.test.mjs');
+186 |     fs.writeFileSync(file, `import test from 'node:test'; import assert from 'node:assert/strict';
+187 |       let value=0; test('awaited',async()=>{await new Promise(r=>setTimeout(r,20));value=1;assert.equal(value,1)});
+188 |       test('serial',()=>assert.equal(value,1));`);
+189 |     const good=launch(root,['test','--timeout','1000',file],{cwd,env,encoding:'utf8',timeout:10000});
+190 |     assert.equal(good.status,0,good.stderr); assert.match(good.stderr,/2 pass/);
+                 ^
+AssertionError: error: Script not found "test"
+
+
+1 !== 0
+
+ generatedMessage: false,
+     actual: 1,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /Users/edge/Developer/bosun/scripts/check-containment.mjs:190:12
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

@@ -1,0 +1,119 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (17.871ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (22.917375ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (5.763583ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (6.278708ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (3.287375ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (1.830209ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (4.96625ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (3.583166ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (6.209917ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (53.954208ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (72.956375ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (3.725083ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.494042ms)
+✔ empty doctor reports missing preparation without creating a home, database, config or native process (15.530834ms)
+✔ prepared runtime diagnostics preserve IDs, modes, bytes and WAL sidecars while reporting native/schema qualification honestly (79.70925ms)
+✔ SQLite diagnostics never recover a journal or create shared memory, including live WAL and corrupt files (10.462875ms)
+✔ unsafe runtime parents and rebounded files are held before foreign payload reads (4.364208ms)
+✔ model and malformed doctor commands refuse before path/config getters or storage effects (7.710167ms)
+✔ changed profiles, invalid manifests and stale hook bindings are held with finite metadata and no repair (313.166041ms)
+✔ start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart (2359.018375ms)
+✔ restart with a lost actual stop acknowledgement holds its original operation without starting or replaying (1160.466375ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.229958ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2131.480125ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1285.667166ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1293.051917ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (2025.710292ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1605.178458ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1273.9395ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1283.353875ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2714.990333ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (519.102291ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1365.725625ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1354.685625ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1556.48ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.143291ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (473.975792ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (319.019125ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (324.001875ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (321.826666ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1106.793542ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (285.625792ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (296.375333ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (316.138042ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (921.02875ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (430.097625ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (960.56275ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (312.8665ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (312.330917ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (150.252333ms)
+✔ remote embedding jobs and vector queries use only the authority corpus and preserve source privacy revocation (629.125792ms)
+✔ remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 (517.67225ms)
+✔ owner refresh enables useful offline hook context without copying private, expiring or proposed source rows (802.343042ms)
+✔ native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear (569.243791ms)
+✔ authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption (782.21775ms)
+✔ definite model credential revocation invalidates a permitted view and retains the authority lease until owner release (527.891333ms)
+✔ remote view local expiry and backward clock refuse reads without releasing the source permission lease (526.668791ms)
+✔ lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation (541.381542ms)
+✔ remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 (727.350958ms)
+✔ remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins (0.441375ms)
+✔ two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 (717.533709ms)
+✔ unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy (531.3575ms)
+✔ client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request (695.99ms)
+✔ live token revocation and directory rebinding refuse cached clients before further authoritative effects (510.986292ms)
+✔ wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body (727.938542ms)
+✔ lost remote mutation reply remains unknown and is not replayed by the client transport (493.540292ms)
+✔ actual TLS transport validates configured CA and hostname before preserving private owner data (557.978167ms)
+✔ malformed successful mutation replies stay unknown without retry or local fallback (496.85725ms)
+✔ lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition (8.737875ms)
+✔ lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent (7.461208ms)
+✔ tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file (10.474333ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.357125ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.511666ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (4.03675ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (18.67475ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.818458ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.952541ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (55.591292ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.458209ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.188666ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.244167ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.27225ms)
+✔ final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes (1076.273334ms)
+✔ final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS (463.489084ms)
+✔ final remote request bounds and media type errors are finite and create no memory effects (465.338875ms)
+✔ final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference (990.055667ms)
+✔ foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference (1763.748084ms)
+✔ final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints (662.132959ms)
+✔ explicit Clef endpoint selection preserves the model and sends only public advice; absent calibration never starts a worker or proxy (2.964542ms)
+✔ final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files (1272.954458ms)
+✔ final server installation prepares one owned dormant daemon and wires no host, model or obsolete service (1046.916917ms)
+✔ duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert (1819.392458ms)
+ℹ tests 91
+ℹ suites 0
+ℹ pass 91
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50404.201709

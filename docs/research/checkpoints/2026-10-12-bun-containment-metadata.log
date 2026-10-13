@@ -1,0 +1,60 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+24 | function run(source, extra = {}) {
+25 |   return launch(root, ['-e', source], {
+26 |     cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000,
+27 |   });
+28 | }
+29 | function good(source) { const r = run(source); assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`); }
+                                                           ^
+AssertionError: 
+1 | import assert from 'node:assert/strict'; import fs from 'node:fs'; import {spawnSync} from 'node:child_process';
+2 |       assert.ok(fs.statSync("/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cx75YGX/stub").isFile()); fs.accessSync("/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cx75YGX/stub",fs.constants.X_OK);
+                                                                                                                                ^
+EPERM: operation not permitted, access '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cx75YGX/stub'
+    path: "/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cx75YGX/stub",
+ syscall: "access",
+   errno: -1,
+    code: "EPERM"
+
+      at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cx75YGX/work/[eval]:2:125
+
+Bun v1.4.3 (macOS arm64)
+
+
+1 !== 0
+
+ generatedMessage: false,
+     actual: 1,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at good (/Users/edge/Developer/bosun/scripts/check-containment.mjs:29:55)
+      at /Users/edge/Developer/bosun/scripts/check-containment.mjs:176:5
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:23:28)
+
+Bun v1.4.3 (macOS arm64)

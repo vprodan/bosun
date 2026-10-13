@@ -1,0 +1,308 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✖ owner plan reads only filesystem/header metadata; real CLI preserves live and closed WAL footprints (206.624709ms)
+✖ real owner CLI applies independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer (202.987792ms)
+✔ closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects (21.036ms)
+✔ stale source or WAL identity plans fail before native open without further footprint changes (29.147083ms)
+✔ filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them (38.164916ms)
+✔ plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers (61.504583ms)
+✔ plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation (13.64975ms)
+✖ owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects (1734.768584ms)
+✔ native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified (10.279ms)
+✔ admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused (2237.675625ms)
+✖ READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply (237.779958ms)
+✔ saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked (34.841625ms)
+✔ owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text (8.09075ms)
+✔ local owner wrapper rejects getter/proxy/hidden extra request fields before composition or native effects (8.694375ms)
+✔ owner dependency getters and proxies reject before filesystem inspection or private error serialization (9.235792ms)
+✔ non-synchronous owner validation is refused under native admission before any artifact or floor mutation (6670.147792ms)
+✖ real CLI reviews absent-leaf creation and legacy modes without SQLite, then applies a fresh strict candidate (214.963625ms)
+✔ preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched (27.966875ms)
+✔ preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects (190.907875ms)
+✖ a real existing READY view stays blocked before any preparation permission action (220.379834ms)
+✔ preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths (63.10725ms)
+✔ preparation pins all actionable and creation-parent descriptors before any permission effect (8.0725ms)
+✔ all pinned source, WAL and SHM metadata is rechecked before the first fchmod (24.730334ms)
+✔ descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes (16.470291ms)
+✔ partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan (53.507167ms)
+✔ created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening (35.010875ms)
+✔ owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release (20.042625ms)
+✔ preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields (12.133875ms)
+✖ real preparation CLI rejects unexpected flags/positionals/duplicate options/remote and prints finite partial-outcome guidance (1545.96675ms)
+✖ real CLI quotes exact reviewed action paths containing spaces and control characters without changing storage (203.74275ms)
+✔ preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem (8.721792ms)
+✔ explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles (472.728042ms)
+✖ recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged (211.909958ms)
+✔ multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted (37.716708ms)
+✔ wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML (24.335709ms)
+✔ recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched (95.233875ms)
+✔ recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view (65.369ms)
+✖ actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects (268.301208ms)
+✔ recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference (4469.302791ms)
+✖ real CLI recovery requires strict source/retain/attestation options and completes reviewed native recovery (1573.350125ms)
+✔ recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures (16.173875ms)
+✔ native restore plan saves independent new epoch and opens only leased rollback view; retired CLI makes no storage effects (243.234375ms)
+✔ actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities (183.4625ms)
+✔ retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority (70.108667ms)
+✔ readers observe only pending filename and never open retained owner JSON or backup bytes (71.203875ms)
+✔ pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes (599.9025ms)
+✔ unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage (2324.756084ms)
+✔ stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery (2019.445709ms)
+✔ native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML (227.716042ms)
+✔ explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss (533.923166ms)
+✔ seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival (1271.757583ms)
+✔ fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles (353.44225ms)
+✔ owner capsule reads stay bounded and reject growth between metadata validation and descriptor use (89.203041ms)
+✔ post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay (70.558875ms)
+✔ retired restore CLI and independently bound native tokens refuse missing attestation, extra inputs and wrong epochs without effects (1389.220916ms)
+✔ completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup (254.213209ms)
+✔ pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data (326.84325ms)
+✔ restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps (101.319958ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.141292ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (45.198167ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (120.709584ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (173.491958ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (116.300167ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (107.94325ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (32.519625ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (32.116042ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (32.060625ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (30.877292ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (32.125375ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (104.062542ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (34.270084ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (33.377208ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (73.439292ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (64.805583ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (108.769792ms)
+ℹ tests 75
+ℹ suites 0
+ℹ pass 64
+ℹ fail 11
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33061.30925
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:48:1
+✖ owner plan reads only filesystem/header metadata; real CLI preserves live and closed WAL footprints (206.624709ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:58:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:64:1
+✖ real owner CLI applies independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer (202.987792ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:68:103)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:173:1
+✖ owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects (1734.768584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:183:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:213:1
+✖ READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply (237.779958ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:223:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:334:1
+✖ real CLI reviews absent-leaf creation and legacy modes without SQLite, then applies a fresh strict candidate (214.963625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:341:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:425:1
+✖ a real existing READY view stays blocked before any preparation permission action (220.379834ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:433:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:615:1
+✖ real preparation CLI rejects unexpected flags/positionals/duplicate options/remote and prints finite partial-outcome guidance (1545.96675ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /tightened modes or created directories may remain/. Input:
+  
+  "error: unknown command 'cutover'\n"
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:624:39)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "error: unknown command 'cutover'\n",
+    expected: /tightened modes or created directories may remain/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:633:1
+✖ real CLI quotes exact reviewed action paths containing spaces and control characters without changing storage (203.74275ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:638:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:739:1
+✖ recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged (211.909958ms)
+  AssertionError [ERR_ASSERTION]: error: unknown command 'cutover'
+  
+  
+  2 !== 0
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:759:132)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:839:1
+✖ actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects (268.301208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:849:134)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:878:1
+✖ real CLI recovery requires strict source/retain/attestation options and completes reviewed native recovery (1573.350125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/owner-cutover.test.ts:888:171)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,19 @@
+33 |   fs.rmSync(sentinel, { force: true });
+34 |   const r = launch(root, [entry], {
+35 |     guarded: preload, cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 10000,
+36 |   });
+37 |   assert.notEqual(r.status, 0, r.stdout);
+38 |   assert.match(r.stderr, /containment|require scripts\/run-tests/);
+              ^
+AssertionError: The "string" argument must be of type string. Received type object (null)
+ generatedMessage: true,
+     actual: null,
+   expected: /containment|require scripts\/run-tests/,
+   operator: "match",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at blockedBeforeImport (/Users/edge/Developer/bosun/scripts/check-containment.mjs:38:10)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

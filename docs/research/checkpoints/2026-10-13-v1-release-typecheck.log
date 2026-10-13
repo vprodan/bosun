@@ -1,0 +1,36 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - canonical metadata follows symlinks before parent traversal and contains missing tails
+ok 6 - symlink HOME escape fails before application evaluation
+ok 7 - every host/XDG/temp root is mandatory and contained
+ok 8 - direct test invocation fails before application evaluation
+ok 9 - clean environment excludes inherited credentials and user configuration
+ok 10 - child custom environment regains mandatory preload
+ok 11 - escaped child environment and cwd are rejected before spawn
+ok 12 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 13 - shell and PATH fallback cannot bypass process guard
+ok 14 - outside writes and symlink writes fail
+ok 15 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 16 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 17 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 18 - prototype and instance SQLite constructors preserve guarded identities before native opens
+ok 19 - real credential/config reads fail
+ok 20 - git and plutil external/config mutations fail
+ok 21 - fetch external and unregistered loopback endpoints fail
+ok 22 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 23 - registered ephemeral HTTP mocks remain usable
+ok 24 - HTTP and HTTPS validate merged URL/options destinations before native delegation
+ok 25 - registered HTTP and HTTPS URL/options/callback and IPC mock signatures remain usable
+ok 26 - only registered synthetic local sockets can be connected
+ok 27 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 28 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 29 - native fetch cannot follow a registered mock redirect into a real service
+ok 30 - OS barrier contains native files and SQLite even without the JS preload
+ok 31 - OS process barrier refuses an external shell even without the JS preload
+ok 32 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 33 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 34 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 35 - unknown suites/options and prohibited runtimes fail closed
+Containment: 35/35 probes passed; application suites not imported.

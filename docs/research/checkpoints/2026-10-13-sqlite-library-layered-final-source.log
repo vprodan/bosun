@@ -1,0 +1,1974 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - canonical metadata follows symlinks before parent traversal and contains missing tails
+ok 6 - symlink HOME escape fails before application evaluation
+ok 7 - every host/XDG/temp root is mandatory and contained
+ok 8 - direct test invocation fails before application evaluation
+ok 9 - clean environment excludes inherited credentials and user configuration
+ok 10 - child custom environment regains mandatory preload
+ok 11 - escaped child environment and cwd are rejected before spawn
+ok 12 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 13 - shell and PATH fallback cannot bypass process guard
+ok 14 - outside writes and symlink writes fail
+ok 15 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 16 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 17 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 18 - prototype and instance SQLite constructors preserve guarded identities before native opens
+ok 19 - real credential/config reads fail
+ok 20 - git and plutil external/config mutations fail
+ok 21 - fetch external and unregistered loopback endpoints fail
+ok 22 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 23 - registered ephemeral HTTP mocks remain usable
+ok 24 - HTTP and HTTPS validate merged URL/options destinations before native delegation
+ok 25 - registered HTTP and HTTPS URL/options/callback and IPC mock signatures remain usable
+ok 26 - only registered synthetic local sockets can be connected
+ok 27 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 28 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 29 - native fetch cannot follow a registered mock redirect into a real service
+ok 30 - OS barrier contains native files and SQLite even without the JS preload
+ok 31 - OS process barrier refuses an external shell even without the JS preload
+ok 32 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 33 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 34 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 35 - unknown suites/options and prohibited runtimes fail closed
+Containment: 35/35 probes passed; application suites not imported.
+Guarded Bun file 1/91: acp-runner.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/acp-runner.test.ts:
+(pass) ACP profiles round-trip without changing native hosts/defaults; names, cardinality, selectors and protocol are bounded [8.48ms]
+(pass) ACP construction, private/access/secret/unsupported requests do not inspect environment or discover a command [4.50ms]
+(pass) one ACP v1 process receives exact identity/model/effort/cwd/literal prompt and joins before done [34.69ms]
+(pass) ACP denies client permissions and filesystem calls while discarding tool arguments/results/reasoning [35.02ms]
+(pass) ACP protocol2 fails before the original prompt; no retry or replay [36.89ms]
+(pass) ACP identity-name fails before the original prompt; no retry or replay [35.04ms]
+(pass) ACP identity-version fails before the original prompt; no retry or replay [36.69ms]
+(pass) ACP missing-selector fails before the original prompt; no retry or replay [35.71ms]
+(pass) ACP missing-value fails before the original prompt; no retry or replay [36.51ms]
+(pass) ACP duplicate-selector fails before the original prompt; no retry or replay [34.78ms]
+(pass) ACP duplicate-value fails before the original prompt; no retry or replay [37.53ms]
+(pass) ACP boolean-selector fails before the original prompt; no retry or replay [36.06ms]
+(pass) ACP missing-ack fails before the original prompt; no retry or replay [35.93ms]
+(pass) ACP dependent-drift fails before the original prompt; no retry or replay [34.73ms]
+(pass) ACP interleaved-drift fails before the original prompt; no retry or replay [35.16ms]
+(pass) ACP incomplete-config fails before the original prompt; no retry or replay [35.34ms]
+(pass) ACP lost-config fails before the original prompt; no retry or replay [35.01ms]
+(pass) ACP history fails before the original prompt; no retry or replay [32.64ms]
+(pass) ACP wrong-id remains unknown without publishing completion or replaying [30.76ms]
+(pass) ACP duplicate-id remains unknown without publishing completion or replaying [30.62ms]
+(pass) ACP malformed remains unknown without publishing completion or replaying [31.71ms]
+(pass) ACP missing-jsonrpc remains unknown without publishing completion or replaying [33.13ms]
+(pass) ACP oversize remains unknown without publishing completion or replaying [30.77ms]
+(pass) ACP session-drift remains unknown without publishing completion or replaying [33.86ms]
+(pass) ACP config-drift remains unknown without publishing completion or replaying [32.06ms]
+(pass) ACP tool-update-without-call remains unknown without publishing completion or replaying [32.70ms]
+(pass) ACP pending-tool remains unknown without publishing completion or replaying [32.10ms]
+(pass) ACP lost-tool-receipt remains unknown without publishing completion or replaying [32.14ms]
+(pass) ACP reopened-tool remains unknown without publishing completion or replaying [31.57ms]
+(pass) ACP invalid-tool-status remains unknown without publishing completion or replaying [32.70ms]
+(pass) ACP lost-prompt remains unknown without publishing completion or replaying [31.96ms]
+(pass) ACP stop-unknown remains unknown without publishing completion or replaying [39.61ms]
+(pass) ACP nonzero-close remains unknown without publishing completion or replaying [32.42ms]
+(pass) ACP hang-close remains unknown without publishing completion or replaying [1035.96ms]
+(pass) ACP known refusal returns a finite non-success receipt only after original process close [32.07ms]
+(pass) ACP cancel waits for original prompt receipt and process termination; notification alone is not completion [42.92ms]
+(pass) ACP cancel-ignored waits for original prompt receipt and process termination; notification alone is not completion [1049.76ms]
+(pass) ACP cancel-end-turn waits for original prompt receipt and process termination; notification alone is not completion [57.39ms]
+(pass) ACP registry stays lazy, disabled profiles are absent, quota stays unknown and read-only jobs never spawn [46.59ms]
+(pass) configured ACP CLI run uses the selected lazy adapter through daemon contracts and preserves original job identity [698.53ms]
+(pass) lost ACP prompt receipt is durable unknown through daemon reopen and duplicate/release cannot replay [38.11ms]
+
+ 41 pass
+ 0 fail
+Ran 41 tests across 1 file. [4.14s]
+Guarded Bun file 2/91: boundaries.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/boundaries.test.ts:
+(pass) production boundary graph passes including the recorded legacy forwarding seams [646.41ms]
+(pass) boundary negative fixture: final memory composition cannot reach legacy config [73.21ms]
+(pass) boundary negative fixture: curated source policy cannot reach native writer [58.89ms]
+(pass) boundary negative fixture: normal registered reader cannot import new initialization [58.82ms]
+(pass) boundary negative fixture: jobs core cannot use an ambient clock [60.83ms]
+(pass) boundary negative fixture: jobs core cannot import durable IO [62.42ms]
+(pass) boundary negative fixture: jobs storage cannot reuse memory cutover machinery [60.53ms]
+(pass) boundary negative fixture: final jobs composition cannot import legacy rendezvous [61.17ms]
+(pass) boundary negative fixture: type-only static IO import [59.38ms]
+(pass) boundary negative fixture: reexport relative bypass [59.84ms]
+(pass) boundary negative fixture: literal dynamic import [59.05ms]
+(pass) boundary negative fixture: import type query [58.29ms]
+(pass) boundary negative fixture: tsconfig alias bypass [56.83ms]
+(pass) boundary negative fixture: package imports alias bypass [59.32ms]
+(pass) boundary negative fixture: unresolved alias [57.82ms]
+(pass) boundary negative fixture: computed dynamic import [57.39ms]
+(pass) boundary negative fixture: computed require [54.96ms]
+(pass) boundary negative fixture: require alias [59.04ms]
+(pass) boundary negative fixture: module loader escape [57.94ms]
+(pass) boundary negative fixture: property require escape [59.87ms]
+(pass) boundary negative fixture: element require escape [62.28ms]
+(pass) boundary negative fixture: import equals escape [55.33ms]
+(pass) boundary negative fixture: new graph cycle [56.23ms]
+(pass) boundary negative fixture: old graph cycle [56.84ms]
+(pass) boundary negative fixture: production test dependency [56.36ms]
+(pass) boundary negative fixture: cross adapter flat files [57.91ms]
+(pass) boundary negative fixture: cross adapter nested directories [62.90ms]
+(pass) boundary negative fixture: cross adapter kinds [55.09ms]
+(pass) boundary negative fixture: core process global [55.64ms]
+(pass) boundary negative fixture: core fetch global [58.92ms]
+(pass) boundary negative fixture: core global alias [55.28ms]
+(pass) boundary negative fixture: ambient clock alias [56.88ms]
+(pass) boundary negative fixture: actual context use case cannot reach native hashing [56.48ms]
+(pass) boundary negative fixture: actual context use case cannot use ambient timing [57.38ms]
+(pass) boundary negative fixture: context forwarding cannot restore its obsolete text helper edge [57.73ms]
+(pass) boundary negative fixture: ambient random alias [58.12ms]
+(pass) boundary negative fixture: Math object alias [56.24ms]
+(pass) boundary negative fixture: computed Math operation [57.13ms]
+(pass) boundary negative fixture: new source cannot import old lib helper [62.41ms]
+(pass) boundary negative fixture: unregistered legacy file [54.77ms]
+(pass) boundary negative fixture: unrecorded forwarding edge [56.20ms]
+(pass) boundary negative fixture: memory adapter cannot reach legacy config [59.55ms]
+(pass) boundary negative fixture: memory adapter cannot read ambient config [56.91ms]
+(pass) boundary negative fixture: memory query cannot use an ambient clock [58.65ms]
+(pass) boundary negative fixture: memory adapter cannot use an ambient timing source [56.81ms]
+(pass) boundary negative fixture: memory adapter cannot create a runtime native connection [58.28ms]
+(pass) boundary negative fixture: memory adapter cannot alias a runtime native connection [58.29ms]
+(pass) boundary negative fixture: memory adapter cannot reach a platform clock through a package alias [61.14ms]
+(pass) boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias [58.08ms]
+(pass) boundary negative fixture: memory adapter cannot use an ambient measurement sink [57.77ms]
+(pass) boundary negative fixture: validation cannot load runtime filesystem [56.24ms]
+(pass) boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper [54.84ms]
+(pass) boundary negative fixture: validation isolation cannot reexport an ambient helper [59.57ms]
+(pass) boundary negative fixture: memory isolation cannot alias an unreviewed contract sink [58.78ms]
+(pass) boundary negative fixture: pure validation cannot reach storage [58.05ms]
+(pass) boundary negative fixture: memory query cannot import maintenance [58.16ms]
+(pass) boundary negative fixture: docs snapshot query cannot import its index use case [58.86ms]
+(pass) boundary negative fixture: docs snapshot query cannot reach filesystem helper [58.21ms]
+(pass) boundary negative fixture: docs index cannot import effectful source helper [57.70ms]
+(pass) boundary negative fixture: docs query cannot use ambient config [57.73ms]
+(pass) boundary negative fixture: docs index cannot use runtime filesystem [57.46ms]
+(pass) boundary negative fixture: docs index cannot use ambient timing [56.93ms]
+(pass) boundary negative fixture: docs query cannot alias a platform source [57.85ms]
+(pass) boundary negative fixture: docs query cannot reach unreviewed contract metrics [61.36ms]
+(pass) boundary negative fixture: docs filesystem helper cannot reach legacy state [56.93ms]
+(pass) boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer [56.61ms]
+(pass) boundary negative fixture: local hook reader cannot import writable store [58.78ms]
+(pass) boundary negative fixture: service forwarding does not allow unrelated memory internals [59.28ms]
+(pass) boundary negative fixture: unknown new production zone [58.69ms]
+(pass) AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals [58.98ms]
+(pass) isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins [60.79ms]
+(pass) boundary resolution cannot escape the checked graph through a symlink [3.80ms]
+(pass) app path aliases cannot escape the checked graph as apparent external dependencies [64.31ms]
+
+ 73 pass
+ 0 fail
+Ran 73 tests across 1 file. [4.97s]
+Guarded Bun file 3/91: cards.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/cards.test.ts:
+(pass) Orca selection respects the session executable and avoids the Linux screen reader [0.66ms]
+(pass) native card update pins local host and checkout, sends literal argv and stores hashes rather than comment content [292.25ms]
+(pass) private, credential, accessor, model and invalid status inputs have no Git or Orca effect [35.88ms]
+(pass) unsupported versions, missing or remote host identities, and foreign worktree paths never update a card [251.31ms]
+(pass) same-origin foreign checkout cannot read or retry the original card receipt [250.05ms]
+(pass) lost native response stays unknown, blocks another update and supports explicit reviewed acknowledgement without replay [606.26ms]
+(pass) card shutdown aborts and waits for native update closure before releasing the shared authority [193.14ms]
+(pass) lost intent COMMIT preserves one original card and does not replay after reopen [110.89ms]
+(pass) lost terminal COMMIT preserves one original card and does not replay after reopen [213.13ms]
+(pass) malformed or mismatched positive response remains unknown and receipt tampering is withheld [198.10ms]
+(pass) actual CLI skips outside Orca, requires public comments, and uses owner RPC with exact receipts [325.66ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [2.54s]
+Guarded Bun file 4/91: checks.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/checks.test.ts:
+(pass) native successful verification fingerprints executable/args/environment, stores only outcome/digest and contributes current recorded evidence [852.04ms]
+(pass) nonzero native exits remain failed evidence while a positive command that changes checkout is never usable for the original revision [1327.70ms]
+(pass) changed executable contents with restored mtime hold queued verification and invalidate previous command evidence without another process [612.95ms]
+(pass) explicit later checks of a changed executable keep prior receipts visible and count the latest version with exact literal arguments [1372.49ms]
+(pass) private/model/credential inputs are refused before command getters or execution, and automatic package runners stay held [215.97ms]
+(pass) native timeout retains unknown receipts, block new requests for unsettled command effects and never replay on reopen [1688.11ms]
+(pass) lost terminal outcome COMMIT preserves job and evidence atomically and cannot rerun the native command after reopening [645.17ms]
+(pass) explicit running cancellation waits native closure, preserves unknown effects and keeps the owner until settlement [763.51ms]
+(pass) archived job telemetry preserves permanent verification outcome, original request/link and usable current evidence [723.31ms]
+(pass) actual CLI verification uses the same owner authority, reports recorded-command evidence and protects the reserved runner/model tools [906.87ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [9.17s]
+Guarded Bun file 5/91: claude-client.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-client.test.ts:
+(pass) native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness [114.89ms]
+(pass) private/malformed/secret bootstrap input refuses before content access or native delivery [117.89ms]
+(pass) native bootstrap lost-append joins the original process and never retries or reports readiness [53.33ms]
+(pass) native bootstrap wrong-seed joins the original process and never retries or reports readiness [110.76ms]
+(pass) native bootstrap wrong-user joins the original process and never retries or reports readiness [117.51ms]
+(pass) native bootstrap wrong-session joins the original process and never retries or reports readiness [118.82ms]
+(pass) native bootstrap model-turn joins the original process and never retries or reports readiness [119.05ms]
+(pass) native bootstrap extra-content joins the original process and never retries or reports readiness [118.17ms]
+(pass) native control timeout holds until original producer termination and hides raw errors [159.45ms]
+(pass) native control error holds until original producer termination and hides raw errors [122.86ms]
+(pass) native control foreign-id holds until original producer termination and hides raw errors [119.94ms]
+(pass) native permission and hook requests are explicitly denied without reading or exposing their payloads [125.40ms]
+(pass) selection validation and unsupported native version precede stream startup [26.07ms]
+(pass) native text-block replay and versioned session-state notifications stay exact without becoming readiness claims [228.06ms]
+(pass) managed Claude removes inherited transcript suppression rather than setting a false-looking string [476.35ms]
+(pass) Claude diagnostics distinguish accepted initialization from a later read failure without native payloads [116.92ms]
+(pass) Claude failed initialization diagnostics retain only fixed phases and finite native exits [445.49ms]
+(pass) throwing or rejecting Claude diagnostic observers do not change append, read, denial or positive join [229.28ms]
+(pass) Claude closed callback never claims join when synthetic group termination remains uncertain after the real parent exited [120.03ms]
+
+ 19 pass
+ 0 fail
+Ran 19 tests across 1 file. [3.06s]
+Guarded Bun file 6/91: claude-mem-source.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-mem-source.test.ts:
+(pass) external ClaudeMem ContextSource constructor is inert and native rollback queries leave every byte unchanged [12.69ms]
+(pass) external public classification and exact project/native-session scope precede payload; unreviewed and stale references stay held [11.18ms]
+(pass) external readOnly/query_only denies DML and avoids unclassified external FTS derivatives [9.76ms]
+(pass) external bounded approved payload, malformed storage and reference overflow stay excluded before projection [9.36ms]
+(pass) external source revision changes during native query hold the result without changing the external body [10.96ms]
+(pass) optional external source holds missing with no repair, personal discovery or file changes [8.01ms]
+(pass) optional external source holds corrupt with no repair, personal discovery or file changes [7.84ms]
+(pass) optional external source holds version with no repair, personal discovery or file changes [8.94ms]
+(pass) optional external source holds unknown-version with no repair, personal discovery or file changes [9.00ms]
+(pass) optional external source holds schema with no repair, personal discovery or file changes [8.53ms]
+(pass) optional external source holds view with no repair, personal discovery or file changes [8.39ms]
+(pass) optional external source holds journal with no repair, personal discovery or file changes [8.31ms]
+(pass) optional external source holds wal with no repair, personal discovery or file changes [8.00ms]
+(pass) optional external source holds symlink with no repair, personal discovery or file changes [8.68ms]
+(pass) optional external source holds oversized with no repair, personal discovery or file changes [58.63ms]
+(pass) optional external source holds locked with no repair, personal discovery or file changes [9.23ms]
+(pass) optional external source holds deadline with no repair, personal discovery or file changes [9.28ms]
+(pass) final memory composition retrieves external references without copying observations, and optional failures retain curated/docs [88.71ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [343.00ms]
+Guarded Bun file 7/91: claude-transcript.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/claude-transcript.test.ts:
+(pass) Claude assigned transcript is independently retained and content hashes do not claim readiness [9.51ms]
+(pass) Claude private/unclassified binding and seed requests reject before consulting path or text getters [3.99ms]
+(pass) Claude root readback rejects foreign identities, ancestry, synthetic histories and seed changes finitely [80.55ms]
+(pass) Claude fresh seed readback accepts one exact text block and rejects extra user/assistant or metadata rows [28.73ms]
+(pass) Claude reader only uses the assigned namespace and refuses symlink, hardlink and nonprivate files [27.37ms]
+(pass) Claude binding repeats directory, cwd and file identities before each independently retained read [23.04ms]
+(pass) Claude retained reads reject write/replacement/parent races while the original descriptor is open [20.73ms]
+(pass) Claude append-only linear history extends a binding, while prior accepted rows remain immutable [32.76ms]
+(pass) Claude unknown, partial, overbound and invalid-encoding JSONL stays held without exposing raw content [37.42ms]
+(pass) Claude public evidence admits exact users and completed exact-model assistants and keeps native private metadata local [7.15ms]
+(pass) Claude public evidence refuses unadmitted user text, changed models, uncompleted frames and foreign completion claims [38.97ms]
+(pass) Claude private text/block classifications, credentials and tool results are held before public evidence can escape [33.58ms]
+(pass) Claude evidence validates the full source after a cursor and keeps UTF-8 bounded windows incremental [18.65ms]
+(pass) Claude evidence rejects private request/user classification before disk access and binds cursors to the original inode [6.90ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [390.00ms]
+Guarded Bun file 8/91: clef-lifecycle.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/clef-lifecycle.test.ts:
+(pass) readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth [7.06ms]
+(pass) missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference [15.21ms]
+(pass) Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override [3.28ms]
+(pass) readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages [2.94ms]
+(pass) configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection [2.34ms]
+(pass) native default latest/display canonicalization preserves the actual requested model and never picks a different tag [1.36ms]
+(pass) final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work [2.84ms]
+(pass) cold classification may use its explicitly selected installed model, but metadata status alone never warms it [2.63ms]
+(pass) metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice [5.12ms]
+(pass) caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text [53.67ms]
+(pass) the total classification deadline includes every pre/post metadata phase and produces no late/retried advice [73.11ms]
+(pass) public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state [5.24ms]
+(pass) legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption [0.56ms]
+
+ 13 pass
+ 0 fail
+Ran 13 tests across 1 file. [196.00ms]
+Guarded Bun file 9/91: clef-retirement.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:
+(pass) upgrade reviews exact supported Kev plist and explicit new endpoint without probing, installing or retaining its confidence [13.73ms]
+(pass) unowned, malformed, changed, linked and foreign-user legacy definitions hold before upgrade effects or service discovery [43.72ms]
+(pass) one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay [42.65ms]
+(pass) already stopped Kev definition archives without repeating bootout, while absent service makes no native call [69.75ms]
+(pass) actual stop followed by lost native return retains original plist/backup and a held attempt without another stop [12.75ms]
+(pass) archive unlink followed by lost return preserves retained native backup and never repeats any upgrade effects [11.79ms]
+(pass) retired backup corruption or an unowned replacement definition makes status/duplicate apply held without mutation [72.53ms]
+(pass) legacy launchd list selection is restricted to the exact router label and current CLI exposes its review options [3.59ms]
+(pass) actual owner CLI plans hash-based Kev adoption and applies the single supported upgrade through scoped service control [39.61ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [383.00ms]
+Guarded Bun file 10/91: cli.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/cli.test.ts:
+(pass) cli: help exits 0, unknown command exits 2 [142.22ms]
+(pass) cli: doctor reports problems in an empty sandbox without crashing [89.27ms]
+(pass) cli: install rejects a bad option before touching anything [84.96ms]
+(pass) cli: reviewed install/uninstall reject invalid owned plans and missing receipts before touching user configs or services [146.01ms]
+(pass) cli: metadata doctor leaves an existing Ollama app and launchctl environment unprobed and unchanged [90.86ms]
+(pass) cli: uninstall restores the reviewed previous binary and leaves unowned shell/env metadata and user files intact [162.19ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [757.00ms]
+Guarded Bun file 11/91: codex-control.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/codex-control.test.ts:
+(pass) Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings [4.25ms]
+(pass) fresh Codex seed is persisted and independently read back with no turn/model request before readiness [56.28ms]
+(pass) owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics [54.61ms]
+(pass) wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference [482.00ms]
+(pass) empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated [149.09ms]
+(pass) lost creation receipt retains original native history and prevents repeating the same source request [47.48ms]
+(pass) pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay [310.19ms]
+(pass) cancellation request without original terminal receipt joins the process and leaves unknown effects [1120.29ms]
+(pass) fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history [78.14ms]
+(pass) Codex fresh generation creates an independent root and joins the retired process before destination dispatch [98.42ms]
+(pass) production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) [184.06ms]
+(pass) production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) [150.92ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [2.80s]
+Guarded Bun file 12/91: consolidation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/consolidation.test.ts:
+(pass) consolidation source classification, full credential screening and native-plan policy precede provider access [1.49ms]
+(pass) one bounded generation produces source-version/hash citations and exact selected-model provenance, without accepted fact mutation [0.42ms]
+(pass) invented quote/reference/parent/authority, extra fields, model substitution and malformed output remain unknown with no retry [0.39ms]
+(pass) reviewed merge/duplicate suggestions cite two sources and preserve both source versions rather than modifying originals [0.11ms]
+(pass) late cancellation discards provider output and missing native usage stays unknown [0.15ms]
+(pass) real queued consolidation persists only references, publishes before generation, and atomically stores proposals/cursor without changing L1 facts [145.32ms]
+(pass) cursor progress is oldest-first/bounded, skips denied payloads, and processed versions do not starve newer public facts [113.48ms]
+(pass) atomic output/backpressure races roll back all proposals and cursor progress, retaining the exact owner-visible reservation [179.31ms]
+(pass) lost native COMMIT preserves one batch/cursor with unknown receipt; restart never replays the reserved source window [80.80ms]
+(pass) retained source reservations survive a fresh memory runtime; explicit abandon skips unknown work without modifying accepted facts [104.46ms]
+(pass) source privacy changes during HTTP invalidate the entire batch atomically and retain a sticky reservation without replay [432.16ms]
+(pass) invented output retains reservations, default20 backlog prevents generation, and empty output advances known completed sources [354.37ms]
+(pass) native HTTP cancellation is unknown with a retained source reservation and no late publication or automatic retry [92.75ms]
+(pass) local model metadata rejects cloud aliases and disabled scheduling enqueues nothing; idle checks and close wait for the pending enqueue callback [2.16ms]
+(pass) configured native-plan providers are refused; compatible API needs explicit opt-in and independent positive admission [100.71ms]
+(pass) source changes between publication and provider dispatch are rechecked without sending any model payload [88.62ms]
+
+ 16 pass
+ 0 fail
+Ran 16 tests across 1 file. [1.74s]
+Guarded Bun file 13/91: context-pipeline.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/context-pipeline.test.ts:
+(pass) context pipeline: shared hash and token estimate retain normalized SHA-256 behavior [0.77ms]
+(pass) context pipeline: deterministic injected dependencies, score, rendering, fractional dates and numeric metrics [0.85ms]
+(pass) context pipeline: source relevance, session half-life, usage, stable ties and source counts stay compatible [0.21ms]
+(pass) context pipeline: supplied hash, fallback hash and Jaccard dedupe retain the highest stable score [0.14ms]
+(pass) context pipeline: real greedy token edges, one-character truncation, min score and empty terms [0.37ms]
+(pass) context pipeline: bounded large task query and matched term gating precede payload access [4.06ms]
+(pass) context pipeline: disabled sources are skipped before callback or hit access; verified open IDs work [0.19ms]
+(pass) context pipeline: mismatched hit identity and undeclared throwing getters never expose content [0.23ms]
+(pass) context pipeline: composition snapshots metadata, callbacks, dependencies and trusted caller scope [0.13ms]
+(pass) context pipeline: malformed options and trusted scope fail with finite errors before provider calls [0.33ms]
+(pass) context pipeline: malformed verified metadata and dependency functions fail before callback acquisition [0.13ms]
+(pass) context pipeline: nonfinite and malformed hit metadata fail without payload access or content-bearing errors [0.21ms]
+(pass) context pipeline: excessive callback/source counts hold before returned hit payload getters [0.35ms]
+(pass) context pipeline: timing and sink failures preserve completed results and exact provider-domain errors [0.22ms]
+(pass) context pipeline: semantic clock, hash and day failures hold output with finite errors [0.24ms]
+(pass) context pipeline: final source selectors reject caller metadata and undeclared names while verified callbacks keep their receiver [0.97ms]
+(pass) context pipeline: actual final curated source denies records before all metadata/body getters and never touches access state [0.14ms]
+(pass) context pipeline: direct import and use tolerate unusable ambient HOME/config/clocks with no effects [26.90ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [80.00ms]
+Guarded Bun file 14/91: context.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/context.test.ts:
+(pass) context: relevance and recency both count; sources are weighted [1.50ms]
+(pass) context: dedupe across sources keeps the higher score [0.09ms]
+(pass) context: budget is respected at the edges; items capped; min score; empty queries [2.41ms]
+(pass) context: output format — one line per item: source, category, date, id, title and snippet [0.07ms]
+(pass) final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider [452.11ms]
+(pass) final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage [211.35ms]
+(pass) final hook rejects one-common-word memory and preserves relevant scoped context without inference [266.61ms]
+(pass) final hook with missing memory creates nothing and runs no model/service [55.73ms]
+
+ 8 pass
+ 0 fail
+Ran 8 tests across 1 file. [1056.00ms]
+Guarded Bun file 15/91: core.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/core.test.ts:
+(pass) core errors and deterministic Unicode text behavior [1.33ms]
+(pass) coded errors preserve causes and legacy exits while constraining untyped codes and details [0.07ms]
+(pass) routing risk overrides low confidence, while ordinary uncertain decisions stay silent [0.17ms]
+(pass) new routing contract rejects private/unknown/unclassified input before text access or port calls [0.18ms]
+(pass) routing sanitizes provider extras and uses only the trusted configured label [0.09ms]
+(pass) routing rejects malformed decisions/config and respects abort/null without a fallback model [0.19ms]
+(pass) omitted/unsupported/unverified capabilities fail closed; selection does not probe a host [0.17ms]
+(pass) model memory exposure denies the entire private record and unknown classification, while owner reads remain eligible [0.03ms]
+(pass) final retrieval skips unverified source callbacks and rejects mismatched hit sources before delivery [3.92ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [26.00ms]
+Guarded Bun file 16/91: daemon-memory.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/daemon-memory.test.ts:
+(pass) new secret ingress is rejected before FTS; existing credential rows keep owner IDs/flags but never enter model packs or the public view [111.79ms]
+(pass) final memory composition preserves actual registered store/FTS/audit/scope and runs queries without maintenance [88.66ms]
+(pass) final project context uses reviewed public curated/docs sources and supplied linked scope with explicit indexing only [121.41ms]
+(pass) curated final source rejects private/unclassified payload getters before projection [0.14ms]
+(pass) expiry/touch/prune and publication are explicit, and runtime close leaves the supplied daemon authority alive [103.51ms]
+(pass) lost daemon authority denies memory/docs/context/index/publication before effects and closes neither independently [58.66ms]
+(pass) native registered COMMIT then error forwards unknown and fences all further writes without reopening or replay [58.19ms]
+(pass) startup dependency failure closes both registered handles without releasing shared daemon authority [57.11ms]
+(pass) explicit docs COMMIT receipt loss preserves indexed rows/unknown and never replays or refreshes storage [65.17ms]
+(pass) explicit format1 publication retains cached writer fencing and requires explicit runtime restart [64.80ms]
+(pass) explicit new initializer preserves the exact supported schema and refuses every existing file; normal open never initializes [57.50ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [832.00ms]
+Guarded Bun file 17/91: daemon-methods.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/daemon-methods.test.ts:
+(pass) one shared method table applies real schemas and privacy before prompt getters [1.74ms]
+(pass) actual UDS methods share scoped memory/context and keep private owner records out of model replies/mutations [191.23ms]
+(pass) actual job methods persist request dedupe, selected execution, scoped progress and explicit cancellation [86.29ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [335.00ms]
+Guarded Bun file 18/91: dashboard.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/dashboard.test.ts:
+(pass) actual Ink views render stable closed metadata, preserve unknown counts/billing and distinguish weekly holds without terminal injection [28.60ms]
+(pass) dashboard refuses model audience and noninteractive live mode before filesystem/socket/terminal effects [0.38ms]
+(pass) actual CLI/daemon dashboard snapshot uses scoped metadata only and handoff listing cannot disclose another project or model audience [140.99ms]
+(pass) dashboard actions refuse model callers, disconnected/missing selections and unknown effects before any socket access [0.29ms]
+(pass) dashboard lost mutation receipt stays unknown, is never retried and needs a fresh observed version for manual reconciliation [3.80ms]
+(pass) dashboard explicit release preserves quota holds, uses the selected scope only and never starts unknown or foreign jobs [101.58ms]
+(pass) dashboard explicit running cancellation is acknowledged without claiming positive completion or retrying unknown effects [94.47ms]
+(pass) live Ink dashboard reacts to native UDS job events and quits with synthetic streams restored and no job cancellation [429.67ms]
+(pass) live Ink keys bind cancel/release to the selected job, preserve a hold and restore the terminal after explicit actions [739.24ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [1.65s]
+Guarded Bun file 19/91: dispatch-policy.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/dispatch-policy.test.ts:
+(pass) deterministic policy uses operations and narrow paths; no delegation and exact model restrictions precede risk or read-only allowance [0.81ms]
+(pass) policy validation denies accessors and credential-shaped scope without getter effects [0.18ms]
+(pass) high-risk, no-delegation and exact-model rules hold before quota/runner callbacks and remain held through explicit release [42.49ms]
+(pass) model editing needs declared scope and cannot spoof owner origin; explicit owner task and scoped low-risk model task preserve chosen model [36.52ms]
+(pass) actual CLI run policy controls are enforced in the same durable executor, independent of quota opt-in or model selection [99.02ms]
+
+ 5 pass
+ 0 fail
+Ran 5 tests across 1 file. [250.00ms]
+Guarded Bun file 20/91: distribution.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/distribution.test.ts:
+(pass) distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence [4948.01ms]
+(pass) distribution synthetic compiler: deterministic metadata/archive/checksums across temporary build paths [5250.41ms]
+(pass) distribution static verification rejects binary/checksum and metadata/inventory tampering [3315.80ms]
+(pass) distribution static verification rejects changed current assets or installed dependency bytes [4953.31ms]
+(pass) distribution static verification rejects archives with changed executable modes, extra files and malformed Mach-O commands [3257.69ms]
+(pass) distribution build refuses existing outputs, cross compilation and symlink/dependency drift before compiler calls [3100.20ms]
+(pass) distribution source admission rejects native and authoritative Bun lock tampering without synthetic trust [3570.28ms]
+synthetic compilation failure
+(pass) distribution build/compiler failure removes temporary source and leaves no candidate output [3293.01ms]
+(pass) distribution Bun CLIs verify without execution and refuse to overwrite a formula [4314.23ms]
+(pass) shared source entry admits a private hook before configuration or malformed input [47.09ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [36.07s]
+Guarded Bun file 21/91: docs-adapter.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/docs-adapter.test.ts:
+(pass) docs timestamp-preserving edit: plain refreshes content without writing unchanged snapshots [60.37ms]
+(pass) docs timestamp-preserving edit: registered refreshes content without writing unchanged snapshots [88.29ms]
+(pass) docs descriptor close failure holds indexing and retries only its still-open source descriptor [37.19ms]
+(pass) docs regular source: outside symlink is rejected before reading private bytes [35.20ms]
+(pass) ContextSource docs acceptance: plain actual query snapshot and admitted index [49.05ms]
+(pass) ContextSource docs acceptance: registered actual query snapshot and admitted index [81.17ms]
+(pass) docs disposition: plain stable rejects remove owned rows only; transient/race holds all [58.01ms]
+(pass) docs disposition: registered stable rejects remove owned rows only; transient/race holds all [86.17ms]
+(pass) docs native count boundary: exactly 2000 accepted, incomplete/overflow listings hold; no content telemetry [786.62ms]
+(pass) docs native file bound and aggregate hold are atomic; metrics failure cannot change committed receipt [66.99ms]
+(pass) docs actual worktree roots and nested repositories preserve absolute keys and exclude ambiguous same-project descendants [118.02ms]
+(pass) docs native incomplete listing and process output overflow hold existing rows without source reads [96.29ms]
+(pass) docs native short read and file mutation during descriptor read hold before deletion, with no outside reads [52.24ms]
+(pass) docs registered READY lease permits snapshot SELECT while holding index writes; release revokes HOLD and fences old writer [84.11ms]
+(pass) docs storage reservation and post-DML check: plain hold/rollback and finite metadata [46.05ms]
+(pass) docs storage reservation and post-DML check: registered hold/rollback and finite metadata [69.06ms]
+(pass) final daemon docs CLI/MCP: foreign project canaries, explicit indexing and held snapshot preservation [371.07ms]
+(pass) final daemon docs CLI/MCP: nested repository canaries, explicit indexing and held snapshot preservation [365.76ms]
+(pass) docs direct child import has no ambient config, filesystem, git, indexing or measurement closure [27.83ms]
+(pass) docs source mutation after the admitted preflight rolls back every source DML and keeps errors content-free [62.34ms]
+(pass) docs actual oversized source plus WAL: plain existing 64MiB admission remains held [94.92ms]
+(pass) docs actual oversized source plus WAL: registered existing 64MiB admission remains held [110.81ms]
+(pass) docs native COMMIT followed by error preserves finite unknown receipt, committed row/FTS and fenced session [48.35ms]
+
+ 23 pass
+ 0 fail
+Ran 23 tests across 1 file. [2.97s]
+Guarded Bun file 22/91: doctor.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/doctor.test.ts:
+(pass) empty doctor reports missing preparation without creating a home, database, config or native process [12.55ms]
+(pass) prepared runtime diagnostics preserve IDs, modes, bytes and WAL sidecars while reporting native/schema qualification honestly [47.59ms]
+(pass) SQLite diagnostics never recover a journal or create shared memory, including live WAL and corrupt files [8.33ms]
+(pass) unsafe runtime parents and rebounded files are held before foreign payload reads [3.43ms]
+(pass) model and malformed doctor commands refuse before path/config getters or storage effects [5.58ms]
+(pass) changed profiles, invalid manifests and stale hook bindings are held with finite metadata and no repair [97.70ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [243.00ms]
+Guarded Bun file 23/91: embedding-jobs.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/embedding-jobs.test.ts:
+(pass) owner CLI indexes native source chunks once and actual MCP queries return original IDs with negative abstention [387.29ms]
+(pass) classification precedes payload getters; owner indexing rejects private, proposed and foreign IDs before model metadata [155.52ms]
+(pass) disabled or empty vector sources leave defaults intact and make no model calls [225.52ms]
+(pass) source revocation during metadata or embedding prevents storage and preserves sticky original job receipt [238.40ms]
+(pass) workspace origin drift during embedding holds without derived data or replay [102.62ms]
+(pass) cancelled embedding and successful native store with lost return retain unknown and never resubmit [206.81ms]
+(pass) multi-batch indexing preserves Unicode spans and commits only after every source remains public [315.66ms]
+(pass) optional query cache rechecks current source generation, keeps sessions separate and evicts at its bound [549.88ms]
+(pass) corpus revocation during a query holds the reply and cannot populate a cache from an uncertain result [177.80ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [2.44s]
+Guarded Bun file 24/91: embedding-storage.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/embedding-storage.test.ts:
+(pass) registered vector data retains original source/audit, filters permitted scope before ranking, and never mixes spaces [76.52ms]
+(pass) private/unclassified/proposed/expired source capture and forged input hashes produce no vector data [57.75ms]
+(pass) source privacy, version, archive and purge delete derived bytes inside the original admitted transaction [95.94ms]
+(pass) actual privacy COMMIT followed by lost return still deletes vectors, retains originals/audit and fences replay [47.67ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [324.00ms]
+Guarded Bun file 25/91: embeddings.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/embeddings.test.ts:
+(pass) entire embedding batch is classified before any payload and before model metadata/generation [2.94ms]
+(pass) native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units [4.93ms]
+(pass) document transform preserves title; credentials and unsupported batch/space hold before metadata [0.88ms]
+(pass) cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding [5.14ms]
+(pass) mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes [8.07ms]
+(pass) model digest drift after actual embedding retains unknown with no retry or substitution [1.37ms]
+(pass) vector encoding is finite normalized little-endian float32 and dimensions never mix [0.25ms]
+
+ 7 pass
+ 0 fail
+Ran 7 tests across 1 file. [45.00ms]
+Guarded Bun file 26/91: exec.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/exec.test.ts:
+(pass) final run preserves configured primary and explicit native host/model/effort and literal task [119.53ms]
+(pass) final read-only run uses restricted native Claude tools and holds unqualified Codex without changing host or model [128.59ms]
+(pass) final queued native run retains auth and cwd, clears parent controls and preserves unknown native exits without replay [325.50ms]
+(pass) final revision-bound review captures the whole checkout from a subdirectory, selects the read-only vendor and holds unsafe selections [932.32ms]
+(pass) run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns [524.33ms]
+(pass) run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor [346.08ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [2.45s]
+Guarded Bun file 27/91: external-sources.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/external-sources.test.ts:
+(pass) final external registry is inert; exact owner review metadata enables source context without observation copies and later source edits revoke it [103.94ms]
+
+ 1 pass
+ 0 fail
+Ran 1 test across 1 file. [171.00ms]
+Guarded Bun file 28/91: graph.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/graph.test.ts:
+(pass) final graph schema fingerprint [2.42ms]
+(pass) same registered writer creates reviewed L0/L2/L3/L4, preserves source rows/audit and performs query without writes [114.03ms]
+(pass) complete source versions are required and source changes revoke all levels inside the memory mutation transaction [97.07ms]
+(pass) legacy credential source and aliases are withheld before any graph payload read while raw owner records remain intact [46.19ms]
+(pass) scope, linked/shared eligibility and session/expiry are checked on every source and derived read [101.24ms]
+(pass) review, ranges, semantic shapes, normalized file keys and model provenance are validated before writes [65.49ms]
+(pass) bounded graph expansion requires eligible edge/endpoints and explicit opt-in; parent revocation is atomic [84.71ms]
+(pass) schema1 remains exact/readable with graph disabled; no implicit graph creation or upgrade writes [28.34ms]
+(pass) dense native graph stops at64 artifacts and128 distinct edges, never starts an unbounded traversal [2331.99ms]
+(pass) parent temporal deadlines, explicit archive and purge cannot leave readable summary/profile descendants [114.05ms]
+(pass) graph writes use the existing UDF floor and lost COMMIT is unknown/fenced without replay [40.17ms]
+(pass) canonical derivative hash covers sorted supports/parents/aliases and withholds independently changed derived payloads [110.01ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [3.18s]
+Guarded Bun file 29/91: handoff-artifacts.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-artifacts.test.ts:
+(pass) manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests [19.40ms]
+(pass) owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes [7.94ms]
+(pass) import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work [8.31ms]
+(pass) two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten [7.27ms]
+(pass) actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen [11.32ms]
+
+ 5 pass
+ 0 fail
+Ran 5 tests across 1 file. [94.00ms]
+Guarded Bun file 30/91: handoff-checkout.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff-checkout.test.ts:
+(pass) portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs [42.91ms]
+(pass) portable worktree metadata reads common refs while retaining the selected worktree HEAD [34.14ms]
+
+ 2 pass
+ 0 fail
+Ran 2 tests across 1 file. [98.00ms]
+Guarded Bun file 31/91: handoff.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/handoff.test.ts:
+(pass) durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source [12.44ms]
+(pass) unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source [27.44ms]
+(pass) bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt [57.68ms]
+(pass) concurrent ownership changes during summary cancel destination bootstrap and do not replay source work [6.66ms]
+(pass) actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay [9.38ms]
+(pass) an isolated readiness turn requires bootstrap admission before any source effects [18.70ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [155.00ms]
+Guarded Bun file 32/91: host-installation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/host-installation.test.ts:
+(pass) omp plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [136.77ms]
+(pass) opencode plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [113.89ms]
+(pass) codex plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [127.96ms]
+(pass) claude plan/apply/undo owns a private profile, native role/MCP configuration and canonical skill links without changing personal files [121.54ms]
+(pass) only the pinned OpenCode 2 standalone overlay exceeds ordinary launch environment bounds in plans and receipts [96.03ms]
+(pass) private, credential, stale, unsupported or modified plans have no profile/configuration effect [61.04ms]
+(pass) running daemon authority prevents installation and stale plan/undo versions preserve original profiles [87.20ms]
+(pass) undo refuses content drift and preserves the profile and unrelated data [93.17ms]
+(pass) undo refuses extra-file drift and preserves the profile and unrelated data [88.80ms]
+(pass) undo refuses symlink drift and preserves the profile and unrelated data [95.78ms]
+(pass) undo refuses hardlink drift and preserves the profile and unrelated data [99.53ms]
+(pass) undo refuses mode drift and preserves the profile and unrelated data [92.51ms]
+(pass) lost positive profile rename receipt stays unknown, duplicate apply does not recreate, and explicit verified undo retires it [112.06ms]
+(pass) partial install receipt loss retains mismatched staged files for review without changing outside data [67.28ms]
+(pass) lost intent manifest receipt returns the saved original and never recreates a host profile [61.99ms]
+(pass) lost terminal manifest receipt returns the saved original and never recreates a host profile [106.07ms]
+(pass) metadata detection/session parsing never executes native hosts or classifies unknown prompts as public [54.73ms]
+(pass) profile doctor refuses rebound parent directories before reading foreign payloads [93.31ms]
+(pass) actual Commander plan export refuses overwrite, requires reviewed apply and denies model mutation before file reads [115.36ms]
+(pass) Codex reuses matching user project skills, preserves unrelated files and never owns their removal [111.25ms]
+(pass) changed project skill links hold undo and a new request cannot adopt links owned by another profile [105.83ms]
+(pass) lost project skill link receipt remains unknown without recreation and explicit undo removes only matching new links [113.24ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [2.23s]
+Guarded Bun file 33/91: host-launch.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/host-launch.test.ts:
+(pass) omp preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [313.80ms]
+(pass) opencode preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [291.06ms]
+(pass) codex preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [305.60ms]
+(pass) claude preview performs no native call and explicit launch preserves selected native homes/model precedence, terminal input and exit [298.74ms]
+(pass) native version mismatch, ambiguous version output and nonzero probe cannot launch a UI or substitute a host [507.20ms]
+(pass) profile, configuration, receipt, workspace and review drift hold before native probes [101.50ms]
+(pass) drift during version inspection is rechecked before foreground effects, including executable replacement [386.99ms]
+(pass) model and malformed launch requests reject before home/config/secret getters; preview never reads auth [82.92ms]
+(pass) explicit terminal shutdown waits for positive native parent close without claiming managed tool quiescence [743.27ms]
+native_ui
+(pass) foreground launch dispatches through the current child-process boundary and retains native close and exit receipts [141.97ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [3.24s]
+Guarded Bun file 34/91: installation-service.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/installation-service.test.ts:
+(pass) start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart [1068.17ms]
+(pass) restart with a lost actual stop acknowledgement holds its original operation without starting or replaying [510.70ms]
+(pass) legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations [0.18ms]
+(pass) actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay [1056.20ms]
+(pass) lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap [562.27ms]
+(pass) lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout [555.52ms]
+(pass) unknown list/context and a foreign namespace or definition refuse before service intent or mutations [472.23ms]
+(pass) loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness [955.44ms]
+(pass) actual owner CLI service commands use shared receipts and model callers cannot reach service observations [558.56ms]
+(pass) manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts [559.43ms]
+(pass) changed published definition and mismatched native PID cannot stop an unqualified service [1256.45ms]
+(pass) service publication into an unsafe parent is held before intent and preserves owner paths [125.20ms]
+(pass) actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown [623.33ms]
+(pass) foreign archive bytes survive shutdown and reconciliation never repeats native control [627.03ms]
+(pass) onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles [641.89ms]
+(pass) fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation [3.83ms]
+
+ 16 pass
+ 0 fail
+Ran 16 tests across 1 file. [9.65s]
+Guarded Bun file 35/91: installation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/installation.test.ts:
+(pass) reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files [145.70ms]
+(pass) explicit existing link replacement retains the original inode and restores it on exact undo [111.82ms]
+(pass) explicit existing file replacement retains the original inode and restores it on exact undo [108.78ms]
+(pass) Homebrew deployment references its stable opt path and never copies/removes the externally owned binary [107.49ms]
+(pass) stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent [595.07ms]
+(pass) edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo [107.06ms]
+(pass) actual ready manifest rename with a lost return fences activation and does not repeat the binary copy [104.21ms]
+(pass) actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes [115.00ms]
+(pass) edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable [317.55ms]
+(pass) rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable [177.85ms]
+(pass) wrong executable version and source mutation during the version probe preserve manifest and install destinations [198.63ms]
+(pass) lost actual undo rename retains original receipts and data; a second undo cannot replay restoration [106.31ms]
+(pass) doctor detects installed file drift through filesystem checks without opening memory or executing services [110.84ms]
+(pass) retained installation capacity repeats under native admission before any new intent or external effect [83.73ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [2.46s]
+Guarded Bun file 36/91: job-events.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/job-events.test.ts:
+(pass) actual Hono SSE uses one native scoped writer, excludes owner rows/content, resumes exact cursor and disconnect never cancels jobs [87.32ms]
+(pass) closed SSE projection ignores unknown content/getters, rejects malformed metadata, and never serializes raw callback errors [41.20ms]
+(pass) invalid event mutation/body is refused before dispatch and native subscriptions are capped, closed by admission stop [38.30ms]
+(pass) event lifetime terminates finite producers, stops polling, and creates no job effects [123.49ms]
+(pass) drain retains native authority until an in-flight SSE callback positively settles after disconnect [33.30ms]
+(pass) actual paused native SSE consumer reaches bounded backpressure hold before lifetime expiry and polling stops [106.62ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [458.00ms]
+Guarded Bun file 37/91: job-retention.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/job-retention.test.ts:
+(pass) default30-day boundary compacts only settled scoped content and preserves original receipt/version/request without payload reads or replay after reopen [18.47ms]
+(pass) daily aggregates keep scope/day/exact model/effort/billing vendor and observed account pools separate and expose incomplete totals honestly [26.29ms]
+(pass) unknown billing/account identity never merges independent attempts, while verified local totals may aggregate in the same authority [12.27ms]
+(pass) bounded prune and permanent receipt/daily capacity hold without erasing uncertain effects, fresh jobs or replay evidence [11.12ms]
+(pass) daily group capacity blocks a different model/account atomically without deleting its original attempt or result [8.99ms]
+(pass) queued/held/unknown jobs and their uncertainty payloads, quota latches, managed ownership and handoff references survive pruning [12.90ms]
+(pass) native prune before COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen [11.66ms]
+(pass) native prune after COMMIT receipt loss preserves atomic originals or exactly one aggregate/receipt, fences and never replays on reopen [9.21ms]
+(pass) daily counter overflow rolls prune back and preserves original attempt/receipt capacity instead of manufacturing a total [9.18ms]
+(pass) configured drain grace allows running native completion without cancellation and leaves queued work undispatched [7.29ms]
+(pass) drain deadline requests cancellation but cannot release authority or settle until the synthetic native process positively exits [49.55ms]
+(pass) positive configured grace never waits for unstarted admission or dispatches it after shutdown [6.92ms]
+(pass) uncertain prune receipt synchronously aborts the existing active control and retains native authority until its positive settlement [12.53ms]
+(pass) automatic bounded retention frees pressure only after age boundary and preserves owner-only receipt isolation [9.43ms]
+(pass) invalid grace policies are finite and never acquire an owner lock or install a new runtime [2.55ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [238.00ms]
+Guarded Bun file 38/91: jobs.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/jobs.test.ts:
+(pass) replaced native owner file cannot leave a cached writer authoritative beside a newly acquired owner [11.66ms]
+(pass) background owner work follows queued interactive, admin and summary work while preserving FIFO within each class [14.44ms]
+(pass) public classification cannot admit known credentials; a tainted native result preserves successful owner outcome but is withheld from model [9.14ms]
+(pass) known credentials in job selection/identity/path metadata are refused before persistence, admission, callbacks or dispatch [6.42ms]
+(pass) jobs persist selected runner/model/effort/access/cwd and bounded owner result; events contain no source payload [8.95ms]
+(pass) request idempotency and scope survive native reopen without reading duplicate prompt getters or dispatching [11.38ms]
+(pass) native owner jobs deny model payload/result/metadata access and owner-only creation before prompt getters [7.53ms]
+(pass) privacy classification precedes every prompt/task getter, storage write, admission and runner call [9.83ms]
+(pass) bounded queue and admission holds are durable, explicit release preserves selection, cancellation is known before dispatch [10.05ms]
+(pass) active cancellation becomes unknown without runner completion [7.64ms]
+(pass) active cancellation retains positive actual runner outcome [7.48ms]
+(pass) nonzero native done is failed; provider loss/oversize produces finite unknown metadata without provider text [11.53ms]
+(pass) drain closes neither jobs nor native authority while late runner completion is still pending [10.54ms]
+(pass) drain aborts admission before payload/runner dispatch and leaves unstarted queued work persisted [6.03ms]
+(pass) queued cancellation aborts pending admission and cannot later become a hold or dispatch [7.33ms]
+(pass) real killed daemon reopens running as persisted, explicit recovery marks unknown and never dispatches it [42.17ms]
+(pass) actual native start COMMIT then error persists running and finite unknown, fences dispatch and recovers without replay [9.40ms]
+(pass) native queue CAS, rollback/busy proof, scope and close are enforced by the actual owned SQLite store [7.34ms]
+(pass) native event capacity reserves terminal recovery instead of consuming it with runner progress [7.82ms]
+(pass) native BEGIN then error positively rolls back and leaves the store usable with no job/events [5.82ms]
+(pass) unrelated job/authority layouts are rejected before journal or schema writes [5.75ms]
+
+ 21 pass
+ 0 fail
+Ran 21 tests across 1 file. [261.00ms]
+Guarded Bun file 39/91: lexical-memory.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/lexical-memory.test.ts:
+(pass) native weighted FTS and actual excerpt packing expose supporting tail evidence with original IDs/hash and no mutation [132.22ms]
+(pass) reviewed aliases retain the original curated ID, stay scoped, and revoke on source privacy/version changes [161.32ms]
+(pass) explicit reviewed graph context remains absent from ordinary context [129.99ms]
+(pass) lexical source denies private/unclassified records before identity, payload, ranking or provenance getters [0.16ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [493.00ms]
+Guarded Bun file 40/91: lint.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/lint.test.ts:
+(pass) lint: thirteen skills, frontmatter name matches the folder, descriptions long enough to trigger [1.00ms]
+(pass) lint: skills, policy and roles only reference final roles, skills and commands that exist [4.20ms]
+(pass) lint: no skill passes spec text to a shell inside double quotes (backticks and $ would run) [0.34ms]
+(pass) lint: the verify rule covers new files too (git status --short, not only git diff) [0.07ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [77.00ms]
+Guarded Bun file 41/91: logging.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/logging.test.ts:
+(pass) actual installed LogTape/file/redaction emits closed JSON metadata and no console, raw error, path, account or content canaries [6.32ms]
+(pass) native private rotation is bounded, each new leaf stays0600 and valid logs resume without unknown file adoption [36.59ms]
+(pass) log symlink is held without permission repair or content overwrite [3.10ms]
+(pass) log mode is held without permission repair or content overwrite [3.04ms]
+(pass) log unknown is held without permission repair or content overwrite [5.10ms]
+(pass) log directory is held without permission repair or content overwrite [2.96ms]
+(pass) post-open path replacement holds logging without touching the replacement; second global logger cannot steal first policy [3.69ms]
+(pass) invalid wall clock never becomes a content-bearing initialization record or partial log leaf [3.04ms]
+(pass) actual daemon opens its structured log after owner admission; a losing start cannot append or steal logging policy [53.55ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [178.00ms]
+Guarded Bun file 42/91: managed-runtime.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/managed-runtime.test.ts:
+(pass) owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects [202.37ms]
+(pass) synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text [447.74ms]
+(pass) synthetic managed handoff invented-summary remains held without dispatch or retry [275.41ms]
+(pass) synthetic managed handoff seed-acknowledgement remains held without dispatch or retry [401.36ms]
+(pass) synthetic managed handoff source-drift remains held without dispatch or retry [290.79ms]
+(pass) synthetic managed handoff checkout-drift remains held without dispatch or retry [358.81ms]
+(pass) automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry [368.92ms]
+(pass) multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints [6517.31ms]
+(pass) a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model [653.30ms]
+(pass) actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication [390.45ms]
+(pass) cancellation during inline generation holds the fenced source and never publishes or seeds late provider output [247.45ms]
+(pass) actual managed transfer COMMIT followed by lost return preserves native history and holds without replay [393.41ms]
+(pass) actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay [384.08ms]
+(pass) below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs [1286.26ms]
+(pass) changed telemetry between scheduling and execution fails before fencing and keeps the source active [197.56ms]
+(pass) actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow [173.99ms]
+(pass) bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts [106.95ms]
+(pass) lost native createFault remains held across duplicate requests and daemon restart without replay [96.92ms]
+(pass) lost native seedFault remains held across duplicate requests and daemon restart without replay [96.04ms]
+(pass) lost native turnFault remains held across duplicate requests and daemon restart without replay [138.48ms]
+(pass) owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects [111.66ms]
+(pass) same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects [140.33ms]
+(pass) restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it [113.53ms]
+(pass) permanent managed job bindings and original request receipts survive actual content retention [107.20ms]
+(pass) actual starting ownership COMMIT followed by lost return keeps original source intent without native replay [85.79ms]
+(pass) actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay [95.43ms]
+(pass) actual active ownership COMMIT followed by lost return keeps original source intent without native replay [107.19ms]
+(pass) model bootstrap admission checks the selected native quota, preserves usage and never bypasses weekly exhaustion [454.92ms]
+(pass) isolated handoff keeps summary and native bootstrap costs separate and retains usage after readiness loss [764.99ms]
+(pass) weekly exhaustion before isolated handoff prevents native bootstrap even with owner unknown-quota opt-in [358.97ms]
+
+ 30 pass
+ 0 fail
+Ran 30 tests across 1 file. [15.44s]
+Guarded Bun file 43/91: mcp.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/mcp.test.ts:
+(pass) final MCP negotiates the pinned modern protocol, exposes closed model schemas and reserves owner operations [280.92ms]
+(pass) final MCP uses the actual daemon for public mutations, finite version errors, fixed project scope and indexed docs [444.72ms]
+(pass) final MCP keeps private records opaque and bounds oversized public replies while preserving a successful mutation receipt [526.52ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [1335.00ms]
+Guarded Bun file 44/91: memory-benchmark.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-benchmark.test.ts:
+(pass) benchmark selects explicit Bun source, interpreter source and compiled hook recipes without treating Bun as compiled [3248.88ms]
+(pass) benchmark failed source producers are joined before temporary cleanup and never counted as injections [1062.72ms]
+(pass) benchmark holds its temporary tree and stops after a synthetic unknown producer join [642.49ms]
+(pass) benchmark reports actual cleanup failure once without letting an observer replace it [674.42ms]
+(pass) owner benchmark validation emits a finite failure record and preserves normalized CLI rejection before effects [39.87ms]
+(pass) actual source CLI finishes complete fd stdout and stderr with delayed consumers before its producer joins [1537.40ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [7.28s]
+Guarded Bun file 45/91: memory-cli.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-cli.test.ts:
+(pass) final memory CLI preserves duplicates, versions, private flags, purge audit, explicit proposal review and scoped stats [424.26ms]
+
+ 1 pass
+ 0 fail
+Ran 1 test across 1 file. [494.00ms]
+Guarded Bun file 46/91: memory-evaluation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-evaluation.test.ts:
+(pass) memory fixture is synthetic, exact100/20/80, grouped and contains20 negative queries [7.40ms]
+(pass) all public classifications precede any export/query/label payload getters [0.37ms]
+(pass) closed dataset rejects split leakage, duplicate queries/IDs, hidden or invalid support and extra fields [4.01ms]
+(pass) quality denominator retains missed positive labels and separately counts negative injections [0.27ms]
+(pass) actual final runtime evaluates100 permitted queries, original IDs and real packing without owner writes/models [2473.67ms]
+(pass) raw recall cannot hide a missed query or evidence removed by actual item truncation [2454.92ms]
+(pass) final CLI requires public approval and a pinned workspace JSON; rejects escaped/symlinked sources [2601.85ms]
+(pass) changed source aborts evaluation without reading owner state or retrying callbacks [75.44ms]
+(pass) native evaluation policy canaries remain excluded; reads preserve floor, files and original private audit [432.23ms]
+(pass) standalone guarded memory evaluation implements the roadmap FTS interface [2717.84ms]
+(pass) A/B/C comparisons share labels, do not double-count graph alternatives and keep zero-gain graph held [2443.45ms]
+(pass) reviewed one-hop link supplies a distinct supported source missed by FTS/aliases, with paired uncertainty and no activation [2507.07ms]
+(pass) graph export preflight rejects private/unreviewed graph, forged alternative citations and cross-source links before effects [8.87ms]
+(pass) near-ceiling gate requires measured miss reduction and still holds synthetic/host qualification [16.61ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [15.86s]
+Guarded Bun file 47/91: memory-exposure.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-exposure.test.ts:
+(pass) final model policy rejects malformed/inherited/throwing classifications before payload getters [0.72ms]
+(pass) final mutation projections keep private and unclassified receipts opaque without duplicate or metadata getters [0.12ms]
+(pass) explicit private requests never inspect a buggy public adapter reply or duplicate state [0.10ms]
+(pass) final public projection retains declared ID/hash/version and ignores serialization or derivative hooks [0.25ms]
+(pass) curated and model search classify first and ignore array species/toJSON during real packing [0.95ms]
+(pass) finite storage errors never inspect messages, versions, causes or serialization hooks [0.09ms]
+(pass) modern remote MCP filters private/unknown metadata and suppresses buggy public replies to explicit private requests [322.39ms]
+(pass) modern remote MCP normalizes content-bearing errors and excludes failed context derivatives [291.78ms]
+(pass) owner CLI preserves private IDs/content/provenance/audit while modern MCP cannot expose duplicates or mutate hidden rows [403.39ms]
+(pass) native malformed flags remain opaque, immutable to models and byte-preserved through owner edits [886.72ms]
+(pass) native scoped context rejects caller project claims and keeps owner-only data out of model tools [301.51ms]
+(pass) completed mutation DTO retains captured privacy when later owner state becomes public [0.09ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [2.29s]
+Guarded Bun file 48/91: memory-overview-mcp.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-overview-mcp.test.ts:
+(pass) native L3/L4 overview is explicit, keeps current parent lineage and revokes with original source privacy [266.59ms]
+(pass) E independently measures reviewed summaries/profiles over C, preserving original quotes and holding weak gain [3586.01ms]
+(pass) actual MCP stdio evaluates the same100-case E corpus with separate budget and no owner footprint/models [11406.73ms]
+(pass) guarded standalone MCP surface uses actual pinned protocol and never starts model tooling [8515.45ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [23.86s]
+Guarded Bun file 49/91: memory-store.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-store.test.ts:
+(pass) plain memory close releases retained native statements and active FTS write locks without committing unfinished changes [8.00ms]
+(pass) MemoryStore acceptance: plain direct adapter [8.35ms]
+(pass) MemoryStore acceptance: registered direct adapter [72.23ms]
+(pass) direct plain query/projection has unchanged storage footprint, scope/flags and deterministic expiry [9.23ms]
+(pass) direct registered query/projection has unchanged storage footprint, scope/flags and deterministic expiry [76.84ms]
+(pass) direct plain explicit retention/touch/prune uses frozen policy and injected timestamps [6.55ms]
+(pass) direct registered explicit retention/touch/prune uses frozen policy and injected timestamps [34.63ms]
+(pass) direct plain semantic clock/expiry failures leave existing rows/events/generation unchanged [7.63ms]
+(pass) direct registered semantic clock/expiry failures leave existing rows/events/generation unchanged [56.33ms]
+(pass) direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held [48.21ms]
+(pass) direct plain post-commit sink/timing failures preserve result, events and generation [6.15ms]
+(pass) direct registered post-commit sink/timing failures preserve result, events and generation [37.62ms]
+(pass) direct dependencies fail before DML, transactions roll back and lifecycle cleanup preserves the original error [5.08ms]
+(pass) validation schemas and native session helpers retain source identity and validate inputs [0.12ms]
+(pass) direct adapter imports and works under a synthetic HOME with unusable ambient config and no owner filesystem effects [30.95ms]
+(pass) direct plain expired session restore renews the current default and survives reopen until the new boundary [6.11ms]
+(pass) direct registered expired session restore renews the current default and survives reopen until the new boundary [34.08ms]
+(pass) direct plain restoration preserves unexpired/normal/non-session deadlines and omitted raw flags [8.15ms]
+(pass) direct registered restoration preserves unexpired/normal/non-session deadlines and omitted raw flags [118.22ms]
+(pass) direct plain zero session TTL disables expiry for creation and explicit expired restore [5.94ms]
+(pass) direct registered zero session TTL disables expiry for creation and explicit expired restore [29.13ms]
+(pass) direct plain restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations [7.48ms]
+(pass) direct registered restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations [91.78ms]
+
+ 23 pass
+ 0 fail
+Ran 23 tests across 1 file. [752.00ms]
+Guarded Bun file 50/91: memory-suggestions.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-suggestions.test.ts:
+(pass) final suggestions deny private/unclassified inputs before payload or provider getters [1.01ms]
+(pass) final public suggestion preserves exact model, bounded structured fields and known usage without retries [0.39ms]
+(pass) final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference [148.88ms]
+(pass) final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit [149.04ms]
+(pass) screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects [135.76ms]
+(pass) malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed [88.60ms]
+(pass) workspace rebinding during generation preserves the unknown original job and creates no memory in either project [83.15ms]
+(pass) remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests [154.98ms]
+(pass) cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling [281.97ms]
+
+ 9 pass
+ 0 fail
+Ran 9 tests across 1 file. [1121.00ms]
+Guarded Bun file 51/91: memory-vector-mcp.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-vector-mcp.test.ts:
+(pass) vector evaluation requires public export and a public pinned MCP selection before payload, files or model calls [16.12ms]
+(pass) actual owner jobs and 100-query MCP D/E compare each layer, preserve owner bytes, count declared usage and hold weak synthetic gain [20042.97ms]
+(pass) changed approved source during model metadata prevents indexing inference, aborts evaluation and never retries [214.13ms]
+(pass) final CLI vector evaluation needs both public approval and the MCP surface before any model effect [66.40ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [20.42s]
+Guarded Bun file 52/91: memory.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory.test.ts:
+(pass) memory: store/get/search round trip, FTS ranking, tags filter, limit cap and explicit access tracking [21.84ms]
+(pass) memory: update checks the version and recomputes the hash; duplicates conflict; delete archives; purge only archived; events audit it all [8.27ms]
+(pass) memory: an exact duplicate returns the existing memory; the hash ignores case and whitespace; category is part of the key [5.62ms]
+(pass) memory: isolation — own project, personal, shared and linked are readable; other ids are not found; writes stay in scope [6.46ms]
+(pass) memory: legacy SQLite privacy/sharing flags are classified conservatively without rewriting stored flags [15.27ms]
+(pass) memory: legacy flag filtering precedes DTO/tag projection and grants sharing only for stored integer one [10.95ms]
+(pass) project: ssh, https and other origin spellings are one project; worktrees share an id; fallbacks without a remote [105.74ms]
+(pass) memory: explicit retention archives expired sessions and prunes old archives [7.42ms]
+(pass) memory: validation limits, and error messages never quote content [6.09ms]
+(pass) memory: user text never becomes FTS syntax [7.07ms]
+(pass) memory: concurrent writers wait instead of failing [541.34ms]
+(pass) supported schema-1 owner upgrade commits schema 2 behind the cutover floor and preserves a schema-1 backup [30.71ms]
+(pass) memory: private memories stay out of search unless asked [7.58ms]
+(pass) memory bench: measured numbers, no owner files or unsupported retrieval timings [3258.97ms]
+(pass) benchmark requires a successful child, valid envelope and exact synthetic note identities [0.25ms]
+Synthetic public-view bench qualification: 10000 generated memories, 20/20 verified native hook injections; timings are machine observations, designated-Mac p95 unqualified.
+(pass) explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats [54888.10ms]
+(pass) memory: explicit retention archives expired sessions in a long-running process [8.61ms]
+
+ 17 pass
+ 0 fail
+Ran 17 tests across 1 file. [58.97s]
+Guarded Bun file 53/91: model-providers.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/model-providers.test.ts:
+(pass) generative construction is inert and denied classification precedes content/config/schema getters [1.07ms]
+(pass) Ollama wire preserves explicit model/schema/context/output bounds and projects validated text/JSON/usage [7.41ms]
+(pass) explicit model override is preserved; metadata health does not generate, download or switch models [2.14ms]
+(pass) mismatched/unfinished/truncated/tool-bearing/bad-schema responses never become summaries or retries [4.54ms]
+(pass) input/model/schema bounds and explicit loopback policy fail before HTTP with finite errors [1.70ms]
+(pass) timeout preserves one finite unknown generation; absent native token counters remain unknown [14.25ms]
+(pass) deterministic credential screening withholds explicitly public inputs before any generation [0.71ms]
+(pass) configured compatible provider sends one tool-free schema request with only the declared credential and exact model [1.80ms]
+(pass) compatible refusals, truncation, tools, model drift and invalid outputs are finite unknown and never retried [3.00ms]
+(pass) compatible denied input precedes credential access; missing credentials never silently become anonymous or borrowed authentication [0.14ms]
+(pass) final provider registry is inert, loads only configured selection and refuses unqualified native summary isolation [0.23ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [74.00ms]
+Guarded Bun file 54/91: native-runners.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/native-runners.test.ts:
+(pass) Codex constructor is inert and privacy screening precedes content, options and executable discovery [4.17ms]
+(pass) Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution [49.31ms]
+(pass) Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes [2.62ms]
+(pass) Codex native version mismatch never starts an agent or substitutes an older protocol [46.60ms]
+(pass) Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry [297.74ms]
+(pass) Codex native completion followed by a stuck process times out and awaits actual termination [203.97ms]
+(pass) Codex cancellation stops native work before the iterator and queued ownership can drain [82.44ms]
+(pass) Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout [49.30ms]
+(pass) Claude edit jobs expose file editing only; native aliases resolve without changing model families [45.52ms]
+(pass) Claude preserves native overflow protection and explicit native context/compaction choices [85.17ms]
+(pass) Claude public classification and unsupported controls are checked before content, env and native probes [3.05ms]
+(pass) Claude native version mismatch holds the requested host without fallback or execution [25.97ms]
+(pass) Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt [337.52ms]
+(pass) Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry [213.19ms]
+(pass) Claude cancellation after native text awaits process termination and never claims a successful result [68.12ms]
+(pass) final native registry loads only the selected host, preserves explicit native home and performs no probes [46.58ms]
+(pass) actual durable job dispatcher executes the selected native Codex once and persists the positive result [58.14ms]
+(pass) native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio [72.35ms]
+(pass) Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials [71.97ms]
+(pass) Codex native app-server malformed/foreign response loss closes the process and never retries [93.63ms]
+(pass) Codex native metadata errors are finite and discarded without token or provider message exposure [49.70ms]
+(pass) Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored [250.63ms]
+(pass) Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state [72.67ms]
+(pass) native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches [48.96ms]
+(pass) native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance [137.41ms]
+(pass) actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery [190.78ms]
+
+ 26 pass
+ 0 fail
+Ran 26 tests across 1 file. [2.63s]
+Guarded Bun file 55/91: notifications.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/notifications.test.ts:
+(pass) default disabled notification flow never reads/reserves/recovers/probes/delivers, including hostile event/sink/storage getters [13.25ms]
+(pass) committed ready/done generations are opaque, scoped, deduped across actual SQLite reopen and never copy previews into callbacks or state receipts [11.46ms]
+(pass) actual held/released/failed events notify exact state versions while preserving chosen job outcome and excluding model/permission previews [11.97ms]
+(pass) missing/unsupported sink is honestly held with a finite scoped reason and no callback attempt or automatic retry [22.89ms]
+(pass) unknown callback outcome is durably sticky and cannot be retried after restart or by duplicate current events [9.29ms]
+(pass) bounded durable notification pressure cannot erase deliveries or change successful jobs to make space [10.92ms]
+(pass) pending-finalization enqueue race starts a bounded successor pump and settled waits for it without another event [7.02ms]
+(pass) native macOS command uses fixed script/closed argv and selected clean env; process exit0 acknowledges submission with UI unknown [27.31ms]
+(pass) notification shutdown aborts/waits the pending callback while daemon owner remains held, preserving late positive acknowledgement [8.28ms]
+(pass) lost notification start COMMIT receipt never replays and cannot erase the original positive job outcome [9.50ms]
+(pass) lost notification finish COMMIT receipt never replays and cannot erase the original positive job outcome [9.13ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [166.00ms]
+Guarded Bun file 56/91: omp-host.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/omp-host.test.ts:
+(pass) OMP native prompt admission rejects absent/private/malformed classification and credential-shaped content [0.93ms]
+(pass) OMP owned-profile removal cannot escape the declared native tree or adopt arbitrary links [0.34ms]
+(pass) actual OMP extension requires a leading per-turn public marker and never attaches stale context to another prompt [47.21ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [70.00ms]
+Guarded Bun file 57/91: omp-native.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/omp-native.test.ts:
+(pass) native OMP source owns one literal turn, captures only admitted evidence and transfers to a distinct idle seeded root [121.41ms]
+(pass) no-inference seed mismatch holds the original root without a second seed attempt [58.12ms]
+(pass) native OMP admission fence blocks a later builtin tool effect even when the selected tool is normally permitted [61.80ms]
+(pass) OMP lost-run-receipt retains unknown ownership and never replays or exposes a success [2068.63ms]
+(pass) OMP model-drift retains unknown ownership and never replays or exposes a success [79.84ms]
+(pass) OMP selection-event retains unknown ownership and never replays or exposes a success [58.30ms]
+(pass) OMP foreign-history retains unknown ownership and never replays or exposes a success [60.07ms]
+(pass) OMP foreign-control retains unknown ownership and never replays or exposes a success [60.35ms]
+(pass) OMP private-control retains unknown ownership and never replays or exposes a success [59.67ms]
+(pass) OMP async-work retains unknown ownership and never replays or exposes a success [59.59ms]
+(pass) OMP secret-echo retains unknown ownership and never replays or exposes a success [59.90ms]
+(pass) ordinary OMP result is released only after its native process joins; reused job IDs cannot start another root [59.82ms]
+(pass) private OMP requests cannot inspect prompt, cwd, models or native environment [0.10ms]
+(pass) OMP v2 frames preserve split UTF-8 content and reject interrupted chunks or elided evidence [0.17ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [2.83s]
+Guarded Bun file 58/91: opencode-control.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:
+(pass) managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP [1.75ms]
+(pass) V2 managed creation proves an owned empty root; API instruction seeding has exact idle/hash readback without an inference or inbox item [18.79ms]
+(pass) native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection [20.20ms]
+(pass) root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed [16.18ms]
+(pass) arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP [9.54ms]
+(pass) wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed [23.02ms]
+(pass) readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts [37.49ms]
+(pass) local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts [16.97ms]
+(pass) owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof [17.54ms]
+(pass) uncertain create/seed/turn effects are held without deletion or automatic effect replay [21.13ms]
+(pass) fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact [117.39ms]
+(pass) staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS [25.97ms]
+(pass) fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation [75.88ms]
+(pass) source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools [54.17ms]
+(pass) fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation [16.50ms]
+(pass) managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result [89.20ms]
+(pass) concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt [13.33ms]
+(pass) native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy [63.15ms]
+(pass) unsupported selections/input limits and native version mismatch fail without unintended mutations [4.17ms]
+(pass) owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference [29.90ms]
+(pass) incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors [44.66ms]
+(pass) capture privacy and native ownership gates precede cursor/source getters and all HTTP [8.59ms]
+(pass) capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window [106.76ms]
+(pass) bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence [5.08ms]
+(pass) paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history [22.87ms]
+(pass) paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage [236.42ms]
+(pass) V2 seed PUT requires exact 204 acknowledgement and independent native readback; failures never fall back to prompt or retry [17.82ms]
+(pass) V2 acknowledgement cannot accept another instruction entry, parked inbox input, changed seed key or a busy root [24.74ms]
+(pass) V2 instruction-entry seed identity participates in incremental evidence without inventing native user-message IDs [18.51ms]
+(pass) V2 process replacement holds native controls before seeding, dispatch, capture or interruption [10.76ms]
+(pass) V2 known prior context cannot change between prompt admission and completion without holding the new turn [20.42ms]
+
+ 31 pass
+ 0 fail
+Ran 31 tests across 1 file. [1213.00ms]
+Guarded Bun file 59/91: opencode-host.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-host.test.ts:
+(pass) OpenCode 2 refuses an old host version or an unrepresentable role variant before profile effects [4.34ms]
+(pass) actual V2 plugin admits only per-input public text and binds context to the original native session/message [66.53ms]
+
+ 2 pass
+ 0 fail
+Ran 2 tests across 1 file. [92.00ms]
+Guarded Bun file 60/91: opencode-runner.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-runner.test.ts:
+(pass) OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters [1.43ms]
+(pass) native OpenCode 2 HTTP run binds an explicit root, model colons, cwd/variant and deny-all permissions; V2 step usage is exclusive [15.37ms]
+(pass) edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable [9.24ms]
+(pass) Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite [9.76ms]
+(pass) completed native message remains buffered until idle; early consumer return leaves no active native request [16.73ms]
+(pass) unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP [7.20ms]
+(pass) fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session [11.26ms]
+(pass) missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped [59.42ms]
+(pass) lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes [18.27ms]
+(pass) abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown [13.96ms]
+(pass) timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort [253.56ms]
+(pass) actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen [25.61ms]
+(pass) V2 inbox admission is not completion; changed ID/session/text/delivery/attachments remain unknown without replay [43.97ms]
+(pass) lost V2 root receipt never adopts an arbitrary root, sends input, deletes history or retries creation [1.72ms]
+(pass) V2 server identity, native catalog/variant overlay and owned session bindings repeat immediately before effects [10.08ms]
+(pass) V2 complete history reaches an empty terminal page and follows only encoded body cursors at the original endpoint [19.39ms]
+(pass) V2 native inactivity without the original terminal remains unknown, even with completed assistant/tool records [154.67ms]
+(pass) V2 hidden native inputs/control changes and unallowed code-mode/MCP/shell tools cannot produce completion [90.23ms]
+(pass) V2 repeated completed history catches native content drift before yielding any result [8.95ms]
+(pass) V2 interruption never targets a changed server process or native ownership binding [7.64ms]
+(pass) actual durable job executes V2 once, retains the selected model/variant and positive result, and deduplicates after restart [18.20ms]
+(pass) V2 useful multi-page history remains bounded; duplicate IDs and excessive source windows never truncate into success [23.77ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [846.00ms]
+Guarded Bun file 61/91: opencode-v2.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode-v2.test.ts:
+(pass) OpenCode 2 metadata projections omit native content, paths and billing [1.24ms]
+(pass) OpenCode 2 does not accept a V1 health, session or WithParts message envelope [0.59ms]
+(pass) OpenCode 2 malformed metadata, counts, message types, cursors and duplicate IDs fail closed [0.69ms]
+(pass) OpenCode 2 idle marker binds a completed turn; latest inference input is a candidate, never active occupancy [0.28ms]
+(pass) OpenCode 2 pending, streaming, failed, incomplete and inactive-without-idle turns remain unknown [0.50ms]
+(pass) OpenCode 2 stale/future, explicit model/variant drift and resets stay held without reordering native sequence [0.53ms]
+(pass) OpenCode 2 native inactive scope is only this process foreground, never tool or background quiescence [0.03ms]
+(pass) OpenCode 2 opaque body cursors remain metadata, not followable URLs or evidence completeness [0.07ms]
+(pass) OpenCode 2 fresh-root and parked seed recipes use only V2 fields and prove no readiness [0.34ms]
+(pass) OpenCode 2 private/unclassified codecs and recipes reject before record, model and text access [0.11ms]
+(pass) OpenCode 2 repeated session/process bindings hold read-only observations on drift with no retry [26.32ms]
+(pass) OpenCode 2 a server-supplied cursor or connection URL is never followed by the metadata probe [2.38ms]
+(pass) OpenCode 2 response/deadline/page limits stop a single attempt without exposing endpoint diagnostics [56.39ms]
+(pass) OpenCode 2 successful metadata fixtures cannot authorize automatic handoff or any control method [0.13ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [111.00ms]
+Guarded Bun file 62/91: opencode.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/opencode.test.ts:
+(pass) OpenCode pinned v1 codecs retain model/variant and omit content, paths, cost and accumulated tokens [1.07ms]
+(pass) OpenCode exact version/metadata mismatches fail with fixed actual coded errors [0.61ms]
+(pass) OpenCode latest completed step is only an input candidate, never cumulative billed usage or verified occupancy [0.21ms]
+(pass) OpenCode stale/future/pending/model-switch/reset samples are unknown rather than zero or safe to hand off [0.13ms]
+(pass) OpenCode pure fresh-root/noReply recipes preserve explicit selections without proving readiness or sending HTTP [0.17ms]
+(pass) OpenCode private/unknown recipes and codecs reject before text/selection/record property access [0.07ms]
+(pass) OpenCode SSE fixture uses pinned global envelope and message.updated properties sessionID/info, with no content replay [0.20ms]
+(pass) OpenCode explicitly selected probe performs only GET metadata reads and never becomes native Codex/Claude [7.59ms]
+(pass) OpenCode probe rejects private/unknown/malformed selection and generation before config/HTTP [0.20ms]
+(pass) OpenCode probe version/errors/foreign sessions/abort hold without retries or raw diagnostic echoes [5.77ms]
+(pass) OpenCode fixture success leaves every managed capability held with no automatic handoff or control calls [0.10ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [39.00ms]
+Guarded Bun file 63/91: orca.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:
+(pass) owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay [395.42ms]
+(pass) standalone terminal creation uses a host-qualified workspace and never launches a native agent [284.99ms]
+(pass) native lost receipt stays held across restart; late pane observation never runs a second job [273.50ms]
+(pass) native malformed receipt stays held across restart; late pane observation never runs a second job [275.14ms]
+(pass) missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect [250.73ms]
+(pass) closed or uncertain pane observation preserves the original job state and never changes execution ownership [495.36ms]
+(pass) watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery [125.20ms]
+(pass) lost watch intent COMMIT preserves the finite original receipt without replay [141.88ms]
+(pass) lost watch completion COMMIT preserves the finite original receipt without replay [306.24ms]
+(pass) owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay [192.53ms]
+(pass) watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job [195.43ms]
+(pass) job binding drift at terminal effect entry rejects the pane and preserves the original durable task [172.89ms]
+(pass) finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued [376.33ms]
+(pass) observer entry drift during async terminal preflight holds the pane before the native effect [168.81ms]
+(pass) unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path [378.53ms]
+(pass) source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca [174.80ms]
+(pass) spin keeps the literal task and selected model in its owned daemon job when an Orca pane cannot bind the new worktree [396.90ms]
+(pass) revision-bound review uses the same metadata observer and original read-only selected job [505.08ms]
+(pass) subdirectory callers retain each job exact execution cwd and canonical Orca pane binding [990.98ms]
+
+ 19 pass
+ 0 fail
+Ran 19 tests across 1 file. [6.17s]
+Guarded Bun file 64/91: owner-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:
+(pass) native owner plan reads only filesystem/header metadata; retired CLI preserves live and closed WAL footprints [194.66ms]
+(pass) native owner apply uses independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer [17.26ms]
+(pass) closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects [13.65ms]
+(pass) stale source or WAL identity plans fail before native open without further footprint changes [23.73ms]
+(pass) filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them [32.97ms]
+(pass) plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers [52.10ms]
+(pass) plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation [9.66ms]
+(pass) owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects [601.78ms]
+(pass) native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified [10.22ms]
+(pass) admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused [2197.45ms]
+(pass) READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply [129.45ms]
+(pass) saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked [26.49ms]
+(pass) owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text [6.70ms]
+(pass) owner dependency getters and proxies reject before filesystem inspection or private error serialization [6.32ms]
+(pass) non-synchronous owner validation is refused under native admission before any artifact or floor mutation [6588.52ms]
+(pass) native preparation reviews absent leaves and legacy modes without SQLite, then applies a fresh strict candidate [36.53ms]
+(pass) preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched [21.17ms]
+(pass) preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects [164.04ms]
+(pass) a real existing READY view stays blocked before any preparation permission action [103.80ms]
+(pass) preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths [53.81ms]
+(pass) preparation pins all actionable and creation-parent descriptors before any permission effect [7.74ms]
+(pass) all pinned source, WAL and SHM metadata is rechecked before the first fchmod [20.01ms]
+(pass) descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes [13.52ms]
+(pass) partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan [45.18ms]
+(pass) created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening [31.68ms]
+(pass) owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release [15.67ms]
+(pass) preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields [9.05ms]
+(pass) retired preparation CLI rejects flags, positionals, duplicate options and remote without storage effects [661.28ms]
+(pass) native preparation preserves exact action paths containing spaces/control characters and retired CLI changes no storage [92.55ms]
+(pass) preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem [8.02ms]
+(pass) explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles [273.20ms]
+(pass) recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged [101.63ms]
+(pass) multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted [27.10ms]
+(pass) wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML [17.08ms]
+(pass) recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched [79.64ms]
+(pass) recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view [53.02ms]
+(pass) actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects [242.44ms]
+(pass) recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference [4464.99ms]
+(pass) retired recovery CLI has no effects; native recovery requires bound source, retain acknowledgement and attestation [629.49ms]
+(pass) recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures [14.59ms]
+
+ 40 pass
+ 0 fail
+Ran 40 tests across 1 file. [17.14s]
+Guarded Bun file 65/91: owner-restore.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:
+(pass) native restore plan saves independent new epoch and opens only leased rollback view; retired CLI makes no storage effects [130.15ms]
+(pass) actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities [127.26ms]
+(pass) retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority [52.38ms]
+(pass) readers observe only pending filename and never open retained owner JSON or backup bytes [49.15ms]
+(pass) pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes [280.84ms]
+(pass) unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage [1420.50ms]
+(pass) stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery [1234.17ms]
+(pass) native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML [138.06ms]
+(pass) explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss [337.69ms]
+(pass) seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival [797.92ms]
+(pass) fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles [269.71ms]
+(pass) owner capsule reads stay bounded and reject growth between metadata validation and descriptor use [64.50ms]
+(pass) post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay [53.78ms]
+(pass) retired restore CLI and independently bound native tokens refuse missing attestation, extra inputs and wrong epochs without effects [500.33ms]
+(pass) completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup [184.38ms]
+(pass) pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data [244.04ms]
+(pass) restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps [64.73ms]
+
+ 17 pass
+ 0 fail
+Ran 17 tests across 1 file. [5.99s]
+Guarded Bun file 66/91: privacy.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/privacy.test.ts:
+(pass) privacy: route flags/private or malformed hook markers skip inference and remote retrieval [350.65ms]
+(pass) privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields [91.86ms]
+(pass) privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry [272.53ms]
+(pass) privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs [75.37ms]
+
+ 4 pass
+ 0 fail
+Ran 4 tests across 1 file. [858.00ms]
+Guarded Bun file 67/91: profiles.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/profiles.test.ts:
+(pass) selected model/role/provider choices round-trip deterministically as closed TOML and valid Agent Skills with no extra resource files [4.73ms]
+(pass) export never reads auth/env names, accounts, endpoints, commands, homes or unselected configuration [0.26ms]
+(pass) owner authorization and denied review classification precede any input/config/profile instruction getters [0.39ms]
+(pass) sanitized reviewed instructions omit email/account/URL/absolute Unix/Windows/home/socket paths and credential exports fail closed [1.99ms]
+(pass) imports reject unknown schema/capabilities, extra executable/ownership/auth fields and unsafe text with finite errors [1.21ms]
+(pass) tampered Skill frontmatter/instructions/resources and unsupported reviewed fences cannot acquire import authority [0.65ms]
+(pass) dry install preview shows conflicts and exact choices, unresolved capabilities/reconfiguration and never mutates current settings [0.72ms]
+(pass) native CLI auth remains external and verified capabilities do not approve a portable provenance claim or auto-install [0.19ms]
+(pass) actual same-memory.db current reviewed L4 export is read-only and source privacy/version/revocation immediately blocks further exports [88.25ms]
+(pass) duplicates, malformed names, unknown selected roles/providers and imported credential placeholders cannot change source selections [0.59ms]
+(pass) machine paths with forward-slash Windows, Unicode POSIX, prefixed roots, UNC and named homes are withheld in exported and imported text [1.34ms]
+(pass) inherited, accessor, throwing and malformed capability entries cannot become verified or leak into previews [0.32ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [149.00ms]
+Guarded Bun file 68/91: public-reader.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:
+(pass) public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint [75.95ms]
+(pass) public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only [114.04ms]
+(pass) independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade [101.95ms]
+(pass) schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged [730.18ms]
+(pass) canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery [1029.09ms]
+(pass) reader independently enforces encoded and row ceilings inside the physical bound without projecting content [453.34ms]
+(pass) source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold [56.19ms]
+(pass) malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content [58.47ms]
+(pass) encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters [62.43ms]
+(pass) retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation [69.91ms]
+(pass) lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot [154.24ms]
+(pass) actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization [231.13ms]
+(pass) source hook joins a closed-pipe producer without late EPIPE errors or a retained public-view lease [158.66ms]
+(pass) actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory [652.16ms]
+(pass) explicit native fs hook write retains the real reader through its original callback [129.87ms]
+(pass) uncertain explicit fs hook writes hold their lease until the original producer is killed and joined [545.57ms]
+(pass) local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop [1884.08ms]
+(pass) actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes [95.79ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [6.65s]
+Guarded Bun file 69/91: publication.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:
+(pass) production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS [65.47ms]
+(pass) v2 publication fences cached memory/docs writers and old prepared statements; reopened writers revoke until explicit republish [106.39ms]
+(pass) same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view [57.52ms]
+(pass) multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup [528.93ms]
+(pass) final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects [303.43ms]
+(pass) publication preserves established non-generator IDs and excludes malformed private flags before reading public content [45.72ms]
+(pass) completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission [236.99ms]
+(pass) explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them [506.33ms]
+(pass) actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher [543.15ms]
+(pass) publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY [161.80ms]
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14499680,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":24.09,"latencyQualification":"unqualified"}
+(pass) 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation [1752.76ms]
+(pass) public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data [1043.34ms]
+(pass) publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors [193.26ms]
+(pass) post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD [98.16ms]
+(pass) publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired [240.81ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [5.96s]
+Guarded Bun file 70/91: quota.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/quota.test.ts:
+(pass) pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion [1.20ms]
+(pass) native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits [0.33ms]
+(pass) native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools [17.33ms]
+(pass) default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata [17.16ms]
+(pass) fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched [9.23ms]
+(pass) wrong account/model and invalid clocks reject before atomic native quota/job changes [7.49ms]
+(pass) generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models [12.11ms]
+(pass) actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen [9.83ms]
+(pass) async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite [14.92ms]
+(pass) actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table [104.17ms]
+(pass) durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache [9.35ms]
+(pass) unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen [11.36ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [287.00ms]
+Guarded Bun file 71/91: read-view-qualification.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/read-view-qualification.test.ts:
+Read-view native qualification: {"node":"v26.3.0","sqlite":"3.53.4","patchedWalReset":true,"backup":"function","unsafeProbes":"enabled-test-prototype","function":"function","setAuthorizer":"function","serialize":"undefined","deserialize":"undefined","isTransaction":"boolean"}
+(pass) read-view qualification: actual native version/APIs before any multi-connection WAL probe [0.66ms]
+(pass) read-view qualification: READY rollback lease preserves public IDs/scope and leaves primary/view footprint unchanged [13.41ms]
+(pass) read-view qualification: old already-prepared INSERT/UPDATE/DELETE/touch/expiry are fenced after floor cutover [11.70ms]
+(pass) read-view qualification: retained lease blocks supported revocation through packing/delivery; release then permits commit and HOLD [11.69ms]
+(pass) read-view qualification: primary write admission serializes publishers/mutators; aborted primary DML leaves durable HOLD [12.51ms]
+(pass) read-view qualification: deferred isTransaction is not publisher write admission [9.75ms]
+(pass) read-view qualification: supported adapter mutations/expiry cannot bypass floor through another connection [11.94ms]
+(pass) read-view qualification: shared/project/expiry mutations revoke current generation, and readers reapply expiry [12.15ms]
+(pass) read-view qualification: SQLite-aware pre-floor backup under admission is exact, owner-only and separate from public view [13.96ms]
+(pass) read-view qualification: SIGKILL at HOLD/primary commit/view build/READY preserves conservative recoverability [193.37ms]
+(pass) read-view qualification: trusted-application floor does not protect uncontrolled schema removal or UDF spoofing [25.75ms]
+(pass) read-view qualification: early-close cached delivery and view-inode replacement remain explicit activation blockers [15.63ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [374.00ms]
+Guarded Bun file 72/91: remote-runtime.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/remote-runtime.test.ts:
+(pass) remote embedding jobs and vector queries use only the authority corpus and preserve source privacy revocation [397.09ms]
+(pass) remote automatic note suggestions execute once at the authority, preserve the pinned model and never write client L1 [304.51ms]
+(pass) owner refresh enables useful offline hook context without copying private, expiring or proposed source rows [422.15ms]
+(pass) native cache reader blocks release and source privacy changes until HOLD commits; private and deleted rows cannot reappear [344.14ms]
+(pass) authority restart retains remote leases; client restart invalidates the old view without replay or lease adoption [414.91ms]
+(pass) definite model credential revocation invalidates a permitted view and retains the authority lease until owner release [319.86ms]
+(pass) remote view local expiry and backward clock refuse reads without releasing the source permission lease [315.78ms]
+(pass) lost acquire and release replies retain original intents; reconciliation reads state without replaying either mutation [326.30ms]
+(pass) remote consolidation runs once in the authoritative executor; reviewed graph context follows source privacy and never client L2 [489.25ms]
+(pass) remote network and endpoint policy enforce canonical CIDRs, mapped IPv4, IPv6, TLS and credential-free origins [0.26ms]
+(pass) two isolated daemons share one authenticated memory authority, preserve original IDs/flags/models and never copy into client L1 [414.46ms]
+(pass) unauthenticated, wrong-project and model-escalation requests are denied before dispatch; owner-only methods retain shared policy [265.65ms]
+(pass) client outages visibly refuse writes and reads without using local L1, and hooks perform no remote network request [338.86ms]
+(pass) live token revocation and directory rebinding refuse cached clients before further authoritative effects [268.38ms]
+(pass) wrong authority pin, protocol skew and clock skew prevent mutating dispatch before sending body [352.81ms]
+(pass) lost remote mutation reply remains unknown and is not replayed by the client transport [286.81ms]
+(pass) actual TLS transport validates configured CA and hostname before preserving private owner data [334.33ms]
+(pass) malformed successful mutation replies stay unknown without retry or local fallback [286.87ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [5.95s]
+Guarded Bun file 73/91: remote-view.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/remote-view.test.ts:
+(pass) lost actual lease COMMIT is unknown; restart retains the original lease and never repeats its acquisition [7.15ms]
+(pass) lost actual cache HOLD COMMIT remains unknown without a release; restart confirms HOLD and clears no intent [6.76ms]
+(pass) tampered cache snapshots, authority/source/config bindings and pending journals refuse local projection without modifying the file [10.33ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [46.00ms]
+Guarded Bun file 74/91: review.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/review.test.ts:
+(pass) native snapshot binds base/head/branch, staged version, working bytes/mode and untracked bodies without changing checkout [290.10ms]
+(pass) content changes invalidate revision even with restored mtime and the same Git status; staged-only, mode, untracked and branch changes also invalidate [536.87ms]
+(pass) private classification precedes base getters/Git and known credentials or credential-store paths never enter review material [101.57ms]
+(pass) deleted directories are captured as missing, external symlinks are withheld, and source payload budgets refuse partial reviews [254.31ms]
+(pass) configured clean/process filters are rejected before native status/diff and never execute [48.32ms]
+(pass) exact file batches bound the whole checkout but disclose only selected changes, use literal pathspecs and preserve coverage [566.94ms]
+(pass) review queues an exact public read-only owner job, links atomically and preserves original selection on duplicate requests [308.65ms]
+(pass) changed content before dispatch holds a review without inference or replay, and stale evidence cannot be released by a quota override [387.03ms]
+(pass) positive review outcome is preserved while later source changes invalidate its evidence instead of approving or rerunning it [352.89ms]
+(pass) owner/model/privacy boundaries refuse getters before payload and same-origin clone status is denied before foreign content capture [169.88ms]
+(pass) lost review job/link COMMIT retains one original queued request across reopen without another model or artifact [140.47ms]
+(pass) tampered stored snapshot hash is withheld before inference without rewriting the original evidence or manufacturing freshness [136.56ms]
+(pass) actual review CLI/UDS requires public classification, uses exact read-only selection and reports source staleness without approval [492.83ms]
+
+ 13 pass
+ 0 fail
+Ran 13 tests across 1 file. [3.86s]
+Guarded Bun file 75/91: roles.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/roles.test.ts:
+(pass) final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication [5.09ms]
+(pass) final run dispatches the explicitly selected executor model through its owner job without changing role configuration [99.82ms]
+(pass) roles: bosun roles --json prints the resolved table [94.10ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [268.00ms]
+Guarded Bun file 76/91: route-observations.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/route-observations.test.ts:
+(pass) record projection selects finite metadata, rejects accessor/extra fields and never serializes arbitrary nested content [0.86ms]
+(pass) real final classification records random scoped metadata, label CAS history and diagnostic stats without model input or hashes [118.49ms]
+(pass) recorded observations are project-bound; model callers cannot list or label them and MCP exposes no feedback tool [304.01ms]
+(pass) legacy inspection filters malformed or duplicate IDs and rejects links/oversize without rewriting original raw logs [74.12ms]
+(pass) lost actual label COMMIT preserves its original native event, fences storage, and stale CAS cannot replay it on reopen [76.58ms]
+(pass) historical labels stay read-only references with unknown time; explicit daemon feedback overrides them without copying raw files [70.71ms]
+(pass) actual observation capacity remains bounded, and source change after label DML rolls back label and original history [459.51ms]
+(pass) lost native observation COMMIT returns usable advice with its unknown original ID and records no prompt or automatic retry [74.98ms]
+
+ 8 pass
+ 0 fail
+Ran 8 tests across 1 file. [1265.00ms]
+Guarded Bun file 77/91: router-evaluation.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/router-evaluation.test.ts:
+(pass) entire corpus privacy is checked before any task payload, including the last held-out entry [0.92ms]
+(pass) fixed split rejects duplicate tasks/references, repository or session leakage, missing categories, model skew and credentials [10.63ms]
+(pass) threshold freezes only development evidence; held-out relabeling cannot tune it and synthetic/imported metrics cannot qualify calibration [3.00ms]
+(pass) deterministic permissions/model/no-delegation fences remain authoritative and risk-miss/outcome metrics expose harmful offered hints [1.39ms]
+(pass) final CLI offline analysis uses the complete corpus, reports outcome uncertainty, leaves sources/config intact and calls no model [101.83ms]
+(pass) native capture evaluates development first, persists its selection before held-out requests and never sends labels or verification data to the classifier [395.49ms]
+(pass) public declaration and source pin reject private late cases, secret input and external/symlink paths before inference or artifacts [75.64ms]
+(pass) a dataset change during capture preserves one unknown original job, never starts held-out capture and never replays the request [87.86ms]
+(pass) reviewed digest mismatch holds before generation; a tagged model is never silently evaluated with different weights [85.14ms]
+(pass) lost actual frozen-file publication retains its original selection after20 calls and starts no held-out request or replay [149.40ms]
+(pass) cancellation during held-out capture keeps the frozen selection and unknown job without more inference or release [140.54ms]
+(pass) outcome proof resolves an actual closed revision-bound check; owner assertions and mismatched revisions remain unverified [868.79ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [1.99s]
+Guarded Bun file 78/91: router.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/router.test.ts:
+(pass) Clef registry is lazy and construction/private classification accesses no config or transport [1.94ms]
+(pass) Clef sends exact ordered decision questions and preserves an explicitly selected trusted model [5.61ms]
+(pass) Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation [1.76ms]
+(pass) Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback [16.06ms]
+(pass) Clef validates greatest/tied choices conservatively and risk still overrides zero confidence [1.58ms]
+(pass) Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull [3.20ms]
+(pass) Clef bounds streamed response bytes and aborts stalled bodies within its deadline [55.37ms]
+(pass) Clef caller cancellation and invalid configuration perform no inference or substitution [1.25ms]
+(pass) Clef fixture/schema checks leave calibration and live readiness unverified [0.15ms]
+(pass) Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence [1.47ms]
+(pass) Router contract (Ollama Clef fixture): private/unknown input never reaches transport [0.71ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [110.00ms]
+Guarded Bun file 79/91: run-cli.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/run-cli.test.ts:
+(pass) final run literal, public file and real stdin all reach one pinned native executor with isolated parent controls and original dedupe [692.95ms]
+(pass) nested run rejects before task file, configuration getters, queue writes or native discovery [70.92ms]
+(pass) run rejects missing/ambiguous/oversized and credential-bearing task input before owner jobs or native effects [154.35ms]
+
+ 3 pass
+ 0 fail
+Ran 3 tests across 1 file. [989.00ms]
+Guarded Bun file 80/91: runtime-end-to-end.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/runtime-end-to-end.test.ts:
+(pass) new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution [159.66ms]
+(pass) final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement [78.66ms]
+(pass) actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review [81.90ms]
+(pass) final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer [173.90ms]
+(pass) disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference [67.86ms]
+(pass) actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime [186.97ms]
+(pass) actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes [165.29ms]
+(pass) final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution [79.26ms]
+(pass) real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout [327.10ms]
+(pass) final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior [312.22ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [1.71s]
+Guarded Bun file 81/91: runtime.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/runtime.test.ts:
+(pass) runtime paths are explicit and path calculation does not create files [0.77ms]
+(pass) shipped roles and skills resolve from embedded assets in a synthetic working directory [0.27ms]
+(pass) final project scope preserves existing clone/worktree/non-repo identities and configured links [2.41ms]
+(pass) shared envelopes reject skew/extra fields and normalize provider errors [0.17ms]
+(pass) native UDS RPC preserves concurrent request identity and uses protected socket [12.72ms]
+(pass) malformed and oversized requests never invoke dispatch; stopped admission stays closed [4.57ms]
+(pass) lost mutation reply has unknown outcome and is never automatically repeated [33.95ms]
+(pass) oversized successful replies preserve uncertainty instead of claiming a failed mutation [2.82ms]
+(pass) unsafe socket parents and existing ordinary files are not adopted or deleted [0.49ms]
+(pass) native process streaming preserves split UTF8/stdin and reports positive process close [34.76ms]
+(pass) native process cancellation waits for close and kills an ordinary worker ignoring TERM [43.70ms]
+(pass) oversized native lines and stderr stop the process without exposing its error content [41.73ms]
+(pass) native process channel permits bounded interactive stdin and positive peer acknowledgement [23.34ms]
+(pass) native cancellation kills an ordinary descendant even when its parent closes first [58.07ms]
+(pass) real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names [10.77ms]
+(pass) config reads create nothing; administrative writes publish an atomic lean snapshot with independent path binding [2.77ms]
+
+ 16 pass
+ 0 fail
+Ran 16 tests across 1 file. [317.00ms]
+Guarded Bun file 82/91: serve.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/serve.test.ts:
+(pass) final authenticated authority and local daemon preserve identical memory operations, audit, conflict and scope outcomes [732.25ms]
+(pass) final remote CIDRs reject unlisted peers before auth, require canonical project roots and hold public bind without TLS [259.50ms]
+(pass) final remote request bounds and media type errors are finite and create no memory effects [257.50ms]
+(pass) final remote outage gives finite CLI and MCP failure with no queued write, local L1 fallback or hook inference [473.94ms]
+(pass) foreign and hanging authorities receive no hook task or mutation payload; final hook completes without network inference [1364.68ms]
+(pass) final doctor reports filesystem evidence without opening owner data or probing remote/model endpoints [327.12ms]
+(pass) explicit Clef endpoint selection preserves the model and sends only public advice; absent calibration never starts a worker or proxy [3.15ms]
+(pass) final remote-client installation preserves authority URLs, data/models and shell settings; exact undo retires only owned files [522.04ms]
+(pass) final server installation prepares one owned dormant daemon and wires no host, model or obsolete service [450.69ms]
+(pass) duplicate final installation retains remote selection with no local model pull, service bootstrap or configuration rewrite; bad options are inert [709.01ms]
+
+ 10 pass
+ 0 fail
+Ran 10 tests across 1 file. [5.17s]
+Guarded Bun file 83/91: sqlite-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:
+(pass) loaded SQLite must retain a patched WAL branch irrespective of compiler version [0.72ms]
+(pass) cutover native qualification: pinned schema and owner artifact format [9.34ms]
+(pass) cutover holds write admission across exact native backup and persistent floor; old prepared DML is fenced [13.90ms]
+(pass) cutover registration requires actual wrapper admission; old read snapshots and cached handles cannot mutate [28.16ms]
+(pass) cutover process crashes recover with fresh exact backups before commit, or reconcile committed floor without doubleapply [183.30ms]
+(pass) cutover failed callbacks/errors are finite and restart never reuses a stale backup [15.02ms]
+(pass) cutover never returns messages/causes from mutated typed errors or hostile exception prototypes [14.58ms]
+(pass) cutover unknown schema, corrupt storage, symlinks and artifact collisions fail closed without overwrite [28.12ms]
+(pass) cutover recovery holds inode/epoch swaps, backup tampering and unknown floor/gate definitions [89.75ms]
+(pass) cutover validates initial dependencies before reserving artifacts; the first committed gate is recoverable [40.62ms]
+(pass) cutover refuses successful receipts when final post-commit checkpoint changes source/view/artifact/epoch [37.89ms]
+(pass) cutover cleanup failures remain finite, release native admission and reconcile the committed attempt [13.47ms]
+(pass) registered writer rollback failure poisons and closes the connection rather than leaving admission alive [12.53ms]
+(pass) registered writer invalidation respects a lease on the same rollback gate inode and never precedes primary admission [17.52ms]
+(pass) registered writer refuses a coordinated same-inode source/view epoch change after registration [13.93ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [561.00ms]
+Guarded Bun file 84/91: sqlite-readonly.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-readonly.test.ts:
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+(pass) qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures [24.85ms]
+(pass) read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied [10.14ms]
+(pass) read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events [9.59ms]
+(pass) read-only bounds and escaped query text use finite diagnostics with zero file changes [7.61ms]
+(pass) unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects [14.01ms]
+(pass) missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files [10.85ms]
+(pass) read-only reader checks injected deadlines and safely holds corrupt required schemas without writes [7.68ms]
+(pass) read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history [12.49ms]
+(pass) read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension [21.02ms]
+(pass) final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference [133.47ms]
+(pass) final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls [88.64ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [385.00ms]
+Guarded Bun file 85/91: sqlite-vec.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-vec.test.ts:
+(pass) optional sqlite-vec uses one selected fingerprint and source-derived SQL; closes without touching an authority DB [5.49ms]
+(pass) missing, changed, linked, hardlinked, unsafe and wrong-architecture selections degrade before any native opener [20.93ms]
+(pass) bad native version, loader failure, file drift or invalid numeric receipts close and never substitute a backend [11.40ms]
+(pass) guarded production constructor cannot load the invented native library and returns explicit degradation [2.86ms]
+(pass) native vector source uses existing scope/CAS storage, checks privacy before opening and rechecks every cache hit [115.32ms]
+(pass) native distance failure joins its connection and never populates an uncertain query cache [96.38ms]
+(pass) native library configuration is explicit and exact; missing selection preserves disabled defaults [5.37ms]
+
+ 7 pass
+ 0 fail
+Ran 7 tests across 1 file. [304.00ms]
+Guarded Bun file 86/91: summary.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/summary.test.ts:
+(pass) summary policy screens every event before provider access, including late-window credentials and denied throwing content [1.57ms]
+(pass) bounded chunked summaries retain exact source hashes/cursors and aggregate only known usage without a hidden model switch [1.01ms]
+(pass) invented quotes, missing references, extra authority fields, duplicates and empty selections never become a summary or trigger retries [0.23ms]
+(pass) actual CLI/UDS/daemon/provider summary job publishes immutable cited artifacts, preserves authority and supports one incremental public window [139.58ms]
+(pass) invented provider output leaves the durable job unknown with no artifact, and private evidence is refused before enqueue or HTTP [85.71ms]
+(pass) cancellation during generation persists unknown without publishing late output, replaying or losing shutdown authority [80.13ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 1 file. [380.00ms]
+Guarded Bun file 87/91: upgrade.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/upgrade.test.ts:
+(pass) legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials [1.05ms]
+(pass) read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified [40.86ms]
+(pass) actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config [70.60ms]
+(pass) upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte [59.39ms]
+(pass) upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model [104.29ms]
+(pass) config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access [63.52ms]
+(pass) reviewed legacy modes are narrowed while original content and completed run receipts remain untouched [59.85ms]
+(pass) upgrade new-file refuses before any runtime intent or original-file mutation [31.50ms]
+(pass) upgrade source-bytes refuses before any runtime intent or original-file mutation [31.45ms]
+(pass) upgrade unsettled-run refuses before any runtime intent or original-file mutation [30.21ms]
+(pass) upgrade symlink refuses before any runtime intent or original-file mutation [31.19ms]
+(pass) upgrade hardlink refuses before any runtime intent or original-file mutation [30.70ms]
+(pass) idle cached old writer cannot bypass the newly installed native SQL floor [59.16ms]
+(pass) unknown legacy SQLite schema is held without changing original database or config bytes [33.37ms]
+(pass) actual live legacy writer admission prevents migration and no busy failure is retried [34.86ms]
+(pass) config edited after native migration stays intact and cannot activate a stale imported model selection [47.14ms]
+(pass) actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay [45.06ms]
+(pass) actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay [60.21ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [906.00ms]
+Guarded Bun file 88/91: usage-ledger.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/usage-ledger.test.ts:
+(pass) actual attempt ledger is selected/scoped/owner-only, preserves native totals and null unknowns, and survives restart without source payload [15.36ms]
+(pass) native usage missing: unknown components and ambiguous totals are never manufactured or added twice [8.63ms]
+(pass) native usage one-count: unknown components and ambiguous totals are never manufactured or added twice [7.46ms]
+(pass) native usage multiple: unknown components and ambiguous totals are never manufactured or added twice [7.83ms]
+(pass) native usage invalid: unknown components and ambiguous totals are never manufactured or added twice [7.30ms]
+(pass) native usage lost: unknown components and ambiguous totals are never manufactured or added twice [7.70ms]
+(pass) native usage zero: unknown components and ambiguous totals are never manufactured or added twice [9.46ms]
+(pass) held/unavailable/unsupported factories make no attempt and explicit billing qualification receives selection metadata only [8.99ms]
+(pass) native start COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay [10.41ms]
+(pass) native usage COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay [9.02ms]
+(pass) native finish COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay [9.02ms]
+(pass) actual guarded native Codex usage reaches the ledger unchanged while native billing/account and cached data stay unknown [52.94ms]
+(pass) actual guarded native Claude usage preserves reported components without adding cache or inventing effective vendor billing [52.65ms]
+(pass) actual LogTape IO hold after commit cannot erase native outcome or its durable usage row [10.36ms]
+
+ 14 pass
+ 0 fail
+Ran 14 tests across 1 file. [244.00ms]
+Guarded Bun file 89/91: workspaces.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/workspaces.test.ts:
+(pass) native creation checks out only the pinned commit, keeps dirty source files, filters auth/env and disables hooks [132.48ms]
+(pass) native prune preview is read only and binds clean, unlocked, merged Git state and durable ownership [468.61ms]
+(pass) ignored worktree files also prevent prune, and no foreign or unowned worktree is adopted [236.85ms]
+(pass) queued, held, running and unknown jobs in an owned path prevent prune while settled jobs do not [518.61ms]
+(pass) lost final COMMIT preserves one positively created worktree and its ready record without replay after reopen [101.22ms]
+(pass) bounded permanent workspace capacity preserves unknown intents and owner isolation rather than evicting receipts [47.76ms]
+(pass) lost positive Git receipt remains unknown across duplicate requests and daemon reopen without another creation [196.25ms]
+(pass) model requests are denied before params, Git or registry access and known credentials are refused before a new intent [29.41ms]
+(pass) same-origin clones remain separate workspace authorities and a removed/rebound path cannot qualify pruning [195.29ms]
+(pass) external checkout filters and existing destinations are held without running hooks, overwrite or automatic cleanup [82.67ms]
+(pass) lost reservation COMMIT fences the shared authority before Git, preserves original intent and never replays on reopen [52.02ms]
+(pass) actual daemon/Commander workspace create/list/reconcile/prune-preview share native state, deny models and preserve the worktree [269.52ms]
+(pass) workspace shutdown aborts and waits native creation settlement while the existing daemon owner remains held [30.26ms]
+(pass) filters added after creation cannot execute during reconciliation or dispatch, even with a quota opt-in [271.40ms]
+(pass) spin atomically maps a pinned job to one owned worktree and dedupes before prompt getters or another launch [283.19ms]
+(pass) worktree job enqueue refuses stale versions and collisions with ordinary jobs or another workspace without changing selected work [246.09ms]
+(pass) privacy and credential screening precede spin worktree effects, and model requests cannot create or queue owned work [30.48ms]
+(pass) dispatch revalidates the exact worktree after enqueue and cannot bypass changed identity with allow-unknown-quota [183.17ms]
+(pass) unknown creation prevents spin enqueue or replay, while positive workspace intent is retained for owner inspection [101.50ms]
+(pass) job-map COMMIT loss keeps exactly one queued job/link and dedupes after reopen without another worktree or submission [184.98ms]
+(pass) retention preserves the workspace-to-original-job mapping and original no-replay receipt without archived task content [271.51ms]
+(pass) actual spin/workspace-run CLI dispatches through the same native job authority with exact model and scoped branch [549.77ms]
+
+ 22 pass
+ 0 fail
+Ran 22 tests across 1 file. [4.56s]
+Guarded Bun file 90/91: writer-capacity.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/writer-capacity.test.ts:
+(pass) cached read rejects actual oversized primary before callback [16.14ms]
+(pass) cached read rejects actual oversized wal before callback [11.73ms]
+(pass) cached transaction rejects actual oversized primary before callback [13.67ms]
+(pass) cached transaction rejects actual oversized wal before callback [12.20ms]
+(pass) native large source/FTS transaction is refused without committed row/event/floor changes [92.17ms]
+(pass) registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt [479.68ms]
+(pass) error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer [16.39ms]
+(pass) error before native COMMIT retains exact domain identity only after successful rollback [14.23ms]
+(pass) error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write [19.45ms]
+(pass) cached read rejects changed journal before callback without repair [11.36ms]
+(pass) cached read rejects changed wal-mode before callback without repair [11.43ms]
+(pass) cached read rejects changed parent-mode before callback without repair [10.54ms]
+(pass) cached read rejects changed wal-link before callback without repair [11.88ms]
+(pass) cached transaction rejects changed journal before callback without repair [11.07ms]
+(pass) cached transaction rejects changed wal-mode before callback without repair [10.75ms]
+(pass) cached transaction rejects changed parent-mode before callback without repair [11.93ms]
+(pass) cached transaction rejects changed wal-link before callback without repair [10.99ms]
+(pass) native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [17.94ms]
+(pass) native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [17.29ms]
+(pass) native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [26.15ms]
+(pass) eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML [370.78ms]
+(pass) driver PRAGMA prepare failure clears private authorization and callback controls remain denied [19.00ms]
+(pass) post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay [14.87ms]
+Native dirty-page qualification: {
+  spill: true,
+  before: 160712,
+  pending: 4383712,
+  committed: 4441392,
+}
+(pass) native dirty-page probe observes cache_spill=true before actual commit [22.13ms]
+Native dirty-page qualification: {
+  spill: false,
+  before: 160712,
+  pending: 160712,
+  committed: 4441392,
+}
+(pass) native dirty-page probe observes cache_spill=false before actual commit [21.28ms]
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false,
+}
+(pass) native FTS xSync allocation occurs at actual COMMIT [13.52ms]
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false,
+}
+(pass) native FTS xSync page-limit failure occurs at actual COMMIT [9.56ms]
+
+ 27 pass
+ 0 fail
+Ran 27 tests across 1 file. [1340.00ms]
+Guarded Bun file 91/91: writer-lifecycle.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:
+(pass) registered real store covers explicit expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit [111.17ms]
+(pass) registered explicit expiry and prune use synchronous admission, preserving archive/purge events [66.97ms]
+(pass) final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit [208.45ms]
+(pass) fresh final owner CLI unshares with exact CAS, linked access and retained original audit [194.92ms]
+(pass) upgraded final owner CLI unshares with exact CAS, linked access and retained original audit [191.99ms]
+(pass) fresh final owner unsharing preserves the raw malformed privacy marker and model opacity [140.01ms]
+(pass) upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity [134.01ms]
+(pass) fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen [171.34ms]
+(pass) upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen [160.78ms]
+(pass) fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting [579.62ms]
+(pass) upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting [573.30ms]
+(pass) final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job [302.13ms]
+(pass) final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context [474.99ms]
+(pass) registered gate lease blocks explicit maintenance and mutations while reads stay available [52.44ms]
+(pass) registered final writer holds pending/unknown/mismatched roots without permission or schema changes [268.41ms]
+(pass) registered final writer preserves domain errors after rollback and keeps hostile callback errors finite [53.81ms]
+(pass) final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes [222.20ms]
+(pass) failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully [122.09ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [4.10s]
+Guarded Bun files: 91/91 passed; 0 failed.

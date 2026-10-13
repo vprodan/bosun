@@ -8,7 +8,6 @@ const EXITS: Record<BosunErrorCode, number> = {
 export const BOSUN_ERROR_CODES: readonly BosunErrorCode[] = Object.freeze(Object.keys(EXITS) as BosunErrorCode[]);
 export const isBosunErrorCode = (value: unknown): value is BosunErrorCode => typeof value === 'string' && Object.hasOwn(EXITS, value);
 
-// The legacy (message, exitCode) overload keeps lib/util callers compatible.
 export class BosunError extends Error {
   code: BosunErrorCode;
   exitCode: number;

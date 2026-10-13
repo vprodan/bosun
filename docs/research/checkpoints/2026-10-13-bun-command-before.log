@@ -1,0 +1,85 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - OS process barrier refuses an external shell even without the JS preload
+ok 26 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 27 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 28 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 29 - unknown suites/options and prohibited runtimes fail closed
+Containment: 29/29 probes passed; application suites not imported.
+{"file":"checks.test.ts","selectedPattern":"^native successful verification","fullRuntimeQualification":false}
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../Users/edge/Developer/bosun/test/checks.test.ts:
+15 | const { syncBuiltinESMExports } = require('node:module');
+16 | const { ROOT_KEYS, PRELOAD, GIT_REAL } = require('./test-env.cjs');
+17 | const original = { realpath: fs.realpathSync, lstat: fs.lstatSync, exists: fs.existsSync, read: fs.readFileSync,
+18 |   append: fs.appendFileSync, spawn: cp.spawn, spawnSync: cp.spawnSync };
+19 | const repo = original.realpath(path.resolve(__dirname, '..'));
+20 | const fail = (message) => { throw new Error(`bosun test containment: ${message}`); };
+                                           ^
+error: bosun test containment: child guard identity changed
+      at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:20:39)
+      at assertEnvironment (/Users/edge/Developer/bosun/scripts/test-preload.cjs:70:143)
+      at child (/Users/edge/Developer/bosun/scripts/test-preload.cjs:191:3)
+      at <anonymous> (/Users/edge/Developer/bosun/scripts/test-preload.cjs:252:68)
+      at streamProcess (/Users/edge/Developer/bosun/src/platform/process.ts:54:17)
+      at run (/Users/edge/Developer/bosun/src/platform/git.ts:56:22)
+      at success (/Users/edge/Developer/bosun/src/adapters/review/git.ts:26:30)
+      at metadata (/Users/edge/Developer/bosun/src/adapters/review/git.ts:51:28)
+      at capture (/Users/edge/Developer/bosun/src/adapters/review/git.ts:257:28)
+      at <anonymous> (/Users/edge/Developer/bosun/src/app/review.ts:147:40)
+(fail) native successful verification fingerprints executable/args/environment, stores only outcome/digest and contributes current recorded evidence [48.18ms]
+
+ 0 pass
+ 9 filtered out
+ 1 fail
+Ran 1 test across 1 file. [120.00ms]
+{"file":"orca.test.ts","selectedPattern":"^owned split watches","fullRuntimeQualification":false}
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:
+15 | const { syncBuiltinESMExports } = require('node:module');
+16 | const { ROOT_KEYS, PRELOAD, GIT_REAL } = require('./test-env.cjs');
+17 | const original = { realpath: fs.realpathSync, lstat: fs.lstatSync, exists: fs.existsSync, read: fs.readFileSync,
+18 |   append: fs.appendFileSync, spawn: cp.spawn, spawnSync: cp.spawnSync };
+19 | const repo = original.realpath(path.resolve(__dirname, '..'));
+20 | const fail = (message) => { throw new Error(`bosun test containment: ${message}`); };
+                                           ^
+error: bosun test containment: child guard identity changed
+      at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:20:39)
+      at assertEnvironment (/Users/edge/Developer/bosun/scripts/test-preload.cjs:70:143)
+      at child (/Users/edge/Developer/bosun/scripts/test-preload.cjs:191:3)
+      at <anonymous> (/Users/edge/Developer/bosun/scripts/test-preload.cjs:252:68)
+      at streamProcess (/Users/edge/Developer/bosun/src/platform/process.ts:54:17)
+      at run (/Users/edge/Developer/bosun/src/platform/git.ts:56:22)
+      at repository (/Users/edge/Developer/bosun/src/platform/git.ts:113:28)
+      at bound (/Users/edge/Developer/bosun/src/app/watches.ts:70:30)
+      at <anonymous> (/Users/edge/Developer/bosun/src/app/watches.ts:114:31)
+(fail) owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay [45.84ms]
+
+ 0 pass
+ 18 filtered out
+ 1 fail
+Ran 1 test across 1 file. [114.00ms]

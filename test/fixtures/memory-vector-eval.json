@@ -1,0 +1,2802 @@
+{
+  "schema": 1,
+  "privacy": "public",
+  "evidence": "synthetic",
+  "capturedAt": 1800000000000,
+  "notes": [
+    {
+      "privacy": "public",
+      "id": "m_eval0",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "project",
+      "title": "synthproject0 build guidelines",
+      "body": "synthproject0 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval1",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "project",
+      "title": "synthproject1 build guidelines",
+      "body": "synthproject1 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval2",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "project",
+      "title": "synthproject2 build guidelines",
+      "body": "synthproject2 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval3",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "project",
+      "title": "synthproject3 build guidelines",
+      "body": "synthproject3 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval4",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "project",
+      "title": "synthproject4 build guidelines",
+      "body": "synthproject4 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval5",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "project",
+      "title": "synthproject5 build guidelines",
+      "body": "synthproject5 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval6",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "project",
+      "title": "synthproject6 build guidelines",
+      "body": "synthproject6 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval7",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "project",
+      "title": "synthproject7 build guidelines",
+      "body": "synthproject7 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval8",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "project",
+      "title": "synthproject8 build guidelines",
+      "body": "synthproject8 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "m_eval9",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "project",
+      "title": "synthproject9 build guidelines",
+      "body": "synthproject9 uses pnpm for reproducible builds. Reviewed synthetic project decisions.",
+      "tags": [
+        "tooling"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "privacy": "public",
+      "id": "q_0_0",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "identifier",
+      "query": "synthproject0 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_1",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "paraphrase",
+      "query": "synthproject0 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_2",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "rationale",
+      "query": "synthproject0 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_3",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "relationship",
+      "query": "synthproject0 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_4",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "current",
+      "query": "synthproject0 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_5",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "preference",
+      "query": "synthproject0 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_6",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "summary",
+      "query": "synthproject0 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_7",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "identifier",
+      "query": "synthproject0 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval0",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_8",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "negative",
+      "query": "unrelated nebula0 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_0_9",
+      "split": "development",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "category": "negative",
+      "query": "unrelated nebula0 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_0",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "identifier",
+      "query": "synthproject1 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_1",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "paraphrase",
+      "query": "synthproject1 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_2",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "rationale",
+      "query": "synthproject1 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_3",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "relationship",
+      "query": "synthproject1 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_4",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "current",
+      "query": "synthproject1 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_5",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "preference",
+      "query": "synthproject1 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_6",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "summary",
+      "query": "synthproject1 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_7",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "identifier",
+      "query": "synthproject1 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval1",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_8",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "negative",
+      "query": "unrelated nebula1 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_1_9",
+      "split": "development",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "category": "negative",
+      "query": "unrelated nebula1 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_0",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "identifier",
+      "query": "synthproject2 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_1",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "paraphrase",
+      "query": "synthproject2 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_2",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "rationale",
+      "query": "exclusive vectorphrase requisition",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_3",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "relationship",
+      "query": "synthproject2 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_4",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "current",
+      "query": "synthproject2 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_5",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "preference",
+      "query": "synthproject2 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_6",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "summary",
+      "query": "synthproject2 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_7",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "identifier",
+      "query": "synthproject2 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval2",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_8",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "negative",
+      "query": "unrelated nebula2 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_2_9",
+      "split": "heldout",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "category": "negative",
+      "query": "unrelated nebula2 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_0",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "identifier",
+      "query": "synthproject3 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_1",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "paraphrase",
+      "query": "synthproject3 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_2",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "rationale",
+      "query": "synthproject3 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_3",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "relationship",
+      "query": "synthproject3 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_4",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "current",
+      "query": "synthproject3 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_5",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "preference",
+      "query": "synthproject3 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_6",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "summary",
+      "query": "synthproject3 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_7",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "identifier",
+      "query": "synthproject3 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval3",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_8",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "negative",
+      "query": "unrelated nebula3 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_3_9",
+      "split": "heldout",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "category": "negative",
+      "query": "unrelated nebula3 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_0",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "identifier",
+      "query": "synthproject4 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_1",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "paraphrase",
+      "query": "synthproject4 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_2",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "rationale",
+      "query": "synthproject4 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_3",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "relationship",
+      "query": "synthproject4 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_4",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "current",
+      "query": "synthproject4 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_5",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "preference",
+      "query": "synthproject4 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_6",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "summary",
+      "query": "synthproject4 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_7",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "identifier",
+      "query": "synthproject4 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval4",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_8",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "negative",
+      "query": "unrelated nebula4 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_4_9",
+      "split": "heldout",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "category": "negative",
+      "query": "unrelated nebula4 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_0",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "identifier",
+      "query": "synthproject5 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_1",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "paraphrase",
+      "query": "synthproject5 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_2",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "rationale",
+      "query": "synthproject5 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_3",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "relationship",
+      "query": "synthproject5 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_4",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "current",
+      "query": "synthproject5 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_5",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "preference",
+      "query": "synthproject5 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_6",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "summary",
+      "query": "synthproject5 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_7",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "identifier",
+      "query": "synthproject5 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval5",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_8",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "negative",
+      "query": "unrelated nebula5 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_5_9",
+      "split": "heldout",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "category": "negative",
+      "query": "unrelated nebula5 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_0",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "identifier",
+      "query": "synthproject6 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_1",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "paraphrase",
+      "query": "synthproject6 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_2",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "rationale",
+      "query": "synthproject6 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_3",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "relationship",
+      "query": "synthproject6 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_4",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "current",
+      "query": "synthproject6 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_5",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "preference",
+      "query": "synthproject6 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_6",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "summary",
+      "query": "synthproject6 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_7",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "identifier",
+      "query": "synthproject6 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval6",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_8",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "negative",
+      "query": "unrelated nebula6 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_6_9",
+      "split": "heldout",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "category": "negative",
+      "query": "unrelated nebula6 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_0",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "identifier",
+      "query": "synthproject7 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_1",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "paraphrase",
+      "query": "synthproject7 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_2",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "rationale",
+      "query": "synthproject7 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_3",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "relationship",
+      "query": "synthproject7 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_4",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "current",
+      "query": "synthproject7 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_5",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "preference",
+      "query": "synthproject7 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_6",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "summary",
+      "query": "synthproject7 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_7",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "identifier",
+      "query": "synthproject7 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval7",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_8",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "negative",
+      "query": "unrelated nebula7 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_7_9",
+      "split": "heldout",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "category": "negative",
+      "query": "unrelated nebula7 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_0",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "identifier",
+      "query": "synthproject8 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_1",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "paraphrase",
+      "query": "synthproject8 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_2",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "rationale",
+      "query": "synthproject8 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_3",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "relationship",
+      "query": "synthproject8 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_4",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "current",
+      "query": "synthproject8 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_5",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "preference",
+      "query": "synthproject8 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_6",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "summary",
+      "query": "synthproject8 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_7",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "identifier",
+      "query": "synthproject8 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval8",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_8",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "negative",
+      "query": "unrelated nebula8 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_8_9",
+      "split": "heldout",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "category": "negative",
+      "query": "unrelated nebula8 absent9",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_0",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "identifier",
+      "query": "synthproject9 pnpm identifier question 0",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_1",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "paraphrase",
+      "query": "synthproject9 pnpm paraphrase question 1",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_2",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "rationale",
+      "query": "synthproject9 pnpm rationale question 2",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_3",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "relationship",
+      "query": "synthproject9 pnpm relationship question 3",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_4",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "current",
+      "query": "synthproject9 pnpm current question 4",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_5",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "preference",
+      "query": "synthproject9 pnpm preference question 5",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_6",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "summary",
+      "query": "synthproject9 pnpm summary question 6",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_7",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "identifier",
+      "query": "synthproject9 pnpm identifier question 7",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "grade": 3,
+          "quote": "uses pnpm for reproducible builds",
+          "alternatives": [
+            {
+              "id": "g_eval9",
+              "quote": "uses pnpm for reproducible builds"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_8",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "negative",
+      "query": "unrelated nebula9 absent8",
+      "supports": []
+    },
+    {
+      "privacy": "public",
+      "id": "q_9_9",
+      "split": "heldout",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "category": "negative",
+      "query": "unrelated nebula9 absent9",
+      "supports": []
+    }
+  ],
+  "graph": [
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval0",
+      "sourceGroup": "source_0",
+      "sessionGroup": "session_0",
+      "scope": {
+        "projectId": "p_0000000000000000",
+        "sessionId": "s_0"
+      },
+      "kind": "entity",
+      "title": "synthproject0 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval0",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject0 operations",
+        "aliases": [
+          "launchtool0"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval1",
+      "sourceGroup": "source_1",
+      "sessionGroup": "session_1",
+      "scope": {
+        "projectId": "p_0000000000000001",
+        "sessionId": "s_1"
+      },
+      "kind": "entity",
+      "title": "synthproject1 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval1",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject1 operations",
+        "aliases": [
+          "launchtool1"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval2",
+      "sourceGroup": "source_2",
+      "sessionGroup": "session_2",
+      "scope": {
+        "projectId": "p_0000000000000002",
+        "sessionId": "s_2"
+      },
+      "kind": "entity",
+      "title": "synthproject2 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval2",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject2 operations",
+        "aliases": [
+          "launchtool2"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval3",
+      "sourceGroup": "source_3",
+      "sessionGroup": "session_3",
+      "scope": {
+        "projectId": "p_0000000000000003",
+        "sessionId": "s_3"
+      },
+      "kind": "entity",
+      "title": "synthproject3 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval3",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject3 operations",
+        "aliases": [
+          "launchtool3"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval4",
+      "sourceGroup": "source_4",
+      "sessionGroup": "session_4",
+      "scope": {
+        "projectId": "p_0000000000000004",
+        "sessionId": "s_4"
+      },
+      "kind": "entity",
+      "title": "synthproject4 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval4",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject4 operations",
+        "aliases": [
+          "launchtool4"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval5",
+      "sourceGroup": "source_5",
+      "sessionGroup": "session_5",
+      "scope": {
+        "projectId": "p_0000000000000005",
+        "sessionId": "s_5"
+      },
+      "kind": "entity",
+      "title": "synthproject5 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval5",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject5 operations",
+        "aliases": [
+          "launchtool5"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval6",
+      "sourceGroup": "source_6",
+      "sessionGroup": "session_6",
+      "scope": {
+        "projectId": "p_0000000000000006",
+        "sessionId": "s_6"
+      },
+      "kind": "entity",
+      "title": "synthproject6 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval6",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject6 operations",
+        "aliases": [
+          "launchtool6"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval7",
+      "sourceGroup": "source_7",
+      "sessionGroup": "session_7",
+      "scope": {
+        "projectId": "p_0000000000000007",
+        "sessionId": "s_7"
+      },
+      "kind": "entity",
+      "title": "synthproject7 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval7",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject7 operations",
+        "aliases": [
+          "launchtool7"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval8",
+      "sourceGroup": "source_8",
+      "sessionGroup": "session_8",
+      "scope": {
+        "projectId": "p_0000000000000008",
+        "sessionId": "s_8"
+      },
+      "kind": "entity",
+      "title": "synthproject8 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval8",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject8 operations",
+        "aliases": [
+          "launchtool8"
+        ]
+      }
+    },
+    {
+      "privacy": "public",
+      "reviewed": true,
+      "id": "g_eval9",
+      "sourceGroup": "source_9",
+      "sessionGroup": "session_9",
+      "scope": {
+        "projectId": "p_0000000000000009",
+        "sessionId": "s_9"
+      },
+      "kind": "entity",
+      "title": "synthproject9 operations",
+      "text": "Reviewed operations uses pnpm for reproducible builds.",
+      "supports": [
+        {
+          "id": "m_eval9",
+          "quote": "uses pnpm for reproducible builds"
+        }
+      ],
+      "entity": {
+        "type": "concept",
+        "key": "synthproject9 operations",
+        "aliases": [
+          "launchtool9"
+        ]
+      }
+    }
+  ]
+}

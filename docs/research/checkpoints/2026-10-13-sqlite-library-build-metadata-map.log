@@ -1,0 +1,11 @@
+176 |     cwd: work, env: environment, stdin: 'ignore', stdout: Bun.file(path.join(work, `${name}.stdout.log`)), stderr: Bun.file(path.join(work, `${name}.stderr.log`)),
+177 |   });
+178 |   const timer = setTimeout(() => child.kill('SIGKILL'), 300_000);
+179 |   const status = await child.exited;
+180 |   clearTimeout(timer);
+181 |   if (status !== 0) throw new Error(`Native build command ${name} failed (${status}); logs retained in ${work}`);
+                                    ^
+error: Native build command clang-version failed (134); logs retained in /Users/edge/Developer/bosun/.omp/tooling/sqlite-native-13.0.3/builds/build-OULsMl
+      at run (/Users/edge/Developer/bosun/scripts/build-sqlite-native.mjs:181:31)
+
+Bun v1.4.3 (macOS arm64)

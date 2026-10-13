@@ -1,0 +1,40 @@
+{
+  "coverage": "static-two-build-comparison",
+  "runtimeExecuted": false,
+  "inputsIdentical": true,
+  "compilerIdentical": true,
+  "flagsIdentical": true,
+  "sourceDigest": "b0d4f9d16034d15b96ac70aada8ec47a3200847870362c14c2ab9b02ca555223",
+  "candidates": [
+    {
+      "directory": "dist/bosun-0.2.0-darwin-arm64",
+      "compiler": {
+        "version": "1.4.2",
+        "sha256": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+      },
+      "binaryBytes": 74198130,
+      "binarySha256": "5a8600206ee8527c1410f833af612d2ce5afc510fd1f7ddf92ea7089f6cfe202",
+      "archiveSha256": "d4ff5dbb27229fa18ee5c8e8e344e36e4bd2f354eff198b1627219218d4c3ec7",
+      "machOUuids": [
+        "4c4c447c55553144a138dbd9c49417a3"
+      ]
+    },
+    {
+      "directory": "dist/bosun-0.2.0-darwin-arm64-rebuild",
+      "compiler": {
+        "version": "1.4.2",
+        "sha256": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+      },
+      "binaryBytes": 74198130,
+      "binarySha256": "80d3df20afc467bdd7ce94a9539759b88e70a673b9b57ba871bd1ee6cae0c564",
+      "archiveSha256": "6d00cc409e3537715d462d236ee5ca4bb2e86597b2bc1e8c894a6bc0718877fc",
+      "machOUuids": [
+        "4c4c447c55553144a138dbd9c49417a3"
+      ]
+    }
+  ],
+  "differenceBytes": 262,
+  "firstDifference": 64207312,
+  "compilerByteReproducibility": "not-established-byte-mismatch",
+  "interpretation": "Input inventory is identical; random build/output paths and Bun bytecode/embedded metadata remain possible causes. No binary bytes were normalized or patched."
+}

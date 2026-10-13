@@ -1,54 +1,134 @@
-import "./bootstrap.ts";
+import './bootstrap.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sandbox, fresh, bosun } from './helpers.ts';
-import { load, role } from '../lib/config.ts';
-import * as roles from '../lib/roles.ts';
+import { sandbox, bosun } from './helpers.ts';
+import { parseRuntimeConfig } from '../src/platform/config.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
 
 const NAMES = ['architect', 'debugger', 'reviewer', 'scout', 'tester', 'worker'];
 
-test('roles: every role parses and renders for Claude and Codex with its configured model', () => {
-  const sb = sandbox();
-  try {
-    fresh(sb);
-    const cfg = load();
-    const all = roles.allRoles();
-    assert.deepEqual(all.map((r) => r.name), NAMES);
-    for (const r of all) {
-      const c = roles.renderClaude(r, cfg);
-      const cm = role(cfg, r.name, 'claude');
-      assert.ok(c.startsWith(`---\n# ${roles.MARK}`), `${r.name}: marker first`);
-      assert.match(c, new RegExp(`^name: bosun-${r.name}$`, 'm'));
-      assert.match(c, new RegExp(`^model: ${cm.model}$`, 'm'));
-      assert.equal(/^effort: /m.test(c), !!cm.effort, `${r.name}: effort only when configured`);
-      assert.match(c, /^description: ".+"$/m);
-      assert.ok(c.includes(`\n---\n${r.body}\n`), `${r.name}: body after frontmatter`);
+test('final configuration preserves explicit role/operator aliases, prefers canonical fields and never reads unrelated authentication', () => {
+  let touched = 0;
+  const env = {
+    ROLE_SCOUT_CLAUDE: 'sonnet:low',
+    ROLE_WORKER_CODEX: 'old-worker',
+    WORKER_BY_CODEX: 'old-executor:high',
+    REVIEW_BY_CLAUDE: 'opus:high',
+    BOSUN_ROLE_EXECUTOR_CODEX_MODEL: 'PINNED',
+    BOSUN_ROLE_EXECUTOR_CODEX_EFFORT: 'medium',
+    get OPENAI_API_KEY(): string {
+      touched++;
+      throw Error('AUTH CANARY');
+    },
+    get ROLE_UNKNOWN_AUTH_CLAUDE(): string {
+      touched++;
+      throw Error('AUTH CANARY');
+    },
+  };
+  const cfg = parseRuntimeConfig('[roles.scout.claude]\nmodel="haiku"\neffort="high"\n', env);
+  assert.deepEqual(cfg.roles.scout.claude, { model: 'sonnet', effort: 'low' });
+  assert.equal(cfg.roles.worker.codex?.model, 'old-worker');
+  assert.equal(
+    cfg.roles.worker.codex?.effort,
+    undefined,
+    'an omitted legacy effort is not silently substituted',
+  );
+  assert.deepEqual(cfg.roles.executor.codex, { model: 'PINNED', effort: 'medium' });
+  assert.deepEqual(cfg.roles['cross-reviewer'].claude, { model: 'opus', effort: 'high' });
+  assert.equal(touched, 0);
+  const before = Object.getOwnPropertyDescriptor(Object, 'claude');
+  assert.throws(
+    () =>
+      parseRuntimeConfig('', {
+        get BOSUN_ROLE_CONSTRUCTOR_CLAUDE_MODEL(): string {
+          touched++;
+          throw Error('AUTH CANARY');
+        },
+      }),
+    (error: unknown) => (error as { code?: string }).code === 'invalid',
+  );
+  assert.equal(touched, 0, 'invalid configuration paths are rejected before reading their value');
+  assert.deepEqual(
+    Object.getOwnPropertyDescriptor(Object, 'claude'),
+    before,
+    'metadata reads cannot mutate a constructor through an inherited path',
+  );
+  for (const value of ['private secret value', 'model:effort:CANARY', ':CANARY', 'model\nCANARY'])
+    assert.throws(
+      () => parseRuntimeConfig('', { ROLE_WORKER_CODEX: value }),
+      (error: unknown) =>
+        (error as { code?: string }).code === 'invalid' &&
+        !(error as Error).message.includes('CANARY'),
+    );
+});
 
-      const x = roles.renderCodex(r, cfg);
-      const xm = role(cfg, r.name, 'codex');
-      assert.match(x, new RegExp(`^name = "bosun_${r.name}"$`, 'm'));
-      assert.match(x, new RegExp(`^model = "${xm.model}"$`, 'm'));
-      assert.match(x, new RegExp(`^model_reasoning_effort = "${xm.effort}"$`, 'm'));
-      assert.match(x, /^developer_instructions = '''\n[\s\S]+\n'''\n$/m);
+test('final run dispatches the explicitly selected executor model through its owner job without changing role configuration', async () => {
+  const f = await runtimeFixture('', {
+    env: { ROLE_WORKER_CODEX: 'other-worker:low', WORKER_BY_CODEX: 'PINNED:high' },
+  });
+  try {
+    const result = await f.cli([
+      'run',
+      'Public bounded native task',
+      '--host',
+      'codex',
+      '--read-only',
+      '--request-id',
+      'legacy-model-binding',
+    ]);
+    assert.equal(result.code, 0, result.err);
+    const queued = JSON.parse(result.out);
+    let job = await f.rpc('job.get', { id: queued.job.id });
+    for (let n = 0; n < 200 && ['queued', 'running'].includes(job.state); n++) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      job = await f.rpc('job.get', { id: job.id });
     }
-    const by = Object.fromEntries(all.map((r) => [r.name, r]));
-    for (const n of ['architect', 'scout', 'reviewer']) assert.match(roles.renderCodex(by[n], cfg), /sandbox_mode = "read-only"/);
-    for (const n of ['worker', 'tester', 'debugger']) assert.match(roles.renderCodex(by[n], cfg), /sandbox_mode = "workspace-write"/);
-    assert.match(roles.renderClaude(by.debugger, cfg), /^tools: Read, Glob, Grep, Bash$/m, 'debugger cannot Edit');
-    assert.match(roles.renderClaude(by.worker, cfg), /^tools: Read, Edit, Write, Glob, Grep, Bash$/m);
-    assert.throws(() => roles.renderCodex({ ...by.scout, body: "has ''' inside" }, cfg), /must not contain/);
-    assert.match(roles.reviewerBody(), /P0 \(must fix\)/);
-  } finally { sb.cleanup(); }
+    assert.equal(job.state, 'succeeded');
+    assert.equal(
+      f.calls(),
+      1,
+      'the existing fixture runner asserts PINNED, not the default worker model',
+    );
+    const repeated = await f.cli([
+      'run',
+      'Public bounded native task',
+      '--host',
+      'codex',
+      '--read-only',
+      '--request-id',
+      'legacy-model-binding',
+    ]);
+    assert.equal(repeated.code, 0, repeated.err);
+    assert.equal(JSON.parse(repeated.out).job.id, job.id);
+    assert.equal(f.calls(), 1);
+  } finally {
+    await f.close();
+  }
 });
 
 test('roles: bosun roles --json prints the resolved table', async () => {
   const sb = sandbox();
   try {
-    const r = await bosun(['roles', '--json'], { env: sb.env({ ROLE_SCOUT_CLAUDE: 'sonnet:low' }) });
+    const r = await bosun(['roles', '--json'], {
+      env: sb.env({ ROLE_SCOUT_CLAUDE: 'sonnet:low' }),
+    });
     assert.equal(r.code, 0, r.err);
     const rows = JSON.parse(r.out);
-    assert.deepEqual(rows.map((x: any) => x.role), NAMES);
-    assert.deepEqual(rows.find((x: any) => x.role === 'architect').codex, { model: 'gpt-6-astra', effort: 'high' });
-    assert.deepEqual(rows.find((x: any) => x.role === 'scout').claude, { model: 'sonnet', effort: 'low' }, 'env overrides config');
-  } finally { sb.cleanup(); }
+    assert.deepEqual(
+      rows.map((x: any) => x.id),
+      NAMES,
+    );
+    assert.deepEqual(rows.find((x: any) => x.id === 'architect').bindings.codex, {
+      model: 'gpt-6-astra',
+      effort: 'high',
+    });
+    assert.deepEqual(
+      rows.find((x: any) => x.id === 'scout').bindings.claude,
+      { model: 'sonnet', effort: 'low' },
+      'explicit legacy env overrides config',
+    );
+    assert.deepEqual(sb.calls(), [], 'listing configured bindings starts no native host');
+  } finally {
+    sb.cleanup();
+  }
 });

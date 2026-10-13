@@ -1,0 +1,340 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - canonical metadata follows symlinks before parent traversal and contains missing tails
+ok 6 - symlink HOME escape fails before application evaluation
+ok 7 - every host/XDG/temp root is mandatory and contained
+ok 8 - direct test invocation fails before application evaluation
+ok 9 - clean environment excludes inherited credentials and user configuration
+ok 10 - child custom environment regains mandatory preload
+ok 11 - escaped child environment and cwd are rejected before spawn
+ok 12 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 13 - shell and PATH fallback cannot bypass process guard
+ok 14 - outside writes and symlink writes fail
+ok 15 - upstream diagnostic SQLite opens and attached databases remain contained
+ok 16 - application SQLite facade denies native path, URI, SQL, backup and extension escapes
+ok 17 - direct better-sqlite3 and cached addon handles retain pre-native containment
+ok 18 - prototype and instance SQLite constructors preserve guarded identities before native opens
+ok 19 - real credential/config reads fail
+ok 20 - git and plutil external/config mutations fail
+ok 21 - fetch external and unregistered loopback endpoints fail
+ok 22 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 23 - registered ephemeral HTTP mocks remain usable
+ok 24 - HTTP and HTTPS validate merged URL/options destinations before native delegation
+ok 25 - registered HTTP and HTTPS URL/options/callback and IPC mock signatures remain usable
+ok 26 - only registered synthetic local sockets can be connected
+ok 27 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 28 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 29 - native fetch cannot follow a registered mock redirect into a real service
+ok 30 - OS barrier contains native files and SQLite even without the JS preload
+ok 31 - OS process barrier refuses an external shell even without the JS preload
+ok 32 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 33 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 34 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 35 - unknown suites/options and prohibited runtimes fail closed
+Containment: 35/35 probes passed; application suites not imported.
+Guarded Bun file 1/10: memory-store.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/memory-store.test.ts:
+(pass) plain memory close releases retained native statements and active FTS write locks without committing unfinished changes [9.06ms]
+(pass) MemoryStore acceptance: plain direct adapter [8.81ms]
+(pass) MemoryStore acceptance: registered direct adapter [182.89ms]
+(pass) direct plain query/projection has unchanged storage footprint, scope/flags and deterministic expiry [10.73ms]
+(pass) direct registered query/projection has unchanged storage footprint, scope/flags and deterministic expiry [201.31ms]
+(pass) direct plain explicit retention/touch/prune uses frozen policy and injected timestamps [5.83ms]
+(pass) direct registered explicit retention/touch/prune uses frozen policy and injected timestamps [84.85ms]
+(pass) direct plain semantic clock/expiry failures leave existing rows/events/generation unchanged [7.23ms]
+(pass) direct registered semantic clock/expiry failures leave existing rows/events/generation unchanged [154.28ms]
+(pass) direct registered queries remain usable under a retained view lease while maintenance/mutation is admitted and held [109.99ms]
+(pass) direct plain post-commit sink/timing failures preserve result, events and generation [5.57ms]
+(pass) direct registered post-commit sink/timing failures preserve result, events and generation [82.01ms]
+(pass) direct dependencies fail before DML, transactions roll back and lifecycle cleanup preserves the original error [5.24ms]
+(pass) validation schemas and native session helpers retain source identity and validate inputs [0.13ms]
+(pass) direct adapter imports and works under a synthetic HOME with unusable ambient config and no owner filesystem effects [30.72ms]
+(pass) direct plain expired session restore renews the current default and survives reopen until the new boundary [6.30ms]
+(pass) direct registered expired session restore renews the current default and survives reopen until the new boundary [78.11ms]
+(pass) direct plain restoration preserves unexpired/normal/non-session deadlines and omitted raw flags [8.87ms]
+(pass) direct registered restoration preserves unexpired/normal/non-session deadlines and omitted raw flags [315.71ms]
+(pass) direct plain zero session TTL disables expiry for creation and explicit expired restore [6.10ms]
+(pass) direct registered zero session TTL disables expiry for creation and explicit expired restore [67.22ms]
+(pass) direct plain restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations [9.02ms]
+(pass) direct registered restore clock/overflow/conflict/invalid expiry failures precede DML with atomic expectations [250.89ms]
+
+ 23 pass
+ 0 fail
+Ran 23 tests across 1 file. [1.69s]
+Guarded Bun file 2/10: owner-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-cutover.test.ts:
+(pass) native owner plan reads only filesystem/header metadata; retired CLI preserves live and closed WAL footprints [198.68ms]
+(pass) native owner apply uses independently planned UUID, preserving private/audit/docs/IDs and fencing cached writer [25.08ms]
+(pass) closed WAL native open creates only empty WAL and canonical owner-only SHM; freshness permits those measured effects [20.54ms]
+(pass) stale source or WAL identity plans fail before native open without further footprint changes [33.70ms]
+(pass) filesystem plan gives actionable strict-permission/missing-layout blockers and never adapts them [34.83ms]
+(pass) plan refuses symlink/dangling/hardlink path overrides, pending sidecars, orphans and unsupported headers [61.00ms]
+(pass) plans bind paths, expire in five minutes, reject future clocks/extra fields and require explicit stopped attestation [12.19ms]
+(pass) owner CLI rejects missing attestation, extra inputs, duplicate flags and remote selection without storage effects [613.18ms]
+(pass) native schema validation refuses unsupported primary before backup/floor while filesystem plan remains unverified [15.03ms]
+(pass) admission rechecks plan before artifacts; contenders are blocked and a late backup-directory change is refused [2128.36ms]
+(pass) READY reconciliation requires independent source UUID before HOLD and explicitly revokes on success without new backup/doubleapply [161.72ms]
+(pass) saved planned source UUID recovers committed-but-unacknowledged floor; incomplete and multi-artifact attempts stay blocked [49.68ms]
+(pass) owner filesystem failures reconstruct mutated typed errors, accessor blockers and hostile proxies without private text [10.54ms]
+(pass) owner dependency getters and proxies reject before filesystem inspection or private error serialization [7.51ms]
+(pass) non-synchronous owner validation is refused under native admission before any artifact or floor mutation [6346.73ms]
+(pass) native preparation reviews absent leaves and legacy modes without SQLite, then applies a fresh strict candidate [55.01ms]
+(pass) preparation narrows only known descriptors including existing WAL/SHM and leaves all SQLite bytes/identities untouched [53.87ms]
+(pass) preparation rejects unknown modes, links, owners, existing views, pending/unknown inventory and unsupported formats without effects [188.41ms]
+(pass) a real existing READY view stays blocked before any preparation permission action [119.08ms]
+(pass) preparation freshness binds complete WAL/SHM stamps, directory identities, missing leaves and configuration paths [79.86ms]
+(pass) preparation pins all actionable and creation-parent descriptors before any permission effect [12.39ms]
+(pass) all pinned source, WAL and SHM metadata is rechecked before the first fchmod [35.07ms]
+(pass) descriptor replacement during pinning is refused; replacement after chmod never receives path permission changes [22.79ms]
+(pass) partial fchmod, mkdir and close failures stay conservative, expose finite errors and require a new preparation plan [112.44ms]
+(pass) created-leaf races and unexpected changes between preparation actions are rejected without cleanup or broadening [54.17ms]
+(pass) owner-held close failure retries once, remains finite failure, and does not claim persistent descriptor release [32.27ms]
+(pass) preparation rejects malformed, future/expired/oversized tokens, wrong operations, missing attestation and extra request fields [12.67ms]
+(pass) retired preparation CLI rejects flags, positionals, duplicate options and remote without storage effects [676.73ms]
+(pass) native preparation preserves exact action paths containing spaces/control characters and retired CLI changes no storage [94.53ms]
+(pass) preparation descriptor/getter/proxy/dependency errors remain finite and malformed inputs inspect no filesystem [10.58ms]
+(pass) explicit owner recovers native intent/backup/floor kills using independent epoch and fresh current-source backup; commit reconciles [499.10ms]
+(pass) recovery plan opens only journal-free rollback view with retained native lease and leaves exact footprints unchanged [110.85ms]
+(pass) multiple retained UUID artifacts require explicit acknowledgement on plan and mutation and are never read or adopted [69.05ms]
+(pass) wrong independent epoch rejects both planning and forged recovery token before reservation or gate/floor DML [39.41ms]
+(pass) recovery holds unknown inventory, sidecars, links, modes, oversize/count bounds and leaves artifacts untouched [141.49ms]
+(pass) recovery rejects applied-without-floor, unknown gate schema, inconsistent phase/hash, digest tampering and empty pre-intent view [95.77ms]
+(pass) actual hot spill and dangling view journals remain held by recovery-plan without native recovery or footprint effects [253.12ms]
+(pass) recovery rechecks inventory under primary admission and gate lease blocks installation while preserving old reference [4319.49ms]
+(pass) retired recovery CLI has no effects; native recovery requires bound source, retain acknowledgement and attestation [675.77ms]
+(pass) recovery inputs, native inspection proxies/getters and mutated typed errors reconstruct finite failures [30.30ms]
+
+ 40 pass
+ 0 fail
+Ran 40 tests across 1 file. [17.55s]
+Guarded Bun file 3/10: owner-restore.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/owner-restore.test.ts:
+(pass) native restore plan saves independent new epoch and opens only leased rollback view; retired CLI makes no storage effects [156.41ms]
+(pass) actual bounded format1/2 restore preserves full logical snapshot and old bytes, saves current backup and fences old authorities [286.20ms]
+(pass) retained native delivery lease blocks restore HOLD before primary data DML; pending blocks every cached/new authority [117.20ms]
+(pass) readers observe only pending filename and never open retained owner JSON or backup bytes [102.83ms]
+(pass) pending hot-journal planning and ordinary/cached/hook authorities never native-open storage or read journal/owner bytes [327.71ms]
+(pass) unsafe or unbound pending journal layouts stay held by metadata-only planning without opening or repairing storage [1825.91ms]
+(pass) stale journals, independent UUIDs and contradictory admitted floors/backups reject before any writable view open or recovery [1776.77ms]
+(pass) native recovery followed by invalid recovered view schema reports uncertain effects and retains pending/HOLD without source DML [207.95ms]
+(pass) explicit admitted reconciliation recovers native hot spill for exact old/new floors without restore replay or generation/backup loss [591.52ms]
+(pass) seven native kill boundaries reconcile authoritative rollback or commit without replay, generation reset or old binding revival [1732.60ms]
+(pass) fallible checkpoints recheck actual source/view inodes before any commit through replaced native handles [570.81ms]
+(pass) owner capsule reads stay bounded and reject growth between metadata validation and descriptor use [146.56ms]
+(pass) post-rename directory fsync failure reports uncertainty while committed new epoch stays HOLD and reconciles without replay [129.92ms]
+(pass) retired restore CLI and independently bound native tokens refuse missing attestation, extra inputs and wrong epochs without effects [540.11ms]
+(pass) completed receipts survive explicit format upgrade and repeated restores replace only verified metadata while preserving every backup [446.91ms]
+(pass) pending capsule, reference and schema tampering stays held without repairing or committing unrelated owner data [534.66ms]
+(pass) restore admission blocks an actual registered contender and never reads unreferenced bytes acknowledged at both steps [159.20ms]
+
+ 17 pass
+ 0 fail
+Ran 17 tests across 1 file. [9.70s]
+Guarded Bun file 4/10: public-reader.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/public-reader.test.ts:
+(pass) public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint [115.17ms]
+(pass) public reader validates query inputs and escaped FTS before content queries; ordinary finite-expiry reads remain query-time only [167.16ms]
+(pass) independent expected epoch is mandatory; missing/wrong/malformed binding and any explicit/unknown view hold without downgrade [135.92ms]
+(pass) schema/format/readiness/generation/epoch/publication/time/data mismatch stays finite and unchanged [953.97ms]
+(pass) canonical paths, aliases, inode replacements, modes, source headers, oversized files and dangling journals fail before native recovery [1327.03ms]
+(pass) reader independently enforces encoded and row ceilings inside the physical bound without projecting content [507.24ms]
+(pass) source WAL absent/empty housekeeping remains read-only while retained WAL inode replacements and aliases hold [83.39ms]
+(pass) malformed dependency getters/proxies stay finite before filesystem effects; scoped decoding ignores foreign content [86.60ms]
+(pass) encoded aggregate matches publisher JSON for multibyte, quotation, backslash and control characters [96.56ms]
+(pass) retained native public lease blocks registered source revocation before primary DML and release allows HOLD mutation [114.87ms]
+(pass) lease rechecks source/view inode and nonmonotonic clock; publication metadata is pinned to its retained snapshot [213.63ms]
+(pass) actual owner CLI hook uses explicit public binding, retains the view through native stdout, and releases before source privatization [301.21ms]
+(pass) source hook joins a closed-pipe producer without late EPIPE errors or a retained public-view lease [228.49ms]
+(pass) actual public hook failed write/signal/SIGKILL/backpressure retains lease to teardown and cannot accept late memory [801.24ms]
+(pass) explicit native fs hook write retains the real reader through its original callback [166.76ms]
+(pass) uncertain explicit fs hook writes hold their lease until the original producer is killed and joined [673.04ms]
+(pass) local public handoff omits finite-expiry records before packing under real backpressure and a stalled event loop [1990.64ms]
+(pass) actual hot rollback spill journal holds the public reader and selector without recovery or filesystem changes [119.84ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [8.13s]
+Guarded Bun file 5/10: publication.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/publication.test.ts:
+(pass) production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS [84.74ms]
+(pass) v2 publication fences cached memory/docs writers and old prepared statements; reopened writers revoke until explicit republish [183.59ms]
+(pass) same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view [89.26ms]
+(pass) multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup [736.59ms]
+(pass) final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects [399.98ms]
+(pass) publication preserves established non-generator IDs and excludes malformed private flags before reading public content [59.09ms]
+(pass) completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission [256.64ms]
+(pass) explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them [631.43ms]
+(pass) actual hot spill journal is held by ordinary callers and recovered natively only by the explicit bound publisher [579.21ms]
+(pass) publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY [197.02ms]
+Public-view capacity qualification: {"syntheticRows":10000,"encodedBytes":9325226,"encodedLimitBytes":16777216,"sourceBytes":14458768,"viewBytes":7864320,"viewLimitBytes":67108864,"outcome":"READY","verifiedHookInjections":1,"scopedReadObservationMs":46.23,"latencyQualification":"unqualified"}
+(pass) 10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation [1979.10ms]
+(pass) public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data [1205.49ms]
+(pass) publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors [267.62ms]
+(pass) post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD [137.00ms]
+(pass) publication rejects malformed public hashes/content and unknown/private flags; owned failure holds while wrong/tampered artifacts are never repaired [314.81ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [7.19s]
+Guarded Bun file 6/10: read-view-qualification.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/read-view-qualification.test.ts:
+Read-view native qualification: {"node":"v26.3.0","sqlite":"3.53.4","patchedWalReset":true,"backup":"function","unsafeProbes":"enabled-test-prototype","function":"function","setAuthorizer":"function","serialize":"undefined","deserialize":"undefined","isTransaction":"boolean"}
+(pass) read-view qualification: actual native version/APIs before any multi-connection WAL probe [0.79ms]
+(pass) read-view qualification: READY rollback lease preserves public IDs/scope and leaves primary/view footprint unchanged [14.95ms]
+(pass) read-view qualification: old already-prepared INSERT/UPDATE/DELETE/touch/expiry are fenced after floor cutover [12.85ms]
+(pass) read-view qualification: retained lease blocks supported revocation through packing/delivery; release then permits commit and HOLD [13.61ms]
+(pass) read-view qualification: primary write admission serializes publishers/mutators; aborted primary DML leaves durable HOLD [13.97ms]
+(pass) read-view qualification: deferred isTransaction is not publisher write admission [10.68ms]
+(pass) read-view qualification: supported adapter mutations/expiry cannot bypass floor through another connection [12.16ms]
+(pass) read-view qualification: shared/project/expiry mutations revoke current generation, and readers reapply expiry [13.02ms]
+(pass) read-view qualification: SQLite-aware pre-floor backup under admission is exact, owner-only and separate from public view [15.85ms]
+(pass) read-view qualification: SIGKILL at HOLD/primary commit/view build/READY preserves conservative recoverability [207.63ms]
+(pass) read-view qualification: trusted-application floor does not protect uncontrolled schema removal or UDF spoofing [29.91ms]
+(pass) read-view qualification: early-close cached delivery and view-inode replacement remain explicit activation blockers [17.19ms]
+
+ 12 pass
+ 0 fail
+Ran 12 tests across 1 file. [407.00ms]
+Guarded Bun file 7/10: sqlite-cutover.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-cutover.test.ts:
+(pass) loaded SQLite must retain a patched WAL branch irrespective of compiler version [0.75ms]
+(pass) cutover native qualification: pinned schema and owner artifact format [10.56ms]
+(pass) cutover holds write admission across exact native backup and persistent floor; old prepared DML is fenced [17.73ms]
+(pass) cutover registration requires actual wrapper admission; old read snapshots and cached handles cannot mutate [58.02ms]
+(pass) cutover process crashes recover with fresh exact backups before commit, or reconcile committed floor without doubleapply [228.78ms]
+(pass) cutover failed callbacks/errors are finite and restart never reuses a stale backup [20.90ms]
+(pass) cutover never returns messages/causes from mutated typed errors or hostile exception prototypes [21.79ms]
+(pass) cutover unknown schema, corrupt storage, symlinks and artifact collisions fail closed without overwrite [29.62ms]
+(pass) cutover recovery holds inode/epoch swaps, backup tampering and unknown floor/gate definitions [140.51ms]
+(pass) cutover validates initial dependencies before reserving artifacts; the first committed gate is recoverable [56.66ms]
+(pass) cutover refuses successful receipts when final post-commit checkpoint changes source/view/artifact/epoch [52.34ms]
+(pass) cutover cleanup failures remain finite, release native admission and reconcile the committed attempt [19.95ms]
+(pass) registered writer rollback failure poisons and closes the connection rather than leaving admission alive [21.76ms]
+(pass) registered writer invalidation respects a lease on the same rollback gate inode and never precedes primary admission [33.40ms]
+(pass) registered writer refuses a coordinated same-inode source/view epoch change after registration [22.50ms]
+
+ 15 pass
+ 0 fail
+Ran 15 tests across 1 file. [777.00ms]
+Guarded Bun file 8/10: sqlite-readonly.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/sqlite-readonly.test.ts:
+SQLite read-only qualification: {"WAL-default-closed":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-default-live":{"outcome":"read","changedDuring":true,"changedAfter":true,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"WAL-exclusive-closed":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"WAL-exclusive-live":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db","memory.db-shm","memory.db-wal"],"during":[".","memory.db","memory.db-shm","memory.db-wal"],"after":[".","memory.db","memory.db-shm","memory.db-wal"]},"missing":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":["."],"during":["."],"after":["."]},"corrupt":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"schema-skew":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"locked":{"outcome":"unavailable","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-closed":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]},"rollback-live":{"outcome":"read","changedDuring":false,"changedAfter":false,"before":[".","memory.db"],"during":[".","memory.db"],"after":[".","memory.db"]}}
+(pass) qualification: native readOnly SQLite filesystem effects on current closed/open WAL and invalid/locked fixtures [28.46ms]
+(pass) read-only rollback acceptance: constructor/search/get/close preserve every byte, file timestamp/mode and stored ID; audit requests are denied [11.30ms]
+(pass) read-only visibility: personal/own/shared/linked only; private/malformed/proposed/archived/expired excluded in SQL without archive events [10.53ms]
+(pass) read-only bounds and escaped query text use finite diagnostics with zero file changes [8.88ms]
+(pass) unchanged default writer WAL is explicitly held closed/live without any sidecar/expiry/access effects [16.02ms]
+(pass) missing/corrupt/schema-skew/locked/pending-journal/URI/symlink cases never create, migrate or repair files [13.16ms]
+(pass) read-only reader checks injected deadlines and safely holds corrupt required schemas without writes [9.53ms]
+(pass) read-only DTOs reject malformed numeric/nullable metadata and never expose earlier private audit history [13.88ms]
+(pass) read-only bounds cover oversized files and an unused synthetic foreign virtual-table definition without loading an extension [23.39ms]
+(pass) final binary hook reads upgraded public notes offline with unchanged source/view/backup footprints and no inference [163.35ms]
+(pass) final binary hook holds unbound WAL and corrupt legacy memory unchanged without provider calls [95.65ms]
+
+ 11 pass
+ 0 fail
+Ran 11 tests across 1 file. [439.00ms]
+Guarded Bun file 9/10: writer-capacity.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/writer-capacity.test.ts:
+(pass) cached read rejects actual oversized primary before callback [23.41ms]
+(pass) cached read rejects actual oversized wal before callback [20.49ms]
+(pass) cached transaction rejects actual oversized primary before callback [17.52ms]
+(pass) cached transaction rejects actual oversized wal before callback [19.90ms]
+(pass) native large source/FTS transaction is refused without committed row/event/floor changes [115.86ms]
+(pass) registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt [594.89ms]
+(pass) error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer [28.96ms]
+(pass) error before native COMMIT retains exact domain identity only after successful rollback [24.14ms]
+(pass) error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write [37.24ms]
+(pass) cached read rejects changed journal before callback without repair [18.92ms]
+(pass) cached read rejects changed wal-mode before callback without repair [18.66ms]
+(pass) cached read rejects changed parent-mode before callback without repair [16.11ms]
+(pass) cached read rejects changed wal-link before callback without repair [17.97ms]
+(pass) cached transaction rejects changed journal before callback without repair [18.42ms]
+(pass) cached transaction rejects changed wal-mode before callback without repair [19.14ms]
+(pass) cached transaction rejects changed parent-mode before callback without repair [17.67ms]
+(pass) cached transaction rejects changed wal-link before callback without repair [16.88ms]
+(pass) native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [33.62ms]
+(pass) native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [33.51ms]
+(pass) native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint [43.00ms]
+(pass) eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML [428.58ms]
+(pass) driver PRAGMA prepare failure clears private authorization and callback controls remain denied [30.43ms]
+(pass) post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay [24.96ms]
+Native dirty-page qualification: {
+  spill: true,
+  before: 160712,
+  pending: 4383712,
+  committed: 4441392,
+}
+(pass) native dirty-page probe observes cache_spill=true before actual commit [26.30ms]
+Native dirty-page qualification: {
+  spill: false,
+  before: 160712,
+  pending: 160712,
+  committed: 4441392,
+}
+(pass) native dirty-page probe observes cache_spill=false before actual commit [24.24ms]
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false,
+}
+(pass) native FTS xSync allocation occurs at actual COMMIT [15.68ms]
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false,
+}
+(pass) native FTS xSync page-limit failure occurs at actual COMMIT [10.59ms]
+
+ 27 pass
+ 0 fail
+Ran 27 tests across 1 file. [1.74s]
+Guarded Bun file 10/10: writer-lifecycle.test.ts
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:
+(pass) registered real store covers explicit expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit [230.75ms]
+(pass) registered explicit expiry and prune use synchronous admission, preserving archive/purge events [120.55ms]
+(pass) final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit [336.22ms]
+(pass) fresh final owner CLI unshares with exact CAS, linked access and retained original audit [308.38ms]
+(pass) upgraded final owner CLI unshares with exact CAS, linked access and retained original audit [289.81ms]
+(pass) fresh final owner unsharing preserves the raw malformed privacy marker and model opacity [203.09ms]
+(pass) upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity [179.46ms]
+(pass) fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen [293.88ms]
+(pass) upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen [233.64ms]
+(pass) fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting [719.44ms]
+(pass) upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting [707.18ms]
+(pass) final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job [415.29ms]
+(pass) final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context [588.77ms]
+(pass) registered gate lease blocks explicit maintenance and mutations while reads stay available [80.68ms]
+(pass) registered final writer holds pending/unknown/mismatched roots without permission or schema changes [345.87ms]
+(pass) registered final writer preserves domain errors after rollback and keeps hostile callback errors finite [95.44ms]
+(pass) final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes [275.99ms]
+(pass) failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully [167.87ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 1 file. [5.67s]
+Guarded Bun files: 10/10 passed; 0 failed.

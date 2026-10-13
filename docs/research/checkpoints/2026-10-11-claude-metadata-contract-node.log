@@ -1,0 +1,111 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness (400.299083ms)
+✔ private/malformed/secret bootstrap input refuses before content access or native delivery (186.661125ms)
+✔ native bootstrap lost-append joins the original process and never retries or reports readiness (126.376375ms)
+✔ native bootstrap wrong-seed joins the original process and never retries or reports readiness (187.346208ms)
+✔ native bootstrap wrong-user joins the original process and never retries or reports readiness (185.708458ms)
+✔ native bootstrap wrong-session joins the original process and never retries or reports readiness (191.51225ms)
+✔ native bootstrap model-turn joins the original process and never retries or reports readiness (204.751209ms)
+✔ native bootstrap extra-content joins the original process and never retries or reports readiness (193.350459ms)
+✔ native control timeout holds until original producer termination and hides raw errors (230.610292ms)
+✔ native control error holds until original producer termination and hides raw errors (196.034167ms)
+✔ native control foreign-id holds until original producer termination and hides raw errors (185.19525ms)
+✔ native permission and hook requests are explicitly denied without reading or exposing their payloads (192.656416ms)
+✔ selection validation and unsupported native version precede stream startup (97.154292ms)
+✔ native text-block replay and versioned session-state notifications stay exact without becoming readiness claims (379.293458ms)
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (32.748916ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.661125ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (20.040375ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (15.548166ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (22.469417ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (45.068917ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (31.7445ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.626625ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (9.374708ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (46.569417ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (8.447375ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (9.800125ms)
+✔ an isolated readiness turn requires bootstrap admission before any source effects (21.999833ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (264.367583ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (491.665375ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (343.371ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (456.321542ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (361.704584ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (427.689584ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (417.987ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3413.441041ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (689.672416ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (427.99125ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (295.883834ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (440.223833ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (436.924792ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1673.769625ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (232.6185ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (215.50925ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (162.191375ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (154.163167ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (158.122125ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (179.890333ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (152.605083ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (173.217334ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (166.240584ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (144.338083ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (151.578542ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (153.976666ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (166.927ms)
+✔ model bootstrap admission checks the selected native quota, preserves usage and never bypasses weekly exhaustion (708.400792ms)
+✔ isolated handoff keeps summary and native bootstrap costs separate and retains usage after readiness loss (873.679583ms)
+✔ weekly exhaustion before isolated handoff prevents native bootstrap even with owner unknown-quota opt-in (426.877625ms)
+✔ pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion (1.242875ms)
+✔ native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits (0.559333ms)
+✔ native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools (17.36725ms)
+✔ default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata (17.264584ms)
+✔ fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched (11.956583ms)
+✔ wrong account/model and invalid clocks reject before atomic native quota/job changes (7.192625ms)
+✔ generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models (9.8325ms)
+✔ actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen (10.037541ms)
+✔ async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite (17.4245ms)
+✔ actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table (163.918709ms)
+✔ durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache (9.431292ms)
+✔ unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen (11.5795ms)
+✔ actual attempt ledger is selected/scoped/owner-only, preserves native totals and null unknowns, and survives restart without source payload (16.693625ms)
+✔ native usage missing: unknown components and ambiguous totals are never manufactured or added twice (9.498667ms)
+✔ native usage one-count: unknown components and ambiguous totals are never manufactured or added twice (8.339083ms)
+✔ native usage multiple: unknown components and ambiguous totals are never manufactured or added twice (7.906042ms)
+✔ native usage invalid: unknown components and ambiguous totals are never manufactured or added twice (7.627375ms)
+✔ native usage lost: unknown components and ambiguous totals are never manufactured or added twice (7.92375ms)
+✔ native usage zero: unknown components and ambiguous totals are never manufactured or added twice (8.346042ms)
+✔ held/unavailable/unsupported factories make no attempt and explicit billing qualification receives selection metadata only (9.8295ms)
+✔ native start COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.48675ms)
+✔ native usage COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.881917ms)
+✔ native finish COMMIT then lost receipt atomically preserves attempt and fences dispatch/replay (9.799541ms)
+✔ actual guarded native Codex usage reaches the ledger unchanged while native billing/account and cached data stay unknown (135.736167ms)
+✔ actual guarded native Claude usage preserves reported components without adding cache or inventing effective vendor billing (141.707917ms)
+✔ actual LogTape IO hold after commit cannot erase native outcome or its durable usage row (19.179667ms)
+ℹ tests 83
+ℹ suites 0
+ℹ pass 83
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19183.549959

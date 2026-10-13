@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "binarySha256": "712072eb1bc082af03427a1be4b818290ca0eb4597fe1e36429e79958f6c13bc",
+  "scope": "compiled-local-release-safety",
+  "checks": [
+    {
+      "name": "version",
+      "passed": true
+    },
+    {
+      "name": "help",
+      "passed": true
+    },
+    {
+      "name": "private-hook",
+      "passed": true
+    },
+    {
+      "name": "private-route",
+      "passed": true
+    },
+    {
+      "name": "mcp",
+      "passed": true
+    },
+    {
+      "name": "storage-privacy",
+      "requests": 7,
+      "originalMutations": 2,
+      "privateOwnerReadable": true,
+      "modelPrivateOverrideRejected": true,
+      "modelPrivateSearchExcluded": true,
+      "modelPrivateContextExcluded": true,
+      "ownerStatusReceived": true,
+      "passed": true
+    },
+    {
+      "name": "shutdown-and-reacquire",
+      "passed": true
+    },
+    {
+      "name": "public-hook",
+      "notes": 10000,
+      "injections": 21,
+      "passed": true
+    }
+  ],
+  "allJoined": true,
+  "liveHosts": false,
+  "liveModels": false,
+  "personalActivation": false
+}

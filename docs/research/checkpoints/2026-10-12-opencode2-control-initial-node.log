@@ -1,0 +1,142 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP (1.615375ms)
+✔ V2 managed creation proves an owned empty root; API instruction seeding has exact idle/hash readback without an inference or inbox item (38.440917ms)
+✔ native owned turns preserve selection, read-tool limits, completion/idle and bounded output projection (32.376625ms)
+✔ root/model/cwd/agent/permissions/owner/generation/nonce mismatches and nonempty root never admit a seed (25.230083ms)
+✔ arbitrary native/UI sessions and stale owner/generation/model/access handles are rejected before HTTP (13.416459ms)
+✔ wrong seed hash is rejected before HTTP; altered/foreign readback cannot acknowledge and never retries seed (31.082375ms)
+✔ readiness rechecks native owner/model/access/history/idle and exact seed, rather than accepting local seed receipts (48.9545ms)
+✔ local fence stops admissions before native probing; quiescence waits for bound idle AND terminal tool parts (25.981375ms)
+✔ owned turn cancellation/quiescence share one native abort and wait past HTTP close until tool/idle proof (20.602834ms)
+✔ uncertain create/seed/turn effects are held without deletion or automatic effect replay (20.981375ms)
+✖ fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact (90.442875ms)
+✔ staged next-generation destination can seed/ack but dispatch requires exact native session selection after CAS (20.9555ms)
+✔ fresh preparation needs an authorized staged next generation and dispatch gate before any new root creation (69.984083ms)
+✔ source resume clears only its matching local fence after current ownership, full native history, idle and stopped tools (49.357334ms)
+✔ fresh creation rechecks a source made unknown by in-flight native abort and cannot reopen it during preparation (13.577334ms)
+✖ managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result (39.464833ms)
+✔ concurrent denied admissions cannot release an active owned turn lock or submit a second native prompt (13.600958ms)
+✔ native compaction/model/generation changes invalidate samples; catalog maximum/billed totals never become trigger-ready occupancy (58.276834ms)
+✔ unsupported selections/input limits and native version mismatch fail without unintended mutations (4.157917ms)
+✔ owned native capture preserves public inputs/answers and exact references without tool payloads, reasoning or new inference (25.067333ms)
+✔ incremental capture starts after an exact retained prefix and refuses changed, foreign or missing cursors (50.75875ms)
+✔ capture privacy and native ownership gates precede cursor/source getters and all HTTP (6.729917ms)
+✖ capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window (109.380333ms)
+✔ bounded UTF8 windows never skip an event at a byte boundary or advance beyond unprocessed evidence (7.68725ms)
+✖ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (18.505666ms)
+✔ paged owned history exceeds the former whole-response limit while keeping per-page and source budgets and exact source coverage (410.865833ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 22
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1359.22725
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:639:1
+✖ fresh destination is a separate empty root association; failed creation/seed/ack leaves fenced source history intact (90.442875ms)
+  Error: OpenCode managed control unverified
+      at fail (file:///Users/edge/Developer/bosun/src/adapters/hosts/opencode/control.ts:97:3)
+      at normalize (file:///Users/edge/Developer/bosun/src/adapters/hosts/opencode/control.ts:113:3)
+      at Object.quiesce (file:///Users/edge/Developer/bosun/src/adapters/hosts/opencode/control.ts:919:15)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:694:21)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'unverified',
+    exitCode: 1,
+    details: { currentVersion: undefined, outcome: 'unknown' }
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:919:1
+✖ managed completion errors/foreign/tool violations remain unknown with one abort and no projected partial result (39.464833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'unverified'
+  - 'unavailable'
+       ^
+  
+      at Object.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:49:12)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:943:7)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'unverified',
+    expected: 'unavailable',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:1292:1
+✖ capture rejects unfinished, failed, private, synthetic, foreign and unsupported native evidence without returning a partial window (109.380333ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(['unverified', 'private_input'].includes(error.code))
+  
+      at Object.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:1330:18)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:1326:7)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/opencode-control.test.ts:1403:1
+✖ paired native snapshots detect source drift during capture; malformed/repeated/missing page cursors never silently truncate history (18.505666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'invalid'
+  - 'unverified'
+  
+      at Object.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:49:12)
+      at expectedException (node:assert:578:17)
+      at expectsError (node:assert:703:21)
+      at strict.rejects (node:assert:769:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/opencode-control.test.ts:1424:7)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'invalid',
+    expected: 'unverified',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

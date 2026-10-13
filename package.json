@@ -1,11 +1,47 @@
 {
   "name": "bosun",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Pair with one agent; bosun routes the rest to cheaper, local and other-vendor models, and remembers what matters. Claude Code + Codex + Orca.",
-  "bin": { "bosun": "bin/bosun" },
-  "engines": { "node": ">=24" },
-  "scripts": { "test": "node scripts/run-tests.mjs", "typecheck": "node scripts/run-typecheck.mjs", "boundaries": "node scripts/check-boundaries.mjs" },
-  "devDependencies": { "@types/node": "^26.6.2", "typescript": "^6.0.3" }
+  "description": "OMP-first agent orchestration with OpenCode 2, Codex, Claude Code, Orca and shared memory.",
+  "bin": {
+    "bosun": "bin/bosun"
+  },
+  "engines": {
+    "bun": "1.4.3"
+  },
+  "scripts": {
+    "test": "sh scripts/bun-check.sh tests",
+    "typecheck": "sh scripts/bun-check.sh typecheck",
+    "boundaries": "sh scripts/bun-check.sh boundaries",
+    "build": "sh scripts/bun-check.sh build",
+    "verify:distribution": "sh scripts/bun-check.sh verify",
+    "formula": "sh scripts/bun-check.sh formula"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^6.0.3",
+    "@biomejs/biome": "2.5.15",
+    "@types/react": "19.3.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "@clack/prompts": "1.8.1",
+    "@commander-js/extra-typings": "15.0.0",
+    "@hono/node-server": "2.1.3",
+    "@logtape/file": "2.3.11",
+    "@logtape/logtape": "2.3.11",
+    "@logtape/redaction": "2.3.11",
+    "@modelcontextprotocol/client": "2.3.0",
+    "@modelcontextprotocol/server": "2.3.0",
+    "commander": "15.0.0",
+    "hono": "4.13.13",
+    "ink": "7.1.1",
+    "react": "19.3.0",
+    "smol-toml": "1.9.0",
+    "zod": "4.6.5"
+  },
+  "patchedDependencies": {
+    "better-sqlite3@13.0.3": "patches/better-sqlite3@13.0.3.patch"
+  }
 }

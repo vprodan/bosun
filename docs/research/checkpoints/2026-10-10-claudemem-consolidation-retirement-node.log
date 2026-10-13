@@ -1,0 +1,76 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ external ClaudeMem ContextSource constructor is inert and native rollback queries leave every byte unchanged (16.43225ms)
+✔ external public classification and exact project/native-session scope precede payload; unreviewed and stale references stay held (20.376917ms)
+✔ external readOnly/query_only denies DML and avoids unclassified external FTS derivatives (12.062291ms)
+✔ external bounded approved payload, malformed storage and reference overflow stay excluded before projection (13.76975ms)
+✔ external source revision changes during native query hold the result without changing the external body (12.012375ms)
+✔ optional external source holds missing with no repair, personal discovery or file changes (11.092459ms)
+✔ optional external source holds corrupt with no repair, personal discovery or file changes (12.274ms)
+✔ optional external source holds version with no repair, personal discovery or file changes (12.491833ms)
+✔ optional external source holds unknown-version with no repair, personal discovery or file changes (11.582125ms)
+✔ optional external source holds schema with no repair, personal discovery or file changes (12.463875ms)
+✔ optional external source holds view with no repair, personal discovery or file changes (12.583708ms)
+✔ optional external source holds journal with no repair, personal discovery or file changes (12.659458ms)
+✔ optional external source holds wal with no repair, personal discovery or file changes (11.940042ms)
+✔ optional external source holds symlink with no repair, personal discovery or file changes (11.988209ms)
+✔ optional external source holds oversized with no repair, personal discovery or file changes (72.4085ms)
+✔ optional external source holds locked with no repair, personal discovery or file changes (12.37975ms)
+✔ optional external source holds deadline with no repair, personal discovery or file changes (13.058708ms)
+✔ final memory composition retrieves external references without copying observations, and optional failures retain curated/docs (119.175458ms)
+✔ consolidation source classification, full credential screening and native-plan policy precede provider access (1.506792ms)
+✔ one bounded generation produces source-version/hash citations and exact selected-model provenance, without accepted fact mutation (0.645541ms)
+✔ invented quote/reference/parent/authority, extra fields, model substitution and malformed output remain unknown with no retry (0.826917ms)
+✔ reviewed merge/duplicate suggestions cite two sources and preserve both source versions rather than modifying originals (0.156667ms)
+✔ late cancellation discards provider output and missing native usage stays unknown (0.167417ms)
+✔ real queued consolidation persists only references, publishes before generation, and atomically stores proposals/cursor without changing L1 facts (229.531584ms)
+✔ cursor progress is oldest-first/bounded, skips denied payloads, and processed versions do not starve newer public facts (180.699459ms)
+✔ atomic output/backpressure races roll back all proposals and cursor progress, retaining the exact owner-visible reservation (265.193375ms)
+✔ lost native COMMIT preserves one batch/cursor with unknown receipt; restart never replays the reserved source window (122.289417ms)
+✔ retained source reservations survive a fresh memory runtime; explicit abandon skips unknown work without modifying accepted facts (158.500208ms)
+✔ source privacy changes during HTTP invalidate the entire batch atomically and retain a sticky reservation without replay (463.148084ms)
+✔ invented output retains reservations, default20 backlog prevents generation, and empty output advances known completed sources (515.826ms)
+✔ native HTTP cancellation is unknown with a retained source reservation and no late publication or automatic retry (137.539667ms)
+✔ local model metadata rejects cloud aliases and disabled scheduling enqueues nothing; idle checks and close wait for the pending enqueue callback (2.208291ms)
+✔ configured native-plan providers are refused; compatible API needs explicit opt-in and independent positive admission (151.40075ms)
+✔ source changes between publication and provider dispatch are rechecked without sending any model payload (132.225666ms)
+✔ context: relevance and recency both count; sources are weighted (2.721667ms)
+✔ context: dedupe across sources keeps the higher score (0.189791ms)
+✔ context: budget is respected at the edges; items capped; min score; empty queries (3.158833ms)
+✔ context: output format — one line per item: source, category, date, id, title and snippet (0.114375ms)
+✔ docs index: this repo's Markdown only, re-read when the mtime changes, removed files leave the index (119.312417ms)
+✔ final hook delivers scoped original notes, withholds private data, stays below threshold and calls no router/provider (976.561417ms)
+✔ final hook packs one capped line per multi-line note, bounds oversized input and stays silent on damaged source storage (504.334167ms)
+✔ final hook rejects one-common-word memory and preserves relevant scoped context without inference (640.515333ms)
+✔ final hook with missing memory creates nothing and runs no model/service (113.163125ms)
+✔ final external registry is inert; exact owner review metadata enables source context without observation copies and later source edits revoke it (165.759834ms)
+✔ llm: Ollama success sends the schema and context size and reads token counts (20.34075ms)
+✔ llm: timeout, retry then success, bad JSON and schema violations fail without retrying (824.234542ms)
+✔ llm: fallback chain; the remote provider only when opted in, allowed, and not private; the usage log has no content (307.205334ms)
+✔ final memory CLI queues cited proposals and public title/tag jobs while retaining source IDs, explicit fields and external data (344.316833ms)
+ℹ tests 48
+ℹ suites 0
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9253.26075

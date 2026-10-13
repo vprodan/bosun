@@ -1,0 +1,99 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ external ClaudeMem ContextSource constructor is inert and native rollback queries leave every byte unchanged (15.150959ms)
+✔ external public classification and exact project/native-session scope precede payload; unreviewed and stale references stay held (17.154375ms)
+✔ external readOnly/query_only denies DML and avoids unclassified external FTS derivatives (10.471875ms)
+✔ external bounded approved payload, malformed storage and reference overflow stay excluded before projection (11.283084ms)
+✔ external source revision changes during native query hold the result without changing the external body (11.979916ms)
+✔ optional external source holds missing with no repair, personal discovery or file changes (9.433666ms)
+✔ optional external source holds corrupt with no repair, personal discovery or file changes (10.285667ms)
+✔ optional external source holds version with no repair, personal discovery or file changes (10.129917ms)
+✔ optional external source holds unknown-version with no repair, personal discovery or file changes (10.8585ms)
+✔ optional external source holds schema with no repair, personal discovery or file changes (10.025125ms)
+✔ optional external source holds view with no repair, personal discovery or file changes (10.648417ms)
+✔ optional external source holds journal with no repair, personal discovery or file changes (9.610125ms)
+✔ optional external source holds wal with no repair, personal discovery or file changes (10.4665ms)
+✔ optional external source holds symlink with no repair, personal discovery or file changes (10.738958ms)
+✔ optional external source holds oversized with no repair, personal discovery or file changes (67.217917ms)
+✔ optional external source holds locked with no repair, personal discovery or file changes (10.75575ms)
+✔ optional external source holds deadline with no repair, personal discovery or file changes (10.352666ms)
+✔ final memory composition retrieves external references without copying observations, and optional failures retain curated/docs (100.167083ms)
+✔ consolidation source classification, full credential screening and native-plan policy precede provider access (1.339584ms)
+✔ one bounded generation produces source-version/hash citations and exact selected-model provenance, without accepted fact mutation (0.59075ms)
+✔ invented quote/reference/parent/authority, extra fields, model substitution and malformed output remain unknown with no retry (0.715584ms)
+✔ reviewed merge/duplicate suggestions cite two sources and preserve both source versions rather than modifying originals (0.139958ms)
+✔ late cancellation discards provider output and missing native usage stays unknown (0.164708ms)
+✔ real queued consolidation persists only references, publishes before generation, and atomically stores proposals/cursor without changing L1 facts (200.038458ms)
+✔ cursor progress is oldest-first/bounded, skips denied payloads, and processed versions do not starve newer public facts (151.176125ms)
+✔ atomic output/backpressure races roll back all proposals and cursor progress, retaining the exact owner-visible reservation (227.214458ms)
+✔ lost native COMMIT preserves one batch/cursor with unknown receipt; restart never replays the reserved source window (113.182583ms)
+✔ retained source reservations survive a fresh memory runtime; explicit abandon skips unknown work without modifying accepted facts (139.417125ms)
+✔ source privacy changes during HTTP invalidate the entire batch atomically and retain a sticky reservation without replay (476.5405ms)
+✔ invented output retains reservations, default20 backlog prevents generation, and empty output advances known completed sources (464.236042ms)
+✔ native HTTP cancellation is unknown with a retained source reservation and no late publication or automatic retry (125.465833ms)
+✔ local model metadata rejects cloud aliases and disabled scheduling enqueues nothing; idle checks and close wait for the pending enqueue callback (1.666417ms)
+✔ configured native-plan providers are refused; compatible API needs explicit opt-in and independent positive admission (135.357708ms)
+✔ source changes between publication and provider dispatch are rechecked without sending any model payload (124.348541ms)
+✔ final external registry is inert; exact owner review metadata enables source context without observation copies and later source edits revoke it (157.42ms)
+✔ llm: Ollama success sends the schema and context size and reads token counts (18.664917ms)
+✔ llm: timeout, retry then success, bad JSON and schema violations fail without retrying (827.770041ms)
+✔ llm: fallback chain; the remote provider only when opted in, allowed, and not private; the usage log has no content (336.815875ms)
+✔ consolidate: proposals with provenance; exact and near duplicates are skipped; invalid output writes nothing; review accepts (17.214584ms)
+✖ final memory CLI queues cited proposals and public title/tag jobs while retaining source IDs, explicit fields and external data (227.07225ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.76425ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.752792ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (207.138625ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (221.823667ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (226.052833ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (140.813375ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (130.827042ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (273.089959ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (569.888209ms)
+ℹ tests 49
+ℹ suites 0
+ℹ pass 48
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8660.20425
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/llm.test.ts:251:1
+✖ final memory CLI queues cited proposals and public title/tag jobs while retaining source IDs, explicit fields and external data (227.07225ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - 'g_1k4jc7f5d377a531e'
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/llm.test.ts:329:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'g_1k4jc7f5d377a531e',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

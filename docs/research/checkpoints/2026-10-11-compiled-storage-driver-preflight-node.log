@@ -1,0 +1,17 @@
+/Users/edge/Developer/bosun/scripts/test-preload.cjs:17
+const fail = (message) => { throw new Error(`bosun test containment: ${message}`); };
+                            ^
+
+Error: bosun test containment: cwd escapes run root
+    at fail (/Users/edge/Developer/bosun/scripts/test-preload.cjs:17:35)
+    at Object.<anonymous> (/Users/edge/Developer/bosun/scripts/test-preload.cjs:67:46)
+    at Module._compile (node:internal/modules/cjs/loader:1854:14)
+    at Object..js (node:internal/modules/cjs/loader:1985:10)
+    at Module.load (node:internal/modules/cjs/loader:1577:32)
+    at Module._load (node:internal/modules/cjs/loader:1379:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1600:12)
+    at node:internal/modules/cjs/loader:2146:12
+    at loadPreloadModules (node:internal/process/pre_execution:711:5)
+
+Node.js v24.16.0

@@ -1,0 +1,11 @@
+{
+  "coverage": "static-artifact",
+  "version": "1.0.0",
+  "target": "bun-darwin-arm64",
+  "binarySha256": "96f3e05a1c677888bac2b928f258baacce2a56571b1c01f38f69768f1b6801a9",
+  "archive": "bosun-1.0.0-darwin-arm64.tar.gz",
+  "archiveSha256": "40aa844643f03fae467494dfc0583031981d866c97b50e6388eff31e58d6df0c",
+  "sourceDigest": "97b15b240875eafa1a09f9fc8ac000fa860c8b49743322f7c38d6463993a5991",
+  "runtimeQualification": "unverified",
+  "inputs": 7384
+}

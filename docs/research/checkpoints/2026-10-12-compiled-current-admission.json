@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-12T09:01:27.607Z",
+  "approval": {
+    "answer": "Allow this one compiled batch",
+    "proposal": "docs/plans/2026-10-11-compiled-current-qualification.md",
+    "proposalSha256": "33d058e426d37421bf6fde8a87706de8add034190a58152a540f507e2e03e47a",
+    "scope": "one exact current compiled batch only"
+  },
+  "status": "pins rechecked; approved run not yet invoked",
+  "sourceRecordSha256": "dea57166cf4b868064c7aac59bc5a599239445a5bacfb7f4f6a5e5d4bae5b842",
+  "driverSha256": "09e42b5a564cf285a31be8f8696780d588731abb4e17e3744cc5180c69c014b7",
+  "checkedDeclaredPins": 43,
+  "checkedArtifactFiles": 4,
+  "checkoutDigest": "a484016981086346c94b1ba72eb11a8c884edac4d9905bc9fac34dcbd2c74bab",
+  "inputs": 7282,
+  "binarySha256": "8466c8ffabab081687bd737d6aa610138c74abe8aa3c21a5694757df0b217176",
+  "fullNode": {
+    "originalSession": 86032,
+    "terminalExit": 0,
+    "tests": 1134,
+    "passed": 1134,
+    "containment": 19,
+    "durationMs": 443164.747709,
+    "log": "docs/research/checkpoints/2026-10-12-current-full-node.log",
+    "logSha256": "79372cceb63225b9704856a1652cbcebfcfe0bb39eb763a9c609c4c8f218b261"
+  },
+  "nextExactCommand": "node scripts/check-compiled-current.mjs --approved-current-qualification-only dist/bosun-0.2.0-darwin-arm64-current-candidate",
+  "nativeLog": "docs/research/checkpoints/2026-10-12-compiled-current-native.log"
+}

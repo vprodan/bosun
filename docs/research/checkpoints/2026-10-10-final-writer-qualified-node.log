@@ -1,0 +1,126 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.060708ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (47.147ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (118.458208ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (168.647208ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (113.281125ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (108.9965ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (31.64025ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (31.523333ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.235875ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (30.2315ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (31.211875ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (108.757666ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (33.450709ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (34.418167ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (71.364875ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (69.527ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (113.107666ms)
+✔ cached read rejects actual oversized primary before callback (21.92925ms)
+✔ cached read rejects actual oversized wal before callback (18.113416ms)
+✔ cached transaction rejects actual oversized primary before callback (19.446167ms)
+✔ cached transaction rejects actual oversized wal before callback (15.915708ms)
+✔ native large source/FTS transaction is refused without committed row/event/floor changes (96.69275ms)
+✔ registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt (441.675ms)
+✔ error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer (21.437375ms)
+✔ error before native COMMIT retains exact domain identity only after successful rollback (19.14225ms)
+✔ error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write (25.618875ms)
+✔ cached read rejects changed journal before callback without repair (15.67775ms)
+✔ cached read rejects changed wal-mode before callback without repair (14.8925ms)
+✔ cached read rejects changed parent-mode before callback without repair (15.76025ms)
+✔ cached read rejects changed wal-link before callback without repair (16.472833ms)
+✔ cached transaction rejects changed journal before callback without repair (17.565084ms)
+✔ cached transaction rejects changed wal-mode before callback without repair (17.643083ms)
+✔ cached transaction rejects changed parent-mode before callback without repair (17.588834ms)
+✔ cached transaction rejects changed wal-link before callback without repair (15.8595ms)
+✔ native 512-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (24.42075ms)
+✔ native 4096-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (23.967083ms)
+✔ native 65536-byte pages honor exact conservative WAL eligibility boundary and checkpoint footprint (30.191792ms)
+✔ eligible larger legacy store keeps reads and no-DML maintenance while refusing protected DML (376.020459ms)
+✔ driver PRAGMA prepare failure clears private authorization and callback controls remain denied (21.30725ms)
+Native dirty-page qualification: { spill: true, before: 94792, pending: 4317792, committed: 4375472 }
+Native dirty-page qualification: { spill: false, before: 94792, pending: 94792, committed: 4375472 }
+Native FTS COMMIT qualification: {
+  full: false,
+  pendingPages: 277,
+  finalPages: 506,
+  activeAfterAttempt: false
+}
+Native FTS COMMIT qualification: {
+  full: true,
+  pendingPages: 277,
+  finalPages: 36,
+  activeAfterAttempt: false
+}
+✔ post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay (20.199084ms)
+✔ native dirty-page probe observes cache_spill=true before actual commit (22.862208ms)
+✔ native dirty-page probe observes cache_spill=false before actual commit (21.21125ms)
+✔ native FTS xSync allocation occurs at actual COMMIT (14.073334ms)
+✔ native FTS xSync page-limit failure occurs at actual COMMIT (11.027083ms)
+✔ registered real store covers constructor expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit (143.601667ms)
+✔ registered long-lived get/search expiry and prune use synchronous admission, preserving archive/purge events (80.374083ms)
+✔ registered docs indexes insert/update/delete with FTS and owns a private close lifecycle (146.372084ms)
+✔ final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit (271.717416ms)
+✔ fresh final owner CLI unshares with exact CAS, linked access and retained original audit (288.721542ms)
+✔ upgraded final owner CLI unshares with exact CAS, linked access and retained original audit (303.242875ms)
+✔ fresh final owner unsharing preserves the raw malformed privacy marker and model opacity (198.329833ms)
+✔ upgraded final owner unsharing preserves the raw malformed privacy marker and model opacity (211.035583ms)
+✔ fresh final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (228.911625ms)
+✔ upgraded final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen (246.078833ms)
+✔ fresh final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1162.86225ms)
+✔ upgraded final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting (1155.8635ms)
+✔ final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job (471.885834ms)
+✔ final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context (924.886375ms)
+✔ registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle (71.277708ms)
+✔ registered discovery holds pending/unknown/mismatched roots before legacy chmod/migration (278.931917ms)
+✔ registered domain errors retain class/currentVersion after rollback while hostile proxy errors stay finite (66.095917ms)
+✔ read-only doctor memory inspection creates no files, holds WAL before native open and verifies rollback without writes (6.82125ms)
+✖ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (379.856833ms)
+✔ failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully (187.56625ms)
+ℹ tests 64
+ℹ suites 0
+ℹ pass 63
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9842.823292
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:1014:1
+✖ final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes (379.856833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/writer-lifecycle.test.ts:1049:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,51 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - missing HOME fails before application evaluation
+ok 3 - outside HOME fails before application evaluation
+ok 4 - symlink HOME escape fails before application evaluation
+ok 5 - every host/XDG/temp root is mandatory and contained
+ok 6 - direct test invocation fails before application evaluation
+ok 7 - clean environment excludes inherited credentials and user configuration
+ok 8 - child custom environment regains mandatory preload
+ok 9 - escaped child environment and cwd are rejected before spawn
+ok 10 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 11 - shell and PATH fallback cannot bypass process guard
+ok 12 - outside writes and symlink writes fail
+ok 13 - outside SQLite opens and attached databases fail
+ok 14 - real credential/config reads fail
+ok 15 - git and plutil external/config mutations fail
+ok 16 - fetch external and unregistered loopback endpoints fail
+ok 17 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 18 - registered ephemeral HTTP mocks remain usable
+25 | function run(source, extra = {}) {
+26 |   return launch(root, ['-e', source], {
+27 |     cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000,
+28 |   });
+29 | }
+30 | function good(source) { const r = run(source); assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`); }
+                                                           ^
+AssertionError: 
+45 |       return applyHandlers(handlers, emitter, args), !0;
+46 |   }
+47 |   let er;
+48 |   if (args.length > 0)
+49 |     er = args[0];
+50 |     throw er;
+                 ^
+error: Failed to listen at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/ceYH5zX/s
+      at emitError (node:events:50:13)
+      at emitErrorNextTick (node:net:2234:12)
+
+
+null !== 0
+
+ generatedMessage: false,
+     actual: null,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at good (/Users/edge/Developer/bosun/scripts/check-containment.mjs:30:55)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

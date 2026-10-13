@@ -1,0 +1,138 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Orca selection respects the session executable and avoids the Linux screen reader (0.571125ms)
+✔ native card update pins local host and checkout, sends literal argv and stores hashes rather than comment content (697.551291ms)
+✔ private, credential, accessor, model and invalid status inputs have no Git or Orca effect (39.037333ms)
+✔ unsupported versions, missing or remote host identities, and foreign worktree paths never update a card (533.900458ms)
+✔ same-origin foreign checkout cannot read or retry the original card receipt (523.720917ms)
+✔ lost native response stays unknown, blocks another update and supports explicit reviewed acknowledgement without replay (977.424375ms)
+✔ card shutdown aborts and waits for native update closure before releasing the shared authority (440.634125ms)
+✔ lost intent COMMIT preserves one original card and does not replay after reopen (333.588959ms)
+✔ lost terminal COMMIT preserves one original card and does not replay after reopen (464.917625ms)
+✔ malformed or mismatched positive response remains unknown and receipt tampering is withheld (455.540625ms)
+✔ actual CLI skips outside Orca, requires public comments, and uses owner RPC with exact receipts (645.250792ms)
+✔ replaced native owner file cannot leave a cached writer authoritative beside a newly acquired owner (11.855167ms)
+✔ background owner work follows queued interactive, admin and summary work while preserving FIFO within each class (16.7445ms)
+✔ public classification cannot admit known credentials; a tainted native result preserves successful owner outcome but is withheld from model (9.676583ms)
+✔ known credentials in job selection/identity/path metadata are refused before persistence, admission, callbacks or dispatch (7.028333ms)
+✔ jobs persist selected runner/model/effort/access/cwd and bounded owner result; events contain no source payload (10.311208ms)
+✔ request idempotency and scope survive native reopen without reading duplicate prompt getters or dispatching (11.08325ms)
+✔ native owner jobs deny model payload/result/metadata access and owner-only creation before prompt getters (8.314167ms)
+✔ privacy classification precedes every prompt/task getter, storage write, admission and runner call (9.772167ms)
+✔ bounded queue and admission holds are durable, explicit release preserves selection, cancellation is known before dispatch (12.379416ms)
+✔ active cancellation becomes unknown without runner completion (8.310917ms)
+✔ active cancellation retains positive actual runner outcome (7.889458ms)
+✔ nonzero native done is failed; provider loss/oversize produces finite unknown metadata without provider text (10.691458ms)
+✔ drain closes neither jobs nor native authority while late runner completion is still pending (9.601708ms)
+✔ drain aborts admission before payload/runner dispatch and leaves unstarted queued work persisted (7.076292ms)
+✔ queued cancellation aborts pending admission and cannot later become a hold or dispatch (6.699792ms)
+✔ real killed daemon reopens running as persisted, explicit recovery marks unknown and never dispatches it (92.485625ms)
+✔ actual native start COMMIT then error persists running and finite unknown, fences dispatch and recovers without replay (9.362ms)
+✔ native queue CAS, rollback/busy proof, scope and close are enforced by the actual owned SQLite store (8.099584ms)
+✔ native event capacity reserves terminal recovery instead of consuming it with runner progress (7.452875ms)
+✔ native BEGIN then error positively rolls back and leaves the store usable with no job/events (6.003917ms)
+✔ unrelated job/authority layouts are rejected before journal or schema writes (5.522583ms)
+✔ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (670.9015ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (540.316209ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (532.257042ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (524.148667ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (513.5015ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (803.715042ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (139.466916ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (357.575541ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (568.222708ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (429.046917ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (418.785667ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (403.457292ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (654.687417ms)
+✔ observer entry drift during async terminal preflight holds the pane before the native effect (399.309667ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (659.544625ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (335.922375ms)
+✔ spin keeps the literal task and selected model in its owned daemon job when an Orca pane cannot bind the new worktree (584.541334ms)
+✔ revision-bound review uses the same metadata observer and original read-only selected job (814.443667ms)
+✖ run and review from a subdirectory preserve exact job cwd while the pane binds to the canonical Orca worktree root (1625.515208ms)
+✔ native snapshot binds base/head/branch, staged version, working bytes/mode and untracked bodies without changing checkout (306.572875ms)
+✔ content changes invalidate revision even with restored mtime and the same Git status; staged-only, mode, untracked and branch changes also invalidate (550.792958ms)
+✔ private classification precedes base getters/Git and known credentials or credential-store paths never enter review material (105.647875ms)
+✔ deleted directories are captured as missing, external symlinks are withheld, and source payload budgets refuse partial reviews (267.513833ms)
+✔ configured clean/process filters are rejected before native status/diff and never execute (51.696459ms)
+✔ exact file batches bound the whole checkout but disclose only selected changes, use literal pathspecs and preserve coverage (577.876167ms)
+✔ review queues an exact public read-only owner job, links atomically and preserves original selection on duplicate requests (320.298583ms)
+✔ changed content before dispatch holds a review without inference or replay, and stale evidence cannot be released by a quota override (418.45875ms)
+✔ positive review outcome is preserved while later source changes invalidate its evidence instead of approving or rerunning it (387.899042ms)
+✔ owner/model/privacy boundaries refuse getters before payload and same-origin clone status is denied before foreign content capture (177.086333ms)
+✔ lost review job/link COMMIT retains one original queued request across reopen without another model or artifact (156.229583ms)
+✔ tampered stored snapshot hash is withheld before inference without rewriting the original evidence or manufacturing freshness (144.087458ms)
+✔ actual review CLI/UDS requires public classification, uses exact read-only selection and reports source staleness without approval (602.172667ms)
+✔ native creation checks out only the pinned commit, keeps dirty source files, filters auth/env and disables hooks (137.117958ms)
+✔ native prune preview is read only and binds clean, unlocked, merged Git state and durable ownership (478.285458ms)
+✔ ignored worktree files also prevent prune, and no foreign or unowned worktree is adopted (225.262375ms)
+✔ queued, held, running and unknown jobs in an owned path prevent prune while settled jobs do not (534.4425ms)
+✔ lost final COMMIT preserves one positively created worktree and its ready record without replay after reopen (104.930875ms)
+✔ bounded permanent workspace capacity preserves unknown intents and owner isolation rather than evicting receipts (51.287084ms)
+✔ lost positive Git receipt remains unknown across duplicate requests and daemon reopen without another creation (191.051584ms)
+✔ model requests are denied before params, Git or registry access and known credentials are refused before a new intent (32.158375ms)
+✔ same-origin clones remain separate workspace authorities and a removed/rebound path cannot qualify pruning (197.591209ms)
+✔ external checkout filters and existing destinations are held without running hooks, overwrite or automatic cleanup (80.407792ms)
+✔ lost reservation COMMIT fences the shared authority before Git, preserves original intent and never replays on reopen (52.900291ms)
+✔ actual daemon/Commander workspace create/list/reconcile/prune-preview share native state, deny models and preserve the worktree (316.421416ms)
+✔ workspace shutdown aborts and waits native creation settlement while the existing daemon owner remains held (30.7935ms)
+✔ filters added after creation cannot execute during reconciliation or dispatch, even with a quota opt-in (316.8555ms)
+✔ spin atomically maps a pinned job to one owned worktree and dedupes before prompt getters or another launch (278.117041ms)
+✔ worktree job enqueue refuses stale versions and collisions with ordinary jobs or another workspace without changing selected work (251.249792ms)
+✔ privacy and credential screening precede spin worktree effects, and model requests cannot create or queue owned work (30.430583ms)
+✔ dispatch revalidates the exact worktree after enqueue and cannot bypass changed identity with allow-unknown-quota (189.352125ms)
+✔ unknown creation prevents spin enqueue or replay, while positive workspace intent is retained for owner inspection (101.658375ms)
+✔ job-map COMMIT loss keeps exactly one queued job/link and dedupes after reopen without another worktree or submission (191.410417ms)
+✔ retention preserves the workspace-to-original-job mapping and original no-replay receipt without archived task content (280.47225ms)
+✔ actual spin/workspace-run CLI dispatches through the same native job authority with exact model and scoped branch (682.804ms)
+ℹ tests 86
+ℹ suites 0
+ℹ pass 85
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26183.961917
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:296:1
+✖ run and review from a subdirectory preserve exact job cwd while the pane binds to the canonical Orca worktree root (1625.515208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-564360/sandboxes/case-MONJw9/workspace'
+  - '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-564360/sandboxes/case-MONJw9/workspace/pkg'
+  
+      at file:///Users/edge/Developer/bosun/test/orca.test.ts:309:14
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async gitEnvelope (file:///Users/edge/Developer/bosun/test/git-fixture.ts:21:12)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/orca.test.ts:300:9)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-564360/sandboxes/case-MONJw9/workspace',
+    expected: '/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/bosun-test-run-564360/sandboxes/case-MONJw9/workspace/pkg',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

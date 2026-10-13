@@ -6,212 +6,592 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
 import { sandbox, fresh, gitRepo, bosun, REPO } from './helpers.ts';
-import { load, P } from '../lib/config.ts';
-import { MemoryService, openLocalMemory } from '../lib/memory/service.ts';
-import { Docs } from '../lib/memory/docs.ts';
-import { openDb, openLocalSqlite, writerPaths, norm } from '../lib/memory/sqlite.ts';
-import { MemoryError, type Ctx } from '../lib/memory/types.ts';
-import { project } from '../lib/memory/project.ts';
-import { hookObservation } from '../lib/memory/bench.ts';
-import { cutoverMemory, publishMemoryView, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
+import { norm } from '../src/core/text.ts';
+import { runtimePaths } from '../src/platform/paths.ts';
+import { openSchemaOneMemory, prepareTestRuntime, testCutoverPaths } from './memory-store-fixture.ts';
+import { MemoryError } from '../src/core/errors.ts';
+import type { Ctx } from '../src/core/domain/memory.ts';
+import { project } from '../src/platform/project.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
+import { publishFixtureHook } from './hook-config-fixture.ts';
+import {
+  cutoverMemory,
+  publishMemoryView,
+  CutoverError,
+  CutoverWriter,
+  type CutoverPaths,
+} from '../src/adapters/memory/sqlite-cutover.ts';
 import { SqlitePublicReadOnly } from '../src/adapters/memory/sqlite-public-readonly.ts';
-import { PUBLIC_MAX_ROWS, PUBLIC_MAX_BYTES, VIEW_MAX_BYTES } from '../src/adapters/memory/sqlite-public-protocol.ts';
+import { SqliteDocs } from '../src/adapters/memory/sqlite-docs.ts';
+import { SqliteDocsIndex } from '../src/adapters/memory/sqlite-docs-index.ts';
+import { checkDocsStorage, enumerateDocs, inspectDoc } from '../src/adapters/memory/docs-filesystem.ts';
+import {
+  PUBLIC_MAX_ROWS,
+  PUBLIC_MAX_BYTES,
+  VIEW_MAX_BYTES,
+} from '../src/adapters/memory/sqlite-public-protocol.ts';
 import { footprint } from './read-view-prototype.ts';
+import { createTestMemoryStore, openTestLocalMemory } from './memory-store-fixture.ts';
 
-const options = (paths: ReturnType<typeof writerPaths>) => ({ paths, now: Date.now, id: crypto.randomUUID });
-const rows = (db: DatabaseSync, table: string) => db.prepare(`SELECT * FROM ${table} ORDER BY 1`).all();
+const options = (paths: CutoverPaths) => ({
+  paths,
+  now: Date.now,
+  id: crypto.randomUUID,
+});
+const rows = (db: SqliteDatabase, table: string) =>
+  db.prepare(`SELECT * FROM ${table} ORDER BY 1`).all();
+const writerFailure = (reason: 'busy' | 'state') => (e: unknown) =>
+  e instanceof CutoverError && e.code === 'unavailable' && e.reason === reason &&
+  e.message === `memory cutover unavailable (${reason})` && e.cause === undefined;
 async function fixture({ expired = true, floor = true } = {}) {
-  const sb = sandbox(); fresh(sb); const cfg = load(); fs.chmodSync(P.BOSUN, 0o700);
-  const paths = writerPaths(P.DB, cfg); fs.mkdirSync(path.dirname(paths.view), { mode: 0o700 }); fs.mkdirSync(paths.backups, { mode: 0o700 });
-  const repo = gitRepo(sb, 'publication'); const ctx: Ctx = { projectId: 'p_a', sessionId: 's_a', linked: ['p_b'], source: 'public owner' };
-  const db = openDb(paths.primary); const old = new MemoryService(db, cfg);
-  const publicNote = (await old.store({ category: 'project', title: 'Admission zebra', body: 'Admission zebra public body', tags: ['zebra'], sourceRef: 'public reference' }, ctx)).memory;
-  const personal = (await old.store({ category: 'personal', title: 'Personal zebra', body: 'Personal public zebra' }, ctx)).memory;
-  const linked = (await old.store({ category: 'project', title: 'Linked zebra', body: 'Linked public zebra' }, { ...ctx, projectId: 'p_b' })).memory;
-  const shared = (await old.store({ category: 'project', title: 'Shared zebra', body: 'Shared public zebra', shared: true }, { ...ctx, projectId: 'p_c' })).memory;
-  const session = (await old.store({ category: 'session', title: 'Session zebra', body: 'Session public zebra' }, ctx)).memory;
-  const secret = (await old.store({ category: 'personal', title: 'PRIVATE title canary', body: 'PRIVATE body canary', private: true, tags: ['private-canary'], source: 'PRIVATE source canary', sourceRef: 'PRIVATE ref canary' }, ctx)).memory;
-  const unknown = (await old.store({ category: 'personal', title: 'UNKNOWN title canary', body: 'UNKNOWN body canary' }, ctx)).memory;
-  const proposed = (await old.store({ category: 'project', title: 'PROPOSED title canary', body: 'PROPOSED body canary', status: 'proposed' }, ctx)).memory;
-  if (expired) { const m = (await old.store({ category: 'session', title: 'EXPIRED title canary', body: 'EXPIRED body canary' }, ctx)).memory;
-    db.prepare('UPDATE memories SET expires_at=? WHERE id=?').run(Date.now() - 1, m.id); }
+  const sb = sandbox();
+  fresh(sb);
+  prepareTestRuntime();
+  const paths = testCutoverPaths();
+  fs.mkdirSync(path.dirname(paths.view), { mode: 0o700 });
+  fs.mkdirSync(paths.backups, { mode: 0o700 });
+  const repo = gitRepo(sb, 'publication');
+  const ctx: Ctx = { projectId: 'p_a', sessionId: 's_a', linked: ['p_b'], source: 'public owner' };
+  const db = openSchemaOneMemory(paths.primary);
+  const old = createTestMemoryStore(db);
+  const publicNote = (
+    await old.store(
+      {
+        category: 'project',
+        title: 'Admission zebra',
+        body: 'Admission zebra public body',
+        tags: ['zebra'],
+        sourceRef: 'public reference',
+      },
+      ctx,
+    )
+  ).memory;
+  const personal = (
+    await old.store(
+      { category: 'personal', title: 'Personal zebra', body: 'Personal public zebra' },
+      ctx,
+    )
+  ).memory;
+  const linked = (
+    await old.store(
+      { category: 'project', title: 'Linked zebra', body: 'Linked public zebra' },
+      { ...ctx, projectId: 'p_b' },
+    )
+  ).memory;
+  const shared = (
+    await old.store(
+      { category: 'project', title: 'Shared zebra', body: 'Shared public zebra', shared: true },
+      { ...ctx, projectId: 'p_c' },
+    )
+  ).memory;
+  const session = (
+    await old.store(
+      { category: 'session', title: 'Session zebra', body: 'Session public zebra' },
+      ctx,
+    )
+  ).memory;
+  const secret = (
+    await old.store(
+      {
+        category: 'personal',
+        title: 'PRIVATE title canary',
+        body: 'PRIVATE body canary',
+        private: true,
+        tags: ['private-canary'],
+        source: 'PRIVATE source canary',
+        sourceRef: 'PRIVATE ref canary',
+      },
+      ctx,
+    )
+  ).memory;
+  const unknown = (
+    await old.store(
+      { category: 'personal', title: 'UNKNOWN title canary', body: 'UNKNOWN body canary' },
+      ctx,
+    )
+  ).memory;
+  const proposed = (
+    await old.store(
+      {
+        category: 'project',
+        title: 'PROPOSED title canary',
+        body: 'PROPOSED body canary',
+        status: 'proposed',
+      },
+      ctx,
+    )
+  ).memory;
+  if (expired) {
+    const m = (
+      await old.store(
+        { category: 'session', title: 'EXPIRED title canary', body: 'EXPIRED body canary' },
+        ctx,
+      )
+    ).memory;
+    db.prepare('UPDATE memories SET expires_at=? WHERE id=?').run(Date.now() - 1, m.id);
+  }
   db.prepare("UPDATE memories SET private='unclassified' WHERE id=?").run(unknown.id);
-  db.prepare('INSERT INTO memory_events(memory_id,op,at,source,hash_after) VALUES(?,?,?,?,?)').run(secret.id, 'test', 1, 'PRIVATE audit canary', 'PRIVATE audit hash canary');
+  db.prepare('INSERT INTO memory_events(memory_id,op,at,source,hash_after) VALUES(?,?,?,?,?)').run(
+    secret.id,
+    'test',
+    1,
+    'PRIVATE audit canary',
+    'PRIVATE audit hash canary',
+  );
   if (floor) await cutoverMemory(options(paths));
-  return { sb, cfg, paths, repo, ctx, db, old, publicNote, personal, linked, shared, session, secret, unknown, proposed,
-    close() { old.close(); sb.cleanup(); } };
+  return {
+    sb,
+    paths,
+    repo,
+    ctx,
+    db,
+    old,
+    publicNote,
+    personal,
+    linked,
+    shared,
+    session,
+    secret,
+    unknown,
+    proposed,
+    close() {
+      old.close();
+      sb.cleanup();
+    },
+  };
 }
 function viewRows(file: string) {
-  const view = new DatabaseSync(file, { readOnly: true });
-  try { return { state: view.prepare('SELECT * FROM bosun_public_state').get()!, memories: rows(view, 'public_memories') }; } finally { view.close(); }
+  const view = new SqliteDatabase(file, { readOnly: true });
+  try {
+    return {
+      state: view.prepare('SELECT * FROM bosun_public_state').get()!,
+      memories: rows(view, 'public_memories'),
+    };
+  } finally {
+    view.close();
+  }
 }
 
 test('production publication preserves primary/backup data and fixed inode, publishing only validated current public Memory fields and FTS', async () => {
   const f = await fixture();
   try {
-    const primary = Object.fromEntries(['memories', 'memory_events', 'docs'].map((t) => [t, rows(f.db, t)]));
-    const backup = footprint(f.paths.backups); const ino = fs.statSync(f.paths.view, { bigint: true }).ino;
-    const result = await publishMemoryView(options(f.paths)); assert.deepEqual(Object.keys(result).sort(), ['publicationId', 'state']);
-    assert.equal(result.state, 'READY'); assert.doesNotMatch(JSON.stringify(result), /PRIVATE|backup|hash|generation|sourceRef/);
-    assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, ino); assert.equal(fs.statSync(f.paths.view).mode & 0o777, 0o600);
+    const primary = Object.fromEntries(
+      ['memories', 'memory_events', 'docs'].map((t) => [t, rows(f.db, t)]),
+    );
+    const backup = footprint(f.paths.backups);
+    const ino = fs.statSync(f.paths.view, { bigint: true }).ino;
+    const result = await publishMemoryView(options(f.paths));
+    assert.deepEqual(Object.keys(result).sort(), ['publicationId', 'state']);
+    assert.equal(result.state, 'READY');
+    assert.doesNotMatch(JSON.stringify(result), /PRIVATE|backup|hash|generation|sourceRef/);
+    assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, ino);
+    assert.equal(fs.statSync(f.paths.view).mode & 0o777, 0o600);
     assert.deepEqual([...fs.readFileSync(f.paths.view).subarray(18, 20)], [1, 1]);
     for (const [t, before] of Object.entries(primary)) assert.deepEqual(rows(f.db, t), before);
-    assert.deepEqual(footprint(f.paths.backups), backup); assert.equal(f.db.prepare('PRAGMA journal_mode').get()!.journal_mode, 'wal');
+    assert.deepEqual(footprint(f.paths.backups), backup);
+    assert.equal(f.db.prepare('PRAGMA journal_mode').get()!.journal_mode, 'wal');
     assert.equal(f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation, 0);
-    const view = new DatabaseSync(f.paths.view, { readOnly: true });
+    const view = new SqliteDatabase(f.paths.view, { readOnly: true });
     try {
-      const allowed = [f.publicNote, f.personal, f.linked, f.shared, f.session].map((m) => m.id).sort();
-      assert.deepEqual(rows(view, 'public_memories').map((r) => r.id).sort(), allowed);
-      assert.doesNotMatch(JSON.stringify(rows(view, 'public_memories')) + JSON.stringify(rows(view, 'bosun_public_state')), /PRIVATE|UNKNOWN|PROPOSED|EXPIRED|backup/);
-      assert.deepEqual(view.prepare('SELECT * FROM public_memories WHERE id=?').get(f.publicNote.id), f.db.prepare('SELECT * FROM memories WHERE id=?').get(f.publicNote.id));
-      assert.ok(view.prepare("SELECT rowid FROM public_memories_fts WHERE public_memories_fts MATCH 'admission zebra'").all().length);
-      assert.equal(view.prepare("SELECT count(*) AS n FROM sqlite_master WHERE name IN ('memory_events','docs')").get()!.n, 0);
-      const scoped = view.prepare(`SELECT id FROM public_memories WHERE project_id IS NULL OR project_id='p_a' OR shared=1 OR project_id IN ('p_b') ORDER BY id`).all();
-      assert.deepEqual(scoped.map((r) => r.id), allowed, 'scope and stable IDs remain available to the later scoped reader');
-    } finally { view.close(); }
-    const again = await publishMemoryView(options(f.paths)); assert.notEqual(again.publicationId, result.publicationId);
-    assert.deepEqual(footprint(f.paths.backups), backup); assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, ino);
-  } finally { f.close(); }
+      const allowed = [f.publicNote, f.personal, f.linked, f.shared, f.session]
+        .map((m) => m.id)
+        .sort();
+      assert.deepEqual(
+        rows(view, 'public_memories')
+          .map((r) => r.id)
+          .sort(),
+        allowed,
+      );
+      assert.doesNotMatch(
+        JSON.stringify(rows(view, 'public_memories')) +
+          JSON.stringify(rows(view, 'bosun_public_state')),
+        /PRIVATE|UNKNOWN|PROPOSED|EXPIRED|backup/,
+      );
+      assert.deepEqual(
+        view.prepare('SELECT * FROM public_memories WHERE id=?').get(f.publicNote.id),
+        f.db.prepare('SELECT * FROM memories WHERE id=?').get(f.publicNote.id),
+      );
+      assert.ok(
+        view
+          .prepare(
+            "SELECT rowid FROM public_memories_fts WHERE public_memories_fts MATCH 'admission zebra'",
+          )
+          .all().length,
+      );
+      assert.equal(
+        view
+          .prepare("SELECT count(*) AS n FROM sqlite_master WHERE name IN ('memory_events','docs')")
+          .get()!.n,
+        0,
+      );
+      const scoped = view
+        .prepare(
+          `SELECT id FROM public_memories WHERE project_id IS NULL OR project_id='p_a' OR shared=1 OR project_id IN ('p_b') ORDER BY id`,
+        )
+        .all();
+      assert.deepEqual(
+        scoped.map((r) => r.id),
+        allowed,
+        'scope and stable IDs remain available to the later scoped reader',
+      );
+    } finally {
+      view.close();
+    }
+    const again = await publishMemoryView(options(f.paths));
+    assert.notEqual(again.publicationId, result.publicationId);
+    assert.deepEqual(footprint(f.paths.backups), backup);
+    assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, ino);
+  } finally {
+    f.close();
+  }
 });
 
-test('v2 publication fences cached real v1 MemoryService/Docs and old prepared statements; reopened writers revoke until explicit republish', async () => {
-  const f = await fixture({ expired: false }); const cached = openLocalMemory(f.cfg);
-  const docs = new Docs(openLocalSqlite(f.paths.primary, f.cfg), f.repo, 'p_a');
+test('v2 publication fences cached memory/docs writers and old prepared statements; reopened writers revoke until explicit republish', async () => {
+  const f = await fixture({ expired: false });
+  const cached = openTestLocalMemory(f.paths);
+  const docsSession = new CutoverWriter(f.paths);
+  const docsScope = { root: f.repo, projectId: 'p_a' };
+  const docsDeps = {
+    enumerate: enumerateDocs,
+    inspect: inspectDoc,
+    checkStorage: checkDocsStorage,
+    monotonic: () => performance.now(),
+    measure() {},
+  };
+  const cachedDocsIndex = new SqliteDocsIndex(docsSession, docsScope, docsDeps);
+  const cachedDocsQuery = new SqliteDocs(docsSession, docsScope);
   const prepared = f.db.prepare('UPDATE memories SET private=1 WHERE id=?');
-  let local: MemoryService | undefined; let currentDocs: Docs | undefined;
+  let local: ReturnType<typeof openTestLocalMemory> | undefined;
+  let currentDocsSession: CutoverWriter | undefined;
   try {
     await publishMemoryView(options(f.paths));
-    await assert.rejects(cached.store({ category: 'personal', title: 'Cached', body: 'cached writer' }, f.ctx), (e) => e instanceof MemoryError && e.code === 'unavailable');
+    await assert.rejects(
+      cached.store({ category: 'personal', title: 'Cached', body: 'cached writer' }, f.ctx),
+      writerFailure('state'),
+    );
     fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra guide\nZebra guide public docs.');
     const savedDocs = f.db.prepare('SELECT * FROM docs ORDER BY seq').all();
     const savedFloor = f.db.prepare('SELECT * FROM bosun_source_floor').all();
-    assert.deepEqual(docs.index(), { changed: 0, removed: 0 }, 'cached format rejection is an initial read-admission hold');
-    assert.deepEqual(await docs.search('zebra', f.ctx, 10), []);
+    assert.equal(cachedDocsIndex.index().state, 'held', 'cached docs index is denied write admission');
+    await assert.rejects(
+      cachedDocsQuery.search('zebra', f.ctx, 10),
+      (error) => error instanceof MemoryError && error.code === 'unavailable',
+      'the stale snapshot reader has no query admission after publication',
+    );
     assert.deepEqual(f.db.prepare('SELECT * FROM docs ORDER BY seq').all(), savedDocs);
     assert.deepEqual(f.db.prepare('SELECT * FROM bosun_source_floor').all(), savedFloor);
     assert.throws(() => prepared.run(f.publicNote.id), /bosun_writer_floor_v2/);
     assert.equal(viewRows(f.paths.view).state.state, 'READY');
-    local = openLocalMemory(f.cfg); currentDocs = new Docs(openLocalSqlite(f.paths.primary, f.cfg), f.repo, 'p_a');
-    await local.update(f.publicNote.id, { private: true }, 1, f.ctx); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
-    assert.ok(viewRows(f.paths.view).memories.some((r) => r.id === f.publicNote.id), 'HOLD revokes audience access, not old/free-page erasure');
-    await publishMemoryView(options(f.paths)); assert.ok(!viewRows(f.paths.view).memories.some((r) => r.id === f.publicNote.id));
-    currentDocs.index(); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    local = openTestLocalMemory(f.paths);
+    currentDocsSession = new CutoverWriter(f.paths);
+    const currentDocsIndex = new SqliteDocsIndex(currentDocsSession, docsScope, docsDeps);
+    await local.update(f.publicNote.id, { private: true }, 1, f.ctx);
+    assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    assert.ok(
+      viewRows(f.paths.view).memories.some((r) => r.id === f.publicNote.id),
+      'HOLD revokes audience access, not old/free-page erasure',
+    );
     await publishMemoryView(options(f.paths));
-    await local.delete(f.personal.id, f.ctx); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    assert.ok(!viewRows(f.paths.view).memories.some((r) => r.id === f.publicNote.id));
+    fs.writeFileSync(path.join(f.repo, 'guide.md'), '# Zebra guide\nZebra guide public docs.');
+    assert.equal(currentDocsIndex.index().state, 'indexed');
+    assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
     await publishMemoryView(options(f.paths));
-    assert.equal((await local.get(f.secret.id, f.ctx)).body, f.secret.body, 'owner private reads remain authoritative');
-    await assert.rejects(local.update(f.session.id, { body: 'wrong version' }, 99, f.ctx), (e) => e instanceof MemoryError && e.code === 'conflict' && e.current === 1);
-  } finally { local?.close(); currentDocs?.close(); cached.close(); docs.close(); f.close(); }
+    await local.delete(f.personal.id, f.ctx);
+    assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    await publishMemoryView(options(f.paths));
+    assert.equal(
+      (await local.get(f.secret.id, f.ctx)).body,
+      f.secret.body,
+      'owner private reads remain authoritative',
+    );
+    await assert.rejects(
+      local.update(f.session.id, { body: 'wrong version' }, 99, f.ctx),
+      (e) => e instanceof MemoryError && e.code === 'conflict' && e.current === 1,
+    );
+  } finally {
+    local?.close();
+    currentDocsSession?.close();
+    cached.close();
+    docsSession.close();
+    f.close();
+  }
 });
 
 test('same-inode rollback lease has no reader footprint and blocks revocation/publication; failed admission does not invalidate a valid view', async () => {
-  const f = await fixture({ expired: false }); let local: MemoryService | undefined; let lease: DatabaseSync | undefined;
+  const f = await fixture({ expired: false });
+  let local: ReturnType<typeof openTestLocalMemory> | undefined;
+  let lease: SqliteDatabase | undefined;
   try {
-    await publishMemoryView(options(f.paths)); local = openLocalMemory(f.cfg);
+    await publishMemoryView(options(f.paths));
+    local = openTestLocalMemory(f.paths);
     const before = footprint(path.dirname(f.paths.view));
-    lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('BEGIN'); lease.prepare('SELECT * FROM public_memories').all();
+    lease = new SqliteDatabase(f.paths.view, { readOnly: true });
+    lease.exec('BEGIN');
+    lease.prepare('SELECT * FROM public_memories').all();
     assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
-    await assert.rejects(local.update(f.publicNote.id, { private: true }, 1, f.ctx), MemoryError);
+    await assert.rejects(local.update(f.publicNote.id, { private: true }, 1, f.ctx), writerFailure('busy'));
     await assert.rejects(publishMemoryView(options(f.paths)), CutoverError);
-    assert.equal(f.db.prepare('SELECT private FROM memories WHERE id=?').get(f.publicNote.id)!.private, 0);
+    assert.equal(
+      f.db.prepare('SELECT private FROM memories WHERE id=?').get(f.publicNote.id)!.private,
+      0,
+    );
     assert.equal(viewRows(f.paths.view).state.state, 'READY');
-    lease.exec('ROLLBACK'); lease.close(); lease = undefined;
+    lease.exec('ROLLBACK');
+    lease.close();
+    lease = undefined;
     f.db.exec('BEGIN IMMEDIATE');
-    try { const state = viewRows(f.paths.view); await assert.rejects(publishMemoryView(options(f.paths)), CutoverError); assert.deepEqual(viewRows(f.paths.view), state); }
-    finally { f.db.exec('ROLLBACK'); }
-    await local.update(f.publicNote.id, { private: true }, 1, f.ctx); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
-  } finally { lease?.close(); local?.close(); f.close(); }
+    try {
+      const state = viewRows(f.paths.view);
+      await assert.rejects(publishMemoryView(options(f.paths)), CutoverError);
+      assert.deepEqual(viewRows(f.paths.view), state);
+    } finally {
+      f.db.exec('ROLLBACK');
+    }
+    await local.update(f.publicNote.id, { private: true }, 1, f.ctx);
+    assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+  } finally {
+    lease?.close();
+    local?.close();
+    f.close();
+  }
 });
 
-async function crash(paths: ReturnType<typeof writerPaths>, phase: string, cwd: string) {
+async function crash(paths: CutoverPaths, phase: string, cwd: string) {
   const script = `import ${JSON.stringify(pathToFileURL(path.join(REPO, 'test/bootstrap.ts')).href)};
     import {publishMemoryView} from ${JSON.stringify(pathToFileURL(path.join(REPO, 'src/adapters/memory/sqlite-cutover.ts')).href)};
     import {randomUUID} from 'node:crypto';
     await publishMemoryView({paths:JSON.parse(process.argv[1]),now:Date.now,id:randomUUID,async checkpoint(p){
       if(p===process.argv[2]){process.stdout.write('PUBLICATION_CHECKPOINT\\n');await new Promise(()=>{});}}});`;
-  const child = spawn(process.execPath, ['--input-type=module', '-e', script, JSON.stringify(paths), phase], { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(
+    process.execPath,
+    ['--input-type=module', '-e', script, JSON.stringify(paths), phase],
+    { cwd, stdio: ['ignore', 'pipe', 'pipe'] },
+  );
   await new Promise<void>((resolve, reject) => {
-    let ready = false; let out = ''; const timer = setTimeout(() => child.kill('SIGKILL'), 4000);
-    child.stdout.on('data', (b) => { out += b; if (!ready && out.includes('PUBLICATION_CHECKPOINT')) { ready = true; child.kill('SIGKILL'); } });
-    child.on('error', reject); child.on('exit', (code, signal) => { clearTimeout(timer); if (ready && signal === 'SIGKILL') resolve(); else reject(Error(`synthetic publication missed ${phase}: ${code}/${signal}`)); });
+    let ready = false;
+    let out = '';
+    const timer = setTimeout(() => child.kill('SIGKILL'), 4000);
+    child.stdout.on('data', (b) => {
+      out += b;
+      if (!ready && out.includes('PUBLICATION_CHECKPOINT')) {
+        ready = true;
+        child.kill('SIGKILL');
+      }
+    });
+    child.on('error', reject);
+    child.on('exit', (code, signal) => {
+      clearTimeout(timer);
+      if (ready && signal === 'SIGKILL') resolve();
+      else reject(Error(`synthetic publication missed ${phase}: ${code}/${signal}`));
+    });
   });
 }
 test('multi-process publication crashes recover exact format/admission without generation reset, duplicate schema or overwritten backup', async () => {
   for (const phase of ['view-upgrade', 'format', 'format-commit', 'hold', 'rows', 'ready']) {
     const f = await fixture({ expired: false });
     try {
-      const backup = footprint(f.paths.backups); const primary = rows(f.db, 'memories'); const inode = fs.statSync(f.paths.view, { bigint: true }).ino;
+      const backup = footprint(f.paths.backups);
+      const primary = rows(f.db, 'memories');
+      const inode = fs.statSync(f.paths.view, { bigint: true }).ino;
       await crash(f.paths, phase, f.sb.root);
       assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
-      if (['view-upgrade', 'format'].includes(phase)) assert.throws(() => openLocalMemory(f.cfg), MemoryError, 'ordinary open never finishes partial upgrade');
-      await publishMemoryView(options(f.paths)); assert.equal(viewRows(f.paths.view).state.state, 'READY');
+      if (['view-upgrade', 'format'].includes(phase))
+        assert.throws(
+          () => openTestLocalMemory(f.paths),
+          writerFailure('state'),
+          'ordinary open never finishes partial upgrade',
+        );
+      await publishMemoryView(options(f.paths));
+      assert.equal(viewRows(f.paths.view).state.state, 'READY');
       assert.equal(f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation, 0);
-      assert.deepEqual(rows(f.db, 'memories'), primary); assert.deepEqual(footprint(f.paths.backups), backup); assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, inode);
-      const local = openLocalMemory(f.cfg); try { await local.update(f.publicNote.id, { body: 'Recovered zebra body' }, 1, f.ctx); } finally { local.close(); }
-      const generation = f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation;
-      await publishMemoryView(options(f.paths)); assert.equal(viewRows(f.paths.view).state.generation, generation);
-    } finally { f.close(); }
+      assert.deepEqual(rows(f.db, 'memories'), primary);
+      assert.deepEqual(footprint(f.paths.backups), backup);
+      assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, inode);
+      const local = openTestLocalMemory(f.paths);
+      try {
+        await local.update(f.publicNote.id, { body: 'Recovered zebra body' }, 1, f.ctx);
+      } finally {
+        local.close();
+      }
+      const generation = f.db
+        .prepare('SELECT generation FROM bosun_source_floor')
+        .get()!.generation;
+      await publishMemoryView(options(f.paths));
+      assert.equal(viewRows(f.paths.view).state.generation, generation);
+    } finally {
+      f.close();
+    }
   }
 });
 
-test('actual memory publish CLI uses explicit local composition, rejects plain/missing/remote/extraneous input without source creation', async () => {
-  const f = await fixture({ expired: false });
+test('final owner publish CLI retains source/audit and fixed public inode; invalid, model and unprepared calls make no storage effects', async () => {
+  const f = await runtimeFixture();
   try {
-    const result = await bosun(['memory', 'publish', '--json'], { env: f.sb.env(), cwd: f.repo }); assert.equal(result.code, 0, result.err);
-    assert.equal(JSON.parse(result.out).state, 'READY'); assert.doesNotMatch(result.out, /PRIVATE|hash|backup/);
-    const before = footprint(path.dirname(f.paths.view));
-    for (const args of [['memory', 'publish', 'extra'], ['memory', 'publish', '--private']]) {
-      const r = await bosun(args, { env: f.sb.env(), cwd: f.repo }); assert.equal(r.code, 2); assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
+    const publicNote = (
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: 'Publication zebra',
+        body: 'Publication zebra public body.',
+      })
+    ).memory;
+    const secret = (
+      await f.rpc('memory.store', {
+        category: 'project',
+        title: 'PRIVATE publication',
+        body: 'PRIVATE owner content.',
+        private: true,
+      })
+    ).memory;
+    const before = await f.rpc('memory.get', { id: publicNote.id, events: true });
+    const privateBefore = await f.rpc('memory.get', { id: secret.id, events: true });
+    const inode = fs.statSync(f.paths.view).ino;
+    const result = await f.cli(['memory', 'publish']);
+    assert.equal(result.code, 0, result.err);
+    const jobId = JSON.parse(result.out).job.id;
+    let job = await f.rpc('job.get', { id: jobId });
+    const deadline = performance.now() + 5000;
+    while (['queued', 'running'].includes(job.state)) {
+      assert.ok(performance.now() < deadline);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      job = await f.rpc('job.get', { id: jobId });
     }
-    const remote = await bosun(['memory', 'publish'], { env: f.sb.env({ MEMORY_URL: 'http://127.0.0.1:1' }), cwd: f.repo }); assert.equal(remote.code, 1); assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
-    const receipt = await cutoverMemory(options(f.paths)); assert.equal(receipt.state, 'HOLD'); assert.equal(viewRows(f.paths.view).state.state, 'HOLD', 'explicit cutover reconciliation truthfully revokes public state');
-  } finally { f.close(); }
-  const sb = sandbox(); fresh(sb); load();
-  try {
-    const r = await bosun(['memory', 'publish'], { env: sb.env() }); assert.equal(r.code, 1); assert.equal(fs.existsSync(P.DB), false); assert.equal(fs.existsSync(path.join(P.BOSUN, 'memory-view')), false);
-    const db = openDb(P.DB); db.close(); const before = footprint(P.BOSUN);
-    const plain = await bosun(['memory', 'publish'], { env: sb.env() }); assert.equal(plain.code, 1);
-    assert.deepEqual(footprint(P.BOSUN), before, 'existing plain schema-v1 database is neither migrated nor opened as a writer');
+    assert.equal(job.state, 'succeeded');
+    assert.equal(JSON.parse((await f.rpc('job.result', { id: jobId })).result).state, 'READY');
+    assert.doesNotMatch(result.out, /PRIVATE|backup|hash/);
+    assert.equal(fs.statSync(f.paths.view).ino, inode);
+    assert.deepEqual(await f.rpc('memory.get', { id: publicNote.id, events: true }), before);
+    assert.deepEqual(await f.rpc('memory.get', { id: secret.id, events: true }), privateBefore);
+    const view = viewRows(f.paths.view);
+    assert.ok(view.memories.some((row) => row.id === publicNote.id));
+    assert.ok(!view.memories.some((row) => row.id === secret.id));
+    const stable = footprint(path.dirname(f.paths.view));
+    for (const args of [
+      ['memory', 'publish', 'extra'],
+      ['memory', 'publish', '--private'],
+    ]) {
+      assert.equal((await f.cli(args)).code, 2);
+      assert.deepEqual(footprint(path.dirname(f.paths.view)), stable);
+    }
+    await assert.rejects(f.rpc('memory.publish', {}, { ...f.scope, audience: 'model' }));
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), stable);
+  } finally {
+    await f.close();
   }
-  finally { sb.cleanup(); }
+  const sb = sandbox();
+  fresh(sb);
+  try {
+    const env = sb.env({
+        BOSUN_SOCKET: path.join(process.env.BOSUN_TEST_RUN_ROOT!, `pub${process.pid}`),
+      }),
+      root = path.join(sb.home, '.bosun');
+    const missing = await bosun(['memory', 'publish'], { env });
+    assert.equal(missing.code, 1);
+    assert.equal(fs.existsSync(root), false);
+    fs.mkdirSync(root, { mode: 0o700 });
+    const file = path.join(root, 'memory.db'),
+      db = openSchemaOneMemory(file);
+    db.close();
+    const before = footprint(root);
+    const plain = await bosun(['memory', 'publish'], { env });
+    assert.equal(plain.code, 1);
+    assert.deepEqual(footprint(root), before);
+  } finally {
+    sb.cleanup();
+  }
 });
 
 test('publication preserves established non-generator IDs and excludes malformed private flags before reading public content', async () => {
   const f = await fixture({ expired: false, floor: false });
   try {
     f.db.prepare('UPDATE memories SET id=? WHERE id=?').run('owner-existing-key', f.publicNote.id);
-    await cutoverMemory(options(f.paths)); await publishMemoryView(options(f.paths));
+    await cutoverMemory(options(f.paths));
+    await publishMemoryView(options(f.paths));
     const published = viewRows(f.paths.view);
     assert.ok(published.memories.some((r) => r.id === 'owner-existing-key'));
     assert.ok(!published.memories.some((r) => r.id === f.unknown.id || r.id === f.secret.id));
-  } finally { f.close(); }
+  } finally {
+    f.close();
+  }
 });
 
 test('completed publication survives child SIGKILL and explicit republish; concurrent real CLI writers/publishers cannot bypass admission', async () => {
   const f = await fixture({ expired: false });
   try {
-    await publishMemoryView({ ...options(f.paths), async checkpoint(phase) {
-      if (phase === 'hold') {
-        const writer = await bosun(['memory', 'add', '-c', 'personal', '-t', 'Contender', 'contending public write'], { env: f.sb.env(), cwd: f.repo });
-        assert.equal(writer.code, 1); assert.match(writer.err, /local memory unavailable/);
-        const publisher = await bosun(['memory', 'publish', '--json'], { env: f.sb.env(), cwd: f.repo }); assert.equal(publisher.code, 1);
-        assert.equal(f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation, 0);
-      }
-    } });
+    const env = f.sb.env({
+      BOSUN_SOCKET: path.join(process.env.BOSUN_TEST_RUN_ROOT!, `pub${process.pid}`),
+    });
+    let checkpointError: unknown;
+    await publishMemoryView({
+      ...options(f.paths),
+      async checkpoint(phase) {
+        if (phase === 'hold') {
+          try {
+            const writer = await bosun(
+              [
+                'memory',
+                'add',
+                '--category',
+                'personal',
+                '--title',
+                'Contender',
+                '--body',
+                'contending public write',
+              ],
+              { env, cwd: f.repo },
+            );
+            assert.equal(writer.code, 1);
+            assert.equal(JSON.parse(writer.err).error.code, 'unavailable');
+            const publisher = await bosun(['memory', 'publish'], { env, cwd: f.repo });
+            assert.equal(publisher.code, 1);
+            assert.equal(
+              f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation,
+              0,
+            );
+          } catch (error) {
+            checkpointError = error;
+            throw error;
+          }
+        }
+      },
+    }).catch((error) => {
+      throw checkpointError ?? error;
+    });
     const code = `import ${JSON.stringify(pathToFileURL(path.join(REPO, 'test/bootstrap.ts')).href)};
       import {publishMemoryView} from ${JSON.stringify(pathToFileURL(path.join(REPO, 'src/adapters/memory/sqlite-cutover.ts')).href)};
       import {randomUUID} from 'node:crypto'; await publishMemoryView({paths:JSON.parse(process.argv[1]),now:Date.now,id:randomUUID});
       process.stdout.write('PUBLICATION_COMPLETED\\n'); setInterval(()=>{},1000);`;
-    const child = spawn(process.execPath, ['--input-type=module', '-e', code, JSON.stringify(f.paths)], { cwd: f.sb.root, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(
+      process.execPath,
+      ['--input-type=module', '-e', code, JSON.stringify(f.paths)],
+      { cwd: f.sb.root, stdio: ['ignore', 'pipe', 'pipe'] },
+    );
     await new Promise<void>((resolve, reject) => {
-      let completed = false; let out = ''; const timer = setTimeout(() => child.kill('SIGKILL'), 4000);
-      child.stdout.on('data', (b) => { out += b; if (!completed && out.includes('PUBLICATION_COMPLETED')) { completed = true; child.kill('SIGKILL'); } });
-      child.once('error', reject); child.once('exit', (_code, signal) => { clearTimeout(timer); if (completed && signal === 'SIGKILL') resolve(); else reject(Error('synthetic completed publication missing')); });
+      let completed = false;
+      let out = '';
+      const timer = setTimeout(() => child.kill('SIGKILL'), 4000);
+      child.stdout.on('data', (b) => {
+        out += b;
+        if (!completed && out.includes('PUBLICATION_COMPLETED')) {
+          completed = true;
+          child.kill('SIGKILL');
+        }
+      });
+      child.once('error', reject);
+      child.once('exit', (_code, signal) => {
+        clearTimeout(timer);
+        if (completed && signal === 'SIGKILL') resolve();
+        else reject(Error('synthetic completed publication missing'));
+      });
     });
-    assert.equal(viewRows(f.paths.view).state.state, 'READY'); await publishMemoryView(options(f.paths)); assert.equal(viewRows(f.paths.view).state.state, 'READY');
-  } finally { f.close(); }
+    assert.equal(viewRows(f.paths.view).state.state, 'READY');
+    await publishMemoryView(options(f.paths));
+    assert.equal(viewRows(f.paths.view).state.state, 'READY');
+  } finally {
+    f.close();
+  }
 });
 
 test('explicit owned journal recovery rejects substituted/symlinked journal and mismatched backup authority without touching them', async () => {
@@ -219,24 +599,52 @@ test('explicit owned journal recovery rejects substituted/symlinked journal and 
     const f = await fixture({ expired: false });
     try {
       await crash(f.paths, 'rows', f.sb.root);
-      const journal = f.paths.view + '-journal'; assert.equal(fs.existsSync(journal), true, 'actual killed rebuild leaves its native journal');
+      const journal = f.paths.view + '-journal';
+      assert.equal(fs.existsSync(journal), true, 'actual killed rebuild leaves its native journal');
       if (kind === 'journal') {
-        fs.renameSync(journal, journal + '.owned'); const foreign = path.join(f.sb.root, 'foreign-journal'); fs.writeFileSync(foreign, 'PRIVATE unrelated canary', { mode: 0o600 }); fs.symlinkSync(foreign, journal);
+        fs.renameSync(journal, journal + '.owned');
+        const foreign = path.join(f.sb.root, 'foreign-journal');
+        fs.writeFileSync(foreign, 'PRIVATE unrelated canary', { mode: 0o600 });
+        fs.symlinkSync(foreign, journal);
       }
       const missingTarget = path.join(f.sb.root, 'never-created-journal');
-      if (kind === 'dangling') { fs.renameSync(journal, journal + '.owned'); fs.symlinkSync(missingTarget, journal); }
-      if (kind === 'backup') fs.appendFileSync(path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]), 'PRIVATE backup tamper');
-      if (kind === 'inode') { const bytes = fs.readFileSync(f.paths.view); fs.renameSync(f.paths.view, f.paths.view + '.owned'); fs.writeFileSync(f.paths.view, bytes, { mode: 0o600 }); }
+      if (kind === 'dangling') {
+        fs.renameSync(journal, journal + '.owned');
+        fs.symlinkSync(missingTarget, journal);
+      }
+      if (kind === 'backup')
+        fs.appendFileSync(
+          path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]),
+          'PRIVATE backup tamper',
+        );
+      if (kind === 'inode') {
+        const bytes = fs.readFileSync(f.paths.view);
+        fs.renameSync(f.paths.view, f.paths.view + '.owned');
+        fs.writeFileSync(f.paths.view, bytes, { mode: 0o600 });
+      }
       if (kind === 'hardlink') fs.linkSync(journal, journal + '.alias');
       if (kind === 'mode') fs.chmodSync(journal, 0o644);
-      if (kind === 'wal') fs.writeFileSync(f.paths.view + '-wal', 'PRIVATE unrelated WAL', { mode: 0o600 });
-      const before = kind === 'dangling' ? { view: fs.readFileSync(f.paths.view), link: fs.readlinkSync(journal) } : footprint(path.dirname(f.paths.view));
+      if (kind === 'wal')
+        fs.writeFileSync(f.paths.view + '-wal', 'PRIVATE unrelated WAL', { mode: 0o600 });
+      const before =
+        kind === 'dangling'
+          ? { view: fs.readFileSync(f.paths.view), link: fs.readlinkSync(journal) }
+          : footprint(path.dirname(f.paths.view));
       await assert.rejects(publishMemoryView(options(f.paths)), CutoverError);
       if (kind === 'dangling') {
-        assert.deepEqual({ view: fs.readFileSync(f.paths.view), link: fs.readlinkSync(journal) }, before);
-        assert.equal(fs.existsSync(missingTarget), false, 'unknown journal target is never created');
+        assert.deepEqual(
+          { view: fs.readFileSync(f.paths.view), link: fs.readlinkSync(journal) },
+          before,
+        );
+        assert.equal(
+          fs.existsSync(missingTarget),
+          false,
+          'unknown journal target is never created',
+        );
       } else assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
-    } finally { f.close(); }
+    } finally {
+      f.close();
+    }
   }
 });
 
@@ -244,37 +652,82 @@ test('actual hot spill journal is held by ordinary callers and recovered nativel
   const f = await fixture({ expired: false, floor: false });
   try {
     const body = 'spillzebra '.repeat(60);
-    for (let i = 0; i < 2400; i++) await f.old.store({ category: 'project', title: `Spill zebra ${i}`, body }, f.ctx);
+    for (let i = 0; i < 2400; i++)
+      await f.old.store({ category: 'project', title: `Spill zebra ${i}`, body }, f.ctx);
     await cutoverMemory(options(f.paths));
-    const primary = rows(f.db, 'memories'); const backup = footprint(f.paths.backups); const inode = fs.statSync(f.paths.view, { bigint: true }).ino;
+    const primary = rows(f.db, 'memories');
+    const backup = footprint(f.paths.backups);
+    const inode = fs.statSync(f.paths.view, { bigint: true }).ino;
     const code = `import ${JSON.stringify(pathToFileURL(path.join(REPO, 'test/bootstrap.ts')).href)};
       import {publishMemoryView} from ${JSON.stringify(pathToFileURL(path.join(REPO, 'src/adapters/memory/sqlite-cutover.ts')).href)};
-      import {randomUUID} from 'node:crypto'; await publishMemoryView({paths:JSON.parse(process.argv[1]),now:Date.now,id:randomUUID,
+      import {SqliteDatabase} from ${JSON.stringify(pathToFileURL(path.join(REPO, 'src/platform/sqlite.ts')).href)};
+      import {randomUUID} from 'node:crypto'; const paths=JSON.parse(process.argv[1]);
+      // Force a real pre-COMMIT spill independently of the binding's cache default.
+      const exec=SqliteDatabase.prototype.exec; SqliteDatabase.prototype.exec=function(sql){
+        if(sql==='BEGIN IMMEDIATE'&&this.location()===paths.view)exec.call(this,'PRAGMA cache_size=2; PRAGMA cache_spill=ON');
+        return exec.call(this,sql);};
+      await publishMemoryView({paths,now:Date.now,id:randomUUID,
       async checkpoint(p){if(p==='hold'){process.stdout.write('SPILL_HOLD\\n');await new Promise(r=>process.stdin.once('data',r));}
         if(p==='rows'){process.stdout.write('SPILL_ROWS\\n');await new Promise(()=>{});}}});`;
-    const child = spawn(process.execPath, ['--input-type=module', '-e', code, JSON.stringify(f.paths)], { cwd: f.sb.root, stdio: ['pipe', 'pipe', 'pipe'] });
-    let before: Buffer | undefined; let spilled = false; let hot = false;
+    const child = spawn(
+      process.execPath,
+      ['--input-type=module', '-e', code, JSON.stringify(f.paths)],
+      { cwd: f.sb.root, stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+    let before: Buffer | undefined;
+    let spilled = false;
+    let hot = false;
     await new Promise<void>((resolve, reject) => {
-      let out = ''; let held = false; let seenRows = false; const timer = setTimeout(() => child.kill('SIGKILL'), 5000);
+      let out = '';
+      let held = false;
+      let seenRows = false;
+      const timer = setTimeout(() => child.kill('SIGKILL'), 5000);
       child.stdout.on('data', (b) => {
         out += b;
-        if (!held && out.includes('SPILL_HOLD')) { held = true; before = fs.readFileSync(f.paths.view); child.stdin.write('continue\n'); }
+        if (!held && out.includes('SPILL_HOLD')) {
+          held = true;
+          before = fs.readFileSync(f.paths.view);
+          child.stdin.write('continue\n');
+        }
         if (!seenRows && out.includes('SPILL_ROWS')) {
-          seenRows = true; const journal = fs.readFileSync(f.paths.view + '-journal'); hot = journal.subarray(0, 8).toString('hex') === 'd9d505f920a163d7';
-          spilled = !fs.readFileSync(f.paths.view).equals(before!); child.kill('SIGKILL');
+          seenRows = true;
+          const journal = fs.readFileSync(f.paths.view + '-journal');
+          hot = journal.subarray(0, 8).toString('hex') === 'd9d505f920a163d7';
+          spilled = !fs.readFileSync(f.paths.view).equals(before!);
+          child.kill('SIGKILL');
         }
       });
-      child.once('error', reject); child.once('exit', (_c, signal) => { clearTimeout(timer); if (seenRows && signal === 'SIGKILL') resolve(); else reject(Error('synthetic spill boundary missing')); });
+      child.once('error', reject);
+      child.once('exit', (_c, signal) => {
+        clearTimeout(timer);
+        if (seenRows && signal === 'SIGKILL') resolve();
+        else reject(Error('synthetic spill boundary missing'));
+      });
     });
-    assert.equal(hot, true, 'native journal has a synced nonzero hot header'); assert.equal(spilled, true, 'dirty view pages reached the DB before commit');
-    const damaged = footprint(path.dirname(f.paths.view)); assert.throws(() => openLocalMemory(f.cfg), MemoryError); assert.deepEqual(footprint(path.dirname(f.paths.view)), damaged);
-    await publishMemoryView({ ...options(f.paths), checkpoint(phase) {
-      if (phase === 'hold') { const restored = viewRows(f.paths.view); assert.equal(restored.state.state, 'HOLD'); assert.equal(restored.memories.length, 0, 'native recovery restored pre-rebuild rows'); }
-    } });
-    assert.equal(viewRows(f.paths.view).state.state, 'READY'); assert.equal(viewRows(f.paths.view).memories.length, 2405);
-    assert.equal(fs.existsSync(f.paths.view + '-journal'), false); assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, inode);
-    assert.deepEqual(rows(f.db, 'memories'), primary); assert.deepEqual(footprint(f.paths.backups), backup);
-  } finally { f.close(); }
+    assert.equal(hot, true, 'native journal has a synced nonzero hot header');
+    assert.equal(spilled, true, 'dirty view pages reached the DB before commit');
+    const damaged = footprint(path.dirname(f.paths.view));
+    assert.throws(() => openTestLocalMemory(f.paths), writerFailure('state'));
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), damaged);
+    await publishMemoryView({
+      ...options(f.paths),
+      checkpoint(phase) {
+        if (phase === 'hold') {
+          const restored = viewRows(f.paths.view);
+          assert.equal(restored.state.state, 'HOLD');
+          assert.equal(restored.memories.length, 0, 'native recovery restored pre-rebuild rows');
+        }
+      },
+    });
+    assert.equal(viewRows(f.paths.view).state.state, 'READY');
+    assert.equal(viewRows(f.paths.view).memories.length, 2405);
+    assert.equal(fs.existsSync(f.paths.view + '-journal'), false);
+    assert.equal(fs.statSync(f.paths.view, { bigint: true }).ino, inode);
+    assert.deepEqual(rows(f.db, 'memories'), primary);
+    assert.deepEqual(footprint(f.paths.backups), backup);
+  } finally {
+    f.close();
+  }
 });
 
 test('publication rejects asynchronous inputs before effects and detects late backup/epoch drift before READY', async () => {
@@ -285,72 +738,179 @@ test('publication rejects asynchronous inputs before effects and detects late ba
       const o: any = options(f.paths);
       if (kind === 'clock') o.now = async () => Date.now();
       if (kind === 'id') o.id = async () => crypto.randomUUID();
-      if (kind === 'backup') o.checkpoint = (phase: string) => { if (phase === 'ready') fs.appendFileSync(path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]), 'PRIVATE late tamper'); };
-      if (kind === 'epoch') o.checkpoint = (phase: string) => {
-        if (phase === 'hold') { const db = new DatabaseSync(f.paths.view); try { db.prepare('UPDATE bosun_public_state SET source_id=?').run(crypto.randomUUID()); } finally { db.close(); } }
-      };
+      if (kind === 'backup')
+        o.checkpoint = (phase: string) => {
+          if (phase === 'ready')
+            fs.appendFileSync(
+              path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]),
+              'PRIVATE late tamper',
+            );
+        };
+      if (kind === 'epoch')
+        o.checkpoint = (phase: string) => {
+          if (phase === 'hold') {
+            const db = new SqliteDatabase(f.paths.view);
+            try {
+              db.prepare('UPDATE bosun_public_state SET source_id=?').run(crypto.randomUUID());
+            } finally {
+              db.close();
+            }
+          }
+        };
       await assert.rejects(publishMemoryView(o), CutoverError);
-      if (['clock', 'id'].includes(kind)) assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
+      if (['clock', 'id'].includes(kind))
+        assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
       else assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
-    } finally { f.close(); }
+    } finally {
+      f.close();
+    }
   }
 });
 
 test('10,000-row medium-body corpus is useful READY with scoped hashes, actual hook delivery, zero-write reading and retained native revocation', async () => {
   const f = await fixture({ expired: false, floor: false });
-  let reader: SqlitePublicReadOnly | undefined; let writer: MemoryService | undefined;
+  let reader: SqlitePublicReadOnly | undefined;
+  let writer: ReturnType<typeof openTestLocalMemory> | undefined;
   try {
     const body = 'capacitysample '.repeat(35);
-    const ctx = { ...f.ctx, projectId: project(f.repo).id }; let sample = f.publicNote;
-    for (let i = 5; i < PUBLIC_MAX_ROWS; i++) sample = (await f.old.store({ category: 'project', title: `Capacity zebra ${i}`, body }, ctx)).memory;
-    assert.equal(f.db.prepare('SELECT count(*) AS n FROM memories').get()!.n, PUBLIC_MAX_ROWS + 3, 'denied canaries do not consume public capacity');
+    const ctx = { ...f.ctx, projectId: project(f.repo).id };
+    let sample = f.publicNote;
+    for (let i = 5; i < PUBLIC_MAX_ROWS; i++)
+      sample = (await f.old.store({ category: 'project', title: `Capacity zebra ${i}`, body }, ctx))
+        .memory;
+    assert.equal(
+      f.db.prepare('SELECT count(*) AS n FROM memories').get()!.n,
+      PUBLIC_MAX_ROWS + 3,
+      'denied canaries do not consume public capacity',
+    );
     const floor = await cutoverMemory(options(f.paths));
     assert.equal((await publishMemoryView(options(f.paths))).state, 'READY');
-    const published = viewRows(f.paths.view); assert.equal(published.state.state, 'READY'); assert.equal(published.memories.length, PUBLIC_MAX_ROWS);
-    const encodedBytes = published.memories.reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
-    const sourceBytes = fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary + '-wal').size;
+    const published = viewRows(f.paths.view);
+    assert.equal(published.state.state, 'READY');
+    assert.equal(published.memories.length, PUBLIC_MAX_ROWS);
+    const encodedBytes = published.memories.reduce(
+      (sum, row) => sum + Buffer.byteLength(JSON.stringify(row)),
+      0,
+    );
+    const sourceBytes =
+      fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary + '-wal').size;
     const viewBytes = fs.statSync(f.paths.view).size;
     assert.ok(encodedBytes > 4 * 1024 * 1024 && encodedBytes <= PUBLIC_MAX_BYTES);
     assert.ok(viewBytes <= VIEW_MAX_BYTES && sourceBytes <= 64 * 1024 * 1024);
-    assert.doesNotMatch(JSON.stringify(published.memories), /PRIVATE|UNKNOWN|PROPOSED|audit|backup/);
+    assert.doesNotMatch(
+      JSON.stringify(published.memories),
+      /PRIVATE|UNKNOWN|PROPOSED|audit|backup/,
+    );
     const binding = { primary: f.paths.primary, view: f.paths.view, sourceId: floor.sourceId };
-    const before = { view: footprint(path.dirname(f.paths.view)), backup: footprint(f.paths.backups),
-      source: [f.paths.primary, f.paths.primary+'-wal', f.paths.primary+'-shm'].map((file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')) };
-    const started = performance.now(); reader = new SqlitePublicReadOnly(binding, Date.now);
+    const before = {
+      view: footprint(path.dirname(f.paths.view)),
+      backup: footprint(f.paths.backups),
+      source: [f.paths.primary, f.paths.primary + '-wal', f.paths.primary + '-shm'].map((file) =>
+        crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),
+      ),
+    };
+    const started = performance.now();
+    reader = new SqlitePublicReadOnly(binding, Date.now);
     assert.deepEqual(await reader.get(sample.id, ctx), sample);
     const hits = await reader.search({ text: '9999 capacitysample' }, ctx);
-    assert.equal(hits[0].id, sample.id); assert.equal(hits[0].body, sample.body); assert.equal(hits[0].hash, sample.hash);
+    assert.equal(hits[0].id, sample.id);
+    assert.equal(hits[0].body, sample.body);
+    assert.equal(hits[0].hash, sample.hash);
     assert.ok(hits[0].rank < 0 && hits[0].matched! >= 2);
-    for (const note of [f.publicNote, f.secret, f.unknown, f.proposed]) await assert.rejects(reader.get(note.id, { ...ctx, linked: [] }), (e) => e instanceof MemoryError && e.code === 'not_found');
-    assert.deepEqual(await reader.get(f.linked.id, ctx), f.linked); assert.deepEqual(await reader.get(f.shared.id, ctx), f.shared);
+    for (const note of [f.publicNote, f.secret, f.unknown, f.proposed])
+      await assert.rejects(
+        reader.get(note.id, { ...ctx, linked: [] }),
+        (e) => e instanceof MemoryError && e.code === 'not_found',
+      );
+    assert.deepEqual(await reader.get(f.linked.id, ctx), f.linked);
+    assert.deepEqual(await reader.get(f.shared.id, ctx), f.shared);
     assert.deepEqual(await reader.get(f.personal.id, ctx), f.personal);
-    reader.close(); reader = undefined;
+    reader.close();
+    reader = undefined;
     const readMs = performance.now() - started;
-    assert.deepEqual({ view: footprint(path.dirname(f.paths.view)), backup: footprint(f.paths.backups),
-      source: [f.paths.primary, f.paths.primary+'-wal', f.paths.primary+'-shm'].map((file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')) }, before);
+    assert.deepEqual(
+      {
+        view: footprint(path.dirname(f.paths.view)),
+        backup: footprint(f.paths.backups),
+        source: [f.paths.primary, f.paths.primary + '-wal', f.paths.primary + '-shm'].map((file) =>
+          crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),
+        ),
+      },
+      before,
+    );
     let delivered = 0;
     for (const sourceId of [crypto.randomUUID(), floor.sourceId]) {
-      const metricFile = path.join(P.BOSUN, 'metrics.jsonl');
-      const metrics = () => fs.existsSync(metricFile) ? fs.readFileSync(metricFile, 'utf8').trim().split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((r) => r.op === 'hook') : [];
+      publishFixtureHook(f.sb, f.paths, sourceId);
+      const metricFile = path.join(runtimePaths(process.env).home, 'metrics.jsonl');
+      const metrics = () =>
+        fs.existsSync(metricFile)
+          ? fs
+              .readFileSync(metricFile, 'utf8')
+              .trim()
+              .split('\n')
+              .filter(Boolean)
+              .map((line) => JSON.parse(line))
+              .filter((r) => r.op === 'hook')
+          : [];
       const prior = metrics().length;
-      const child = await bosun(['route', '--hook'], { env: f.sb.env({ ROUTER_URL: 'http://127.0.0.1:1', MEMORY_SOURCE_ID: sourceId }), cwd: f.repo,
-        input: JSON.stringify({ prompt: 'Capacity zebra 9999 capacitysample' }) });
-      const ownMetrics = metrics().slice(prior); assert.equal(ownMetrics.length, 1);
-      const observation = hookObservation({ status: child.code, stdout: child.out }, ownMetrics[0]);
-      assert.equal(observation.outcome, sourceId === floor.sourceId ? 'injected' : 'no-memory', child.err);
-      if (observation.outcome === 'injected') { delivered++; assert.match(child.out, new RegExp(sample.id)); assert.match(child.out, /Capacity zebra 9999|capacitysample/); }
-      assert.doesNotMatch(child.out + child.err, /PRIVATE|UNKNOWN|PROPOSED|Session zebra|backup_name|backup_hash/);
+      const child = await bosun(['route', '--hook'], {
+        env: f.sb.env({ ROUTER_URL: 'http://127.0.0.1:1', MEMORY_SOURCE_ID: sourceId }),
+        cwd: f.repo,
+        input: JSON.stringify({ prompt: 'Capacity zebra 9999 capacitysample' }),
+      });
+      const ownMetrics = metrics().slice(prior);
+      assert.equal(ownMetrics.length, 0);
+      assert.equal(child.code, 0, child.err);
+      if (sourceId === floor.sourceId) {
+        const context = JSON.parse(child.out).hookSpecificOutput.additionalContext;
+        delivered++;
+        assert.match(context, new RegExp(sample.id));
+        assert.match(context, /Capacity zebra 9999|capacitysample/);
+      } else assert.equal(child.out, '');
+      assert.doesNotMatch(
+        child.out + child.err,
+        /PRIVATE|UNKNOWN|PROPOSED|Session zebra|backup_name|backup_hash/,
+      );
     }
-    assert.equal(delivered, 1); assert.deepEqual(footprint(path.dirname(f.paths.view)), before.view); assert.deepEqual(footprint(f.paths.backups), before.backup);
-    writer = openLocalMemory(f.cfg); reader = new SqlitePublicReadOnly(binding, Date.now);
-    await assert.rejects(writer.update(sample.id, { private: true }, 1, ctx), (e) => e instanceof MemoryError && e.code === 'unavailable');
-    assert.equal(f.db.prepare('SELECT private FROM memories WHERE id=?').get(sample.id)!.private, 0);
-    assert.equal(viewRows(f.paths.view).state.state, 'READY'); reader.close(); reader = undefined;
-    await writer.update(sample.id, { private: true }, 1, ctx); assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+    assert.equal(delivered, 1);
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), before.view);
+    assert.deepEqual(footprint(f.paths.backups), before.backup);
+    writer = openTestLocalMemory(f.paths);
+    reader = new SqlitePublicReadOnly(binding, Date.now);
+    await assert.rejects(
+      writer.update(sample.id, { private: true }, 1, ctx),
+      writerFailure('busy'),
+    );
+    assert.equal(
+      f.db.prepare('SELECT private FROM memories WHERE id=?').get(sample.id)!.private,
+      0,
+    );
+    assert.equal(viewRows(f.paths.view).state.state, 'READY');
+    reader.close();
+    reader = undefined;
+    await writer.update(sample.id, { private: true }, 1, ctx);
+    assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
     assert.throws(() => new SqlitePublicReadOnly(binding, Date.now), MemoryError);
-    console.log('Public-view capacity qualification:', JSON.stringify({ syntheticRows: PUBLIC_MAX_ROWS, encodedBytes, encodedLimitBytes: PUBLIC_MAX_BYTES,
-      sourceBytes, viewBytes, viewLimitBytes: VIEW_MAX_BYTES, outcome: 'READY', verifiedHookInjections: delivered, scopedReadObservationMs: Number(readMs.toFixed(2)), latencyQualification: 'unqualified' }));
-  } finally { reader?.close(); writer?.close(); f.close(); }
+    console.log(
+      'Public-view capacity qualification:',
+      JSON.stringify({
+        syntheticRows: PUBLIC_MAX_ROWS,
+        encodedBytes,
+        encodedLimitBytes: PUBLIC_MAX_BYTES,
+        sourceBytes,
+        viewBytes,
+        viewLimitBytes: VIEW_MAX_BYTES,
+        outcome: 'READY',
+        verifiedHookInjections: delivered,
+        scopedReadObservationMs: Number(readMs.toFixed(2)),
+        latencyQualification: 'unqualified',
+      }),
+    );
+  } finally {
+    reader?.close();
+    writer?.close();
+    f.close();
+  }
 });
 
 test('public row/encoded/record/physical/source ceilings fail closed without partially publishing or leaking denied data', async () => {
@@ -360,81 +920,190 @@ test('public row/encoded/record/physical/source ceilings fail closed without par
       if (kind === 'rows' || kind === 'encoded') {
         // One native pre-floor fixture transaction keeps negative limit probes small and avoids repeated 10k owner stores.
         const base = f.db.prepare('SELECT * FROM memories WHERE id=?').get(f.publicNote.id)!;
-        const keys = Object.keys(base); const insert = f.db.prepare(`INSERT INTO memories(${keys.join(',')}) VALUES(${keys.map(() => '?').join(',')})`);
+        const keys = Object.keys(base);
+        const insert = f.db.prepare(
+          `INSERT INTO memories(${keys.join(',')}) VALUES(${keys.map(() => '?').join(',')})`,
+        );
         f.db.exec('BEGIN IMMEDIATE');
         try {
           const count = kind === 'rows' ? PUBLIC_MAX_ROWS - 4 : 1450;
           for (let i = 0; i < count; i++) {
-            const title = `Bound zebra ${i}`; const body = kind === 'encoded' ? '漢'.repeat(4000) : 'bounded zebra';
-            const hash = crypto.createHash('sha256').update(norm(`${title}\n${body}`)).digest('hex').slice(0,32);
-            const row: Record<string, any> = { ...base, seq: 100 + i, id: `bounded_${i}`, title, body, hash };
+            const title = `Bound zebra ${i}`;
+            const body = kind === 'encoded' ? '漢'.repeat(4000) : 'bounded zebra';
+            const hash = crypto
+              .createHash('sha256')
+              .update(norm(`${title}\n${body}`))
+              .digest('hex')
+              .slice(0, 32);
+            const row: Record<string, any> = {
+              ...base,
+              seq: 100 + i,
+              id: `bounded_${i}`,
+              title,
+              body,
+              hash,
+            };
             insert.run(...keys.map((key) => row[key]));
           }
           f.db.exec('COMMIT');
-        } catch (e) { f.db.exec('ROLLBACK'); throw e; }
+        } catch (e) {
+          f.db.exec('ROLLBACK');
+          throw e;
+        }
         if (kind === 'encoded') {
-          const publicBytes = f.db.prepare("SELECT * FROM memories WHERE typeof(private)='integer' AND private=0 AND status='active'").all().reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
-          assert.ok(publicBytes > PUBLIC_MAX_BYTES, 'valid multibyte rows exceed encoded aggregate while row count stays below limit');
+          const publicBytes = f.db
+            .prepare(
+              "SELECT * FROM memories WHERE typeof(private)='integer' AND private=0 AND status='active'",
+            )
+            .all()
+            .reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
+          assert.ok(
+            publicBytes > PUBLIC_MAX_BYTES,
+            'valid multibyte rows exceed encoded aggregate while row count stays below limit',
+          );
         }
       }
       if (kind === 'record') {
-        const body = 'z'.repeat(4001); const hash = crypto.createHash('sha256').update(`admission zebra ${body}`).digest('hex').slice(0,32);
-        f.db.prepare('UPDATE memories SET body=?,hash=? WHERE id=?').run(body, hash, f.publicNote.id);
+        const body = 'z'.repeat(4001);
+        const hash = crypto
+          .createHash('sha256')
+          .update(`admission zebra ${body}`)
+          .digest('hex')
+          .slice(0, 32);
+        f.db
+          .prepare('UPDATE memories SET body=?,hash=? WHERE id=?')
+          .run(body, hash, f.publicNote.id);
       }
       const floor = await cutoverMemory(options(f.paths));
-      if (kind === 'encoded') assert.ok(fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary+'-wal').size < 64 * 1024 * 1024, 'encoded limit is reached inside source bounds');
+      if (kind === 'encoded')
+        assert.ok(
+          fs.statSync(f.paths.primary).size + fs.statSync(f.paths.primary + '-wal').size <
+            64 * 1024 * 1024,
+          'encoded limit is reached inside source bounds',
+        );
       if (kind === 'view' || kind === 'source') {
         await publishMemoryView(options(f.paths));
         fs.truncateSync(kind === 'view' ? f.paths.view : f.paths.primary, 64 * 1024 * 1024 + 1);
       }
       const before = footprint(path.dirname(f.paths.view));
-      await assert.rejects(publishMemoryView(options(f.paths)), (e) => e instanceof CutoverError && !/PRIVATE|UNKNOWN|PROPOSED/.test(e.message + JSON.stringify(e)));
-      if (kind === 'view' || kind === 'source') assert.deepEqual(footprint(path.dirname(f.paths.view)), before, 'unqualified oversized artifact is never repaired');
-      else { const publicView = viewRows(f.paths.view); assert.equal(publicView.state.state, 'HOLD'); assert.equal(publicView.memories.length, 0); }
-      assert.throws(() => new SqlitePublicReadOnly({ primary: f.paths.primary, view: f.paths.view, sourceId: floor.sourceId }, Date.now), MemoryError);
-    } finally { f.close(); }
+      await assert.rejects(
+        publishMemoryView(options(f.paths)),
+        (e) =>
+          e instanceof CutoverError &&
+          !/PRIVATE|UNKNOWN|PROPOSED/.test(e.message + JSON.stringify(e)),
+      );
+      if (kind === 'view' || kind === 'source')
+        assert.deepEqual(
+          footprint(path.dirname(f.paths.view)),
+          before,
+          'unqualified oversized artifact is never repaired',
+        );
+      else {
+        const publicView = viewRows(f.paths.view);
+        assert.equal(publicView.state.state, 'HOLD');
+        assert.equal(publicView.memories.length, 0);
+      }
+      assert.throws(
+        () =>
+          new SqlitePublicReadOnly(
+            { primary: f.paths.primary, view: f.paths.view, sourceId: floor.sourceId },
+            Date.now,
+          ),
+        MemoryError,
+      );
+    } finally {
+      f.close();
+    }
   }
 });
 
 test('publication pre-READY failures/backward or invalid clocks and delivery-crossing expiry remain HOLD with finite errors', async () => {
   for (const kind of ['callback', 'backward', 'invalid', 'expired']) {
-    const f = await fixture({ expired: false }); let now = Date.now();
+    const f = await fixture({ expired: false });
+    let now = Date.now();
     try {
-      await assert.rejects(publishMemoryView({ ...options(f.paths), now: () => now, checkpoint(phase) {
-        if (phase !== 'ready') return;
-        if (kind === 'callback') throw new Proxy({}, { getPrototypeOf() { throw Error('PRIVATE prototype canary'); }, get() { throw Error('PRIVATE getter canary'); } });
-        if (kind === 'backward') now--;
-        if (kind === 'invalid') now = 'PRIVATE clock canary' as any;
-        if (kind === 'expired') now = f.session.expiresAt! + 1;
-      } }), (e: unknown) => { assert.ok(e instanceof CutoverError); assert.doesNotMatch(e.message + JSON.stringify(e), /PRIVATE/); return true; });
-      assert.equal(viewRows(f.paths.view).state.state, 'HOLD'); assert.equal(viewRows(f.paths.view).memories.length, 0);
+      await assert.rejects(
+        publishMemoryView({
+          ...options(f.paths),
+          now: () => now,
+          checkpoint(phase) {
+            if (phase !== 'ready') return;
+            if (kind === 'callback')
+              throw new Proxy(
+                {},
+                {
+                  getPrototypeOf() {
+                    throw Error('PRIVATE prototype canary');
+                  },
+                  get() {
+                    throw Error('PRIVATE getter canary');
+                  },
+                },
+              );
+            if (kind === 'backward') now--;
+            if (kind === 'invalid') now = 'PRIVATE clock canary' as any;
+            if (kind === 'expired') now = f.session.expiresAt! + 1;
+          },
+        }),
+        (e: unknown) => {
+          assert.ok(e instanceof CutoverError);
+          assert.doesNotMatch(e.message + JSON.stringify(e), /PRIVATE/);
+          return true;
+        },
+      );
+      assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
+      assert.equal(viewRows(f.paths.view).memories.length, 0);
       await publishMemoryView(options(f.paths));
-    } finally { f.close(); }
+    } finally {
+      f.close();
+    }
   }
 });
 
 test('post-READY native close failures re-HOLD if possible or report unknown receipt while a real lease blocks re-HOLD', async () => {
   for (const obstruct of [false, true]) {
-    const f = await fixture({ expired: false }); const close = DatabaseSync.prototype.close;
-    let fail = true; let lease: DatabaseSync | undefined;
+    const f = await fixture({ expired: false });
+    const close = SqliteDatabase.prototype.close;
+    let fail = true;
+    let lease: SqliteDatabase | undefined;
     try {
-      DatabaseSync.prototype.close = function () {
-        if (fail && this.prepare("SELECT 1 FROM sqlite_master WHERE name='bosun_public_state'").get()) {
+      SqliteDatabase.prototype.close = function () {
+        if (
+          fail &&
+          this.prepare("SELECT 1 FROM sqlite_master WHERE name='bosun_public_state'").get()
+        ) {
           fail = false;
-          if (obstruct) { lease = new DatabaseSync(f.paths.view, { readOnly: true }); lease.exec('BEGIN'); lease.prepare('SELECT * FROM public_memories').all(); }
+          if (obstruct) {
+            lease = new SqliteDatabase(f.paths.view, { readOnly: true });
+            lease.exec('BEGIN');
+            lease.prepare('SELECT * FROM public_memories').all();
+          }
           throw Error('PRIVATE close canary');
         }
         return close.call(this);
       };
       await assert.rejects(publishMemoryView(options(f.paths)), (e: unknown) => {
-        assert.ok(e instanceof CutoverError); assert.equal(e.reason, obstruct ? 'receipt_unknown' : 'storage');
-        if (obstruct) assert.deepEqual(e.details, { currentVersion: undefined, outcome: 'unknown' }); assert.doesNotMatch(e.message, /PRIVATE/); return true;
+        assert.ok(e instanceof CutoverError);
+        assert.equal(e.reason, obstruct ? 'receipt_unknown' : 'storage');
+        if (obstruct)
+          assert.deepEqual(e.details, { currentVersion: undefined, outcome: 'unknown' });
+        assert.doesNotMatch(e.message, /PRIVATE/);
+        return true;
       });
-      DatabaseSync.prototype.close = close;
+      SqliteDatabase.prototype.close = close;
       assert.equal(viewRows(f.paths.view).state.state, obstruct ? 'READY' : 'HOLD');
-      if (lease) { lease.exec('ROLLBACK'); lease.close(); lease = undefined; }
-      await publishMemoryView(options(f.paths)); assert.equal(viewRows(f.paths.view).state.state, 'READY');
-    } finally { DatabaseSync.prototype.close = close; lease?.close(); f.close(); }
+      if (lease) {
+        lease.exec('ROLLBACK');
+        lease.close();
+        lease = undefined;
+      }
+      await publishMemoryView(options(f.paths));
+      assert.equal(viewRows(f.paths.view).state.state, 'READY');
+    } finally {
+      SqliteDatabase.prototype.close = close;
+      lease?.close();
+      f.close();
+    }
   }
 });
 
@@ -442,17 +1111,48 @@ test('publication rejects malformed public hashes/content and unknown/private fl
   for (const kind of ['hash', 'tags', 'version', 'view', 'schema', 'backup']) {
     const f = await fixture({ expired: false, floor: false });
     try {
-      if (kind === 'hash') f.db.prepare("UPDATE memories SET hash='PRIVATE derivative canary' WHERE id=?").run(f.publicNote.id);
-      if (kind === 'tags') f.db.prepare("UPDATE memories SET tags='[\"PRIVATE malformed tag\"]' WHERE id=?").run(f.publicNote.id);
-      if (kind === 'version') f.db.prepare("UPDATE memories SET version='PRIVATE version canary' WHERE id=?").run(f.publicNote.id);
+      if (kind === 'hash')
+        f.db
+          .prepare("UPDATE memories SET hash='PRIVATE derivative canary' WHERE id=?")
+          .run(f.publicNote.id);
+      if (kind === 'tags')
+        f.db
+          .prepare('UPDATE memories SET tags=\'["PRIVATE malformed tag"]\' WHERE id=?')
+          .run(f.publicNote.id);
+      if (kind === 'version')
+        f.db
+          .prepare("UPDATE memories SET version='PRIVATE version canary' WHERE id=?")
+          .run(f.publicNote.id);
       await cutoverMemory(options(f.paths));
-      if (kind === 'view') { const bytes = fs.readFileSync(f.paths.view); fs.renameSync(f.paths.view, f.paths.view + '.old'); fs.writeFileSync(f.paths.view, bytes, { mode: 0o600 }); }
-      if (kind === 'schema') { const view = new DatabaseSync(f.paths.view); try { view.exec('CREATE TABLE unrelated(value TEXT)'); } finally { view.close(); } }
-      if (kind === 'backup') fs.appendFileSync(path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]), 'PRIVATE tamper');
+      if (kind === 'view') {
+        const bytes = fs.readFileSync(f.paths.view);
+        fs.renameSync(f.paths.view, f.paths.view + '.old');
+        fs.writeFileSync(f.paths.view, bytes, { mode: 0o600 });
+      }
+      if (kind === 'schema') {
+        const view = new SqliteDatabase(f.paths.view);
+        try {
+          view.exec('CREATE TABLE unrelated(value TEXT)');
+        } finally {
+          view.close();
+        }
+      }
+      if (kind === 'backup')
+        fs.appendFileSync(
+          path.join(f.paths.backups, fs.readdirSync(f.paths.backups)[0]),
+          'PRIVATE tamper',
+        );
       const before = footprint(path.dirname(f.paths.view));
-      await assert.rejects(publishMemoryView(options(f.paths)), (e: unknown) => { assert.ok(e instanceof CutoverError); assert.doesNotMatch(e.message, /PRIVATE/); return true; });
-      if (['view', 'schema', 'backup'].includes(kind)) assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
+      await assert.rejects(publishMemoryView(options(f.paths)), (e: unknown) => {
+        assert.ok(e instanceof CutoverError);
+        assert.doesNotMatch(e.message, /PRIVATE/);
+        return true;
+      });
+      if (['view', 'schema', 'backup'].includes(kind))
+        assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
       else assert.equal(viewRows(f.paths.view).state.state, 'HOLD');
-    } finally { f.close(); }
+    } finally {
+      f.close();
+    }
   }
 });

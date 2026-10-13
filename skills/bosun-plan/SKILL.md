@@ -22,4 +22,4 @@ description: Use when a design is approved or a goal is already clear and needs 
    - **tester** writes the tests for another task; put it first for TDD.
    - **main** is risk high (payments, orders, invoices, auth, data, infra) or can't be fully specified.
 4. Order the tasks so each verify can pass on its own. Mark the groups that are independent, for bosun-parallel.
-5. `bosun card in-progress "plan ready (<n> tasks)"`. Show the tasks, one line each, and continue with **bosun-build** unless the user wants changes.
+5. From an owner session inside Orca: `bosun card in-progress "plan ready (<n> tasks)" --public --request-id <checkpoint-id>`. Show the tasks, one line each, and continue with **bosun-build** unless the user wants changes.

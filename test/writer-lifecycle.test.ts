@@ -5,379 +5,1032 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import http from 'node:http';
-import { spawn } from 'node:child_process';
-import { DatabaseSync } from 'node:sqlite';
-import { sandbox, fresh, gitRepo, bosun, mcpSession, BIN } from './helpers.ts';
-import { load, P } from '../lib/config.ts';
-import { MemoryService, openMemory, openLocalMemory } from '../lib/memory/service.ts';
-import { Docs } from '../lib/memory/docs.ts';
-import { openDb, openLocalSqlite, writerPaths, inspectMemorySchema } from '../lib/memory/sqlite.ts';
-import { MemoryError, type Ctx, type Memory } from '../lib/memory/types.ts';
-import { project } from '../lib/memory/project.ts';
-import { main as serveMain } from '../lib/serve.ts';
-import { cutoverMemory, CutoverWriter, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
-import { footprint } from './read-view-prototype.ts';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
+import { sandbox, fresh, gitRepo, bosun, mcpSession } from './helpers.ts';
+import { createTestMemoryStore, openSchemaOneMemory, openTestLocalMemory, prepareTestRuntime, testCutoverPaths } from './memory-store-fixture.ts';
+import { MemoryError } from '../src/core/errors.ts';
+import type { Ctx } from '../src/core/domain/memory.ts';
+import { memoryLifecycleFixture, completedMemoryJob } from './memory-lifecycle-fixture.ts';
+import { remoteFixture } from './remote-fixture.ts';
+import { BosunError } from '../src/core/errors.ts';
+import { project } from '../src/platform/project.ts';
+import { startDaemon } from '../src/app/daemon.ts';
+import {
+  cutoverMemory,
+  CutoverWriter,
+  CutoverError,
+  type CutoverPaths,
+} from '../src/adapters/memory/sqlite-cutover.ts';
 
 const DAY = 86400000;
 const domain = (code: string) => (e: unknown) => e instanceof MemoryError && e.code === code;
+const writerBusy = (e: unknown) =>
+  e instanceof CutoverError && e.code === 'unavailable' && e.reason === 'busy' &&
+  e.message === 'memory cutover unavailable (busy)' && e.cause === undefined;
 function storageTree(file: string): unknown {
   const stat = fs.lstatSync(file, { bigint: true });
-  return { mode: String(stat.mode), ino: String(stat.ino), size: String(stat.size), mtime: String(stat.mtimeNs), ctime: String(stat.ctimeNs),
-    ...(stat.isDirectory() ? { entries: Object.fromEntries(fs.readdirSync(file).sort().map((name) => [name, storageTree(path.join(file, name))])) }
-      : { hash: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') }) };
+  return {
+    mode: String(stat.mode),
+    ino: String(stat.ino),
+    size: String(stat.size),
+    mtime: String(stat.mtimeNs),
+    ctime: String(stat.ctimeNs),
+    ...(stat.isDirectory()
+      ? {
+          entries: Object.fromEntries(
+            fs
+              .readdirSync(file)
+              .sort()
+              .map((name) => [name, storageTree(path.join(file, name))]),
+          ),
+        }
+      : { hash: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') }),
+  };
 }
 async function fixture({ override = false, floor = true } = {}) {
-  const sb = sandbox(); fresh(sb);
-  const cfg = load();
+  const sb = sandbox();
+  fresh(sb);
+  const runtime = prepareTestRuntime();
   // Explicit preparation of synthetic permissions, never a runtime chmod/adoption.
-  fs.chmodSync(P.BOSUN, 0o700);
   const repo = gitRepo(sb, 'writer-repo', 'git@github.com:org/writer-repo.git');
   const ctx: Ctx = { projectId: project(repo).id, sessionId: 's_a', linked: [], source: 'test' };
-  if (override) {
-    cfg.MEMORY_VIEW_PATH = path.join(sb.root, 'chosen-view', 'chosen.db');
-    cfg.MEMORY_BACKUP_DIR = path.join(sb.root, 'chosen-backups');
-  }
-  const paths = writerPaths(P.DB, cfg);
-  fs.mkdirSync(path.dirname(paths.view), { mode: 0o700 }); fs.mkdirSync(paths.backups, { mode: 0o700 });
-  const db = openDb(P.DB); const old = new MemoryService(db, cfg);
-  const publicNote = (await old.store({ category: 'project', title: 'Admission zebra', body: 'Admission zebra public body', tags: ['zebra'] }, ctx)).memory;
-  const privateNote = (await old.store({ category: 'personal', title: 'PRIVATE title canary', body: 'PRIVATE body canary', tags: ['private-tag'], private: true, source: 'PRIVATE source canary', sourceRef: 'PRIVATE ref canary' }, ctx)).memory;
-  const expired = (await old.store({ category: 'session', title: 'Expired constructor', body: 'Expired body', ttlDays: 1 }, ctx)).memory;
+  const defaults = testCutoverPaths(runtime);
+  const paths: CutoverPaths = override ? { ...defaults, view: path.join(sb.root, 'chosen-view', 'chosen.db'), backups: path.join(sb.root, 'chosen-backups') } : defaults;
+  fs.mkdirSync(path.dirname(paths.view), { mode: 0o700 });
+  fs.mkdirSync(paths.backups, { mode: 0o700 });
+  const db = openSchemaOneMemory(paths.primary);
+  const old = createTestMemoryStore(db);
+  const publicNote = (
+    await old.store(
+      {
+        category: 'project',
+        title: 'Admission zebra',
+        body: 'Admission zebra public body',
+        tags: ['zebra'],
+      },
+      ctx,
+    )
+  ).memory;
+  const privateNote = (
+    await old.store(
+      {
+        category: 'personal',
+        title: 'PRIVATE title canary',
+        body: 'PRIVATE body canary',
+        tags: ['private-tag'],
+        private: true,
+        source: 'PRIVATE source canary',
+        sourceRef: 'PRIVATE ref canary',
+      },
+      ctx,
+    )
+  ).memory;
+  const expired = (
+    await old.store(
+      { category: 'session', title: 'Expired constructor', body: 'Expired body', ttlDays: 1 },
+      ctx,
+    )
+  ).memory;
   db.prepare('UPDATE memories SET expires_at=? WHERE id=?').run(Date.now() - 1, expired.id);
   if (floor) await cutoverMemory({ paths, now: Date.now, id: crypto.randomUUID });
-  return { sb, cfg, repo, ctx, paths, db, old, publicNote, privateNote, expired,
-    env(extra: Record<string, string> = {}) { return sb.env({ MEMORY_VIEW_PATH: cfg.MEMORY_VIEW_PATH, MEMORY_BACKUP_DIR: cfg.MEMORY_BACKUP_DIR, ...extra }); },
-    generation() { return Number(db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation); },
-    close() { old.close(); sb.cleanup(); } };
+  return {
+    sb,
+    repo,
+    ctx,
+    paths,
+    db,
+    old,
+    publicNote,
+    privateNote,
+    expired,
+    generation() {
+      return Number(db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation);
+    },
+    close() {
+      old.close();
+      sb.cleanup();
+    },
+  };
 }
 
-test('registered real store covers constructor expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit', async () => {
-  const f = await fixture(); let local: MemoryService | undefined;
+test('registered real store covers explicit expiry, reads/touch, mutations, scopes, versions, dedupe and retained audit', async () => {
+  const f = await fixture();
+  let local: ReturnType<typeof openTestLocalMemory> | undefined;
   try {
-    local = openLocalMemory(f.cfg);
-    assert.throws(() => local!.db, domain('unavailable'), 'registered native handles do not escape');
+    local = openTestLocalMemory(f.paths);
+    assert.equal(local.expire(), 1, 'expiry is explicit and admitted by the registered writer');
+    assert.throws(
+      () => local!.db,
+      domain('unavailable'),
+      'registered native handles do not escape',
+    );
     const expired = await local.get(f.expired.id, f.ctx, { events: true });
-    assert.equal(expired.status, 'archived'); assert.equal(expired.version, 2); assert.deepEqual(expired.events!.map((e) => e.op), ['store', 'expire']);
-    assert.equal(f.generation(), 2, 'constructor expiry event and row are both admitted');
-    assert.deepEqual(await local.get(f.privateNote.id, f.ctx), f.privateNote, 'owner retains private fields/IDs');
-    await assert.rejects(local.get(f.publicNote.id, { ...f.ctx, projectId: 'p_other' }), domain('not_found'));
+    assert.equal(expired.status, 'archived');
+    assert.equal(expired.version, 2);
+    assert.deepEqual(
+      expired.events!.map((e) => e.op),
+      ['store', 'expire'],
+    );
+    assert.equal(f.generation(), 2, 'expiry event and row are both admitted');
+    assert.deepEqual(
+      await local.get(f.privateNote.id, f.ctx),
+      f.privateNote,
+      'owner retains private fields/IDs',
+    );
+    await assert.rejects(
+      local.get(f.publicNote.id, { ...f.ctx, projectId: 'p_other' }),
+      domain('not_found'),
+    );
     const prior = f.generation();
     assert.equal((await local.search({ text: 'admission zebra' }, f.ctx)).length, 1);
-    assert.equal((await local.get(f.publicNote.id, f.ctx)).accessCount, 1); assert.equal(f.generation(), prior + 1);
-    const duplicate = await local.store({ category: 'project', title: 'ADMISSION ZEBRA', body: 'admission zebra public body' }, f.ctx);
-    assert.equal(duplicate.duplicate, true); assert.equal(duplicate.memory.id, f.publicNote.id); assert.equal(f.generation(), prior + 1);
-    await assert.rejects(local.update(f.publicNote.id, { body: 'no conflict write' }, 99, f.ctx), (e: unknown) => {
-      assert.ok(e instanceof MemoryError); assert.equal(e.code, 'conflict'); assert.equal(e.current, 1); return true;
-    });
+    assert.equal((await local.get(f.publicNote.id, f.ctx)).accessCount, 0, 'search is read-only');
+    local.touch([f.publicNote.id]);
+    assert.equal((await local.get(f.publicNote.id, f.ctx)).accessCount, 1);
+    assert.equal(f.generation(), prior + 1);
+    const duplicate = await local.store(
+      { category: 'project', title: 'ADMISSION ZEBRA', body: 'admission zebra public body' },
+      f.ctx,
+    );
+    assert.equal(duplicate.duplicate, true);
+    assert.equal(duplicate.memory.id, f.publicNote.id);
+    assert.equal(f.generation(), prior + 1);
+    await assert.rejects(
+      local.update(f.publicNote.id, { body: 'no conflict write' }, 99, f.ctx),
+      (e: unknown) => {
+        assert.ok(e instanceof MemoryError);
+        assert.equal(e.code, 'conflict');
+        assert.equal(e.current, 1);
+        return true;
+      },
+    );
     await assert.rejects(local.purge(f.publicNote.id, f.ctx), domain('invalid'));
-    const updated = await local.update(f.publicNote.id, { body: 'updated admission zebra', shared: true }, 1, f.ctx);
-    assert.equal(updated.version, 2); assert.notEqual(updated.hash, f.publicNote.hash);
+    const updated = await local.update(
+      f.publicNote.id,
+      { body: 'updated admission zebra', shared: true },
+      1,
+      f.ctx,
+    );
+    assert.equal(updated.version, 2);
+    assert.notEqual(updated.hash, f.publicNote.hash);
     assert.equal((await local.get(updated.id, { ...f.ctx, projectId: 'p_other' })).id, updated.id);
-    await assert.rejects(local.update(updated.id, { body: 'wrong project' }, 2, { ...f.ctx, projectId: 'p_other' }), domain('invalid'));
-    const proposal = (await local.store({ category: 'project', title: 'Accept me', body: 'accept proposal', status: 'proposed' }, f.ctx)).memory;
+    await assert.rejects(
+      local.update(updated.id, { body: 'wrong project' }, 2, { ...f.ctx, projectId: 'p_other' }),
+      domain('invalid'),
+    );
+    const proposal = (
+      await local.store(
+        { category: 'project', title: 'Accept me', body: 'accept proposal', status: 'proposed' },
+        f.ctx,
+      )
+    ).memory;
     assert.equal((await local.accept(proposal.id, f.ctx)).status, 'active');
-    const rejected = (await local.store({ category: 'project', title: 'Reject me', body: 'reject proposal', status: 'proposed' }, f.ctx)).memory;
+    const rejected = (
+      await local.store(
+        { category: 'project', title: 'Reject me', body: 'reject proposal', status: 'proposed' },
+        f.ctx,
+      )
+    ).memory;
     assert.equal((await local.reject(rejected.id, f.ctx)).status, 'archived');
-    await local.purge(rejected.id, f.ctx); await assert.rejects(local.get(rejected.id, f.ctx), domain('not_found'));
-    assert.deepEqual(f.db.prepare('SELECT op FROM memory_events WHERE memory_id=? ORDER BY id').all(rejected.id).map((r) => r.op), ['propose', 'reject', 'purge']);
-    const archived = await local.delete(updated.id, f.ctx); assert.equal(archived.status, 'archived');
+    await local.purge(rejected.id, f.ctx);
+    await assert.rejects(local.get(rejected.id, f.ctx), domain('not_found'));
+    assert.deepEqual(
+      f.db
+        .prepare('SELECT op FROM memory_events WHERE memory_id=? ORDER BY id')
+        .all(rejected.id)
+        .map((r) => r.op),
+      ['propose', 'reject', 'purge'],
+    );
+    const archived = await local.delete(updated.id, f.ctx);
+    assert.equal(archived.status, 'archived');
     assert.equal((await local.delete(updated.id, f.ctx)).version, archived.version);
-    local.close(); local = undefined;
-    const reopened = openMemory(f.cfg);
-    try { assert.equal((await reopened.get(f.privateNote.id, f.ctx)).body, f.privateNote.body); } finally { reopened.close(); }
-    assert.throws(() => f.db.prepare("UPDATE memories SET private=1 WHERE id=?").run(f.privateNote.id), /no such function/);
-    await assert.rejects(f.old.store({ category: 'personal', title: 'Old writer', body: 'must fail' }, f.ctx), /no such function/);
-  } finally { local?.close(); f.close(); }
-});
-
-test('registered long-lived get/search expiry and prune use synchronous admission, preserving archive/purge events', async () => {
-  const f = await fixture(); const local = openLocalMemory(f.cfg); const now = Date.now;
-  try {
-    const a = (await local.store({ category: 'session', title: 'Get expiry', body: 'get expiry words', ttlDays: 1 }, f.ctx)).memory;
-    const b = (await local.store({ category: 'session', title: 'Search expiry', body: 'search expiry words', ttlDays: 2 }, f.ctx)).memory;
-    Date.now = () => a.createdAt + DAY + 1;
-    assert.equal((await local.get(a.id, f.ctx)).status, 'archived');
-    Date.now = () => b.createdAt + 2 * DAY + 1;
-    assert.deepEqual(await local.search({ text: 'search expiry words', touch: false }, f.ctx), []);
-    Date.now = now;
-    const r = local.prune(now() + 200 * DAY); assert.ok(r.purged >= 3);
-    assert.deepEqual(f.db.prepare('SELECT op FROM memory_events WHERE memory_id=? ORDER BY id').all(b.id).map((r) => r.op), ['store', 'expire', 'purge']);
-    assert.equal(f.db.prepare('SELECT 1 FROM memories WHERE id=?').get(b.id), undefined);
-  } finally { Date.now = now; local.close(); f.close(); }
-});
-
-test('registered docs indexes insert/update/delete with FTS and owns a private close lifecycle', async () => {
-  const f = await fixture(); const docs = new Docs(openLocalSqlite(f.paths.primary, f.cfg), f.repo, f.ctx.projectId!);
-  const file = path.join(f.repo, 'guide.md');
-  try {
-    assert.throws(() => docs.db, domain('unavailable'));
-    fs.writeFileSync(file, '# Admission zebra\nAdmission zebra docs.');
-    assert.deepEqual(docs.index(), { changed: 1, removed: 0 }); const before = f.generation();
-    assert.equal((await docs.search('admission zebra', f.ctx, 10))[0].id, 'guide.md');
-    fs.writeFileSync(file, '# Revised zebra\nRevised zebra docs.'); fs.utimesSync(file, new Date(), new Date(Date.now() + 1000));
-    assert.deepEqual(docs.index(), { changed: 1, removed: 0 }); assert.equal(f.generation(), before + 2, 'UPSERT fires both admitted INSERT and UPDATE triggers');
-    assert.equal((await docs.search('revised zebra', f.ctx, 10)).length, 1);
-    fs.unlinkSync(file); assert.deepEqual(docs.index(), { changed: 0, removed: 1 }); assert.equal(f.generation(), before + 3);
-    assert.deepEqual(await docs.search('zebra', f.ctx, 10), []);
-  } finally { docs.close(); f.close(); }
-});
-
-test('registered owner CLI uses loaded path overrides and retains private reads, mutation and purge', async () => {
-  const f = await fixture({ override: true });
-  try {
-    const env = f.env(); fresh(f.sb, { MEMORY_VIEW_PATH: f.paths.view, MEMORY_BACKUP_DIR: f.paths.backups });
-    assert.equal(load().MEMORY_VIEW_PATH, f.paths.view); assert.equal(load().MEMORY_BACKUP_DIR, f.paths.backups);
-    const got = await bosun(['memory', 'get', f.privateNote.id, '--json'], { env, cwd: f.repo }); assert.equal(got.code, 0, got.err);
-    assert.equal(JSON.parse(got.out).body, f.privateNote.body);
-    const add = await bosun(['memory', 'add', '-c', 'personal', '--private', '--auto', '-t', 'Owner override', 'PRIVATE CLI body'], { env, cwd: f.repo });
-    assert.equal(add.code, 0, add.err); const id = add.out.match(/stored (m_\w+)/)![1];
-    for (const args of [['update', id, '-b', 'PRIVATE changed body'], ['delete', id], ['purge', id]]) {
-      const r = await bosun(['memory', ...args], { env, cwd: f.repo }); assert.equal(r.code, 0, r.err);
-    }
-    assert.equal(f.db.prepare('SELECT 1 FROM memories WHERE id=?').get(id), undefined);
-    assert.equal(f.sb.calls().filter((c) => ['claude', 'codex', 'ollama'].includes(c.bin)).length, 0, 'private auto causes no model/host calls');
-  } finally { f.close(); }
-});
-
-for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI unshares with owner/linked access, audit parity and early conflict rejection`, async () => {
-  const f = await fixture({ override: floor, floor });
-  try {
-    const local = openLocalMemory(f.cfg);
-    const shared = await local.update(f.publicNote.id, { shared: true }, 1, f.ctx);
     local.close();
-    const other = gitRepo(f.sb, 'other-repo', 'git@github.com:org/other-repo.git');
-    const env = f.env();
-    const cross = await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: other }); assert.equal(cross.code, 0, cross.err);
-    const changed = await bosun(['memory', 'update', shared.id, '--unshared'], { env, cwd: f.repo }); assert.equal(changed.code, 0, changed.err);
-    const owner = await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: f.repo }); assert.equal(owner.code, 0, owner.err);
-    const unshared = JSON.parse(owner.out);
-    assert.equal(unshared.shared, false); assert.equal(unshared.version, 3);
-    for (const key of ['id', 'hash', 'createdAt', 'expiresAt', 'source', 'sourceRef', 'body', 'title', 'tags', 'private', 'projectId', 'sessionId', 'accessCount', 'accessedAt'] as const) assert.deepEqual(unshared[key], shared[key], key);
-    assert.deepEqual(unshared.events.map((e: any) => e.op), ['store', 'update', 'update']);
-    assert.equal(unshared.events.at(-1).source, 'cli'); assert.equal(unshared.events.at(-1).hashBefore, shared.hash); assert.equal(unshared.events.at(-1).hashAfter, shared.hash);
-    assert.equal((await bosun(['memory', 'get', shared.id, '--json'], { env, cwd: other })).code, 1);
-    const linked = openLocalMemory(f.cfg);
+    local = undefined;
+    const reopened = openTestLocalMemory(f.paths);
     try {
-      assert.equal((await linked.get(shared.id, { ...f.ctx, projectId: project(other).id, linked: [f.ctx.projectId!] })).id, shared.id);
-      assert.deepEqual(await linked.search({ text: 'admission zebra', touch: false }, { ...f.ctx, projectId: project(other).id, linked: [] }), []);
-    } finally { linked.close(); }
-    const add = await bosun(['memory', 'add', '--unshared', '-t', 'Unshared creation', 'Unshared creation body'], { env, cwd: f.repo }); assert.equal(add.code, 0, add.err);
-    const id = add.out.match(/stored (m_\w+)/)![1]; assert.equal(f.db.prepare('SELECT shared FROM memories WHERE id=?').get(id)!.shared, 0);
-    const help = await bosun(['memory', 'help'], { env, cwd: f.repo }); assert.match(help.out, /--shared\|--unshared/);
-    const state = () => ({ memories: f.db.prepare('SELECT * FROM memories ORDER BY seq').all(), events: f.db.prepare('SELECT * FROM memory_events ORDER BY id').all(), generation: floor ? f.generation() : 0 });
-    const before = state(); const files = [storageTree(path.dirname(f.paths.primary)), storageTree(path.dirname(f.paths.view)), storageTree(f.paths.backups)]; f.sb.reset();
-    for (const args of [['update', id, '--shared', '--unshared', '-f', path.join(f.sb.root, 'does-not-exist')], ['add', '--unshared', '--shared', '--auto', 'SHARING-CONFLICT-CANARY']]) {
-      const result = await bosun(['memory', ...args], { env, cwd: f.repo }); assert.equal(result.code, 2, result.err); assert.match(result.err, /--shared.*--unshared|--unshared.*--shared/);
-      assert.deepEqual(state(), before); assert.deepEqual([storageTree(path.dirname(f.paths.primary)), storageTree(path.dirname(f.paths.view)), storageTree(f.paths.backups)], files);
+      assert.equal((await reopened.get(f.privateNote.id, f.ctx)).body, f.privateNote.body);
+    } finally {
+      reopened.close();
     }
-    assert.deepEqual(f.sb.calls(), [], 'conflicting sharing flags precede project discovery, IO, model and database effects');
-    const stale = await bosun(['memory', 'update', id, '--shared', '--version', '99'], { env, cwd: f.repo });
-    assert.equal(stale.code, 1, stale.err); assert.match(stale.err, /version conflict/); assert.deepEqual(state(), before);
-  } finally { f.close(); }
-});
-
-for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI unsharing preserves a malformed private flag and owner-only content`, async () => {
-  const f = await fixture({ override: floor, floor });
-  try {
-    const id = f.privateNote.id; const env = f.env();
-    const plainFlags = openLocalSqlite(f.paths.primary, f.cfg);
-    plainFlags.transaction((db) => db.prepare('UPDATE memories SET private=?,shared=? WHERE id=?').run('false', 1, id)); plainFlags.close();
-    const protectedUpdate = await bosun(['memory', 'update', id, '--unshared'], { env, cwd: f.repo }); assert.equal(protectedUpdate.code, 0, protectedUpdate.err);
-    assert.deepEqual({ ...f.db.prepare('SELECT private,shared FROM memories WHERE id=?').get(id) }, { private: 'false', shared: 0 });
-    const privateGet = await bosun(['memory', 'get', id, '--json'], { env, cwd: f.repo }); assert.equal(JSON.parse(privateGet.out).body, f.privateNote.body);
-  } finally { f.close(); }
-});
-
-for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real owner CLI status-only restores use post-maintenance versions and survive fresh get/reopen`, async () => {
-  const f = await fixture({ override: floor, floor });
-  try {
-    const env = f.env(); const id = f.expired.id;
-    const restore = await bosun(['memory', 'update', id, '--status', 'active'], { env, cwd: f.repo }); assert.equal(restore.code, 0, restore.err);
-    const stored = f.db.prepare('SELECT * FROM memories WHERE id=?').get(id)!;
-    assert.equal(stored.status, 'active'); assert.equal(stored.version, 3, 'constructor archives expired v1; default get obtains v2 before restore');
-    assert.equal(stored.expires_at, Number(stored.updated_at) + Number(f.cfg.MEMORY_SESSION_TTL_DAYS) * DAY);
-    assert.equal(stored.id, id); assert.equal(stored.hash, f.expired.hash); assert.equal(stored.created_at, f.expired.createdAt); assert.equal(stored.source, f.expired.source);
-    const got = await bosun(['memory', 'get', id, '--json'], { env, cwd: f.repo }); assert.equal(got.code, 0, got.err);
-    const inspected = JSON.parse(got.out); assert.equal(inspected.status, 'active'); assert.equal(inspected.version, 3); assert.equal(inspected.expiresAt, stored.expires_at);
-    assert.deepEqual(inspected.events.map((e: any) => e.op), ['store', 'expire', 'restore']); assert.equal(inspected.events.at(-1).source, 'cli'); assert.equal(inspected.events.at(-1).at, stored.updated_at);
-    const stale = await bosun(['memory', 'update', id, '--status', 'archived', '--version', '2'], { env, cwd: f.repo }); assert.equal(stale.code, 1, stale.err);
-    for (const status of ['proposed', 'unknown']) {
-      const bad = await bosun(['memory', 'update', id, '--status', status], { env, cwd: f.repo }); assert.equal(bad.code, 1, bad.err); assert.match(bad.err, /status.*must be one of/);
-      assert.deepEqual(f.db.prepare('SELECT * FROM memories WHERE id=?').get(id), stored); assert.equal(f.db.prepare('SELECT COUNT(*) AS n FROM memory_events WHERE memory_id=?').get(id)!.n, 3);
-    }
-    const reopened = openLocalMemory(f.cfg);
-    try {
-      assert.equal((await reopened.get(id, f.ctx)).status, 'active');
-      assert.equal(reopened.expire(Number(stored.expires_at) - 1), 0); assert.equal(reopened.expire(Number(stored.expires_at)), 1);
-      const after = await reopened.get(id, f.ctx, { events: true }); assert.equal(after.status, 'archived'); assert.equal(after.version, 4);
-      assert.deepEqual(after.events!.map((e) => e.op), ['store', 'expire', 'restore', 'expire']); assert.equal(after.events!.at(-1)!.at, stored.expires_at);
-    } finally { reopened.close(); }
-  } finally { f.close(); }
-});
-
-for (const floor of [false, true]) test(`${floor ? 'registered' : 'plain'} real stdio MCP restores expired public/private/malformed session notes and unshares without payload leaks`, async () => {
-  const f = await fixture({ override: floor, floor }); let session: ReturnType<typeof mcpSession> | undefined;
-  try {
-    const local = openLocalMemory(f.cfg);
-    const notes: { note: Memory; flag: number | string; archived: Memory }[] = [];
-    for (const [i, flag] of [0, 1, 'false'].entries()) {
-      const note = (await local.store({ category: 'session', title: `Restore session ${i}`, body: `RESTORE-PRIVATE-CANARY-${i}`, source: 'restore-source', sourceRef: 'restore-ref', shared: true }, f.ctx)).memory;
-      notes.push({ note, flag, archived: await local.delete(note.id, f.ctx) });
-    }
-    local.close();
-    const injected = openLocalSqlite(f.paths.primary, f.cfg);
-    injected.transaction((db) => {
-      for (const { note, flag } of notes) db.prepare('UPDATE memories SET private=?,expires_at=? WHERE id=?').run(flag, Date.now() - 1, note.id);
-    }); injected.close();
-    session = mcpSession(f.env(), f.repo); let rpc = 0;
-    for (const { note, flag, archived } of notes) {
-      const before = floor ? f.generation() : 0;
-      const reply = await session.call('memory_update', { id: note.id, expectedVersion: archived.version, status: 'active', shared: false });
-      assert.equal(reply.result.isError, undefined);
-      if (flag !== 0) { assert.deepEqual(reply.result.structuredContent, { memory: { private: true } }); assert.doesNotMatch(JSON.stringify(reply), /RESTORE-PRIVATE-CANARY|restore-source|restore-ref|expiresAt|version|m_/); }
-      else { assert.equal(reply.result.structuredContent.memory.id, note.id); assert.equal(reply.result.structuredContent.memory.status, 'active'); }
-      const row = f.db.prepare('SELECT * FROM memories WHERE id=?').get(note.id)!;
-      assert.equal(row.version, 3); assert.equal(row.status, 'active'); assert.equal(row.private, flag); assert.equal(row.shared, 0);
-      assert.equal(row.expires_at, Number(row.updated_at) + Number(f.cfg.MEMORY_SESSION_TTL_DAYS) * DAY);
-      assert.equal(row.hash, note.hash); assert.equal(row.id, note.id); assert.equal(row.created_at, note.createdAt); assert.equal(row.source_ref, note.sourceRef);
-      assert.equal(floor ? f.generation() : 0, before + (floor ? 2 : 0));
-      const events = f.db.prepare('SELECT op,at,source,hash_before,hash_after FROM memory_events WHERE memory_id=? ORDER BY id').all(note.id);
-      assert.deepEqual(events.map((e) => e.op), ['store', 'archive', 'restore']); assert.equal(events.at(-1)!.at, row.updated_at); assert.equal(events.at(-1)!.source, 'mcp'); assert.equal(events.at(-1)!.hash_after, note.hash);
-      const stale = await session.call('memory_update', { id: note.id, expectedVersion: 2, status: 'active' }); assert.deepEqual(stale.result.structuredContent, { error: { code: 'conflict' } });
-      assert.deepEqual(f.db.prepare('SELECT * FROM memories WHERE id=?').get(note.id), row);
-      const foreign = mcpSession(f.env(), gitRepo(f.sb, `foreign-${++rpc}`, `git@github.com:org/foreign-${rpc}.git`));
-      try { assert.deepEqual((await foreign.call('memory_get', { id: note.id })).result.structuredContent, { error: { code: 'not_found' } }); } finally { await foreign.close(); }
-    }
-    await session.close(); session = undefined;
-    const reopened = openLocalMemory(f.cfg);
-    try {
-      for (const { note } of notes) { const got = await reopened.get(note.id, f.ctx, { events: true }); assert.equal(got.status, 'active'); assert.equal(got.version, 3); assert.equal(got.events!.at(-1)!.op, 'restore'); }
-    } finally { reopened.close(); }
-    assert.equal(f.db.prepare("SELECT COUNT(*) AS n FROM memory_events WHERE op='expire' AND memory_id IN (SELECT id FROM memories WHERE title LIKE 'Restore session%')").get()!.n, 0);
-  } finally { if (session) await session.close(); f.close(); }
-});
-
-test('registered stdio MCP keeps private replies opaque, conflict codes finite and docs on the real admission root', async () => {
-  const f = await fixture(); const session = mcpSession(f.env(), f.repo);
-  try {
-    const call = (id: number, name: string, args: object) => session.rpc(id, 'tools/call', { name, arguments: args });
-    const privateGet = await call(1, 'memory_get', { id: f.privateNote.id });
-    assert.deepEqual(privateGet.result.structuredContent, { memory: { private: true } }); assert.doesNotMatch(JSON.stringify(privateGet), /PRIVATE|sourceRef|hash|events/);
-    const updated = await call(2, 'memory_update', { id: f.publicNote.id, expectedVersion: 1, private: true });
-    assert.deepEqual(updated.result.structuredContent, { memory: { private: true } });
-    const conflict = await call(3, 'memory_update', { id: f.publicNote.id, expectedVersion: 1, body: 'attempted body' });
-    assert.deepEqual(conflict.result.structuredContent, { error: { code: 'conflict' } }); assert.doesNotMatch(JSON.stringify(conflict), /currentVersion|attempted body|PRIVATE/);
-    fs.writeFileSync(path.join(f.repo, 'mcp.md'), '# Admission zebra\nAdmission zebra MCP docs.');
-    const docs = await call(4, 'context_retrieve', { task: 'admission zebra', sources: ['docs'] });
-    assert.match(docs.result.structuredContent.text, /MCP docs/); assert.doesNotMatch(JSON.stringify(docs), /PRIVATE|backup_hash/);
-    const search = await call(5, 'memory_search', { query: 'admission zebra' }); assert.deepEqual(search.result.structuredContent.hits, []);
-  } finally { await session.close(); f.close(); }
-});
-
-test('registered authoritative serve ignores client MEMORY_URL and preserves owner API/private data and safe context', async () => {
-  const f = await fixture();
-  const child = spawn(process.execPath, [BIN, 'serve', 'memory', '--port', '0'], { env: f.env({ SERVE_BIND: '127.0.0.1', SERVE_ALLOW: '127.0.0.1/32', MEMORY_URL: 'http://127.0.0.1:1' }), cwd: f.repo, stdio: ['ignore', 'pipe', 'pipe'] });
-  const ended = new Promise<void>((resolve) => child.once('exit', () => resolve()));
-  try {
-    const port = await new Promise<number>((resolve, reject) => {
-      let out = ''; const timer = setTimeout(() => reject(Error('synthetic serve startup timeout')), 3000);
-      child.stdout.on('data', (b) => { out += b; const m = out.match(/http:\/\/127\.0\.0\.1:(\d+)/); if (m) { clearTimeout(timer); resolve(Number(m[1])); } });
-      child.once('exit', () => { clearTimeout(timer); reject(Error('synthetic serve exited before readiness')); });
-    });
-    const post = async (route: string, body: object) => {
-      const response = await fetch(`http://127.0.0.1:${port}/v1/${route}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ctx: f.ctx, ...body }) });
-      return { status: response.status, json: await response.json() as any };
-    };
-    const got = await post('memory/get', { id: f.privateNote.id }); assert.equal(got.status, 200); assert.equal(got.json.data.body, f.privateNote.body);
-    const stored = await post('memory/store', { input: { category: 'personal', title: 'Server zebra', body: 'Server zebra body' } }); assert.equal(stored.status, 200);
-    const bad = await post('memory/update', { id: stored.json.data.memory.id, patch: { body: 'bad version' }, expectedVersion: 99 });
-    assert.equal(bad.status, 409); assert.equal(bad.json.error.current, 1);
-    const context = await post('context/retrieve', { task: 'admission zebra' }); assert.equal(context.status, 200); assert.doesNotMatch(JSON.stringify(context.json), /PRIVATE/);
-    assert.ok(f.generation() >= 5);
-  } finally { child.kill('SIGTERM'); await ended; f.close(); }
-});
-
-test('registered gate lease blocks mutations, search touch stays best-effort, and failed constructor/startup releases lifecycle', async () => {
-  const f = await fixture(); let local: MemoryService | undefined; const lease = new DatabaseSync(f.paths.view, { readOnly: true });
-  try {
-    lease.exec('BEGIN'); lease.prepare('SELECT * FROM bosun_cutover_gate').get();
-    const prior = f.generation(); assert.throws(() => openLocalMemory(f.cfg), domain('unavailable'), 'constructor expiry cannot bypass gate lease');
-    assert.equal(f.generation(), prior); assert.equal(f.db.prepare('SELECT status FROM memories WHERE id=?').get(f.expired.id)!.status, 'active');
-    lease.exec('ROLLBACK'); local = openLocalMemory(f.cfg);
-    lease.exec('BEGIN'); lease.prepare('SELECT * FROM bosun_cutover_gate').get();
-    const beforeTouch = f.generation(); assert.equal((await local.search({ text: 'admission zebra' }, f.ctx)).length, 1);
-    assert.equal(f.generation(), beforeTouch); assert.equal((await local.get(f.publicNote.id, f.ctx)).accessCount, 0);
-    await assert.rejects(local.store({ category: 'personal', title: 'Held', body: 'held mutation' }, f.ctx), domain('unavailable'));
-    lease.exec('ROLLBACK');
-    await local.update(f.publicNote.id, { private: true }, 1, f.ctx);
-    const listen = http.Server.prototype.listen; let closed = 0; const close = CutoverWriter.prototype.close;
-    http.Server.prototype.listen = function () { throw Error('synthetic listen failure'); };
-    CutoverWriter.prototype.close = function () { closed++; return close.call(this); };
-    try { await assert.rejects(serveMain(['memory', '--port', '0'], { ...f.cfg, SERVE_BIND: '127.0.0.1' }), /synthetic listen failure/); assert.equal(closed, 1); }
-    finally { http.Server.prototype.listen = listen; CutoverWriter.prototype.close = close; }
-    f.db.exec('BEGIN IMMEDIATE'); f.db.exec('ROLLBACK');
-  } finally { if (lease.isTransaction) lease.exec('ROLLBACK'); lease.close(); local?.close(); f.close(); }
-});
-
-test('registered discovery holds pending/unknown/mismatched roots before legacy chmod/migration', async () => {
-  for (const kind of ['pending', 'override', 'mode', 'unknown', 'dangling', 'directory', 'ancestor']) {
-    const f = await fixture({ floor: !['pending', 'dangling', 'directory', 'ancestor'].includes(kind) });
-    try {
-      if (kind === 'pending') await assert.rejects(cutoverMemory({ paths: f.paths, now: Date.now, id: crypto.randomUUID, checkpoint(phase) { if (phase === 'backup') throw Error('stop explicit operation'); } }));
-      const cfg = kind === 'override' ? { ...f.cfg, MEMORY_VIEW_PATH: path.join(f.sb.root, 'missing-view.db') } : f.cfg;
-      if (kind === 'mode') fs.chmodSync(f.paths.primary, 0o644);
-      if (kind === 'unknown') f.db.exec('DROP TRIGGER bosun_floor_memories_update');
-      if (kind === 'dangling') fs.symlinkSync(path.join(f.sb.root, 'never-created.db'), f.paths.view);
-      if (kind === 'directory') fs.mkdirSync(f.paths.view);
-      if (kind === 'ancestor') { fs.rmdirSync(path.dirname(f.paths.view)); fs.symlinkSync(path.join(f.sb.root, 'never-created-dir'), path.dirname(f.paths.view)); }
-      const before = f.db.prepare('SELECT * FROM schema_migrations').all();
-      assert.throws(() => openLocalMemory(cfg), (e: unknown) => { assert.ok(e instanceof MemoryError); assert.equal(e.code, 'unavailable'); assert.doesNotMatch(e.message, /missing-view|backup|PRIVATE/); return true; });
-      assert.deepEqual(f.db.prepare('SELECT * FROM schema_migrations').all(), before);
-      if (kind === 'mode') assert.equal(fs.statSync(f.paths.primary).mode & 0o777, 0o644, 'legacy chmod never ran');
-    } finally { f.close(); }
+    assert.throws(
+      () => f.db.prepare('UPDATE memories SET private=1 WHERE id=?').run(f.privateNote.id),
+      /no such function/,
+    );
+    await assert.rejects(
+      f.old.store({ category: 'personal', title: 'Old writer', body: 'must fail' }, f.ctx),
+      /no such function/,
+    );
+  } finally {
+    local?.close();
+    f.close();
   }
 });
 
-test('registered domain errors retain class/currentVersion after rollback while hostile proxy errors stay finite', async () => {
-  const f = await fixture(); const session = openLocalSqlite(f.paths.primary, f.cfg); const writer = new CutoverWriter(f.paths);
+test('registered explicit expiry and prune use synchronous admission, preserving archive/purge events', async () => {
+  const f = await fixture();
+  const local = openTestLocalMemory(f.paths);
+  const now = Date.now;
   try {
-    for (const error of [new MemoryError('not_found', 'memory not found'), new MemoryError('invalid', 'invalid owner request'), new MemoryError('conflict', 'owner conflict', 7)]) {
-      assert.throws(() => session.transaction(() => { throw error; }), (e: unknown) => e === error && e instanceof MemoryError);
-    }
-    const proxy = () => new Proxy({}, { getPrototypeOf() { throw Error('PRIVATE prototype canary'); }, get() { throw Error('PRIVATE getter canary'); } });
-    for (const invoke of [() => session.transaction(() => { throw proxy(); }), () => session.read(() => { throw proxy(); })]) {
-      assert.throws(invoke, (e: unknown) => { assert.ok(e instanceof MemoryError); assert.equal(e.code, 'unavailable'); assert.doesNotMatch(e.message, /PRIVATE/); return true; });
-    }
-    assert.throws(() => writer.read((db) => db), CutoverError); assert.throws(() => writer.read((db) => db.prepare('SELECT id FROM memories')), CutoverError);
-    assert.throws(() => session.transaction((db) => db), domain('unavailable')); assert.throws(() => writer.read(async () => []), CutoverError);
-    const epoch = crypto.randomUUID(); f.db.prepare('UPDATE bosun_source_floor SET source_id=?').run(epoch);
-    const gate = new DatabaseSync(f.paths.view); try { gate.prepare('UPDATE bosun_cutover_gate SET source_id=?').run(epoch); } finally { gate.close(); }
-    assert.throws(() => session.read((db) => db.prepare('SELECT title FROM memories').all()), domain('unavailable'));
-  } finally { writer.close(); session.close(); f.close(); }
+    const a = (
+      await local.store(
+        { category: 'session', title: 'Get expiry', body: 'get expiry words', ttlDays: 1 },
+        f.ctx,
+      )
+    ).memory;
+    const b = (
+      await local.store(
+        { category: 'session', title: 'Search expiry', body: 'search expiry words', ttlDays: 2 },
+        f.ctx,
+      )
+    ).memory;
+    Date.now = () => a.createdAt + DAY + 1;
+    assert.equal(local.expire(), 2, 'maintenance archives the pre-expired fixture and boundary-crossing session');
+    assert.equal((await local.get(a.id, f.ctx)).status, 'archived');
+    Date.now = () => b.createdAt + 2 * DAY + 1;
+    assert.equal(local.expire(), 1);
+    assert.deepEqual(await local.search({ text: 'search expiry words', touch: false }, f.ctx), []);
+    Date.now = now;
+    const r = local.prune(now() + 200 * DAY);
+    assert.ok(r.purged >= 3);
+    assert.deepEqual(
+      f.db
+        .prepare('SELECT op FROM memory_events WHERE memory_id=? ORDER BY id')
+        .all(b.id)
+        .map((r) => r.op),
+      ['store', 'expire', 'purge'],
+    );
+    assert.equal(f.db.prepare('SELECT 1 FROM memories WHERE id=?').get(b.id), undefined);
+  } finally {
+    Date.now = now;
+    local.close();
+    f.close();
+  }
 });
 
-test('read-only doctor memory inspection creates no files, holds WAL before native open and verifies rollback without writes', async () => {
-  const sb = sandbox(); fresh(sb);
-  const dir = path.join(sb.root, 'inspect'); fs.mkdirSync(dir); const file = path.join(dir, 'memory.db');
+test('final owner CLI uses its chosen runtime and retains private reads, deterministic auto fields, mutation and purge audit', async () => {
+  const f = await memoryLifecycleFixture();
   try {
-    const empty = footprint(dir); assert.deepEqual(inspectMemorySchema(file), { state: 'missing' }); assert.deepEqual(footprint(dir), empty);
-    const db = openDb(file); db.close(); const wal = footprint(dir);
-    assert.deepEqual(inspectMemorySchema(file), { state: 'wal-held' }); assert.deepEqual(footprint(dir), wal);
-    const prepared = new DatabaseSync(file); prepared.exec('PRAGMA journal_mode=DELETE'); prepared.close(); const rollback = footprint(dir);
-    assert.deepEqual(inspectMemorySchema(file), { state: 'verified', version: 1 }); assert.deepEqual(footprint(dir), rollback);
-  } finally { sb.cleanup(); }
+    const before = f.row('private-note');
+    const got = await f.cli(['memory', 'get', 'private-note', '--events']);
+    assert.equal(got.code, 0, got.err);
+    assert.equal(JSON.parse(got.out).memory.body, before!.body);
+    const added = await f.cli([
+      'memory',
+      'add',
+      '--category',
+      'personal',
+      '--private',
+      '--auto',
+      '--title',
+      'Owner override',
+      '--body',
+      'PRIVATE CLI body',
+    ]);
+    assert.equal(added.code, 0, added.err);
+    const note = JSON.parse(added.out).memory;
+    assert.equal(note.title, 'Owner override');
+    assert.equal(note.private, true);
+    const update = await f.cli([
+      'memory',
+      'update',
+      note.id,
+      '--version',
+      String(note.version),
+      '--patch',
+      '{"body":"PRIVATE changed body"}',
+    ]);
+    assert.equal(update.code, 0, update.err);
+    assert.equal(JSON.parse(update.out).memory.id, note.id);
+    assert.equal((await f.cli(['memory', 'delete', note.id])).code, 0);
+    assert.equal((await f.cli(['memory', 'purge', note.id])).code, 0);
+    assert.equal(f.row(note.id), undefined);
+    assert.deepEqual(
+      f.events(note.id).map((event) => event.op),
+      ['store', 'update', 'archive', 'purge'],
+    );
+    assert.deepEqual(f.row('private-note'), before);
+    assert.deepEqual(f.sb.calls(), []);
+  } finally {
+    await f.close();
+  }
 });
 
-test('actual doctor leaves absent memory absent and the existing WAL database/sidecars unchanged', async () => {
-  const sb = sandbox(); fresh(sb); load();
+for (const origin of ['fresh', 'upgraded'] as const)
+  test(
+    origin + ' final owner CLI unshares with exact CAS, linked access and retained original audit',
+    async () => {
+      const f = await memoryLifecycleFixture(origin);
+      try {
+        const shared = (
+          await f.rpc('memory.update', {
+            id: 'public-note',
+            expectedVersion: 1,
+            patch: { shared: true },
+          })
+        ).memory;
+        const foreignScope = { ...f.scope, workspace: f.foreign };
+        assert.equal(
+          (await f.rpc('memory.get', { id: shared.id }, foreignScope)).memory.id,
+          shared.id,
+        );
+        const response = await f.cli([
+          'memory',
+          'update',
+          shared.id,
+          '--version',
+          String(shared.version),
+          '--patch',
+          '{"shared":false}',
+        ]);
+        assert.equal(response.code, 0, response.err);
+        const current = JSON.parse(response.out).memory;
+        assert.equal(current.shared, false);
+        assert.equal(current.version, shared.version + 1);
+        for (const key of [
+          'id',
+          'hash',
+          'createdAt',
+          'expiresAt',
+          'source',
+          'sourceRef',
+          'body',
+          'title',
+          'tags',
+          'private',
+          'projectId',
+          'sessionId',
+          'accessCount',
+          'accessedAt',
+        ])
+          assert.deepEqual(current[key], shared[key], key);
+        const events = f.events(shared.id);
+        assert.deepEqual(
+          events.map((event) => event.op),
+          ['store', 'update', 'update'],
+        );
+        assert.equal(events[0].source, 'cli');
+        assert.equal(events.at(-1)!.source, 'rpc:owner');
+        assert.equal(events.at(-1)!.hash_before, shared.hash);
+        assert.equal(events.at(-1)!.hash_after, shared.hash);
+        await assert.rejects(
+          f.rpc('memory.get', { id: shared.id }, foreignScope),
+          (e) => e instanceof BosunError && e.code === 'not_found',
+        );
+        await f.restart([project(f.workspace).id]);
+        const linked = (await f.rpc('memory.get', { id: shared.id }, foreignScope)).memory;
+        assert.equal(linked.id, current.id);
+        assert.equal(linked.shared, false);
+        await f.restart([]);
+        await assert.rejects(
+          f.rpc('memory.get', { id: shared.id }, foreignScope),
+          (e) => e instanceof BosunError && e.code === 'not_found',
+        );
+        const before = f.row(shared.id),
+          audit = f.events(shared.id);
+        for (const patch of ['{"shared":"false"}', '{"unsupported":true}']) {
+          const invalid = await f.cli([
+            'memory',
+            'update',
+            shared.id,
+            '--version',
+            String(current.version),
+            '--patch',
+            patch,
+          ]);
+          assert.equal(invalid.code, 2);
+          assert.deepEqual(f.row(shared.id), before);
+          assert.deepEqual(f.events(shared.id), audit);
+        }
+        const stale = await f.cli([
+          'memory',
+          'update',
+          shared.id,
+          '--version',
+          '99',
+          '--patch',
+          '{"shared":true}',
+        ]);
+        assert.equal(stale.code, 3);
+        assert.equal(JSON.parse(stale.err).error.code, 'conflict');
+        assert.deepEqual(f.row(shared.id), before);
+        assert.deepEqual(f.events(shared.id), audit);
+        const added = await f.cli([
+          'memory',
+          'add',
+          '--category',
+          'project',
+          '--unshared',
+          '--title',
+          'Unshared creation',
+          '--body',
+          'Unshared creation body',
+        ]);
+        assert.equal(added.code, 0, added.err);
+        assert.equal(f.row(JSON.parse(added.out).memory.id)!.shared, 0);
+      } finally {
+        await f.close();
+      }
+    },
+  );
+
+for (const origin of ['fresh', 'upgraded'] as const)
+  test(
+    origin + ' final owner unsharing preserves the raw malformed privacy marker and model opacity',
+    async () => {
+      const f = await memoryLifecycleFixture(origin);
+      try {
+        const before = f.row('malformed-note')!;
+        const response = await f.cli([
+          'memory',
+          'update',
+          'malformed-note',
+          '--version',
+          String(before.version),
+          '--patch',
+          '{"shared":false}',
+        ]);
+        assert.equal(response.code, 0, response.err);
+        const after = f.row('malformed-note')!;
+        assert.equal(after.private, 'false');
+        assert.equal(after.shared, 0);
+        for (const key of [
+          'id',
+          'hash',
+          'created_at',
+          'source',
+          'source_ref',
+          'body',
+          'title',
+          'tags',
+        ])
+          assert.deepEqual(after[key], before[key], key);
+        const owner = await f.cli(['memory', 'get', 'malformed-note']);
+        assert.equal(owner.code, 0, owner.err);
+        assert.equal(JSON.parse(owner.out).memory.body, before.body);
+        assert.deepEqual(
+          await f.rpc('memory.get', { id: 'malformed-note' }, { ...f.scope, audience: 'model' }),
+          { memory: { private: true } },
+        );
+        await f.restart();
+        assert.deepEqual(f.row('malformed-note'), after);
+      } finally {
+        await f.close();
+      }
+    },
+  );
+
+for (const origin of ['fresh', 'upgraded'] as const)
+  test(
+    origin +
+      ' final owner status restore uses post-maintenance CAS and retains identity, TTL and audit across reopen',
+    async () => {
+      const f = await memoryLifecycleFixture(origin);
+      try {
+        const expired = await f.rpc('memory.maintain', { action: 'expire' });
+        await completedMemoryJob(f, expired.job.id);
+        const before = (await f.rpc('memory.get', { id: 'expired-note', events: true })).memory;
+        assert.equal(before.status, 'archived');
+        assert.equal(before.version, 2);
+        const response = await f.cli([
+          'memory',
+          'update',
+          before.id,
+          '--version',
+          String(before.version),
+          '--patch',
+          '{"status":"active"}',
+        ]);
+        assert.equal(response.code, 0, response.err);
+        const memory = JSON.parse(response.out).memory,
+          stored = f.row(before.id)!;
+        assert.equal(memory.status, 'active');
+        assert.equal(memory.version, 3);
+        assert.equal(
+          stored.expires_at,
+          Number(stored.updated_at) + f.config.memory.sessionTtlDays * DAY,
+        );
+        for (const key of [
+          'id',
+          'hash',
+          'createdAt',
+          'source',
+          'sourceRef',
+          'body',
+          'title',
+          'tags',
+        ])
+          assert.deepEqual(memory[key], before[key], key);
+        const audit = f.events(before.id);
+        assert.deepEqual(
+          audit.map((event) => event.op),
+          ['store', 'expire', 'restore'],
+        );
+        assert.equal(audit[0].source, 'cli');
+        assert.equal(audit.at(-1)!.source, 'rpc:owner');
+        assert.equal(audit.at(-1)!.at, stored.updated_at);
+        for (const [version, patch, expected] of [
+          [2, '{"status":"archived"}', 3],
+          [3, '{"status":"proposed"}', 2],
+          [3, '{"status":"unknown"}', 2],
+        ] as const) {
+          assert.equal(
+            (
+              await f.cli([
+                'memory',
+                'update',
+                before.id,
+                '--version',
+                String(version),
+                '--patch',
+                patch,
+              ])
+            ).code,
+            expected,
+          );
+          assert.deepEqual(f.row(before.id), stored);
+          assert.deepEqual(f.events(before.id), audit);
+        }
+        await f.restart();
+        const reopened = (await f.rpc('memory.get', { id: before.id, events: true })).memory;
+        assert.equal(reopened.status, 'active');
+        assert.equal(reopened.version, 3);
+        assert.deepEqual(
+          reopened.events.map((event: any) => event.op),
+          ['store', 'expire', 'restore'],
+        );
+      } finally {
+        await f.close();
+      }
+    },
+  );
+
+for (const origin of ['fresh', 'upgraded'] as const)
+  test(
+    origin +
+      ' final stdio MCP restores archived public/private/malformed sessions without payload leaks or raw flag rewriting',
+    async () => {
+      const f = await memoryLifecycleFixture(origin);
+      const session = mcpSession(f.env, f.workspace);
+      try {
+        for (const [n, flag] of [0, 1, 'false'].entries()) {
+          const id = 'restore-session-' + n,
+            before = f.row(id)!;
+          const response = await session.call('memory_update', {
+            id,
+            expectedVersion: 2,
+            patch: { status: 'active', shared: false },
+          });
+          if (flag !== 0) {
+            assert.equal(response.result.isError, true);
+            assert.equal(response.result.structuredContent.error.code, 'not_found');
+            assert.deepEqual(f.row(id), before);
+            const restored = await f.cli([
+              'memory',
+              'update',
+              id,
+              '--version',
+              '2',
+              '--patch',
+              '{"status":"active","shared":false}',
+            ]);
+            assert.equal(restored.code, 0, restored.err);
+            const hidden = await session.call('memory_get', { id });
+            assert.deepEqual(hidden.result.structuredContent, { memory: { private: true } });
+            assert.doesNotMatch(
+              JSON.stringify(response) + JSON.stringify(hidden),
+              /PRIVATE-LIFECYCLE|original-reference|expiresAt|version|restore-session/,
+            );
+          } else {
+            assert.equal(response.result.isError, undefined);
+            assert.equal(response.result.structuredContent.memory.id, id);
+          }
+          const stored = f.row(id)!;
+          assert.equal(stored.version, 3);
+          assert.equal(stored.status, 'active');
+          assert.equal(stored.private, flag);
+          assert.equal(stored.shared, 0);
+          assert.equal(
+            stored.expires_at,
+            Number(stored.updated_at) + f.config.memory.sessionTtlDays * DAY,
+          );
+          for (const key of [
+            'id',
+            'hash',
+            'created_at',
+            'source',
+            'source_ref',
+            'body',
+            'title',
+            'tags',
+          ])
+            assert.deepEqual(stored[key], before[key], key);
+          const events = f.events(id);
+          assert.deepEqual(
+            events.map((event) => event.op),
+            ['store', 'archive', 'restore'],
+          );
+          assert.equal(events[0].source, 'cli');
+          assert.equal(events.at(-1)!.source, flag === 0 ? 'rpc:model' : 'rpc:owner');
+          assert.equal(events.at(-1)!.hash_after, stored.hash);
+          const stale = await session.call('memory_update', {
+            id,
+            expectedVersion: 2,
+            patch: { status: 'active' },
+          });
+          assert.equal(
+            stale.result.structuredContent.error.code,
+            flag === 0 ? 'conflict' : 'not_found',
+          );
+          assert.doesNotMatch(JSON.stringify(stale), /currentVersion|PRIVATE-LIFECYCLE/);
+          assert.deepEqual(f.row(id), stored);
+          const foreign = mcpSession(f.env, f.foreign);
+          try {
+            assert.equal(
+              (await foreign.call('memory_get', { id })).result.structuredContent.error.code,
+              'not_found',
+            );
+          } finally {
+            await foreign.close();
+          }
+        }
+        await session.close();
+        await f.restart();
+        for (const n of [0, 1, 2]) {
+          const row = f.row('restore-session-' + n)!;
+          assert.equal(row.status, 'active');
+          assert.equal(row.version, 3);
+          assert.deepEqual(
+            f.events(String(row.id)).map((event) => event.op),
+            ['store', 'archive', 'restore'],
+          );
+        }
+      } finally {
+        await session.close();
+        await f.close();
+      }
+    },
+  );
+
+test('final stdio MCP keeps private replies and stale conflicts finite while docs indexing runs in the owner admin job', async () => {
+  const f = await memoryLifecycleFixture(),
+    session = mcpSession(f.env, f.workspace);
   try {
-    const env = sb.env({ OLLAMA_URL: 'http://127.0.0.1:1', ROUTER_PORT: '1', HOSTS: 'claude,codex' });
-    const missing = await bosun(['doctor'], { env }); assert.match(missing.out, /memory database absent/); assert.equal(fs.existsSync(P.DB), false);
-    const db = openDb(P.DB); db.close();
-    const files = [P.DB, P.DB + '-wal', P.DB + '-shm'];
-    const state = () => files.map((file) => fs.existsSync(file) ? { bytes: fs.readFileSync(file), mode: fs.statSync(file).mode,
-      mtime: fs.statSync(file, { bigint: true }).mtimeNs, ctime: fs.statSync(file, { bigint: true }).ctimeNs } : null);
-    const before = state(); const held = await bosun(['doctor'], { env });
-    assert.match(held.out, /WAL held; schema not verified by read-only doctor/); assert.deepEqual(state(), before);
-  } finally { sb.cleanup(); }
+    const privateGet = await session.call('memory_get', { id: 'private-note' });
+    assert.deepEqual(privateGet.result.structuredContent, { memory: { private: true } });
+    assert.doesNotMatch(JSON.stringify(privateGet), /PRIVATE-LIFECYCLE|sourceRef|hash|events/);
+    const publicUpdate = await session.call('memory_update', {
+      id: 'public-note',
+      expectedVersion: 1,
+      patch: { body: 'Updated public zebra policy.' },
+    });
+    assert.equal(publicUpdate.result.structuredContent.memory.version, 2);
+    const stalePublic = await session.call('memory_update', {
+      id: 'public-note',
+      expectedVersion: 1,
+      patch: { body: 'attempted body' },
+    });
+    assert.equal(stalePublic.result.structuredContent.error.code, 'conflict');
+    assert.doesNotMatch(JSON.stringify(stalePublic), /currentVersion|attempted body/);
+    const updated = await session.call('memory_update', {
+      id: 'public-note',
+      expectedVersion: 2,
+      patch: { private: true },
+    });
+    assert.deepEqual(updated.result.structuredContent, { memory: { private: true } });
+    const conflict = await session.call('memory_update', {
+      id: 'public-note',
+      expectedVersion: 1,
+      patch: { body: 'attempted body' },
+    });
+    assert.equal(conflict.result.structuredContent.error.code, 'not_found');
+    assert.doesNotMatch(
+      JSON.stringify(conflict),
+      /currentVersion|attempted body|PRIVATE-LIFECYCLE/,
+    );
+    fs.writeFileSync(
+      path.join(f.workspace, 'mcp.md'),
+      '# Admission zebra\nAdmission zebra MCP docs.',
+    );
+    const queued = await f.rpc('docs.index', {});
+    await completedMemoryJob(f, queued.job.id);
+    const docs = await session.call('context_retrieve', {
+      task: 'admission zebra',
+      sources: ['docs'],
+    });
+    assert.match(docs.result.structuredContent.text, /MCP docs/);
+    assert.doesNotMatch(JSON.stringify(docs), /PRIVATE-LIFECYCLE|backup_hash/);
+    const search = await session.call('memory_search', { text: 'public-note' });
+    assert.deepEqual(search.result.structuredContent.hits, []);
+  } finally {
+    await session.close();
+    await f.close();
+  }
+});
+
+test('final authenticated authority ignores legacy URL redirection and preserves owner private data, IDs, finite conflicts and model-safe context', async () => {
+  const f = await remoteFixture();
+  try {
+    const secret = (
+      await f.rpc('client', 'memory.store', {
+        category: 'project',
+        title: 'PRIVATE authority zebra',
+        body: 'PRIVATE authority body.',
+        private: true,
+      })
+    ).memory;
+    const env = { ...f.clientEnv, MEMORY_URL: 'http://127.0.0.1:1' };
+    const read = await bosun(['memory', 'get', secret.id], { env, cwd: f.clientWorkspace });
+    assert.equal(read.code, 0, read.err);
+    assert.equal(JSON.parse(read.out).memory.body, secret.body);
+    const created = (
+      await f.rpc('client', 'memory.store', {
+        category: 'project',
+        title: 'Server zebra',
+        body: 'Server zebra public body.',
+      })
+    ).memory;
+    const bad = await bosun(
+      ['memory', 'update', created.id, '--version', '99', '--patch', '{"body":"bad version"}'],
+      { env, cwd: f.clientWorkspace },
+    );
+    assert.equal(bad.code, 3);
+    assert.equal(JSON.parse(bad.err).error.code, 'conflict');
+    assert.equal(
+      (await f.rpc('server', 'memory.get', { id: created.id })).memory.body,
+      created.body,
+    );
+    const context = await f.rpc(
+      'client',
+      'context.retrieve',
+      { task: 'server zebra public body' },
+      'model',
+    );
+    assert.ok(context.ids.includes(created.id));
+    assert.doesNotMatch(JSON.stringify(context), /PRIVATE authority/);
+    assert.deepEqual(await f.rpc('client', 'memory.get', { id: secret.id }, 'model'), {
+      memory: { private: true },
+    });
+    const db = new SqliteDatabase(f.clientPaths.memory, { readOnly: true });
+    try {
+      assert.equal(db.prepare('SELECT COUNT(*) n FROM memories').get()!.n, 0);
+    } finally {
+      db.close();
+    }
+  } finally {
+    await f.close();
+  }
+});
+
+test('registered gate lease blocks explicit maintenance and mutations while reads stay available', async () => {
+  const f = await fixture();
+  let local: ReturnType<typeof openTestLocalMemory> | undefined;
+  const lease = new SqliteDatabase(f.paths.view, { readOnly: true });
+  try {
+    lease.exec('BEGIN');
+    lease.prepare('SELECT * FROM bosun_cutover_gate').get();
+    const prior = f.generation();
+    local = openTestLocalMemory(f.paths);
+    assert.throws(() => local!.expire(), writerBusy, 'expiry cannot bypass gate lease');
+    assert.equal(f.generation(), prior);
+    assert.equal(
+      f.db.prepare('SELECT status FROM memories WHERE id=?').get(f.expired.id)!.status,
+      'active',
+    );
+    lease.exec('ROLLBACK');
+    lease.exec('BEGIN');
+    lease.prepare('SELECT * FROM bosun_cutover_gate').get();
+    const beforeTouch = f.generation();
+    assert.equal((await local.search({ text: 'admission zebra' }, f.ctx)).length, 1);
+    assert.equal(f.generation(), beforeTouch);
+    assert.equal((await local.get(f.publicNote.id, f.ctx)).accessCount, 0);
+    await assert.rejects(
+      local.store({ category: 'personal', title: 'Held', body: 'held mutation' }, f.ctx),
+      writerBusy,
+    );
+    lease.exec('ROLLBACK');
+    await local.update(f.publicNote.id, { private: true }, 1, f.ctx);
+    f.db.exec('BEGIN IMMEDIATE');
+    f.db.exec('ROLLBACK');
+  } finally {
+    if (lease.isTransaction) lease.exec('ROLLBACK');
+    lease.close();
+    local?.close();
+    f.close();
+  }
+});
+
+test('registered final writer holds pending/unknown/mismatched roots without permission or schema changes', async () => {
+  for (const kind of [
+    'pending',
+    'override',
+    'mode',
+    'unknown',
+    'dangling',
+    'directory',
+    'ancestor',
+  ]) {
+    const f = await fixture({
+      floor: !['pending', 'dangling', 'directory', 'ancestor'].includes(kind),
+    });
+    try {
+      if (kind === 'pending')
+        await assert.rejects(
+          cutoverMemory({
+            paths: f.paths,
+            now: Date.now,
+            id: crypto.randomUUID,
+            checkpoint(phase) {
+              if (phase === 'backup') throw Error('stop explicit operation');
+            },
+          }),
+        );
+      const candidatePaths =
+        kind === 'override'
+          ? { ...f.paths, view: path.join(f.sb.root, 'missing-view.db') }
+          : f.paths;
+      if (kind === 'mode') fs.chmodSync(f.paths.primary, 0o644);
+      if (kind === 'unknown') f.db.exec('DROP TRIGGER bosun_floor_memories_update');
+      if (kind === 'dangling')
+        fs.symlinkSync(path.join(f.sb.root, 'never-created.db'), f.paths.view);
+      if (kind === 'directory') fs.mkdirSync(f.paths.view);
+      if (kind === 'ancestor') {
+        fs.rmdirSync(path.dirname(f.paths.view));
+        fs.symlinkSync(path.join(f.sb.root, 'never-created-dir'), path.dirname(f.paths.view));
+      }
+      const before = f.db.prepare('SELECT * FROM schema_migrations').all();
+      assert.throws(
+        () => openTestLocalMemory(candidatePaths),
+        (e: unknown) => {
+          assert.ok(e instanceof CutoverError);
+          assert.equal(e.code, 'unavailable');
+          assert.equal(e.message, `memory cutover unavailable (${e.reason})`);
+          assert.equal(e.cause, undefined);
+          assert.doesNotMatch(e.message, /missing-view|PRIVATE/);
+          return true;
+        },
+      );
+      assert.deepEqual(f.db.prepare('SELECT * FROM schema_migrations').all(), before);
+      if (kind === 'mode')
+        assert.equal(fs.statSync(f.paths.primary).mode & 0o777, 0o644, 'final writer never changes permissions');
+    } finally {
+      f.close();
+    }
+  }
+});
+
+test('registered final writer preserves domain errors after rollback and keeps hostile callback errors finite', async () => {
+  const f = await fixture();
+  const writer = new CutoverWriter(f.paths);
+  try {
+    for (const error of [
+      new MemoryError('not_found', 'memory not found'),
+      new MemoryError('invalid', 'invalid owner request'),
+      new MemoryError('conflict', 'owner conflict', 7),
+    ]) {
+      assert.throws(
+        () =>
+          writer.transaction(() => {
+            throw error;
+          }),
+        (e: unknown) => e === error && e instanceof MemoryError,
+      );
+    }
+    const proxy = () =>
+      new Proxy(
+        {},
+        {
+          getPrototypeOf() {
+            throw Error('PRIVATE prototype canary');
+          },
+          get() {
+            throw Error('PRIVATE getter canary');
+          },
+        },
+      );
+    const typed = new CutoverError('storage');
+    typed.message = 'PRIVATE typed error canary';
+    typed.cause = { body: 'PRIVATE cause canary' };
+    for (const operation of ['transaction', 'read'] as const) for (const failure of [typed, proxy()]) {
+      const invoke = () => writer[operation](() => { throw failure; });
+      assert.throws(invoke, (e: unknown) => {
+        assert.ok(e instanceof CutoverError);
+        assert.equal(e.message, `memory cutover unavailable (${e.reason})`);
+        assert.equal(e.cause, undefined);
+        assert.doesNotMatch(e.message + JSON.stringify(e), /PRIVATE/);
+        return true;
+      });
+    }
+    assert.throws(() => writer.read((db) => db), CutoverError);
+    assert.throws(() => writer.read((db) => db.prepare('SELECT id FROM memories')), CutoverError);
+    assert.throws(() => writer.transaction((db) => db), CutoverError);
+    assert.throws(() => writer.read(async () => []), CutoverError);
+    const epoch = crypto.randomUUID();
+    f.db.prepare('UPDATE bosun_source_floor SET source_id=?').run(epoch);
+    const gate = new SqliteDatabase(f.paths.view);
+    try {
+      gate.prepare('UPDATE bosun_cutover_gate SET source_id=?').run(epoch);
+    } finally {
+      gate.close();
+    }
+    assert.throws(
+      () => writer.read((db) => db.prepare('SELECT title FROM memories').all()),
+      CutoverError,
+    );
+  } finally {
+    writer.close();
+    f.close();
+  }
+});
+
+test('final doctor leaves absent runtime and prepared WAL database/sidecars unchanged without native or database probes', async () => {
+  const sb = sandbox();
+  fresh(sb);
+  try {
+    const home = path.join(sb.root, 'missing-runtime'),
+      env = sb.env({ BOSUN_HOME: home });
+    const result = await bosun(['doctor'], { env });
+    assert.equal(result.code, 1);
+    assert.equal(JSON.parse(result.out).checks[0].state, 'missing');
+    assert.equal(fs.existsSync(home), false);
+    assert.deepEqual(sb.calls(), []);
+  } finally {
+    sb.cleanup();
+  }
+  const f = await memoryLifecycleFixture();
+  try {
+    await f.rpc('memory.store', {
+      category: 'project',
+      title: 'Doctor WAL activity',
+      body: 'Make an actual owner WAL write.',
+    });
+    const files = [f.paths.memory, f.paths.memory + '-wal', f.paths.memory + '-shm'];
+    const snapshot = () =>
+      files.map((file) =>
+        fs.existsSync(file)
+          ? {
+              bytes: fs.readFileSync(file),
+              mode: fs.statSync(file).mode,
+              mtime: fs.statSync(file, { bigint: true }).mtimeNs,
+              ctime: fs.statSync(file, { bigint: true }).ctimeNs,
+            }
+          : null,
+      );
+    const before = snapshot(),
+      held = await f.cli(['doctor']);
+    assert.equal(held.code, 0, held.err);
+    const report = JSON.parse(held.out);
+    assert.equal(report.prepared, true);
+    assert.equal(report.coverage, 'filesystem-metadata');
+    assert.equal(report.schemaQualification, 'unverified');
+    assert.equal(report.databaseOpened, false);
+    assert.equal(report.nativeCalls, false);
+    assert.ok(
+      report.checks.some(
+        (check: any) =>
+          check.id === 'memory.database' &&
+          check.state === 'ready' &&
+          check.detail.includes('WAL held'),
+      ),
+    );
+    assert.deepEqual(snapshot(), before);
+    assert.deepEqual(f.sb.calls(), []);
+  } finally {
+    await f.close();
+  }
+});
+
+test('failed final daemon listen closes its registered writer and owner authority; unchanged notes reopen successfully', async () => {
+  const f = await memoryLifecycleFixture();
+  const originalListen = http.Server.prototype.listen,
+    originalClose = CutoverWriter.prototype.close;
+  try {
+    await f.runtime.close();
+    const before = f.row('public-note'),
+      audit = f.events('public-note');
+    let closed = 0;
+    http.Server.prototype.listen = function () {
+      throw Error('synthetic listen failure');
+    };
+    CutoverWriter.prototype.close = function () {
+      closed++;
+      return originalClose.call(this);
+    };
+    try {
+      await assert.rejects(
+        startDaemon({ paths: f.paths, config: f.config, environment: f.env, runners: {} }),
+        /synthetic listen failure/,
+      );
+      assert.equal(closed, 1);
+    } finally {
+      http.Server.prototype.listen = originalListen;
+      CutoverWriter.prototype.close = originalClose;
+    }
+    await f.restart();
+    assert.deepEqual(f.row('public-note'), before);
+    assert.deepEqual(f.events('public-note'), audit);
+    assert.equal((await f.rpc('memory.get', { id: 'public-note' })).memory.id, 'public-note');
+  } finally {
+    http.Server.prototype.listen = originalListen;
+    CutoverWriter.prototype.close = originalClose;
+    await f.close();
+  }
 });

@@ -1,0 +1,15 @@
+file:///Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:48
+  if (detected.version !== CLAUDE_VERSION) throw new BosunError('unverified', 'Claude version unverified');
+                                                 ^
+
+BosunError: Claude version unverified
+    at connectClaudeStream (file:///Users/edge/Developer/bosun/src/adapters/hosts/claude/client.ts:48:50)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async probe (file:///Users/edge/Developer/bosun/scripts/check-claude-bootstrap.mjs:81:14)
+    at async file:///private/tmp/bosun-claude-bootstrap-node-oKRd46/home/[eval1]:24:14 {
+  code: 'unverified',
+  exitCode: 1,
+  details: undefined
+}
+
+Node.js v24.16.0

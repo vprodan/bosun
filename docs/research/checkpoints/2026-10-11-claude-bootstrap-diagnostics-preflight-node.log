@@ -1,0 +1,6 @@
+{
+  "code": 0,
+  "signal": null,
+  "stdout": "{\"guardedNode\":true,\"reports\":[{\"mode\":\"success\",\"operation\":\"passed\",\"checks\":8,\"joined\":true,\"phases\":[\"version-detection\",\"version-verified\",\"stream-attached\",\"initialize-request\",\"initialize-accepted\",\"original-joined\"]},{\"mode\":\"reject-initialize\",\"operation\":\"connection\",\"checks\":0,\"joined\":true,\"phases\":[\"version-detection\",\"version-verified\",\"stream-attached\",\"initialize-request\",\"original-joined\"]},{\"mode\":\"reject-settings\",\"operation\":\"get_settings\",\"checks\":0,\"joined\":true,\"phases\":[\"version-detection\",\"version-verified\",\"stream-attached\",\"initialize-request\",\"initialize-accepted\",\"original-joined\"]},{\"mode\":\"version-wrong\",\"operation\":\"connection\",\"checks\":0,\"joined\":false,\"phases\":[\"version-detection\"]}],\"nativeClaudeExecuted\":false,\"sandboxExecuted\":false,\"packageDownloaded\":false}\n",
+  "stderr": ""
+}

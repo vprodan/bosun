@@ -1,0 +1,109 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (18.300667ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (24.191875ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (6.710042ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (6.066125ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (3.690458ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (2.543792ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (6.271667ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (4.17525ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (7.543375ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (53.892ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (73.256458ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (5.316ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.527833ms)
+✔ replaced native owner file cannot leave a cached writer authoritative beside a newly acquired owner (13.412167ms)
+✔ background owner work follows queued interactive, admin and summary work while preserving FIFO within each class (16.698ms)
+✔ public classification cannot admit known credentials; a tainted native result preserves successful owner outcome but is withheld from model (8.716ms)
+✔ known credentials in job selection/identity/path metadata are refused before persistence, admission, callbacks or dispatch (7.060458ms)
+✔ jobs persist selected runner/model/effort/access/cwd and bounded owner result; events contain no source payload (12.189125ms)
+✔ request idempotency and scope survive native reopen without reading duplicate prompt getters or dispatching (12.356542ms)
+✔ native owner jobs deny model payload/result/metadata access and owner-only creation before prompt getters (9.2895ms)
+✔ privacy classification precedes every prompt/task getter, storage write, admission and runner call (11.298292ms)
+✔ bounded queue and admission holds are durable, explicit release preserves selection, cancellation is known before dispatch (12.442125ms)
+✔ active cancellation becomes unknown without runner completion (8.701333ms)
+✔ active cancellation retains positive actual runner outcome (8.45575ms)
+✔ nonzero native done is failed; provider loss/oversize produces finite unknown metadata without provider text (11.746917ms)
+✔ drain closes neither jobs nor native authority while late runner completion is still pending (11.076708ms)
+✔ drain aborts admission before payload/runner dispatch and leaves unstarted queued work persisted (7.099958ms)
+✔ queued cancellation aborts pending admission and cannot later become a hold or dispatch (8.627125ms)
+✔ real killed daemon reopens running as persisted, explicit recovery marks unknown and never dispatches it (98.27575ms)
+✔ actual native start COMMIT then error persists running and finite unknown, fences dispatch and recovers without replay (10.863959ms)
+✔ native queue CAS, rollback/busy proof, scope and close are enforced by the actual owned SQLite store (9.102875ms)
+✔ native event capacity reserves terminal recovery instead of consuming it with runner progress (8.349666ms)
+✔ native BEGIN then error positively rolls back and leaves the store usable with no job/events (6.944666ms)
+✔ unrelated job/authority layouts are rejected before journal or schema writes (6.358375ms)
+✔ final suggestions deny private/unclassified inputs before payload or provider getters (0.851208ms)
+✔ final public suggestion preserves exact model, bounded structured fields and known usage without retries (0.836875ms)
+✔ final private memory --auto preserves deterministic/explicit title, tags, ID, body and audit with zero inference (212.42025ms)
+✔ final public --auto queues one exact-model owner job, keeps explicit overrides and skips inference when fully explicit (222.740959ms)
+✔ screened credentials and unqualified native suggestion transports hold before model/metadata calls or queued effects (218.730083ms)
+✔ malformed provider output remains unknown, preserves stable request dedupe and cannot be released or replayed (131.625042ms)
+✔ workspace rebinding during generation preserves the unknown original job and creates no memory in either project (125.505166ms)
+✔ remote API suggestion needs explicit opt-in and matching admission; quota holds precede requests (252.178166ms)
+✔ cancelling an in-flight title/tag job cannot create a memory or permit model access to owner-only tooling (553.756209ms)
+✔ privacy: direct private generate blocks every provider before config/messages/schema access (8.873334ms)
+✔ privacy: private suggestions use only the first line and no model tags (5.652083ms)
+✔ privacy: route flags/private or malformed hook markers skip inference and remote retrieval (860.559083ms)
+✔ privacy: route observations contain closed metadata and fresh IDs, never prompt hashes or echoed model fields (141.9995ms)
+✔ privacy: malformed router choices/confidence and provider parse errors produce no content-bearing telemetry (619.388917ms)
+✔ privacy: metadata-only labels and legacy IDs work without redisplaying historical prompts or mutating logs (117.606708ms)
+✔ privacy: nested log objects, toJSON hooks, errors/causes and unknown metadata never serialize (4.809709ms)
+✔ privacy: LLM usage ignores echoed model/token content and emits fixed error kinds (7.753375ms)
+✔ privacy: metrics reports never redisplay malformed historical metadata and leave files unchanged (3.981834ms)
+✔ record projection selects finite metadata, rejects accessor/extra fields and never serializes arbitrary nested content (1.06775ms)
+✔ real final classification records random scoped metadata, label CAS history and diagnostic stats without model input or hashes (167.18325ms)
+✔ recorded observations are project-bound; model callers cannot list or label them and MCP exposes no feedback tool (568.250833ms)
+✔ legacy inspection filters malformed or duplicate IDs and rejects links/oversize without rewriting original raw logs (118.50675ms)
+✔ lost actual label COMMIT preserves its original native event, fences storage, and stale CAS cannot replay it on reopen (116.018792ms)
+✔ historical labels stay read-only references with unknown time; explicit daemon feedback overrides them without copying raw files (110.877958ms)
+✔ actual observation capacity remains bounded, and source change after label DML rolls back label and original history (557.763042ms)
+✔ lost native observation COMMIT returns usable advice with its unknown original ID and records no prompt or automatic retry (120.904125ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.343333ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.096708ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.904041ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (17.475375ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.522709ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (2.971875ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (55.195833ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.450375ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.198709ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.194208ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.28625ms)
+✔ new setup, actual daemon and Commander CLI share authoritative data and pinned queued execution (210.441667ms)
+✔ final daemon shutdown stops queued dispatch before waiting on notification callbacks and retains native ownership until every settlement (125.516708ms)
+✔ actual CLI/daemon portable handoff preserves constraints, exports without overwrite and requires manual import review (142.588375ms)
+✔ final CLI/UDS graph review and explicit graph context keep source lineage, scope and revocation in the registered writer (233.344292ms)
+✔ disabled graph configuration keeps explicit graph retrieval empty without graph setup or native inference (109.666333ms)
+✔ actual consolidation CLI and daemon retain reviewed proposals, stable requests and private source isolation in the final runtime (257.494334ms)
+✔ actual portable profile CLI exports selected models and reviewed instructions, then previews imports without auth, installs or configuration writes (233.746542ms)
+✔ final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution (122.907417ms)
+✔ real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout (607.450917ms)
+✔ final binary hook uses one local metadata call and bound read-only notes, with private/absent-daemon behavior (671.244333ms)
+ℹ tests 81
+ℹ suites 0
+ℹ pass 81
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9943.843125

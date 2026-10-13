@@ -25,6 +25,13 @@ test('production boundary graph passes including the recorded legacy forwarding 
 });
 
 const cases: { name: string; files: Record<string, string>; expected: RegExp; config?: object }[] = [
+  { name: 'final memory composition cannot reach legacy config', files: { 'src/app/memory.ts': "import '../../lib/config.ts';", 'lib/config.ts': 'export const value=1;' }, expected: /Forbidden app -> legacy/ },
+  { name: 'curated source policy cannot reach native writer', files: { 'src/core/memory-source.ts': "import '../adapters/memory/sqlite-store.ts';", 'src/adapters/memory/sqlite-store.ts': 'export const value=1;' }, expected: /Forbidden core -> adapters/ },
+  { name: 'normal registered reader cannot import new initialization', files: { 'src/adapters/memory/sqlite-readonly.ts': "import './sqlite-initialize.ts';", 'src/adapters/memory/sqlite-initialize.ts': 'export const value=1;' }, expected: /Cross-adapter/ },
+  { name: 'jobs core cannot use an ambient clock', files: { 'src/core/use-cases/jobs.ts': 'export const value=Date.now();' }, expected: /Core IO\/global.*Date/ },
+  { name: 'jobs core cannot import durable IO', files: { 'src/core/use-cases/jobs.ts': "import '../../adapters/jobs/sqlite-jobs.ts';", 'src/adapters/jobs/sqlite-jobs.ts': 'export const value=1;' }, expected: /Forbidden core -> adapters/ },
+  { name: 'jobs storage cannot reuse memory cutover machinery', files: { 'src/adapters/jobs/sqlite-jobs.ts': "import '../memory/sqlite-cutover.ts';", 'src/adapters/memory/sqlite-cutover.ts': 'export const value=1;' }, expected: /Cross-adapter/ },
+  { name: 'final jobs composition cannot import legacy rendezvous', files: { 'src/app/jobs.ts': "import '../../lib/exec.ts';", 'lib/exec.ts': 'export const value=1;' }, expected: /Forbidden app -> legacy/ },
   { name: 'type-only static IO import', files: { 'src/core/a.ts': "import type { Stats } from 'node:fs';" }, expected: /Core external/ },
   { name: 'reexport relative bypass', files: { 'src/core/a.ts': "export { value } from '../platform/io.ts';", 'src/platform/io.ts': 'export const value=1;' }, expected: /Forbidden core -> platform/ },
   { name: 'literal dynamic import', files: { 'src/core/a.ts': "void import('../platform/io.ts');", 'src/platform/io.ts': 'export const value=1;' }, expected: /Forbidden core -> platform/ },
@@ -105,7 +112,8 @@ test('AST parsing ignores fake imports in comments/text and permits local symbol
 
 test('isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins', () => {
   const sb = fixture({
-    'src/adapters/memory/sqlite-query.ts': "import {type DatabaseSync as Native} from 'node:sqlite'; export type NativeType=import('node:sqlite').DatabaseSync; export function query(deps:{now():number;measure(n:number):void},db:Native) { const process=1; deps.measure(Math.max(process,deps.now())); return db.prepare('SELECT 1').get(); }",
+    'src/adapters/memory/sqlite-query.ts': "import type {SqliteDatabase as Native} from '../../platform/sqlite.ts'; export function query(deps:{now():number;measure(n:number):void},db:Native) { const process=1; deps.measure(Math.max(process,deps.now())); return db.prepare('SELECT 1').get(); }",
+    'src/platform/sqlite.ts': "export interface SqliteDatabase { prepare(sql:string): {get():unknown}; }",
     'src/contracts/schema.ts': "const performance=()=>1; export const value=Number.isFinite(performance());",
   });
   try { assert.deepEqual(checkBoundaries({ root: sb.root }).violations, []); }

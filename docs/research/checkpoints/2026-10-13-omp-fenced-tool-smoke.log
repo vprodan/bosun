@@ -1,0 +1,13 @@
+{
+  "transport": "synthetic native OMP fixture",
+  "originalFence": true,
+  "laterToolProducedFile": false,
+  "quiescence": {
+    "sessionId": "fixture_286caeb7c3d5a673ce59d69c",
+    "generation": 0,
+    "pendingTools": 0,
+    "idle": true
+  },
+  "producerJoined": true,
+  "nativeQualification": "unverified"
+}

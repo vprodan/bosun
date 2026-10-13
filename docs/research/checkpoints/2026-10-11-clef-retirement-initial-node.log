@@ -1,0 +1,132 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ readiness construction is inert and probes only metadata, projecting no other models/templates/messages/auth (16.990625ms)
+✔ missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference (22.815542ms)
+✔ Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override (5.616084ms)
+✔ readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages (5.430208ms)
+✔ configured digest mismatch and hot tag/selected-child changes remain held without accepting another selection (3.178417ms)
+✔ native default latest/display canonicalization preserves the actual requested model and never picks a different tag (1.791959ms)
+✔ final explicit classification validates privacy/bounds before metadata, binds before/after digest and never authorizes automatic work (4.744958ms)
+✔ cold classification may use its explicitly selected installed model, but metadata status alone never warms it (3.407459ms)
+✔ metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice (5.895792ms)
+✔ caller cancellation, HTTP failures and oversize/stalled bodies obey one finite metadata deadline without raw provider text (54.046ms)
+✔ the total classification deadline includes every pre/post metadata phase and produces no late/retried advice (72.447042ms)
+✔ public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state (3.702209ms)
+✔ legacy Kev retirement plan binds config/service fingerprints and requires real ownership or explicit reviewed adoption (0.53375ms)
+✖ upgrade reviews exact supported Kev plist and explicit new endpoint without probing, installing or retaining its confidence (15.147459ms)
+✔ unowned, malformed, changed, linked and foreign-user legacy definitions hold before upgrade effects or service discovery (41.448458ms)
+✖ one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay (116.946208ms)
+✔ already stopped Kev definition archives without repeating bootout, while absent service makes no native call (185.300916ms)
+✔ actual stop followed by lost native return retains original plist/backup and a held attempt without another stop (37.270167ms)
+✔ archive unlink followed by lost return preserves retained native backup and never repeats any upgrade effects (34.659125ms)
+✔ retired backup corruption or an unowned replacement definition makes status/duplicate apply held without mutation (202.391375ms)
+✔ legacy launchd list selection is restricted to the exact router label and current CLI exposes its review options (2.965416ms)
+✔ start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart (2307.544ms)
+✔ restart with a lost actual stop acknowledgement holds its original operation without starting or replaying (1126.701959ms)
+✔ legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations (0.219542ms)
+✔ actual guarded daemon start/readiness/stop and exact undo use original owned namespace without service replay (2117.909583ms)
+✔ lost actual bootstrap return remains unknown; own daemon observation reconciles without a second bootstrap (1232.003917ms)
+✔ lost actual bootout return reconciles absence plus native closure and removes only the original plist without repeating bootout (1232.184291ms)
+✔ unknown list/context and a foreign namespace or definition refuse before service intent or mutations (1856.080125ms)
+✔ loaded but not ready service retains original owned intent and can be explicitly disabled without pretending readiness (1528.968625ms)
+✔ actual owner CLI service commands use shared receipts and model callers cannot reach service observations (1227.340583ms)
+✔ manifest monotonic CAS rejects a stale installation snapshot without overwriting newer service receipts (1231.884208ms)
+✔ changed published definition and mismatched native PID cannot stop an unqualified service (2642.782542ms)
+✔ service publication into an unsafe parent is held before intent and preserves owner paths (454.44375ms)
+✔ actual plist removal followed by a lost rename return stays uncertain and reconciles without repeating shutdown (1322.944958ms)
+✔ foreign archive bytes survive shutdown and reconciliation never repeats native control (1312.734291ms)
+✔ onboarding guides the existing OpenCode profile and daemon flow without process calls, automatic effects or extra start cycles (1498.707125ms)
+✔ fresh onboarding reports setup, selects each first-class host and refuses invalid host or uncertain installation without mutation (4.205208ms)
+✔ reviewed installer copies the exact binary to a stable owner path, retains data/models, prepares a dormant plist and undoes only owned files (437.320375ms)
+✔ explicit existing link replacement retains the original inode and restores it on exact undo (292.579375ms)
+✔ explicit existing file replacement retains the original inode and restores it on exact undo (306.189167ms)
+✔ Homebrew deployment references its stable opt path and never copies/removes the externally owned binary (283.253792ms)
+✔ stale source/config/manifest, unsafe directories, edited daemon text and active authority refuse before installation intent (1107.331459ms)
+✔ edited installed bytes, original backup and unrelated files are preserved; unknown receipts cannot replay apply or undo (272.1975ms)
+✔ actual ready manifest rename with a lost return fences activation and does not repeat the binary copy (273.830542ms)
+✔ actual CLI plan/apply/status/undo uses the same reviewed contract and denies model callers before changes (301.636916ms)
+✔ edited original backups and directory permissions refuse undo; unrelated new files survive removal of the owned executable (857.500375ms)
+✔ rebound user home and a forged receipt cannot redirect installer writes or undo an unowned executable (410.341125ms)
+✔ wrong executable version and source mutation during the version probe preserve manifest and install destinations (682.507375ms)
+✔ lost actual undo rename retains original receipts and data; a second undo cannot replay restoration (291.934417ms)
+✔ doctor detects installed file drift through filesystem checks without opening memory or executing services (273.666375ms)
+✔ retained installation capacity repeats under native admission before any new intent or external effect (151.156292ms)
+✔ Clef registry is lazy and construction/private classification accesses no config or transport (2.394167ms)
+✔ Clef sends exact ordered decision questions and preserves an explicitly selected trusted model (14.275541ms)
+✔ Clef bounds full UTF-8 payload, including multibyte state and questions, without silent truncation (3.927334ms)
+✔ Clef rejects malformed/foreign responses with fixed actual messages and no retries/fallback (18.131ms)
+✔ Clef validates greatest/tied choices conservatively and risk still overrides zero confidence (1.462291ms)
+✔ Clef JSON/content/HTTP failures are content-free and a missing model never triggers a pull (3.117333ms)
+✔ Clef bounds streamed response bytes and aborts stalled bodies within its deadline (55.471708ms)
+✔ Clef caller cancellation and invalid configuration perform no inference or substitution (0.68675ms)
+✔ Clef fixture/schema checks leave calibration and live readiness unverified (0.223291ms)
+✔ Router contract (Ollama Clef fixture): public decision and deterministic high-risk fence (1.979ms)
+✔ Router contract (Ollama Clef fixture): private/unknown input never reaches transport (0.36725ms)
+✔ legacy import preserves local, native role, direct worker/reviewer and provider selections without importing credentials (1.208ms)
+✔ read-only upgrade plan performs no SQLite evaluation, creates no files and reports schema unverified (46.231167ms)
+✔ actual upgrade backs up original SQLite state before graph/floor commit and preserves raw rows, IDs, scope, audit and config (119.940458ms)
+✔ upgrade inventories and preserves historical metrics, runtime log, and LLM usage files byte-for-byte (113.588292ms)
+✔ upgraded data is usable through actual daemon owner/model methods and CLI run retains the separate direct model (167.628291ms)
+✔ config-only legacy installation upgrades without inventing old rows and explicit CLI guards precede file access (115.212292ms)
+✔ reviewed legacy modes are narrowed while original content and completed run receipts remain untouched (106.918959ms)
+✔ upgrade new-file refuses before any runtime intent or original-file mutation (31.515292ms)
+✔ upgrade source-bytes refuses before any runtime intent or original-file mutation (32.641916ms)
+✔ upgrade unsettled-run refuses before any runtime intent or original-file mutation (31.218833ms)
+✔ upgrade symlink refuses before any runtime intent or original-file mutation (32.021417ms)
+✔ upgrade hardlink refuses before any runtime intent or original-file mutation (30.899042ms)
+✔ idle cached old writer cannot bypass the newly installed native SQL floor (107.387208ms)
+✔ unknown legacy SQLite schema is held without changing original database or config bytes (33.113084ms)
+✔ actual live legacy writer admission prevents migration and no busy failure is retried (34.4705ms)
+✔ config edited after native migration stays intact and cannot activate a stale imported model selection (73.734667ms)
+✔ actual upgrade schema-commit succeeds natively then loses return; durable intent fences activation and duplicate replay (66.293209ms)
+✔ actual upgrade ready-rename succeeds natively then loses return; durable intent fences activation and duplicate replay (110.264625ms)
+ℹ tests 80
+ℹ suites 0
+ℹ pass 78
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30221.407708
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:51:1
+✖ upgrade reviews exact supported Kev plist and explicit new endpoint without probing, installing or retaining its confidence (15.147459ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:54:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1306:25)
+      at Test.start (node:internal/test_runner/test:1177:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/clef-retirement.test.ts:86:1
+✖ one reviewed upgrade backs up, stops and archives Kev, retains config/repository, and selects Clef without replay (116.946208ms)
+  TypeError: Cannot read properties of undefined (reading 'router')
+      at TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/clef-retirement.test.ts:95:51)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7)

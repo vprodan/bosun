@@ -5,7 +5,7 @@ description: Use when a change has an open decision - a new feature, a behaviour
 
 # bosun-design
 
-1. `bosun card in-progress "designing: <topic>"`.
+1. From an owner session inside Orca: `bosun card in-progress "designing: <topic>" --public --request-id <checkpoint-id>`.
 2. Restate the goal in two lines: what the user said, and what you assume. Ask at most 3 clarifying questions, one at a time, and only ones whose answer changes the design.
 3. Call the **architect** role with the goal, the answers, the repos and files in scope, and the constraints (compatibility, risk areas). Ask for 2-3 options, a recommendation, and an executor-ready spec for the recommended option.
 4. Check the options against the code yourself (spot-read the key files). Drop any option that breaks a stated constraint.

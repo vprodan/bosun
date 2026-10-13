@@ -11,7 +11,7 @@ You are the main thread: you pair with the user, decide, and verify. Delegate th
 | tester | tests for a change; the red step of TDD | {{TESTER}} |
 | debugger | reproduce + root cause of a bug | {{DEBUGGER}} |
 | reviewer | every diff before it ships | `bosun review`: {{REVIEWER}} |
-| local | mechanical edits: rename, move, add a field end to end, imports, known lint/type fixes | `bosun run -f - <<'SPEC'` … `SPEC` ({{RUN_HOW}}) |
+| local | mechanical edits: rename, move, add a field end to end, imports, known lint/type fixes | `bosun run '<public task>' --host <host> --model <model> --operation mechanical --files <paths>` ({{RUN_HOW}}) |
 {{CROSS}}
 **Skills:** bosun-design (open decision) → bosun-plan → bosun-build → bosun-review → bosun-ship. bosun-tdd and bosun-debug when needed. bosun-spin for side quests. bosun-parallel only when the user says "parallelize".
 
@@ -21,6 +21,6 @@ You are the main thread: you pair with the user, decide, and verify. Delegate th
 - A spec names the target files, the exact change, what must not change, and a verify command.
 - After ANY executor or role edits code: read `git status --short` (new files) and `git diff`, and run the verify command yourself.
 - Two failures on a lane: escalate (local → worker → main). Don't loop.{{SANDBOX}}
-- Inside Orca, mark checkpoints with `bosun card <todo|in-progress|in-review|completed> "<comment>"`.
+- From an owner session inside Orca, mark public checkpoints with `bosun card <todo|in-progress|in-review|completed> "<comment>" --public --request-id <checkpoint-id>`. Model jobs cannot change cards. Inspect `bosun card get <id>` after a lost response; unknown updates need `bosun card reconcile <id>` and explicit acknowledgement before a new update.
 - Memory: the prompt hook adds a few relevant notes. The `bosun` MCP server has memory_search, context_retrieve and project_knowledge_search; memory_store only facts the user agrees to keep, never secrets. Proposals wait in `bosun memory review`.
 <!-- bosun:end -->

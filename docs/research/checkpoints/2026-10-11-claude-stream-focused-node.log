@@ -1,0 +1,40 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ native bootstrap transport pins selection, disables tools and acknowledges an inference-free user append without claiming retained readiness (424.739083ms)
+✔ private/malformed/secret bootstrap input refuses before content access or native delivery (191.431625ms)
+✔ native bootstrap lost-append joins the original process and never retries or reports readiness (127.724667ms)
+✔ native bootstrap wrong-seed joins the original process and never retries or reports readiness (186.801709ms)
+✔ native bootstrap wrong-user joins the original process and never retries or reports readiness (190.005833ms)
+✔ native bootstrap wrong-session joins the original process and never retries or reports readiness (186.064208ms)
+✔ native bootstrap model-turn joins the original process and never retries or reports readiness (195.695125ms)
+✔ native control timeout holds until original producer termination and hides raw errors (238.88175ms)
+✔ native control error holds until original producer termination and hides raw errors (196.402208ms)
+✔ native control foreign-id holds until original producer termination and hides raw errors (189.578875ms)
+✔ native permission and hook requests are explicitly denied without reading or exposing their payloads (195.505583ms)
+✔ selection validation and unsupported native version precede stream startup (208.514416ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2612.326125

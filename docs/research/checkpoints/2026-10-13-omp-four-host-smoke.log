@@ -1,0 +1,45 @@
+{
+  "openCodeVersion": "2.0.27",
+  "sourceOnlyProfile": true,
+  "selectedModel": {
+    "providerID": "ollama",
+    "model": "qwen3.6:owner-tag",
+    "variant": "high"
+  },
+  "launchMode": [
+    "--standalone"
+  ],
+  "insertedContext": [
+    {
+      "type": "text",
+      "text": "Approved public smoke context."
+    }
+  ],
+  "nativeQualification": "unverified"
+}
+{
+  "transport": "synthetic native OMP fixture",
+  "primary": "omp",
+  "supportedHosts": [
+    "omp",
+    "opencode",
+    "codex",
+    "claude"
+  ],
+  "selectedModel": "ollama/qwen3.6:owner-tag",
+  "originalRuns": 1,
+  "producerJoined": true,
+  "events": [
+    {
+      "t": "usage",
+      "tokensIn": 10,
+      "tokensOut": 3
+    },
+    {
+      "t": "done",
+      "code": 0,
+      "result": "Synthetic native OMP result — owner verifies."
+    }
+  ],
+  "nativeQualification": "unverified"
+}

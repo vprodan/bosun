@@ -1,0 +1,259 @@
+{
+  "coverage": "guarded-node-source-regression",
+  "frozenAt": "2026-10-11T21:12:19.087Z",
+  "branch": "main",
+  "head": "4adb3b4",
+  "packageVersion": "0.2.0",
+  "runtime": {
+    "engine": "node",
+    "version": "24.16.0"
+  },
+  "compiledExecuted": false,
+  "bunTestsExecuted": false,
+  "staticBuildsPerformed": false,
+  "ownerStateAccessed": false,
+  "modelsOrNativeHostsCalled": false,
+  "sourceFiles": [
+    {
+      "path": "src/app/memory-benchmark.ts",
+      "bytes": 9731,
+      "sha256": "6193e7c9209733ebb8b3171e6a112c1ce5c85769c73e2419a9bc89f12b56149c"
+    },
+    {
+      "path": "src/app/cli.ts",
+      "bytes": 60642,
+      "sha256": "d6856cb3eb976e6b868458b48eb0b11c4f5554f37961fe62eda50dbb33bc1878"
+    },
+    {
+      "path": "test/memory-benchmark.test.ts",
+      "bytes": 6927,
+      "sha256": "9157884f0c860fe23880dbbce314117acf64d2afc4b178816be6149953bfd29e"
+    },
+    {
+      "path": "test/memory.test.ts",
+      "bytes": 30193,
+      "sha256": "1097149c3245116984e75ec6ad8ad5737bb7d696a05903762804363c8258cc42"
+    },
+    {
+      "path": "scripts/run-tests.mjs",
+      "bytes": 6908,
+      "sha256": "86e31e32d1f6a88165d9ecc4ff74b600a1df40263ae1c097c9c72fcf759f6874"
+    }
+  ],
+  "currentBuildInputs": {
+    "count": 7282,
+    "sourceDigest": "a484016981086346c94b1ba72eb11a8c884edac4d9905bc9fac34dcbd2c74bab",
+    "dependenciesDigest": "f6ecc99d8e7682e80c4701b9f9f57345971f62f5609987abcf4ee4f645e43147",
+    "assetsDigest": "5d4901e77f5ba8b3bbe5e2481da801aa7c6527ff7820923129e52bc5ff65054c",
+    "productionFlags": [
+      "--compile",
+      "--target=bun-darwin-arm64",
+      "--format=esm",
+      "--splitting",
+      "--bytecode",
+      "--minify",
+      "--no-compile-autoload-dotenv",
+      "--no-compile-autoload-bunfig",
+      "--no-compile-autoload-tsconfig",
+      "--no-compile-autoload-package-json",
+      "--define",
+      "process.env.DEV=\"false\"",
+      "--external",
+      "react-devtools-core"
+    ]
+  },
+  "checks": [
+    {
+      "command": "node scripts/run-tests.mjs --runtime node --suite benchmark,memory,climetadata",
+      "originalSession": 58860,
+      "terminalExit": 0,
+      "applicationTests": {
+        "passed": 51,
+        "total": 51,
+        "failed": 0
+      },
+      "containment": {
+        "passed": 19,
+        "total": 19
+      },
+      "applicationDurationMs": 91345.317041
+    },
+    {
+      "command": "node scripts/run-typecheck.mjs",
+      "originalSession": 47748,
+      "terminalExit": 0,
+      "strict": true,
+      "durationMs": null,
+      "durationNote": "Exact elapsed duration was not separately instrumented; original handle returned terminal exit 0."
+    },
+    {
+      "command": "node scripts/check-boundaries.mjs",
+      "terminalChunk": "e21b37",
+      "terminalExit": 0,
+      "toolWallSeconds": 0.759881417,
+      "productionFiles": 234,
+      "resolvedEdges": 1259,
+      "violations": 0
+    },
+    {
+      "command": "git diff --check",
+      "terminalChunk": "94ced3",
+      "terminalExit": 0,
+      "toolWallSeconds": 0.000004875
+    }
+  ],
+  "logs": [
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-benchmark-source-node.log",
+      "bytes": 7435,
+      "sha256": "93711a047ab029ea90f46cb3b4532bc9907a395fa8fc83e160a9c5e13113d16f"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-benchmark-source-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-benchmark-source-boundaries.log",
+      "bytes": 69,
+      "sha256": "adcbe777bb3e789e865dfb29c38ab2bc76e79e5564bfc5fe826d12d945015362"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-benchmark-source-whitespace.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "scripts/distribution.mjs",
+      "expectedSha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18",
+      "actualSha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18",
+      "matches": true
+    },
+    {
+      "path": "scripts/build.mjs",
+      "expectedSha256": "4364535fcfb01ad8d967f21cfd7ff26e6693a4a0ea8728e56bef6736b98ee2c5",
+      "actualSha256": "4364535fcfb01ad8d967f21cfd7ff26e6693a4a0ea8728e56bef6736b98ee2c5",
+      "matches": true
+    },
+    {
+      "path": "scripts/check-claude-bootstrap.mjs",
+      "expectedSha256": "e0f1bd1bcc7684f178130d4e714dd5b3d09b1eb816721ec28f26409f6ebb7a2a",
+      "actualSha256": "e0f1bd1bcc7684f178130d4e714dd5b3d09b1eb816721ec28f26409f6ebb7a2a",
+      "matches": true
+    },
+    {
+      "path": "scripts/check-compiled-runtime.mjs",
+      "expectedSha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109",
+      "actualSha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109",
+      "matches": true
+    },
+    {
+      "path": "package.json",
+      "expectedSha256": "e6a1d13fdc0cf0a95b3dffb89364abb32b01bf6a64d80a6848d7161d8611cb97",
+      "actualSha256": "e6a1d13fdc0cf0a95b3dffb89364abb32b01bf6a64d80a6848d7161d8611cb97",
+      "matches": true
+    },
+    {
+      "path": "package-lock.json",
+      "expectedSha256": "26ac1ceb84dad95a08438a336471e35a73c4aea130b8d21c754062378524fc05",
+      "actualSha256": "26ac1ceb84dad95a08438a336471e35a73c4aea130b8d21c754062378524fc05",
+      "matches": true
+    },
+    {
+      "path": "bun.lock",
+      "expectedSha256": "4542b6d28ef33ba4fb83382bbc7afa645894498a5fe2dbb2fa77af0490225b1b",
+      "actualSha256": "4542b6d28ef33ba4fb83382bbc7afa645894498a5fe2dbb2fa77af0490225b1b",
+      "matches": true
+    }
+  ],
+  "claudeClosure": {
+    "sourceDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+    "entries": [
+      {
+        "path": "scripts/check-claude-metadata.mjs",
+        "expectedSha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "actualSha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/client.ts",
+        "expectedSha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "actualSha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/runner.ts",
+        "expectedSha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "actualSha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/transcript.ts",
+        "expectedSha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "actualSha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/inference.ts",
+        "expectedSha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "actualSha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/route.ts",
+        "expectedSha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "actualSha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/task.ts",
+        "expectedSha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "actualSha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "matches": true
+      },
+      {
+        "path": "src/core/errors.ts",
+        "expectedSha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "actualSha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "matches": true
+      },
+      {
+        "path": "src/core/policy.ts",
+        "expectedSha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "actualSha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "matches": true
+      },
+      {
+        "path": "src/core/ports/runner.ts",
+        "expectedSha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "actualSha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "matches": true
+      },
+      {
+        "path": "src/core/secret-screen.ts",
+        "expectedSha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "actualSha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "matches": true
+      },
+      {
+        "path": "src/platform/private-file.ts",
+        "expectedSha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "actualSha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "matches": true
+      },
+      {
+        "path": "src/platform/process.ts",
+        "expectedSha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "actualSha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "matches": true
+      }
+    ]
+  },
+  "limits": [
+    "Direct compiled entry and engine reporting are exercised with explicit Node script fixtures, not a Bun or compiled runtime.",
+    "Actual compiled runtime, SQLite ABI and designated-Mac latency remain unqualified.",
+    "Earlier static no-bytecode pair predates this benchmark source change."
+  ]
+}

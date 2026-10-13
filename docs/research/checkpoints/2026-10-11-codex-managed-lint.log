@@ -1,0 +1,1107 @@
+src/adapters/hosts/codex/client.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      1     │ - import·path·from·'node:path';
+      2     │ - import·{·BosunError·}·from·'../../../core/errors.ts';
+      3     │ - import·type·{·Env·}·from·'../../../core/domain/inference.ts';
+      4     │ - import·{·streamProcess,·type·ProcessInput·}·from·'../../../platform/process.ts';
+      5     │ - import·{·version·}·from·'../../../platform/assets.ts';
+      6     │ - import·{·createCodexRunner,·CODEX_VERSION·}·from·'./runner.ts';
+          1 │ + import·path·from·"node:path";
+          2 │ + import·{·BosunError·}·from·"../../../core/errors.ts";
+          3 │ + import·type·{·Env·}·from·"../../../core/domain/inference.ts";
+          4 │ + import·{·streamProcess,·type·ProcessInput·}·from·"../../../platform/process.ts";
+          5 │ + import·{·version·}·from·"../../../platform/assets.ts";
+          6 │ + import·{·createCodexRunner,·CODEX_VERSION·}·from·"./runner.ts";
+      7   7 │   
+      8     │ - export·type·CodexMethod·=·'account/read'·|·'account/rateLimits/read'·|·'config/read'·|·'thread/start'·|·'thread/read'
+      9     │ - ··|·'thread/compact/start'·|·'thread/unsubscribe'·|·'thread/inject_items'·|·'thread/backgroundTerminals/list'·|·'turn/start'·|·'turn/interrupt';
+     10     │ - const·METHODS·=·new·Set<string>(['account/read',·'account/rateLimits/read',·'config/read',·'thread/start',·'thread/read',
+     11     │ - ··'thread/compact/start',·'thread/unsubscribe',·'thread/inject_items',·'thread/backgroundTerminals/list',·'turn/start',·'turn/interrupt']);
+          8 │ + export·type·CodexMethod·=
+          9 │ + → |·"account/read"
+         10 │ + → |·"account/rateLimits/read"
+         11 │ + → |·"config/read"
+         12 │ + → |·"thread/start"
+         13 │ + → |·"thread/read"
+         14 │ + → |·"thread/compact/start"
+         15 │ + → |·"thread/unsubscribe"
+         16 │ + → |·"thread/inject_items"
+         17 │ + → |·"thread/backgroundTerminals/list"
+         18 │ + → |·"turn/start"
+         19 │ + → |·"turn/interrupt";
+         20 │ + const·METHODS·=·new·Set<string>([
+         21 │ + → "account/read",
+         22 │ + → "account/rateLimits/read",
+         23 │ + → "config/read",
+         24 │ + → "thread/start",
+         25 │ + → "thread/read",
+         26 │ + → "thread/compact/start",
+         27 │ + → "thread/unsubscribe",
+         28 │ + → "thread/inject_items",
+         29 │ + → "thread/backgroundTerminals/list",
+         30 │ + → "turn/start",
+         31 │ + → "turn/interrupt",
+         32 │ + ]);
+     12  33 │   export type CodexClient = {
+     13     │ - ··request(method:·CodexMethod,·params:·Record<string,·unknown>,·signal?:·AbortSignal):·Promise<unknown>;
+     14     │ - ··close():·Promise<void>;
+         34 │ + → request(
+         35 │ + → → method:·CodexMethod,
+         36 │ + → → params:·Record<string,·unknown>,
+         37 │ + → → signal?:·AbortSignal,
+         38 │ + → ):·Promise<unknown>;
+         39 │ + → close():·Promise<void>;
+     15  40 │   };
+     16  41 │   export type CodexClientOptions = {
+     17     │ - ··env:·Env;·cwd:·string;·command?:·string;·timeoutMs?:·number;·requestTimeoutMs?:·number;·killGraceMs?:·number;
+     18     │ - ··notification?:·(method:·string,·params:·unknown)·=>·void;
+     19     │ - ··closed?:·()·=>·void;
+         42 │ + → env:·Env;
+         43 │ + → cwd:·string;
+         44 │ + → command?:·string;
+         45 │ + → timeoutMs?:·number;
+         46 │ + → requestTimeoutMs?:·number;
+         47 │ + → killGraceMs?:·number;
+         48 │ + → notification?:·(method:·string,·params:·unknown)·=>·void;
+         49 │ + → closed?:·()·=>·void;
+     20  50 │   };
+     21     │ - type·Pending·=·{·resolve(value:·unknown):·void;·reject(error:·BosunError):·void;·dispose():·void·};
+     22     │ - const·object·=·(value:·unknown):·value·is·Record<string,·unknown>·=>·!!value·&&·typeof·value·===·'object'·&&·!Array.isArray(value);
+     23     │ - const·failed·=·(code:·'unavailable'·|·'timeout'·|·'cancelled'·=·'unavailable')·=>·new·BosunError(code,
+     24     │ - ··code·===·'timeout'·?·'Codex·request·timed·out'·:·code·===·'cancelled'·?·'Codex·request·cancelled'·:·'Codex·request·unavailable',·{·details:·{·outcome:·'unknown'·}·});
+     25     │ - const·id·=·(value:·unknown):·value·is·string·|·number·=>·Number.isSafeInteger(value)·&&·Number(value)·>=·0
+     26     │ - ··||·typeof·value·===·'string'·&&·value.length·>·0·&&·value.length·<=·256·&&·!/[\x00-\x1f\x7f]/.test(value);
+         51 │ + type·Pending·=·{
+         52 │ + → resolve(value:·unknown):·void;
+         53 │ + → reject(error:·BosunError):·void;
+         54 │ + → dispose():·void;
+         55 │ + };
+         56 │ + const·object·=·(value:·unknown):·value·is·Record<string,·unknown>·=>
+         57 │ + → !!value·&&·typeof·value·===·"object"·&&·!Array.isArray(value);
+         58 │ + const·failed·=·(
+         59 │ + → code:·"unavailable"·|·"timeout"·|·"cancelled"·=·"unavailable",
+         60 │ + )·=>
+         61 │ + → new·BosunError(
+         62 │ + → → code,
+         63 │ + → → code·===·"timeout"
+         64 │ + → → → ?·"Codex·request·timed·out"
+         65 │ + → → → :·code·===·"cancelled"
+         66 │ + → → → → ?·"Codex·request·cancelled"
+         67 │ + → → → → :·"Codex·request·unavailable",
+         68 │ + → → {·details:·{·outcome:·"unknown"·}·},
+         69 │ + → );
+         70 │ + const·id·=·(value:·unknown):·value·is·string·|·number·=>
+         71 │ + → (Number.isSafeInteger(value)·&&·Number(value)·>=·0)·||
+         72 │ + → (typeof·value·===·"string"·&&
+         73 │ + → → value.length·>·0·&&
+         74 │ + → → value.length·<=·256·&&
+         75 │ + → → !/[\x00-\x1f\x7f]/.test(value));
+     27  76 │   
+     28  77 │   // A new, explicitly selected native process. No daemon discovery, token import,
+     29  78 │   // login, model request, resume, retry or provider fallback is performed here.
+     30  79 │   // Transport acknowledgement is a correlated native response, not a pipe write.
+     31     │ - export·async·function·connectCodexAppServer(options:·CodexClientOptions,·signal:·AbortSignal):·Promise<CodexClient>·{
+     32     │ - ··if·(signal.aborted)·throw·new·BosunError('cancelled',·'Codex·connection·cancelled');
+     33     │ - ··if·(!path.isAbsolute(options.cwd)·||·options.cwd.includes('\0'))·throw·new·BosunError('invalid',·'Invalid·Codex·workspace');
+     34     │ - ··const·requestTimeout·=·options.requestTimeoutMs·??·10000;
+     35     │ - ··if·(!Number.isSafeInteger(requestTimeout)·||·requestTimeout·<·1·||·requestTimeout·>·60000)·throw·new·BosunError('invalid',·'Invalid·Codex·request·timeout');
+     36     │ - ··const·env:·Env·=·{·...options.env,·BOSUN_DEPTH:·'1',·BOSUN_CALLER:·'model'·};
+     37     │ - ··const·detected·=·await·createCodexRunner({·env,·command:·options.command·}).detect(env);
+     38     │ - ··if·(!detected.installed)·throw·new·BosunError('unavailable',·'Codex·executable·unavailable');
+     39     │ - ··if·(detected.version·!==·CODEX_VERSION)·throw·new·BosunError('unverified',·'Codex·version·unverified');
+     40     │ - ··if·(signal.aborted)·throw·new·BosunError('cancelled',·'Codex·connection·cancelled');
+     41     │ - ··const·control·=·new·AbortController();·const·pending·=·new·Map<number,·Pending>();
+     42     │ - ··let·input:·ProcessInput·|·undefined;·let·closing·=·false;·let·closed·=·false;·let·terminated·=·false;
+     43     │ - ··let·failure:·BosunError·|·undefined;·let·counter·=·0;·let·messages·=·0;
+     44     │ - ··let·attach!:·()·=>·void;·let·attachFailed!:·(error:·BosunError)·=>·void;
+     45     │ - ··const·attached·=·new·Promise<void>((resolve,·reject)·=>·{·attach·=·resolve;·attachFailed·=·reject;·});
+     46     │ - ··const·stop·=·(error:·BosunError)·=>·{·failure·??=·error;·closing·=·true;·control.abort();·};
+     47     │ - ··const·abort·=·()·=>·stop(failed('cancelled'));·signal.addEventListener('abort',·abort,·{·once:·true·});
+     48     │ - ··const·pump·=·(async·()·=>·{
+     49     │ - ····try·{
+     50     │ - ······for·await·(const·event·of·streamProcess({·command:·detected.path!,·args:·['app-server',·'--listen',·'stdio://',
+     51     │ - ········'-c',·'approval_policy="never"',·'-c',·'features.hooks=false',·'-c',·'notify=[]'],·cwd:·options.cwd,·env,
+     52     │ - ········signal:·control.signal,·timeoutMs:·options.timeoutMs,·killGraceMs:·options.killGraceMs,·maxOutputBytes:·4194304,·maxLineBytes:·262144,
+     53     │ - ········stdin(channel)·{·input·=·channel;·attach();·},·onClosed()·{·terminated·=·true;·}·}))·{
+     54     │ - ········if·(event.t·===·'exit')·{·if·(!closing)·throw·failed();·continue;·}
+     55     │ - ········if·(++messages·>·4096)·throw·failed();
+     56     │ - ········let·row:·unknown;·try·{·row·=·JSON.parse(event.text);·}·catch·{·throw·failed();·}
+     57     │ - ········if·(!object(row)·||·row.jsonrpc·!==·undefined·&&·row.jsonrpc·!==·'2.0')·throw·failed();
+     58     │ - ········if·(typeof·row.method·===·'string')·{
+     59     │ - ··········if·(!row.method·||·row.method.length·>·160·||·/[\x00-\x1f\x7f]/.test(row.method))·throw·failed();
+     60     │ - ··········if·(Object.hasOwn(row,·'id'))·{
+     61     │ - ············if·(!id(row.id))·throw·failed();
+     62     │ - ············//·No·native·approval,·tool·execution·or·credential·refresh·is
+     63     │ - ············//·silently·delegated·to·this·transport·client.
+     64     │ - ············await·input!.write(JSON.stringify({·id:·row.id,·error:·{·code:·-32601,·message:·'Client·operation·unavailable'·}·})·+·'\n');
+     65     │ - ··········}·else·options.notification?.(row.method,·row.params);
+     66     │ - ··········continue;
+     67     │ - ········}
+     68     │ - ········if·(!Number.isSafeInteger(row.id)·||·!pending.has(Number(row.id))
+     69     │ - ··········||·Object.hasOwn(row,·'result')·===·Object.hasOwn(row,·'error'))·throw·failed();
+     70     │ - ········const·operation·=·pending.get(Number(row.id))!;·pending.delete(Number(row.id));·operation.dispose();
+     71     │ - ········if·(Object.hasOwn(row,·'error'))·operation.reject(failed());·else·operation.resolve(row.result);
+     72     │ - ······}
+     73     │ - ····}·catch·{·failure·??=·failed();·}
+     74     │ - ····finally·{
+     75     │ - ······closed·=·true;·closing·=·true;·signal.removeEventListener('abort',·abort);
+     76     │ - ······const·error·=·failure·??·failed('cancelled');·attachFailed(error);
+     77     │ - ······for·(const·operation·of·pending.values())·{·operation.dispose();·operation.reject(error);·}·pending.clear();
+     78     │ - ······options.closed?.();
+     79     │ - ····}
+     80     │ - ··})();
+  262 more lines truncated
+  
+
+src/adapters/hosts/codex/control.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      1     │ - import·fs·from·'node:fs';
+      2     │ - import·path·from·'node:path';
+      3     │ - import·{·BosunError·}·from·'../../../core/errors.ts';
+      4     │ - import·{·requirePublicInput·}·from·'../../../core/policy.ts';
+      5     │ - import·{·screenPublicText·}·from·'../../../core/secret-screen.ts';
+      6     │ - import·type·{·InferenceInput·}·from·'../../../core/domain/inference.ts';
+      7     │ - import·type·{·ManagedSession,·ContextSample,·AdmissionFence·}·from·'../../../core/domain/session.ts';
+      8     │ - import·type·{·ManagedSessionCreate,·ManagedSessionDriver·}·from·'../../../core/ports/host.ts';
+      9     │ - import·type·{·RunEvent·}·from·'../../../core/ports/runner.ts';
+     10     │ - import·{·connectCodexAppServer,·type·CodexClient,·type·CodexClientOptions·}·from·'./client.ts';
+     11     │ - import·{·CODEX_VERSION·}·from·'./runner.ts';
+     12     │ - import·{·bindRollout,·readRolloutSeed,·type·RolloutBinding·}·from·'./rollout.ts';
+     13     │ - import·{·captureCodexEvidence·}·from·'./evidence.ts';
+          1 │ + import·fs·from·"node:fs";
+          2 │ + import·path·from·"node:path";
+          3 │ + import·{·BosunError·}·from·"../../../core/errors.ts";
+          4 │ + import·{·requirePublicInput·}·from·"../../../core/policy.ts";
+          5 │ + import·{·screenPublicText·}·from·"../../../core/secret-screen.ts";
+          6 │ + import·type·{·InferenceInput·}·from·"../../../core/domain/inference.ts";
+          7 │ + import·type·{
+          8 │ + → ManagedSession,
+          9 │ + → ContextSample,
+         10 │ + → AdmissionFence,
+         11 │ + }·from·"../../../core/domain/session.ts";
+         12 │ + import·type·{
+         13 │ + → ManagedSessionCreate,
+         14 │ + → ManagedSessionDriver,
+         15 │ + }·from·"../../../core/ports/host.ts";
+         16 │ + import·type·{·RunEvent·}·from·"../../../core/ports/runner.ts";
+         17 │ + import·{
+         18 │ + → connectCodexAppServer,
+         19 │ + → type·CodexClient,
+         20 │ + → type·CodexClientOptions,
+         21 │ + }·from·"./client.ts";
+         22 │ + import·{·CODEX_VERSION·}·from·"./runner.ts";
+         23 │ + import·{
+         24 │ + → bindRollout,
+         25 │ + → readRolloutSeed,
+         26 │ + → type·RolloutBinding,
+         27 │ + }·from·"./rollout.ts";
+         28 │ + import·{·captureCodexEvidence·}·from·"./evidence.ts";
+     14  29 │   
+     15  30 │   type Gates = {
+     16     │ - ··assertOwner(expected:·{·ownerId:·string;·generation:·number·}):·void;
+     17     │ - ··assertDispatchOwner(expected:·{·ownerId:·string;·generation:·number;·sessionId:·string·}):·void;
+     18     │ - ··freshClaim(source:·ManagedSession):·{·ownerId:·string;·generation:·number·};
+     19     │ - ··hash(text:·string):·string;
+     20     │ - ··now():·number;
+     21     │ - ··id():·string;
+         31 │ + → assertOwner(expected:·{·ownerId:·string;·generation:·number·}):·void;
+         32 │ + → assertDispatchOwner(expected:·{
+         33 │ + → → ownerId:·string;
+         34 │ + → → generation:·number;
+         35 │ + → → sessionId:·string;
+         36 │ + → }):·void;
+         37 │ + → freshClaim(source:·ManagedSession):·{·ownerId:·string;·generation:·number·};
+         38 │ + → hash(text:·string):·string;
+         39 │ + → now():·number;
+         40 │ + → id():·string;
+     22  41 │   };
+     23     │ - type·Turn·=·{·id?:·string;·observed?:·string;·terminal?:·Record<string,·unknown>;·receipt?:·boolean;
+     24     │ - ··items:·Map<string,·{·type:·string;·terminal:·boolean·}>;·events:·RunEvent[];·wake():·void;·changed:·Promise<void>·};
+     25     │ - type·Owned·=·{·session:·ManagedSession;·cwd:·string;·effort:·string·|·null;·client:·CodexClient;·lifetime:·AbortController;
+     26     │ - ··rollout:·RolloutBinding;·phase:·'fresh'·|·'seeded'·|·'ready'·|·'unknown';·seed?:·{·text:·string;·hash:·string·};
+     27     │ - ··fence?:·AdmissionFence;·locked:·boolean;·freshAttempted:·boolean;·turn?:·Turn;·turns:·Set<string>;
+     28     │ - ··users:·Map<string,·{·clientId:·string;·text:·string;·turnId:·string·}>;·sample?:·ContextSample·};
+     29     │ - const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>·!!v·&&·typeof·v·===·'object'·&&·!Array.isArray(v);
+     30     │ - const·integer·=·(v:·unknown):·v·is·number·=>·typeof·v·===·'number'·&&·Number.isSafeInteger(v)·&&·v·>=·0;
+     31     │ - const·string·=·(v:·unknown,·max·=·256):·v·is·string·=>·typeof·v·===·'string'·&&·!!v·&&·!/[\x00-\x1f\x7f]/.test(v)·&&·Buffer.byteLength(v)·<=·max;
+     32     │ - const·text·=·(v:·unknown,·max:·number):·v·is·string·=>·typeof·v·===·'string'·&&·!!v.trim()·&&·!v.includes('\0')·&&·Buffer.byteLength(v)·<=·max;
+     33     │ - const·uuid·=·(v:·unknown):·v·is·string·=>·typeof·v·===·'string'·&&·/^[a-f0-9]{8}-[a-f0-9]{4}-7[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(v);
+     34     │ - const·own·=·(v:·object,·key:·string):·unknown·=>·Object.getOwnPropertyDescriptor(v,·key)?.value;
+     35     │ - const·fail·=·(code:·'invalid'·|·'unverified'·|·'unavailable'·|·'cancelled'·=·'unavailable',·unknown·=·false)·=>
+     36     │ - ··new·BosunError(code,·code·===·'invalid'·?·'Invalid·Codex·managed·request'·:·code·===·'unverified'·?·'Codex·managed·control·unverified'
+     37     │ - ····:·code·===·'cancelled'·?·'Codex·managed·request·cancelled'·:·'Codex·managed·source·unavailable',·unknown·?·{·details:·{·outcome:·'unknown'·}·}·:·undefined);
+     38     │ - const·caps:·ManagedSessionDriver['caps']·=·Object.freeze({·contextTelemetry:·'unverified',·promptAdmission:·'unverified',
+     39     │ - ··toolQuiescence:·'unverified',·freshSession:·'unverified',·seedWithoutInference:·'unverified',·freshReadiness:·'unverified'·});
+     40     │ - const·terminalTools·=·new·Set(['completed',·'failed',·'declined']);
+     41     │ - const·tools·=·new·Set(['commandExecution',·'fileChange',·'mcpToolCall',·'dynamicToolCall']);
+     42     │ - const·lost·=·(owned:·Owned)·=>·owned.phase·===·'unknown';
+         42 │ + type·Turn·=·{
+         43 │ + → id?:·string;
+         44 │ + → observed?:·string;
+         45 │ + → terminal?:·Record<string,·unknown>;
+         46 │ + → receipt?:·boolean;
+         47 │ + → items:·Map<string,·{·type:·string;·terminal:·boolean·}>;
+         48 │ + → events:·RunEvent[];
+         49 │ + → wake():·void;
+         50 │ + → changed:·Promise<void>;
+         51 │ + };
+         52 │ + type·Owned·=·{
+         53 │ + → session:·ManagedSession;
+         54 │ + → cwd:·string;
+         55 │ + → effort:·string·|·null;
+         56 │ + → client:·CodexClient;
+         57 │ + → lifetime:·AbortController;
+         58 │ + → rollout:·RolloutBinding;
+         59 │ + → phase:·"fresh"·|·"seeded"·|·"ready"·|·"unknown";
+         60 │ + → seed?:·{·text:·string;·hash:·string·};
+         61 │ + → fence?:·AdmissionFence;
+         62 │ + → locked:·boolean;
+         63 │ + → freshAttempted:·boolean;
+         64 │ + → turn?:·Turn;
+         65 │ + → turns:·Set<string>;
+         66 │ + → users:·Map<string,·{·clientId:·string;·text:·string;·turnId:·string·}>;
+         67 │ + → sample?:·ContextSample;
+         68 │ + };
+         69 │ + const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>
+         70 │ + → !!v·&&·typeof·v·===·"object"·&&·!Array.isArray(v);
+         71 │ + const·integer·=·(v:·unknown):·v·is·number·=>
+         72 │ + → typeof·v·===·"number"·&&·Number.isSafeInteger(v)·&&·v·>=·0;
+         73 │ + const·string·=·(v:·unknown,·max·=·256):·v·is·string·=>
+         74 │ + → typeof·v·===·"string"·&&
+         75 │ + → !!v·&&
+         76 │ + → !/[\x00-\x1f\x7f]/.test(v)·&&
+         77 │ + → Buffer.byteLength(v)·<=·max;
+         78 │ + const·text·=·(v:·unknown,·max:·number):·v·is·string·=>
+         79 │ + → typeof·v·===·"string"·&&
+         80 │ + → !!v.trim()·&&
+         81 │ + → !v.includes("\0")·&&
+         82 │ + → Buffer.byteLength(v)·<=·max;
+         83 │ + const·uuid·=·(v:·unknown):·v·is·string·=>
+         84 │ + → typeof·v·===·"string"·&&
+         85 │ + → /^[a-f0-9]{8}-[a-f0-9]{4}-7[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(
+         86 │ + → → v,
+         87 │ + → );
+         88 │ + const·own·=·(v:·object,·key:·string):·unknown·=>
+         89 │ + → Object.getOwnPropertyDescriptor(v,·key)?.value;
+         90 │ + const·fail·=·(
+         91 │ + → code:·"invalid"·|·"unverified"·|·"unavailable"·|·"cancelled"·=·"unavailable",
+         92 │ + → unknown·=·false,
+         93 │ + )·=>
+         94 │ + → new·BosunError(
+         95 │ + → → code,
+         96 │ + → → code·===·"invalid"
+         97 │ + → → → ?·"Invalid·Codex·managed·request"
+         98 │ + → → → :·code·===·"unverified"
+         99 │ + → → → → ?·"Codex·managed·control·unverified"
+        100 │ + → → → → :·code·===·"cancelled"
+        101 │ + → → → → → ?·"Codex·managed·request·cancelled"
+        102 │ + → → → → → :·"Codex·managed·source·unavailable",
+        103 │ + → → unknown·?·{·details:·{·outcome:·"unknown"·}·}·:·undefined,
+        104 │ + → );
+        105 │ + const·caps:·ManagedSessionDriver["caps"]·=·Object.freeze({
+        106 │ + → contextTelemetry:·"unverified",
+        107 │ + → promptAdmission:·"unverified",
+        108 │ + → toolQuiescence:·"unverified",
+        109 │ + → freshSession:·"unverified",
+        110 │ + → seedWithoutInference:·"unverified",
+        111 │ + → freshReadiness:·"unverified",
+  1071 more lines truncated
+  
+
+src/adapters/hosts/codex/evidence.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     1     │ - import·{·BosunError·}·from·'../../../core/errors.ts';
+     2     │ - import·{·screenPublicText·}·from·'../../../core/secret-screen.ts';
+     3     │ - import·type·{·ManagedSession,·SessionEvidenceWindow,·SessionEvidenceReference·}·from·'../../../core/domain/session.ts';
+     4     │ - import·type·{·SummaryEvidence·}·from·'../../../core/domain/summary.ts';
+         1 │ + import·{·BosunError·}·from·"../../../core/errors.ts";
+         2 │ + import·{·screenPublicText·}·from·"../../../core/secret-screen.ts";
+         3 │ + import·type·{
+         4 │ + → ManagedSession,
+         5 │ + → SessionEvidenceWindow,
+         6 │ + → SessionEvidenceReference,
+         7 │ + }·from·"../../../core/domain/session.ts";
+         8 │ + import·type·{·SummaryEvidence·}·from·"../../../core/domain/summary.ts";
+     5   9 │   
+     6     │ - const·failure·=·()·=>·new·BosunError('unverified',·'Codex·evidence·window·unavailable');
+     7     │ - const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>·!!v·&&·typeof·v·===·'object'·&&·!Array.isArray(v);
+        10 │ + const·failure·=·()·=>
+        11 │ + → new·BosunError("unverified",·"Codex·evidence·window·unavailable");
+        12 │ + const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>
+        13 │ + → !!v·&&·typeof·v·===·"object"·&&·!Array.isArray(v);
+     8  14 │   // Only fully hydrated, idle owned turns reach this projection. Native tool
+     9  15 │   // payloads, reasoning, filenames and generated plans are never summary inputs.
+    10     │ - export·function·captureCodexEvidence(session:·ManagedSession,·turns:·Record<string,·unknown>[],·input:·{
+    11     │ - ··afterCursor:·string·|·null;·cwd:·string;·seedHash:·string;·users:·ReadonlyMap<string,·{·clientId:·string;·text:·string·}>;
+    12     │ - },·hash:·(value:·string)·=>·string):·SessionEvidenceWindow·{
+    13     │ - ··const·digest·=·(text:·string)·=>·{·const·result·=·hash(text);·if·(!/^[a-f0-9]{64}$/.test(result))·throw·failure();·return·result;·};
+    14     │ - ··const·sourceBindingHash·=·digest(JSON.stringify({·session,·cwd:·input.cwd,·seedHash:·input.seedHash·}));
+    15     │ - ··let·chain·=·sourceBindingHash,·total·=·0,·size·=·0,·windowSize·=·0,·found·=·input.afterCursor·===·null,·full·=·false;
+    16     │ - ··let·completedEventCursor·=·input.afterCursor;
+    17     │ - ··const·evidence:·SummaryEvidence[]·=·[],·references:·SessionEvidenceReference[]·=·[];
+    18     │ - ··const·users·=·new·Set<string>(),·ids·=·new·Set<string>();
+    19     │ - ··function·emit(turnId:·string,·partId:·string,·kind:·SessionEvidenceReference['kind'],·body:·string,·chunk:·number)·{
+    20     │ - ····if·(++total·>·8192·||·(size·+=·Buffer.byteLength(body))·>·1024·*·1024)·throw·failure();
+    21     │ - ····const·sha256·=·digest(body),·id·=·'cx_'·+·digest(JSON.stringify([session,·turnId,·partId,·kind,·chunk]));
+    22     │ - ····chain·=·digest(chain·+·'\n'·+·JSON.stringify({·id,·sha256·}));
+    23     │ - ····const·cursor·=·'e_'·+·String(total).padStart(8,·'0')·+·'_'·+·chain;
+    24     │ - ····if·(!found)·{·if·(cursor·===·input.afterCursor)·found·=·true;·return;·}
+    25     │ - ····if·(!full·&&·evidence.length·<·100·&&·windowSize·+·Buffer.byteLength(body)·<=·128·*·1024)·{
+    26     │ - ······evidence.push({·privacy:·'public',·id,·cursor,·text:·body·});
+    27     │ - ······references.push({·evidenceId:·id,·messageId:·turnId,·partId,·kind,·chunk,·sha256·});
+    28     │ - ······completedEventCursor·=·cursor;·windowSize·+=·Buffer.byteLength(body);
+    29     │ - ····}·else·full·=·true;
+    30     │ - ··}
+    31     │ - ··function·chunks(turnId:·string,·partId:·string,·kind:·'user'·|·'assistant',·value:·unknown)·{
+    32     │ - ····if·(typeof·value·!==·'string'·||·value.includes('\0')·||·Buffer.byteLength(value)·>·65536)·throw·failure();
+    33     │ - ····screenPublicText(value);
+    34     │ - ····let·body·=·'',·bytes·=·0,·chunk·=·0;
+    35     │ - ····for·(const·character·of·value)·{
+    36     │ - ······const·n·=·Buffer.byteLength(character);
+    37     │ - ······if·(bytes·+·n·>·6144)·{·emit(turnId,·partId,·kind,·body,·chunk++);·body·=·'';·bytes·=·0;·}
+    38     │ - ······body·+=·character;·bytes·+=·n;
+    39     │ - ····}
+    40     │ - ····if·(body)·emit(turnId,·partId,·kind,·body,·chunk);
+    41     │ - ··}
+    42     │ - ··for·(const·turn·of·turns)·{
+    43     │ - ····if·(turn.status·!==·'completed'·||·!Array.isArray(turn.items)·||·typeof·turn.id·!==·'string')·throw·failure();
+    44     │ - ····for·(const·raw·of·turn.items)·{
+    45     │ - ······if·(!object(raw)·||·typeof·raw.id·!==·'string'·||·ids.has(raw.id))·throw·failure();
+    46     │ - ······ids.add(raw.id);
+    47     │ - ······if·(raw.type·===·'userMessage')·{
+    48     │ - ········if·(typeof·raw.clientId·!==·'string'·||·users.has(raw.clientId)·||·!Array.isArray(raw.content)
+    49     │ - ··········||·raw.content.length·!==·1·||·!object(raw.content[0])·||·raw.content[0].type·!==·'text')·throw·failure();
+    50     │ - ········const·admitted·=·input.users.get(raw.clientId);
+    51     │ - ········if·(!admitted·||·raw.content[0].text·!==·admitted.text)·throw·failure();
+    52     │ - ········users.add(raw.clientId);·chunks(turn.id,·raw.id,·'user',·admitted.text);
+    53     │ - ······}·else·if·(raw.type·===·'agentMessage')·chunks(turn.id,·raw.id,·'assistant',·raw.text);
+    54     │ - ······else·if·(['commandExecution',·'mcpToolCall',·'dynamicToolCall',·'fileChange'].includes(String(raw.type)))·{
+    55     │ - ········if·(raw.status·!==·'completed')·throw·failure();
+    56     │ - ········const·kind·=·raw.type·===·'fileChange'·?·'file-reference'·:·'tool-reference';
+    57     │ - ········emit(turn.id,·raw.id,·kind,·`Native·${raw.type}·has·a·completed·receipt.·Payload·remains·in·source·${turn.id}/${raw.id};·inspect·it·before·relying·on·its·findings.`,·0);
+    58     │ - ······}·else·if·(raw.type·!==·'reasoning'·&&·raw.type·!==·'plan')·throw·failure();
+    59     │ - ····}
+    60     │ - ··}
+    61     │ - ··if·(users.size·!==·input.users.size·||·!found)·throw·failure();
+    62     │ - ··const·end·=·completedEventCursor·===·null·?·0·:·Number(completedEventCursor.slice(2,·10));
+    63     │ - ··return·{·privacy:·'public',·source:·{·...session·},·coverage:·'admitted-public-text-and-native-references',
+    64     │ - ····afterCursor:·input.afterCursor,·completedEventCursor,·sourceBindingHash,·snapshotHash:·chain,
+    65     │ - ····totalEvents:·total,·complete:·end·===·total,·evidence,·references·};
+        16 │ + export·function·captureCodexEvidence(
+        17 │ + → session:·ManagedSession,
+        18 │ + → turns:·Record<string,·unknown>[],
+        19 │ + → input:·{
+        20 │ + → → afterCursor:·string·|·null;
+        21 │ + → → cwd:·string;
+        22 │ + → → seedHash:·string;
+        23 │ + → → users:·ReadonlyMap<string,·{·clientId:·string;·text:·string·}>;
+        24 │ + → },
+        25 │ + → hash:·(value:·string)·=>·string,
+        26 │ + ):·SessionEvidenceWindow·{
+        27 │ + → const·digest·=·(text:·string)·=>·{
+        28 │ + → → const·result·=·hash(text);
+        29 │ + → → if·(!/^[a-f0-9]{64}$/.test(result))·throw·failure();
+        30 │ + → → return·result;
+        31 │ + → };
+        32 │ + → const·sourceBindingHash·=·digest(
+        33 │ + → → JSON.stringify({·session,·cwd:·input.cwd,·seedHash:·input.seedHash·}),
+        34 │ + → );
+        35 │ + → let·chain·=·sourceBindingHash,
+        36 │ + → → total·=·0,
+        37 │ + → → size·=·0,
+        38 │ + → → windowSize·=·0,
+        39 │ + → → found·=·input.afterCursor·===·null,
+        40 │ + → → full·=·false;
+        41 │ + → let·completedEventCursor·=·input.afterCursor;
+        42 │ + → const·evidence:·SummaryEvidence[]·=·[],
+        43 │ + → → references:·SessionEvidenceReference[]·=·[];
+        44 │ + → const·users·=·new·Set<string>(),
+        45 │ + → → ids·=·new·Set<string>();
+        46 │ + → function·emit(
+        47 │ + → → turnId:·string,
+        48 │ + → → partId:·string,
+        49 │ + → → kind:·SessionEvidenceReference["kind"],
+        50 │ + → → body:·string,
+        51 │ + → → chunk:·number,
+        52 │ + → )·{
+        53 │ + → → if·(++total·>·8192·||·(size·+=·Buffer.byteLength(body))·>·1024·*·1024)
+        54 │ + → → → throw·failure();
+        55 │ + → → const·sha256·=·digest(body),
+        56 │ + → → → id·=
+        57 │ + → → → → "cx_"·+·digest(JSON.stringify([session,·turnId,·partId,·kind,·chunk]));
+        58 │ + → → chain·=·digest(chain·+·"\n"·+·JSON.stringify({·id,·sha256·}));
+        59 │ + → → const·cursor·=·"e_"·+·String(total).padStart(8,·"0")·+·"_"·+·chain;
+        60 │ + → → if·(!found)·{
+        61 │ + → → → if·(cursor·===·input.afterCursor)·found·=·true;
+        62 │ + → → → return;
+        63 │ + → → }
+        64 │ + → → if·(
+        65 │ + → → → !full·&&
+        66 │ + → → → evidence.length·<·100·&&
+        67 │ + → → → windowSize·+·Buffer.byteLength(body)·<=·128·*·1024
+        68 │ + → → )·{
+        69 │ + → → → evidence.push({·privacy:·"public",·id,·cursor,·text:·body·});
+        70 │ + → → → references.push({
+        71 │ + → → → → evidenceId:·id,
+        72 │ + → → → → messageId:·turnId,
+        73 │ + → → → → partId,
+        74 │ + → → → → kind,
+        75 │ + → → → → chunk,
+        76 │ + → → → → sha256,
+        77 │ + → → → });
+        78 │ + → → → completedEventCursor·=·cursor;
+        79 │ + → → → windowSize·+=·Buffer.byteLength(body);
+        80 │ + → → }·else·full·=·true;
+        81 │ + → }
+        82 │ + → function·chunks(
+        83 │ + → → turnId:·string,
+        84 │ + → → partId:·string,
+        85 │ + → → kind:·"user"·|·"assistant",
+        86 │ + → → value:·unknown,
+        87 │ + → )·{
+        88 │ + → → if·(
+  90 more lines truncated
+  
+
+src/adapters/hosts/codex/rollout.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+     1     │ - import·fs·from·'node:fs';
+     2     │ - import·path·from·'node:path';
+     3     │ - import·{·BosunError·}·from·'../../../core/errors.ts';
+     4     │ - import·{·privateDirectory,·readPrivateFile·}·from·'../../../platform/private-file.ts';
+     5     │ - import·{·CODEX_VERSION·}·from·'./runner.ts';
+         1 │ + import·fs·from·"node:fs";
+         2 │ + import·path·from·"node:path";
+         3 │ + import·{·BosunError·}·from·"../../../core/errors.ts";
+         4 │ + import·{
+         5 │ + → privateDirectory,
+         6 │ + → readPrivateFile,
+         7 │ + }·from·"../../../platform/private-file.ts";
+         8 │ + import·{·CODEX_VERSION·}·from·"./runner.ts";
+     6   9 │   
+     7     │ - const·failure·=·()·=>·new·BosunError('unverified',·'Codex·seed·readback·unavailable');
+     8     │ - export·type·RolloutBinding·=·{·file:·string;·home:·string;·cwd:·string;·id:·string;·dev:·number;·ino:·number·};
+     9     │ - const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>·!!v·&&·typeof·v·===·'object'·&&·!Array.isArray(v);
+        10 │ + const·failure·=·()·=>
+        11 │ + → new·BosunError("unverified",·"Codex·seed·readback·unavailable");
+        12 │ + export·type·RolloutBinding·=·{
+        13 │ + → file:·string;
+        14 │ + → home:·string;
+        15 │ + → cwd:·string;
+        16 │ + → id:·string;
+        17 │ + → dev:·number;
+        18 │ + → ino:·number;
+        19 │ + };
+        20 │ + const·object·=·(v:·unknown):·v·is·Record<string,·unknown>·=>
+        21 │ + → !!v·&&·typeof·v·===·"object"·&&·!Array.isArray(v);
+    10  22 │   
+    11  23 │   // Only the path returned for a newly created root. No discovery, other-session
+    12  24 │   // reads, permission repair, compressed/paginated ancestry or native writes.
+    13     │ - export·function·bindRollout(input:·{·file:·unknown;·home:·string;·cwd:·string;·id:·string·}):·RolloutBinding·{
+    14     │ - ··try·{
+    15     │ - ····const·{·file,·home,·cwd,·id·}·=·input;
+    16     │ - ····if·(typeof·file·!==·'string'·||·!path.isAbsolute(file)·||·path.resolve(file)·!==·file
+    17     │ - ······||·!path.isAbsolute(home)·||·path.resolve(home)·!==·home·||·fs.realpathSync(home)·!==·home)·throw·failure();
+    18     │ - ····const·root·=·path.join(home,·'sessions');
+    19     │ - ····const·relative·=·path.relative(root,·file);
+    20     │ - ····if·(!relative·||·relative.startsWith('..')·||·path.isAbsolute(relative)·||·relative.split(path.sep).length·>·5
+    21     │ - ······||·!path.basename(file).endsWith(`-${id}.jsonl`))·throw·failure();
+    22     │ - ····for·(let·directory·=·path.dirname(file);·;·directory·=·path.dirname(directory))·{
+    23     │ - ······privateDirectory(directory);
+    24     │ - ······if·(directory·===·home)·break;
+    25     │ - ······if·(path.dirname(directory)·===·directory)·throw·failure();
+    26     │ - ····}
+    27     │ - ····const·stat·=·fs.lstatSync(file);
+    28     │ - ····readPrivateFile(file,·1024·*·1024);
+    29     │ - ····return·{·file,·home,·cwd,·id,·dev:·stat.dev,·ino:·stat.ino·};
+    30     │ - ··}·catch·{·throw·failure();·}
+        25 │ + export·function·bindRollout(input:·{
+        26 │ + → file:·unknown;
+        27 │ + → home:·string;
+        28 │ + → cwd:·string;
+        29 │ + → id:·string;
+        30 │ + }):·RolloutBinding·{
+        31 │ + → try·{
+        32 │ + → → const·{·file,·home,·cwd,·id·}·=·input;
+        33 │ + → → if·(
+        34 │ + → → → typeof·file·!==·"string"·||
+        35 │ + → → → !path.isAbsolute(file)·||
+        36 │ + → → → path.resolve(file)·!==·file·||
+        37 │ + → → → !path.isAbsolute(home)·||
+        38 │ + → → → path.resolve(home)·!==·home·||
+        39 │ + → → → fs.realpathSync(home)·!==·home
+        40 │ + → → )
+        41 │ + → → → throw·failure();
+        42 │ + → → const·root·=·path.join(home,·"sessions");
+        43 │ + → → const·relative·=·path.relative(root,·file);
+        44 │ + → → if·(
+        45 │ + → → → !relative·||
+        46 │ + → → → relative.startsWith("..")·||
+        47 │ + → → → path.isAbsolute(relative)·||
+        48 │ + → → → relative.split(path.sep).length·>·5·||
+        49 │ + → → → !path.basename(file).endsWith(`-${id}.jsonl`)
+        50 │ + → → )
+        51 │ + → → → throw·failure();
+        52 │ + → → for·(
+        53 │ + → → → let·directory·=·path.dirname(file);
+        54 │ + → → → ;
+        55 │ + → → → directory·=·path.dirname(directory)
+        56 │ + → → )·{
+        57 │ + → → → privateDirectory(directory);
+        58 │ + → → → if·(directory·===·home)·break;
+        59 │ + → → → if·(path.dirname(directory)·===·directory)·throw·failure();
+        60 │ + → → }
+        61 │ + → → const·stat·=·fs.lstatSync(file);
+        62 │ + → → readPrivateFile(file,·1024·*·1024);
+        63 │ + → → return·{·file,·home,·cwd,·id,·dev:·stat.dev,·ino:·stat.ino·};
+        64 │ + → }·catch·{
+        65 │ + → → throw·failure();
+        66 │ + → }
+    31  67 │   }
+    32     │ - export·function·readRolloutSeed(binding:·RolloutBinding,·expected?:·string):·void·{
+    33     │ - ··try·{
+    34     │ - ····const·before·=·fs.lstatSync(binding.file);
+    35     │ - ····if·(before.dev·!==·binding.dev·||·before.ino·!==·binding.ino)·throw·failure();
+    36     │ - ····//·Recheck·every·parent·on·each·read;·readPrivateFile·also·checks·the·opened
+    37     │ - ····//·inode,·no-follow,·owner,·link·count,·private·mode,·UTF-8·and·byte·bound.
+    38     │ - ····bindRollout(binding);
+    39     │ - ····const·text·=·readPrivateFile(binding.file,·1024·*·1024);
+    40     │ - ····if·(!text.endsWith('\n'))·throw·failure();
+    41     │ - ····const·lines·=·text.slice(0,·-1).split('\n');
+    42     │ - ····if·(!lines.length·||·lines.length·>·128·||·lines.some(line·=>·!line·||·Buffer.byteLength(line)·>·262144))·throw·failure();
+    43     │ - ····let·messages·=·0;
+    44     │ - ····for·(let·index·=·0;·index·<·lines.length;·index++)·{
+    45     │ - ······const·row:·unknown·=·JSON.parse(lines[index]);
+    46     │ - ······if·(!object(row)·||·typeof·row.timestamp·!==·'string'·||·!Number.isFinite(Date.parse(row.timestamp))
+    47     │ - ········||·!object(row.payload))·throw·failure();
+    48     │ - ······const·payload·=·row.payload;
+    49     │ - ······if·(index·===·0)·{
+    50     │ - ········if·(row.type·!==·'session_meta'·||·payload.id·!==·binding.id·||·payload.session_id·!==·binding.id
+    51     │ - ··········||·payload.cwd·!==·binding.cwd·||·payload.cli_version·!==·CODEX_VERSION·||·payload.source·!==·'mcp'
+    52     │ - ··········||·['forked_from_id',·'parent_thread_id',·'history_base',·'subagent_history_start_ordinal'].some(key·=>·payload[key]·!=·null)
+    53     │ - ··········||·payload.history_mode·!==·'legacy')·throw·failure();
+    54     │ - ······}·else·if·(row.type·===·'response_item')·{
+    55     │ - ········if·(expected·===·undefined·||·++messages·!==·1·||·payload.type·!==·'message'·||·payload.role·!==·'assistant'
+    56     │ - ··········||·!Array.isArray(payload.content)·||·payload.content.length·!==·1·||·!object(payload.content[0])
+    57     │ - ··········||·payload.content[0].type·!==·'output_text'·||·payload.content[0].text·!==·expected
+    58     │ - ··········||·row.metadata·!==·undefined)·throw·failure();
+    59     │ - ······}·else·throw·failure();·//·Any·turn/history/compaction·is·incompatible·with·idle·fresh·seeding.
+    60     │ - ····}
+    61     │ - ····if·(messages·!==·(expected·===·undefined·?·0·:·1))·throw·failure();
+    62     │ - ····const·after·=·fs.lstatSync(binding.file);
+    63     │ - ····if·(after.dev·!==·before.dev·||·after.ino·!==·before.ino·||·after.size·!==·before.size
+    64     │ - ······||·after.mtimeMs·!==·before.mtimeMs·||·after.ctimeMs·!==·before.ctimeMs)·throw·failure();
+    65     │ - ··}·catch·{·throw·failure();·}
+        68 │ + export·function·readRolloutSeed(
+        69 │ + → binding:·RolloutBinding,
+        70 │ + → expected?:·string,
+        71 │ + ):·void·{
+        72 │ + → try·{
+        73 │ + → → const·before·=·fs.lstatSync(binding.file);
+        74 │ + → → if·(before.dev·!==·binding.dev·||·before.ino·!==·binding.ino)
+        75 │ + → → → throw·failure();
+        76 │ + → → //·Recheck·every·parent·on·each·read;·readPrivateFile·also·checks·the·opened
+        77 │ + → → //·inode,·no-follow,·owner,·link·count,·private·mode,·UTF-8·and·byte·bound.
+        78 │ + → → bindRollout(binding);
+        79 │ + → → const·text·=·readPrivateFile(binding.file,·1024·*·1024);
+        80 │ + → → if·(!text.endsWith("\n"))·throw·failure();
+        81 │ + → → const·lines·=·text.slice(0,·-1).split("\n");
+        82 │ + → → if·(
+        83 │ + → → → !lines.length·||
+        84 │ + → → → lines.length·>·128·||
+        85 │ + → → → lines.some((line)·=>·!line·||·Buffer.byteLength(line)·>·262144)
+        86 │ + → → )
+        87 │ + → → → throw·failure();
+        88 │ + → → let·messages·=·0;
+        89 │ + → → for·(let·index·=·0;·index·<·lines.length;·index++)·{
+        90 │ + → → → const·row:·unknown·=·JSON.parse(lines[index]);
+  56 more lines truncated
+  
+
+src/app/managed.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      1      │ - import·fs·from·'node:fs';
+      2      │ - import·path·from·'node:path';
+      3      │ - import·crypto·from·'node:crypto';
+      4      │ - import·type·{·RuntimeConfig,·HostId·}·from·'../core/domain/config.ts';
+      5      │ - import·type·{·Env·}·from·'../core/domain/inference.ts';
+      6      │ - import·type·{·AgentRunner·}·from·'../core/ports/runner.ts';
+      7      │ - import·type·{·ManagedSessionDriver·}·from·'../core/ports/host.ts';
+      8      │ - import·type·{·ManagedSession·}·from·'../core/domain/session.ts';
+           1 │ + import·fs·from·"node:fs";
+           2 │ + import·path·from·"node:path";
+           3 │ + import·crypto·from·"node:crypto";
+           4 │ + import·type·{·RuntimeConfig,·HostId·}·from·"../core/domain/config.ts";
+           5 │ + import·type·{·Env·}·from·"../core/domain/inference.ts";
+           6 │ + import·type·{·AgentRunner·}·from·"../core/ports/runner.ts";
+           7 │ + import·type·{·ManagedSessionDriver·}·from·"../core/ports/host.ts";
+           8 │ + import·type·{·ManagedSession·}·from·"../core/domain/session.ts";
+      9    9 │   import {
+     10      │ - ··managedSession,
+     11      │ - ··createHandoffController,
+     12      │ - ··handoffContextIsCurrent,
+     13      │ - ··type·ManagedOwnership,
+     14      │ - }·from·'../core/use-cases/handoff.ts';
+     15      │ - import·{·MANAGED_START_RUNNER,·MANAGED_HANDOFF_RUNNER·}·from·'../core/domain/managed.ts';
+     16      │ - import·{·requireManagedControl·}·from·'../core/managed-policy.ts';
+     17      │ - import·{·BosunError·}·from·'../core/errors.ts';
+     18      │ - import·{·requirePublicInput·}·from·'../core/policy.ts';
+     19      │ - import·{·screenPublicText·}·from·'../core/secret-screen.ts';
+          10 │ + → managedSession,
+          11 │ + → createHandoffController,
+          12 │ + → handoffContextIsCurrent,
+          13 │ + → type·ManagedOwnership,
+          14 │ + }·from·"../core/use-cases/handoff.ts";
+          15 │ + import·{
+          16 │ + → MANAGED_START_RUNNER,
+          17 │ + → MANAGED_HANDOFF_RUNNER,
+          18 │ + }·from·"../core/domain/managed.ts";
+          19 │ + import·{·requireManagedControl·}·from·"../core/managed-policy.ts";
+          20 │ + import·{·BosunError·}·from·"../core/errors.ts";
+          21 │ + import·{·requirePublicInput·}·from·"../core/policy.ts";
+          22 │ + import·{·screenPublicText·}·from·"../core/secret-screen.ts";
+     20   23 │   import {
+     21      │ - ··data,
+     22      │ - ··jobId,
+     23      │ - ··type·AdmissionMetadata,
+     24      │ - ··type·JobSnapshot,
+     25      │ - ··type·JobScope,
+     26      │ - }·from·'../core/domain/job.ts';
+          24 │ + → data,
+          25 │ + → jobId,
+          26 │ + → type·AdmissionMetadata,
+          27 │ + → type·JobSnapshot,
+          28 │ + → type·JobScope,
+          29 │ + }·from·"../core/domain/job.ts";
+     27   30 │   import {
+     28      │ - ··managedStartSchema,
+     29      │ - ··managedTurnSchema,
+     30      │ - ··managedAuthoritySchema,
+     31      │ - ··managedHandoffSchema,
+     32      │ - }·from·'../contracts/managed.ts';
+     33      │ - import·{·configRevision·}·from·'../platform/config.ts';
+     34      │ - import·{·project·}·from·'../platform/project.ts';
+     35      │ - import·type·{·openDaemonJobs·}·from·'./jobs.ts';
+     36      │ - import·type·{·createHandoffArtifacts·}·from·'./handoff.ts';
+     37      │ - import·type·{·createSummaryService·}·from·'./summary.ts';
+     38      │ - import·{·prepareManagedHandoff·}·from·'./managed-preparation.ts';
+          31 │ + → managedStartSchema,
+          32 │ + → managedTurnSchema,
+          33 │ + → managedAuthoritySchema,
+          34 │ + → managedHandoffSchema,
+          35 │ + }·from·"../contracts/managed.ts";
+          36 │ + import·{·configRevision·}·from·"../platform/config.ts";
+          37 │ + import·{·project·}·from·"../platform/project.ts";
+          38 │ + import·type·{·openDaemonJobs·}·from·"./jobs.ts";
+          39 │ + import·type·{·createHandoffArtifacts·}·from·"./handoff.ts";
+          40 │ + import·type·{·createSummaryService·}·from·"./summary.ts";
+          41 │ + import·{·prepareManagedHandoff·}·from·"./managed-preparation.ts";
+     39   42 │   
+     40   43 │   type Gates = {
+     41      │ - ··assertOwner(expected:·{·ownerId:·string;·generation:·number·}):·void;
+     42      │ - ··assertDispatchOwner(expected:·{·ownerId:·string;·generation:·number;·sessionId:·string·}):·void;
+     43      │ - ··freshClaim(source:·ManagedSession):·{·ownerId:·string;·generation:·number·};
+     44      │ - ··hash(text:·string):·string;
+     45      │ - ··now():·number;
+     46      │ - ··id():·string;
+          44 │ + → assertOwner(expected:·{·ownerId:·string;·generation:·number·}):·void;
+          45 │ + → assertDispatchOwner(expected:·{
+          46 │ + → → ownerId:·string;
+          47 │ + → → generation:·number;
+          48 │ + → → sessionId:·string;
+          49 │ + → }):·void;
+          50 │ + → freshClaim(source:·ManagedSession):·{·ownerId:·string;·generation:·number·};
+          51 │ + → hash(text:·string):·string;
+          52 │ + → now():·number;
+          53 │ + → id():·string;
+     47   54 │   };
+     48   55 │   export type ManagedFactories = Partial<
+     49      │ - ··Record<HostId,·(gates:·Gates)·=>·ManagedSessionDriver·|·Promise<ManagedSessionDriver>>
+          56 │ + → Record<
+          57 │ + → → HostId,
+          58 │ + → → (gates:·Gates)·=>·ManagedSessionDriver·|·Promise<ManagedSessionDriver>
+          59 │ + → >
+     50   60 │   >;
+     51      │ - const·hash·=·(text:·string)·=>·crypto.createHash('sha256').update(text).digest('hex');
+     52      │ - const·failure·=·()·=>·new·BosunError('unavailable',·'Managed·native·source·unavailable');
+          61 │ + const·hash·=·(text:·string)·=>
+          62 │ + → crypto.createHash("sha256").update(text).digest("hex");
+          63 │ + const·failure·=·()·=>
+          64 │ + → new·BosunError("unavailable",·"Managed·native·source·unavailable");
+     53   65 │   
+     54   66 │   export function createManagedService(options: {
+     55      │ - ··jobs:·ReturnType<typeof·openDaemonJobs>;
+     56      │ - ··config:·RuntimeConfig;
+     57      │ - ··env:·Env;
+     58      │ - ··schedule():·void;
+     59      │ - ··factories?:·ManagedFactories;
+     60      │ - ··handoffs:·()·=>·ReturnType<typeof·createHandoffArtifacts>;
+     61      │ - ··summaries:·()·=>·ReturnType<typeof·createSummaryService>;
+          67 │ + → jobs:·ReturnType<typeof·openDaemonJobs>;
+          68 │ + → config:·RuntimeConfig;
+          69 │ + → env:·Env;
+          70 │ + → schedule():·void;
+          71 │ + → factories?:·ManagedFactories;
+          72 │ + → handoffs:·()·=>·ReturnType<typeof·createHandoffArtifacts>;
+          73 │ + → summaries:·()·=>·ReturnType<typeof·createSummaryService>;
+     62   74 │   }) {
+     63      │ - ··const·drivers·=·new·Map<string,·Promise<ManagedSessionDriver>>();
+     64      │ - ··const·scopes·=·new·Map<string,·string>();
+     65      │ - ··let·closed·=·false;
+     66      │ - ··function·owner(scope:·JobScope):·string·{
+     67      │ - ····options.jobs.assertOwner();
+     68      │ - ····if·(
+     69      │ - ······closed·||
+     70      │ - ······scope.audience·!==·'owner'·||
+     71      │ - ······!scope.projectId·||
+     72      │ - ······!/^p_[a-f0-9]{16}$/.test(scope.projectId)
+     73      │ - ····)
+     74      │ - ······throw·new·BosunError('unsupported',·'Owner·managed·operation·required');
+     75      │ - ····return·scope.projectId;
+     76      │ - ··}
+     77      │ - ··function·root(workspace:·string):·string·{
+     78      │ - ····if·(
+     79      │ - ······!path.isAbsolute(workspace)·||
+     80      │ - ······path.resolve(workspace)·!==·workspace·||
+     81      │ - ······fs.realpathSync(workspace)·!==·workspace·||
+     82      │ - ······!fs.statSync(workspace).isDirectory()
+     83      │ - ····)
+     84      │ - ······throw·failure();
+     85      │ - ····for·(let·current·=·workspace;·;·current·=·path.dirname(current))·{
+     86      │ - ······try·{
+     87      │ - ········const·stat·=·fs.lstatSync(path.join(current,·'.git'));
+  1768 more lines truncated
+  
+
+src/core/ports/host.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      1     │ - import·type·{·Capability,·Detect,·Env,·InferenceInput·}·from·'../domain/inference.ts';
+      2     │ - import·type·{·RoleDefinition·}·from·'../roles.ts';
+      3     │ - import·type·{·RunEvent·}·from·'./runner.ts';
+          1 │ + import·type·{
+          2 │ + → Capability,
+          3 │ + → Detect,
+          4 │ + → Env,
+          5 │ + → InferenceInput,
+          6 │ + }·from·"../domain/inference.ts";
+          7 │ + import·type·{·RoleDefinition·}·from·"../roles.ts";
+          8 │ + import·type·{·RunEvent·}·from·"./runner.ts";
+      4   9 │   import type {
+      5     │ - ··AdmissionFence,
+      6     │ - ··ContextSample,
+      7     │ - ··FreshReadiness,
+      8     │ - ··ManagedSession,
+      9     │ - ··Quiescence,
+     10     │ - ··SessionEvidenceWindow,
+     11     │ - }·from·'../domain/session.ts';
+         10 │ + → AdmissionFence,
+         11 │ + → ContextSample,
+         12 │ + → FreshReadiness,
+         13 │ + → ManagedSession,
+         14 │ + → Quiescence,
+         15 │ + → SessionEvidenceWindow,
+         16 │ + }·from·"../domain/session.ts";
+     12  17 │   
+     13  18 │   export type Check = { ok: boolean; label: string; fix?: string };
+     14  19 │   export type FileChange =
+     15     │ - ··|·Readonly<{·op:·'write';·path:·string;·text:·string·}>
+     16     │ - ··|·Readonly<{·op:·'link';·path:·string;·target:·string·}>
+     17     │ - ··|·Readonly<{·op:·'remove';·path:·string·}>;
+         20 │ + → |·Readonly<{·op:·"write";·path:·string;·text:·string·}>
+         21 │ + → |·Readonly<{·op:·"link";·path:·string;·target:·string·}>
+         22 │ + → |·Readonly<{·op:·"remove";·path:·string·}>;
+     18  23 │   export type HostBundle = {
+     19     │ - ··roles:·(RoleDefinition·&·{·model?:·string;·effort?:·string·})[];
+     20     │ - ··skills:·Readonly<Record<string,·string>>;
+     21     │ - ··policy:·string;
+     22     │ - ··mcp:·{·command:·string;·args:·string[];·env:·Record<string,·string>·};
+     23     │ - ··hook:·{·command:·string;·args:·string[];·timeoutS:·number;·env:·Record<string,·string>·};
+         24 │ + → roles:·(RoleDefinition·&·{·model?:·string;·effort?:·string·})[];
+         25 │ + → skills:·Readonly<Record<string,·string>>;
+         26 │ + → policy:·string;
+         27 │ + → mcp:·{·command:·string;·args:·string[];·env:·Record<string,·string>·};
+         28 │ + → hook:·{
+         29 │ + → → command:·string;
+         30 │ + → → args:·string[];
+         31 │ + → → timeoutS:·number;
+         32 │ + → → env:·Record<string,·string>;
+         33 │ + → };
+     24  34 │   };
+     25  35 │   export type HostSettings = Readonly<{ root: string; nativeVersion: string }>;
+     26  36 │   export type HostLaunch = Readonly<{
+     27     │ - ··args:·readonly·string[];
+     28     │ - ··env:·Readonly<Record<string,·string>>;
+         37 │ + → args:·readonly·string[];
+         38 │ + → env:·Readonly<Record<string,·string>>;
+     29  39 │   }>;
+     30     │ - export·type·PromptEvent·=·InferenceInput·&·{·sessionId:·string·|·null;·cwd:·string·};
+         40 │ + export·type·PromptEvent·=·InferenceInput·&·{
+         41 │ + → sessionId:·string·|·null;
+         42 │ + → cwd:·string;
+         43 │ + };
+     31  44 │   export type ManagedCapability =
+     32     │ - ··|·'contextTelemetry'
+     33     │ - ··|·'promptAdmission'
+     34     │ - ··|·'toolQuiescence'
+     35     │ - ··|·'freshSession'
+     36     │ - ··|·'seedWithoutInference'
+     37     │ - ··|·'freshReadiness';
+         45 │ + → |·"contextTelemetry"
+         46 │ + → |·"promptAdmission"
+         47 │ + → |·"toolQuiescence"
+         48 │ + → |·"freshSession"
+         49 │ + → |·"seedWithoutInference"
+         50 │ + → |·"freshReadiness";
+     38  51 │   // Native controls are contracts only. No current host is declared qualified by these definitions.
+     39  52 │   export interface ManagedSessionControl {
+     40     │ - ··readonly·caps:·Partial<Record<ManagedCapability,·Capability>>;
+     41     │ - ··observeContext(session:·ManagedSession,·signal:·AbortSignal):·Promise<ContextSample>;
+     42     │ - ··fenceAdmission(session:·ManagedSession,·signal:·AbortSignal):·Promise<AdmissionFence>;
+     43     │ - ··quiesce(session:·ManagedSession,·fence:·AdmissionFence,·signal:·AbortSignal):·Promise<Quiescence>;
+     44     │ - ··startFresh(source:·ManagedSession,·signal:·AbortSignal):·Promise<ManagedSession>;
+     45     │ - ··seed(
+     46     │ - ····session:·ManagedSession,
+     47     │ - ····input:·InferenceInput·&·{·hash:·string·},
+     48     │ - ····signal:·AbortSignal,
+     49     │ - ··):·Promise<void>;
+     50     │ - ··ready(
+     51     │ - ····session:·ManagedSession,
+     52     │ - ····expected:·{·seedHash:·string;·model:·string;·access:·'read'·|·'edit'·},
+     53     │ - ····signal:·AbortSignal,
+     54     │ - ··):·Promise<FreshReadiness>;
+     55     │ - ··capture?(
+     56     │ - ····session:·ManagedSession,
+     57     │ - ····input:·{·privacy:·'public';·afterCursor:·string·|·null·},
+     58     │ - ····signal:·AbortSignal,
+     59     │ - ··):·Promise<SessionEvidenceWindow>;
+         53 │ + → readonly·caps:·Partial<Record<ManagedCapability,·Capability>>;
+         54 │ + → observeContext(
+         55 │ + → → session:·ManagedSession,
+         56 │ + → → signal:·AbortSignal,
+         57 │ + → ):·Promise<ContextSample>;
+         58 │ + → fenceAdmission(
+         59 │ + → → session:·ManagedSession,
+         60 │ + → → signal:·AbortSignal,
+         61 │ + → ):·Promise<AdmissionFence>;
+         62 │ + → quiesce(
+         63 │ + → → session:·ManagedSession,
+         64 │ + → → fence:·AdmissionFence,
+         65 │ + → → signal:·AbortSignal,
+         66 │ + → ):·Promise<Quiescence>;
+         67 │ + → startFresh(
+         68 │ + → → source:·ManagedSession,
+         69 │ + → → signal:·AbortSignal,
+         70 │ + → ):·Promise<ManagedSession>;
+         71 │ + → seed(
+         72 │ + → → session:·ManagedSession,
+         73 │ + → → input:·InferenceInput·&·{·hash:·string·},
+         74 │ + → → signal:·AbortSignal,
+         75 │ + → ):·Promise<void>;
+         76 │ + → ready(
+         77 │ + → → session:·ManagedSession,
+         78 │ + → → expected:·{·seedHash:·string;·model:·string;·access:·"read"·|·"edit"·},
+         79 │ + → → signal:·AbortSignal,
+         80 │ + → ):·Promise<FreshReadiness>;
+         81 │ + → capture?(
+         82 │ + → → session:·ManagedSession,
+         83 │ + → → input:·{·privacy:·"public";·afterCursor:·string·|·null·},
+         84 │ + → → signal:·AbortSignal,
+         85 │ + → ):·Promise<SessionEvidenceWindow>;
+     60  86 │   }
+     61  87 │   // Native lifecycle facets remain part of HostAdapter, not another executor port.
+     62  88 │   export type ManagedSessionCreate = {
+     63     │ - ··privacy:·'public';
+     64     │ - ··ownerId:·string;
+     65     │ - ··generation:·number;
+     66     │ - ··requestId:·string;
+     67     │ - ··cwd:·string;
+     68     │ - ··model:·string;
+     69     │ - ··effort?:·string;
+     70     │ - ··access:·'read'·|·'edit';
+         89 │ + → privacy:·"public";
+         90 │ + → ownerId:·string;
+         91 │ + → generation:·number;
+         92 │ + → requestId:·string;
+         93 │ + → cwd:·string;
+         94 │ + → model:·string;
+         95 │ + → effort?:·string;
+  71 more lines truncated
+  
+
+test/codex-control.test.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+      1     │ - import·'./bootstrap.ts';
+      2     │ - import·test·from·'node:test';
+      3     │ - import·assert·from·'node:assert/strict';
+      4     │ - import·fs·from·'node:fs';
+      5     │ - import·path·from·'node:path';
+      6     │ - import·crypto·from·'node:crypto';
+      7     │ - import·{·sandbox,·gitRepo,·type·Sandbox·}·from·'./helpers.ts';
+      8     │ - import·{·BosunError·}·from·'../src/core/errors.ts';
+      9     │ - import·{·requireManagedControl·}·from·'../src/core/managed-policy.ts';
+     10     │ - import·{·createCodexControl·}·from·'../src/adapters/hosts/codex/control.ts';
+     11     │ - import·{·CODEX_VERSION·}·from·'../src/adapters/hosts/codex/runner.ts';
+     12     │ - import·{·bindRollout,·readRolloutSeed·}·from·'../src/adapters/hosts/codex/rollout.ts';
+     13     │ - import·type·{·ManagedSessionCreate·}·from·'../src/core/ports/host.ts';
+     14     │ - import·{·defaultConfig·}·from·'../src/core/domain/config.ts';
+     15     │ - import·{·runtimePaths·}·from·'../src/platform/paths.ts';
+     16     │ - import·{·setupRuntime·}·from·'../src/app/setup.ts';
+     17     │ - import·{·startDaemon·}·from·'../src/app/daemon.ts';
+     18     │ - import·{·callLocalRpc·}·from·'../src/adapters/transport/local-rpc.ts';
+     19     │ - import·{·nativeRunners·}·from·'../src/app/native-runners.ts';
+          1 │ + import·"./bootstrap.ts";
+          2 │ + import·test·from·"node:test";
+          3 │ + import·assert·from·"node:assert/strict";
+          4 │ + import·fs·from·"node:fs";
+          5 │ + import·path·from·"node:path";
+          6 │ + import·crypto·from·"node:crypto";
+          7 │ + import·{·sandbox,·gitRepo,·type·Sandbox·}·from·"./helpers.ts";
+          8 │ + import·{·BosunError·}·from·"../src/core/errors.ts";
+          9 │ + import·{·requireManagedControl·}·from·"../src/core/managed-policy.ts";
+         10 │ + import·{·createCodexControl·}·from·"../src/adapters/hosts/codex/control.ts";
+         11 │ + import·{·CODEX_VERSION·}·from·"../src/adapters/hosts/codex/runner.ts";
+         12 │ + import·{
+         13 │ + → bindRollout,
+         14 │ + → readRolloutSeed,
+         15 │ + }·from·"../src/adapters/hosts/codex/rollout.ts";
+         16 │ + import·type·{·ManagedSessionCreate·}·from·"../src/core/ports/host.ts";
+         17 │ + import·{·defaultConfig·}·from·"../src/core/domain/config.ts";
+         18 │ + import·{·runtimePaths·}·from·"../src/platform/paths.ts";
+         19 │ + import·{·setupRuntime·}·from·"../src/app/setup.ts";
+         20 │ + import·{·startDaemon·}·from·"../src/app/daemon.ts";
+         21 │ + import·{·callLocalRpc·}·from·"../src/adapters/transport/local-rpc.ts";
+         22 │ + import·{·nativeRunners·}·from·"../src/app/native-runners.ts";
+     20  23 │   
+     21     │ - const·hash·=·(text:·string)·=>·crypto.createHash('sha256').update(text).digest('hex');
+         24 │ + const·hash·=·(text:·string)·=>
+         25 │ + → crypto.createHash("sha256").update(text).digest("hex");
+     22  26 │   const signal = () => new AbortController().signal;
+     23     │ - const·seed·=·'Public·summary·—·literal·$HOME,·`backticks`,·$(never-execute).';
+     24     │ - const·publicInput·=·(sb:·Sandbox):·ManagedSessionCreate·=>·({·privacy:·'public',·cwd:·sb.home,·model:·'gpt-6.1-sol',·effort:·'high',
+     25     │ - ··access:·'edit',·ownerId:·'owner_fixture',·generation:·0,·requestId:·'request_fixture'·});
+     26     │ - const·failure·=·(error:·unknown)·=>·error·instanceof·BosunError·&&·error.details?.outcome·===·'unknown'
+     27     │ - ··&&·!/CANARY|secret|foreign/.test(JSON.stringify(error));
+     28     │ - function·fixture(sb:·Sandbox,·mode·=·'normal')·{
+     29     │ - ··const·home·=·path.join(sb.home,·'.codex');
+     30     │ - ··fs.mkdirSync(path.join(home,·'sessions'),·{·recursive:·true,·mode:·0o700·});
+     31     │ - ··const·source·=·`#!/usr/bin/env·node
+         27 │ + const·seed·=·"Public·summary·—·literal·$HOME,·`backticks`,·$(never-execute).";
+         28 │ + const·publicInput·=·(sb:·Sandbox):·ManagedSessionCreate·=>·({
+         29 │ + → privacy:·"public",
+         30 │ + → cwd:·sb.home,
+         31 │ + → model:·"gpt-6.1-sol",
+         32 │ + → effort:·"high",
+         33 │ + → access:·"edit",
+         34 │ + → ownerId:·"owner_fixture",
+         35 │ + → generation:·0,
+         36 │ + → requestId:·"request_fixture",
+         37 │ + });
+         38 │ + const·failure·=·(error:·unknown)·=>
+         39 │ + → error·instanceof·BosunError·&&
+         40 │ + → error.details?.outcome·===·"unknown"·&&
+         41 │ + → !/CANARY|secret|foreign/.test(JSON.stringify(error));
+         42 │ + function·fixture(sb:·Sandbox,·mode·=·"normal")·{
+         43 │ + → const·home·=·path.join(sb.home,·".codex");
+         44 │ + → fs.mkdirSync(path.join(home,·"sessions"),·{·recursive:·true,·mode:·0o700·});
+         45 │ + → const·source·=·`#!/usr/bin/env·node
+     32  46 │   const fs=require('node:fs'),path=require('node:path');
+     33  47 │   const record=row=>fs.appendFileSync(process.env.STUB_OUT,JSON.stringify(row)+'\\n');
+    ······· │ 
+     84  98 │   rl.on('close',()=>process.exit(0));
+     85  99 │   `;
+     86     │ - ··fs.writeFileSync(path.join(sb.bin,·'codex'),·source,·{·mode:·0o755·});
+     87     │ - ··const·environment·=·sb.env({·CODEX_HOME:·home,·STUB_MODE:·mode·});
+     88     │ - ··let·active·=·false,·generation·=·0,·gateCount·=·0;
+     89     │ - ··const·gates·=·{·hash,·now:·()·=>·1000,·id:·()·=>·'fence_fixture',
+     90     │ - ····assertOwner(expected:·{·ownerId:·string;·generation:·number·})·{
+     91     │ - ······gateCount++;·assert.equal(expected.ownerId,·'owner_fixture');·assert.ok(expected.generation·===·generation·||·expected.generation·===·generation·+·1);
+     92     │ - ····},
+     93     │ - ····assertDispatchOwner(expected:·{·generation:·number·})·{·gateCount++;·assert.equal(active,·true);·assert.equal(expected.generation,·generation);·},
+     94     │ - ····freshClaim:·()·=>·({·ownerId:·'owner_fixture',·generation:·generation·+·1·})·};
+     95     │ - ··const·driver·=·createCodexControl({·env:·environment,·requestTimeoutMs:·100,·killGraceMs:·20·},·gates);
+     96     │ - ··return·{·driver,·home,·gates,·environment,·activate(value·=·0)·{·active·=·true;·generation·=·value;·},·gateCount:·()·=>·gateCount·};
+        100 │ + → fs.writeFileSync(path.join(sb.bin,·"codex"),·source,·{·mode:·0o755·});
+        101 │ + → const·environment·=·sb.env({·CODEX_HOME:·home,·STUB_MODE:·mode·});
+        102 │ + → let·active·=·false,
+        103 │ + → → generation·=·0,
+        104 │ + → → gateCount·=·0;
+        105 │ + → const·gates·=·{
+        106 │ + → → hash,
+        107 │ + → → now:·()·=>·1000,
+        108 │ + → → id:·()·=>·"fence_fixture",
+        109 │ + → → assertOwner(expected:·{·ownerId:·string;·generation:·number·})·{
+        110 │ + → → → gateCount++;
+        111 │ + → → → assert.equal(expected.ownerId,·"owner_fixture");
+        112 │ + → → → assert.ok(
+        113 │ + → → → → expected.generation·===·generation·||
+        114 │ + → → → → → expected.generation·===·generation·+·1,
+        115 │ + → → → );
+        116 │ + → → },
+        117 │ + → → assertDispatchOwner(expected:·{·generation:·number·})·{
+        118 │ + → → → gateCount++;
+        119 │ + → → → assert.equal(active,·true);
+        120 │ + → → → assert.equal(expected.generation,·generation);
+        121 │ + → → },
+        122 │ + → → freshClaim:·()·=>·({
+        123 │ + → → → ownerId:·"owner_fixture",
+        124 │ + → → → generation:·generation·+·1,
+        125 │ + → → }),
+        126 │ + → };
+        127 │ + → const·driver·=·createCodexControl(
+        128 │ + → → {·env:·environment,·requestTimeoutMs:·100,·killGraceMs:·20·},
+        129 │ + → → gates,
+        130 │ + → );
+        131 │ + → return·{
+        132 │ + → → driver,
+        133 │ + → → home,
+        134 │ + → → gates,
+        135 │ + → → environment,
+        136 │ + → → activate(value·=·0)·{
+        137 │ + → → → active·=·true;
+        138 │ + → → → generation·=·value;
+        139 │ + → → },
+        140 │ + → → gateCount:·()·=>·gateCount,
+        141 │ + → };
+     97 142 │   }
+     98     │ - const·records·=·(sb:·Sandbox):·{·argv?:·string[];·pid?:·number;·request?:·{·method:·string;·params:·Record<string,·any>·}·}[]·=>
+     99     │ - ··fs.readFileSync(sb.out,·'utf8').trim().split('\n').map(row·=>·JSON.parse(row));
+    100     │ - async·function·prepared(sb:·Sandbox,·mode·=·'normal')·{
+    101     │ - ··const·f·=·fixture(sb,·mode),·session·=·await·f.driver.create(publicInput(sb),·signal());
+    102     │ - ··await·f.driver.seed(session,·{·privacy:·'public',·text:·seed,·hash:·hash(seed)·},·signal());
+    103     │ - ··await·f.driver.ready(session,·{·seedHash:·hash(seed),·model:·session.model,·access:·session.access·},·signal());
+    104     │ - ··f.activate();·return·{·...f,·session·};
+        143 │ + const·records·=·(
+        144 │ + → sb:·Sandbox,
+        145 │ + ):·{
+        146 │ + → argv?:·string[];
+        147 │ + → pid?:·number;
+        148 │ + → request?:·{·method:·string;·params:·Record<string,·any>·};
+        149 │ + }[]·=>
+        150 │ + → fs
+        151 │ + → → .readFileSync(sb.out,·"utf8")
+        152 │ + → → .trim()
+        153 │ + → → .split("\n")
+  787 more lines truncated
+  
+
+Checked 7 files in 24ms. No fixes applied.
+Found 7 errors.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

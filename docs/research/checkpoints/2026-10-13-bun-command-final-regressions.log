@@ -1,0 +1,72 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - outside SQLite opens and attached databases fail
+ok 15 - real credential/config reads fail
+ok 16 - git and plutil external/config mutations fail
+ok 17 - fetch external and unregistered loopback endpoints fail
+ok 18 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 19 - registered ephemeral HTTP mocks remain usable
+ok 20 - only registered synthetic local sockets can be connected
+ok 21 - Bun native HOME starts isolated and the fixture homedir getter follows HOME
+ok 22 - native Bun file, process, socket and worker escape surfaces are blocked
+ok 23 - native fetch cannot follow a registered mock redirect into a real service
+ok 24 - OS barrier contains native files and SQLite even without the JS preload
+ok 25 - OS process barrier refuses an external shell even without the JS preload
+ok 26 - fixture shebangs execute only Bun with explicit preloads, never env/node
+ok 27 - preload, dotenv, install and injected runtime startup options cannot bypass child guard
+ok 28 - Bun node:test compatibility preserves serial async assertions and failing exits
+ok 29 - unknown suites/options and prohibited runtimes fail closed
+Containment: 29/29 probes passed; application suites not imported.
+{"file":"checks.test.ts","selectedPattern":"^(?!actual CLI verification)","fullRuntimeQualification":false}
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../Users/edge/Developer/bosun/test/checks.test.ts:
+(pass) native successful verification fingerprints executable/args/environment, stores only outcome/digest and contributes current recorded evidence [947.41ms]
+(pass) nonzero native exits remain failed evidence while a positive command that changes checkout is never usable for the original revision [1495.52ms]
+(pass) changed executable contents with restored mtime hold queued verification and invalidate previous command evidence without another process [701.63ms]
+(pass) explicit later checks of a changed executable keep prior receipts visible and count the latest version with exact literal arguments [1573.14ms]
+(pass) private/model/credential inputs are refused before command getters or execution, and automatic package runners stay held [249.98ms]
+(pass) native timeout retains unknown receipts, block new requests for unsettled command effects and never replay on reopen [1740.66ms]
+(pass) lost terminal outcome COMMIT preserves job and evidence atomically and cannot rerun the native command after reopening [733.03ms]
+(pass) explicit running cancellation waits native closure, preserves unknown effects and keeps the owner until settlement [854.92ms]
+(pass) archived job telemetry preserves permanent verification outcome, original request/link and usable current evidence [802.96ms]
+
+ 9 pass
+ 1 filtered out
+ 0 fail
+Ran 9 tests across 1 file. [9.17s]
+{"file":"orca.test.ts","selectedPattern":"^(?!(source observer safely|spin keeps|revision-bound review|subdirectory callers))","fullRuntimeQualification":false}
+bun test v1.4.3 (c6da4a4d3)
+
+../../../../../../../../Users/edge/Developer/bosun/test/orca.test.ts:
+(pass) owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay [377.17ms]
+(pass) standalone terminal creation uses a host-qualified workspace and never launches a native agent [273.15ms]
+(pass) native lost receipt stays held across restart; late pane observation never runs a second job [267.94ms]
+(pass) native malformed receipt stays held across restart; late pane observation never runs a second job [280.70ms]
+(pass) missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect [246.20ms]
+(pass) closed or uncertain pane observation preserves the original job state and never changes execution ownership [471.12ms]
+(pass) watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery [137.04ms]
+(pass) lost watch intent COMMIT preserves the finite original receipt without replay [144.32ms]
+(pass) lost watch completion COMMIT preserves the finite original receipt without replay [299.01ms]
+(pass) owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay [191.69ms]
+(pass) watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job [193.31ms]
+(pass) job binding drift at terminal effect entry rejects the pane and preserves the original durable task [163.67ms]
+(pass) finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued [360.74ms]
+(pass) observer entry drift during async terminal preflight holds the pane before the native effect [165.26ms]
+(pass) unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path [358.10ms]
+
+ 15 pass
+ 4 filtered out
+ 0 fail
+Ran 15 tests across 1 file. [4.00s]

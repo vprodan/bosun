@@ -1,0 +1,39 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings (4.707041ms)
+✔ fresh Codex seed is persisted and independently read back with no turn/model request before readiness (231.010667ms)
+✔ owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics (137.220791ms)
+✔ wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference (1275.165875ms)
+✔ empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated (391.744917ms)
+✔ pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay (796.098708ms)
+✔ cancellation request without original terminal receipt joins the process and leaves unknown effects (1200.186625ms)
+✔ fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history (142.934958ms)
+✔ Codex fresh generation creates an independent root and joins the retired process before destination dispatch (199.510667ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) (343.841916ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) (309.375375ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5230.722458

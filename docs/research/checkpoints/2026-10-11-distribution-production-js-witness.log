@@ -1,0 +1,10 @@
+Coverage: production JavaScript build witness; no runtime executed.
+Compiler status: 0
+
+dashboard-g4awqkew.js 862516
+s(node,style)},styles_default=styles2;if(process4.env.DEV==="true"){let isDevtoolsInstalled=!1;try{import.meta.resolve("react-devtools-core"),isDevtoolsInstalled=!0}catch{}if(isDevtoolsInstalled)await import("./devtools-t3pjxgj7.js")}var diff=(before,after)=>{if(before===after)return;if(!before)return after;let changed
+es(node,style),applyBorderStyles(node,style,currentStyle),applyGapStyles(node,style)},styles_default=styles2;if(process4.env.DEV==="true"){let isDevtoolsInstalled=!1;try{import.meta.resolve("react-devtools-core"),isDevtoolsInstalled=!0}catch{}if(isDevtoolsInstalled)await import("./devtools-t3pjxgj7.js")}var diff=(befor
+arsedContent?.name,version:parsedContent?.version}}var packageInfo={name:"ink",version:import_react.version};if(process4.env.DEV==="true")try{let loaded=await loadPackageJson();packageInfo={name:loaded.name||packageInfo.name,version:loaded.version||packageInfo.version}}catch(error){console.warn("Failed to load package.
+t_signal_exit2.default(this.unmount,{alwaysLast:!1}),this.setAlternateScreen(Boolean(options.alternateScreen)),process12.env.DEV==="true")reconciler_default.injectIntoDevTools();if(options.patchConsole)this.patchConsole();if(this.interactive)options.stdout.on("resize",this.resized),this.unsubscribeResize=()=>{options.s
+devtools-t3pjxgj7.js 1215
+Valid:!0},{type:2,value:"InternalFocusContext",isEnabled:!0,isValid:!0}];import WebSocket from"ws";import devtools from"react-devtools-core";var isDevToolsReachable=async()=>new Promise((resolve)=>{let socket=new WebSocket("ws://localhost:8097"),timeout=setTimeout(()=>{socket.terminate(),resolve(!1)},2000);timeout.unre

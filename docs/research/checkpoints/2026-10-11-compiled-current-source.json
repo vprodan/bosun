@@ -1,0 +1,377 @@
+{
+  "status": "prepared-unexecuted-owner-approval-required",
+  "frozenAt": "2026-10-11T21:32:33.365Z",
+  "branch": "main",
+  "head": "4adb3b4",
+  "packageVersion": "0.2.0",
+  "compiledBatchExecuted": false,
+  "build": {
+    "originalSession": 68013,
+    "terminalExit": 0,
+    "buildRecordSha256": "40e412d949e857564f0ae710b0d8a232e5d011797b339948980d427c77a35c11",
+    "candidate": "dist/bosun-0.2.0-darwin-arm64-current-candidate",
+    "staticReport": {
+      "coverage": "static-artifact",
+      "version": "0.2.0",
+      "target": "bun-darwin-arm64",
+      "binarySha256": "8466c8ffabab081687bd737d6aa610138c74abe8aa3c21a5694757df0b217176",
+      "archive": "bosun-0.2.0-darwin-arm64.tar.gz",
+      "archiveSha256": "eff6591f0810b20eb2666b5a0827da344c24db5372175846ca7958ac312287ee",
+      "sourceDigest": "a06890a071197bd9fc2b6948e0bc97dac918ce8b564a59442f09a598f4c29367",
+      "runtimeQualification": "unverified",
+      "inputs": 7282
+    },
+    "files": {
+      "SHA256SUMS": {
+        "bytes": 247,
+        "sha256": "728c867250ca631bad5b2acce8b6a6d70ae164e2ff4fa74495e909c5be2f0133"
+      },
+      "bosun": {
+        "bytes": 64522098,
+        "sha256": "8466c8ffabab081687bd737d6aa610138c74abe8aa3c21a5694757df0b217176"
+      },
+      "bosun-0.2.0-darwin-arm64.tar.gz": {
+        "bytes": 27192220,
+        "sha256": "eff6591f0810b20eb2666b5a0827da344c24db5372175846ca7958ac312287ee"
+      },
+      "build.json": {
+        "bytes": 1323998,
+        "sha256": "19a528774461db0e3ad0cf116589bfceff447808101faa4471fd9ebf95cf2b55"
+      }
+    },
+    "compiler": {
+      "version": "1.4.2",
+      "sha256": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5"
+    },
+    "originalSourceDigest": "a484016981086346c94b1ba72eb11a8c884edac4d9905bc9fac34dcbd2c74bab",
+    "currentInputCount": 7282,
+    "productionFlags": [
+      "--compile",
+      "--target=bun-darwin-arm64",
+      "--format=esm",
+      "--splitting",
+      "--bytecode",
+      "--minify",
+      "--no-compile-autoload-dotenv",
+      "--no-compile-autoload-bunfig",
+      "--no-compile-autoload-tsconfig",
+      "--no-compile-autoload-package-json",
+      "--define",
+      "process.env.DEV=\"false\"",
+      "--external",
+      "react-devtools-core"
+    ],
+    "actualVariantFlags": [
+      "--compile",
+      "--target=bun-darwin-arm64",
+      "--format=esm",
+      "--splitting",
+      "--minify",
+      "--no-compile-autoload-dotenv",
+      "--no-compile-autoload-bunfig",
+      "--no-compile-autoload-tsconfig",
+      "--no-compile-autoload-package-json",
+      "--define",
+      "process.env.DEV=\"false\"",
+      "--external",
+      "react-devtools-core"
+    ],
+    "masterSnapshotRemoved": true,
+    "buildSnapshotsRemoved": true
+  },
+  "newDriverDependencies": [
+    {
+      "path": "scripts/check-compiled-current.mjs",
+      "bytes": 25245,
+      "sha256": "09e42b5a564cf285a31be8f8696780d588731abb4e17e3744cc5180c69c014b7"
+    },
+    {
+      "path": "scripts/check-compiled-current.d.mts",
+      "bytes": 2424,
+      "sha256": "dddaf0b6abea015e174f2958627188cc0c56e3e13553dacb472aef79041c2922"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-build-tool.txt",
+      "bytes": 20195,
+      "sha256": "bb7bd6da321e5107a82fb728532cfff4069feb488f40e1cf8a6d697447e674ae"
+    },
+    {
+      "path": "scripts/generate-assets.mjs",
+      "bytes": 2608,
+      "sha256": "69ac97416f32430352f9a1b26b513c1fafcc62b81766d1a97ea69265c4ece00f"
+    },
+    {
+      "path": "src/platform/sqlite-runtime.ts",
+      "bytes": 1189,
+      "sha256": "12287d5e5c3eb481a00f5609a1bbc429ed248ee147bfb382a75714ed4d20a2a4"
+    },
+    {
+      "path": "scripts/check-compiled-runtime.mjs",
+      "bytes": 11077,
+      "sha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109"
+    },
+    {
+      "path": "src/platform/process.ts",
+      "bytes": 8602,
+      "sha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b"
+    },
+    {
+      "path": "src/platform/config.ts",
+      "bytes": 16167,
+      "sha256": "021810793ff18e1b3e63942e15cd493a25465406e41de7cfde05cdd91998d337"
+    },
+    {
+      "path": "src/core/domain/config.ts",
+      "bytes": 6643,
+      "sha256": "006b466aae7bf8acb2cacc6379816b3b315373a3aaa105f38346503bdd0e7356"
+    },
+    {
+      "path": "src/platform/private-file.ts",
+      "bytes": 3289,
+      "sha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9"
+    },
+    {
+      "path": "src/core/errors.ts",
+      "bytes": 2910,
+      "sha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f"
+    },
+    {
+      "path": "scripts/distribution.mjs",
+      "bytes": 20211,
+      "sha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18"
+    },
+    {
+      "path": "test/compiled-current.test.ts",
+      "bytes": 12455,
+      "sha256": "07cac844a45ffa3f923b6a16a613f6dce63f7020bf2608b2ccb9ae37255a1ca0"
+    },
+    {
+      "path": "scripts/run-tests.mjs",
+      "bytes": 6963,
+      "sha256": "9fa1ceccc5ac21e5f2db6a571cd928873e6c5c2bd0acc89f37766c20ce8aa03e"
+    }
+  ],
+  "preflight": {
+    "runtime": "guarded-node",
+    "originalSession": 92259,
+    "terminalExit": 0,
+    "passed": 6,
+    "total": 6,
+    "containmentPassed": 19,
+    "containmentTotal": 19,
+    "durationMs": 956.707916,
+    "earlierInitialSession": 46202,
+    "earlierInitialExit": 1,
+    "earlierCorrectedSession": 44848,
+    "earlierCorrectedExit": 0,
+    "earlierCorrectedDurationMs": 976.571208
+  },
+  "typecheck": {
+    "originalSession": 89139,
+    "terminalExit": 0,
+    "strict": true,
+    "durationMs": null
+  },
+  "boundaries": {
+    "terminalChunk": "7c52fb",
+    "terminalExit": 0,
+    "files": 234,
+    "edges": 1259,
+    "violations": 0
+  },
+  "whitespace": {
+    "terminalChunk": "cd8dc6",
+    "terminalExit": 0
+  },
+  "logs": [
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-build.log",
+      "bytes": 791,
+      "sha256": "7d33dade574dceb9a43e9e216934e3b0aa0b79f8d43681b6190682c49cf20075"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-node.log",
+      "bytes": 5741,
+      "sha256": "52f26e078bdceb8e2d97c15d65fea9431d8772544db6a0c2e7dc7a22b776afcc"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-final-node.log",
+      "bytes": 2146,
+      "sha256": "847dbb4c86253f6aaaa376154983416758be73b707b3280457793eb15f81a179"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-freeze-node.log",
+      "bytes": 2149,
+      "sha256": "c18fd96f4ce85fd00f9cad6717be274443c563b8b0afb0aa7784d75960add743"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-boundaries.log",
+      "bytes": 69,
+      "sha256": "adcbe777bb3e789e865dfb29c38ab2bc76e79e5564bfc5fe826d12d945015362"
+    },
+    {
+      "path": "docs/research/checkpoints/2026-10-11-compiled-current-preflight-whitespace.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "claudeClosure": {
+    "sourceDigest": "6a9845d012baf825fcbf7514cbf4afb8de8eb51d830d8e6dfc9d1d62357a4b11",
+    "files": [
+      {
+        "path": "scripts/check-claude-metadata.mjs",
+        "expectedSha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "sha256": "2a36c41932db73c7b396b21f188f3288bab50d1d2b01df3358ae104d6453e059",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/client.ts",
+        "expectedSha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "sha256": "a15d0af846f4ffa1868697d4b25020c7631ba4878ac724027d95221856e40cec",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/runner.ts",
+        "expectedSha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "sha256": "28dfce69fe04c251ecbb4bdcf01b9bf60d153b653f3c83e4ec2bddcbacb33303",
+        "matches": true
+      },
+      {
+        "path": "src/adapters/hosts/claude/transcript.ts",
+        "expectedSha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "sha256": "7012460e7cb7e6220733839292def104a8f4471e2bb096b26d7ba6187939fa34",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/inference.ts",
+        "expectedSha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "sha256": "31b8fba7b5bcd507f687b0ad192253e68dec71654585490e11dc4d4786dba891",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/route.ts",
+        "expectedSha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "sha256": "c0825dff51ea1a5929868c5a7288632085a7fa8bca3ed8ad521fa5711eeff62e",
+        "matches": true
+      },
+      {
+        "path": "src/core/domain/task.ts",
+        "expectedSha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "sha256": "766b59ec7a98a90d2c2946ae0ce4195e5570848a506b8fec68e3242b3943b2b9",
+        "matches": true
+      },
+      {
+        "path": "src/core/errors.ts",
+        "expectedSha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "sha256": "b243935a47640676a8e877bed5ea0b30b93981066039b2c281de075828491b9f",
+        "matches": true
+      },
+      {
+        "path": "src/core/policy.ts",
+        "expectedSha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "sha256": "4285aaaa79e9480c51f183273b86053de3617e850265e4368b726973888c480b",
+        "matches": true
+      },
+      {
+        "path": "src/core/ports/runner.ts",
+        "expectedSha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "sha256": "0e059152d112203601d3d869785d90b68115c70bee50ebab3a559acbca23bc1e",
+        "matches": true
+      },
+      {
+        "path": "src/core/secret-screen.ts",
+        "expectedSha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "sha256": "bd4dd87c63a21aefe341677ec56128a6ea3bd10daf234765ec0077b131cae95e",
+        "matches": true
+      },
+      {
+        "path": "src/platform/private-file.ts",
+        "expectedSha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "sha256": "9224888fe153108123edef4712aebd29a8a46f711b649d905707d497c1a420f9",
+        "matches": true
+      },
+      {
+        "path": "src/platform/process.ts",
+        "expectedSha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "sha256": "4a0bb56e34b10a0e802856d1cfba869fb47d6d11eb9d25a07be93a8aef589e4b",
+        "matches": true
+      }
+    ]
+  },
+  "protectedFiles": [
+    {
+      "path": "scripts/distribution.mjs",
+      "expectedSha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18",
+      "sha256": "100998a07b1bd76bc31734a1ac834ce0b1e74e1a32e4bc3746d89f958c2a4b18",
+      "matches": true
+    },
+    {
+      "path": "scripts/build.mjs",
+      "expectedSha256": "4364535fcfb01ad8d967f21cfd7ff26e6693a4a0ea8728e56bef6736b98ee2c5",
+      "sha256": "4364535fcfb01ad8d967f21cfd7ff26e6693a4a0ea8728e56bef6736b98ee2c5",
+      "matches": true
+    },
+    {
+      "path": "scripts/check-claude-bootstrap.mjs",
+      "expectedSha256": "e0f1bd1bcc7684f178130d4e714dd5b3d09b1eb816721ec28f26409f6ebb7a2a",
+      "sha256": "e0f1bd1bcc7684f178130d4e714dd5b3d09b1eb816721ec28f26409f6ebb7a2a",
+      "matches": true
+    },
+    {
+      "path": "scripts/check-compiled-runtime.mjs",
+      "expectedSha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109",
+      "sha256": "7302ce86925f9d425742170278b7ea928b703b9d678614033b1659960ad0e109",
+      "matches": true
+    },
+    {
+      "path": "package.json",
+      "expectedSha256": "e6a1d13fdc0cf0a95b3dffb89364abb32b01bf6a64d80a6848d7161d8611cb97",
+      "sha256": "e6a1d13fdc0cf0a95b3dffb89364abb32b01bf6a64d80a6848d7161d8611cb97",
+      "matches": true
+    },
+    {
+      "path": "package-lock.json",
+      "expectedSha256": "26ac1ceb84dad95a08438a336471e35a73c4aea130b8d21c754062378524fc05",
+      "sha256": "26ac1ceb84dad95a08438a336471e35a73c4aea130b8d21c754062378524fc05",
+      "matches": true
+    },
+    {
+      "path": "bun.lock",
+      "expectedSha256": "4542b6d28ef33ba4fb83382bbc7afa645894498a5fe2dbb2fa77af0490225b1b",
+      "sha256": "4542b6d28ef33ba4fb83382bbc7afa645894498a5fe2dbb2fa77af0490225b1b",
+      "matches": true
+    },
+    {
+      "path": "src/app/memory-benchmark.ts",
+      "expectedSha256": "6193e7c9209733ebb8b3171e6a112c1ce5c85769c73e2419a9bc89f12b56149c",
+      "sha256": "6193e7c9209733ebb8b3171e6a112c1ce5c85769c73e2419a9bc89f12b56149c",
+      "matches": true
+    },
+    {
+      "path": "src/app/cli.ts",
+      "expectedSha256": "d6856cb3eb976e6b868458b48eb0b11c4f5554f37961fe62eda50dbb33bc1878",
+      "sha256": "d6856cb3eb976e6b868458b48eb0b11c4f5554f37961fe62eda50dbb33bc1878",
+      "matches": true
+    }
+  ],
+  "compiledInvocationPlan": {
+    "root": 8,
+    "nested": 21,
+    "totalMaximum": 29,
+    "rpcRequests": 7,
+    "benchmarkPromptTrials": 200,
+    "actualBatchInvocations": 0
+  },
+  "cleanup": {
+    "allOriginalRootJoinsRequired": true,
+    "successfulBenchmarkReceiptRequiredAfterBenchmarkAttempt": true,
+    "unsuccessfulBenchmarkRetainsEntirePrivateTree": true,
+    "gracefulDaemonExitCode": "unqualified",
+    "independentOwnerLockReacquisition": "not-performed"
+  }
+}

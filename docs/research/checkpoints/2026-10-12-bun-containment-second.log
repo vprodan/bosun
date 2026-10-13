@@ -1,0 +1,22 @@
+34 |   const r = launch(root, [entry], {
+35 |     guarded: preload, cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 10000,
+36 |   });
+37 |   assert.equal(r.error, undefined, String(r.error));
+38 |   assert.notEqual(r.status, 0, r.stdout);
+39 |   assert.match(r.stderr, /containment|require scripts\/run-tests/);
+              ^
+AssertionError: The input did not match the regular expression /containment|require scripts\/run-tests/. Input:
+
+''
+
+ generatedMessage: true,
+     actual: "",
+   expected: /containment|require scripts\/run-tests/,
+   operator: "match",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at blockedBeforeImport (/Users/edge/Developer/bosun/scripts/check-containment.mjs:39:10)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:24:28)
+
+Bun v1.4.3 (macOS arm64)

@@ -1,0 +1,131 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ production boundary graph passes including the recorded legacy forwarding seams (851.189833ms)
+✔ boundary negative fixture: final memory composition cannot reach legacy config (79.384292ms)
+✔ boundary negative fixture: curated source policy cannot reach native writer (77.650917ms)
+✔ boundary negative fixture: normal registered reader cannot import new initialization (80.22825ms)
+✔ boundary negative fixture: jobs core cannot use an ambient clock (74.847542ms)
+✔ boundary negative fixture: jobs core cannot import durable IO (78.5795ms)
+✔ boundary negative fixture: jobs storage cannot reuse memory cutover machinery (78.155791ms)
+✔ boundary negative fixture: final jobs composition cannot import legacy rendezvous (72.616958ms)
+✔ boundary negative fixture: type-only static IO import (74.397958ms)
+✔ boundary negative fixture: reexport relative bypass (73.850084ms)
+✔ boundary negative fixture: literal dynamic import (80.297875ms)
+✔ boundary negative fixture: import type query (73.15425ms)
+✔ boundary negative fixture: tsconfig alias bypass (76.974083ms)
+✔ boundary negative fixture: package imports alias bypass (72.758792ms)
+✔ boundary negative fixture: unresolved alias (72.342334ms)
+✔ boundary negative fixture: computed dynamic import (78.587834ms)
+✔ boundary negative fixture: computed require (73.362542ms)
+✔ boundary negative fixture: require alias (71.448875ms)
+✔ boundary negative fixture: module loader escape (72.953792ms)
+✔ boundary negative fixture: property require escape (75.919833ms)
+✔ boundary negative fixture: element require escape (71.218ms)
+✔ boundary negative fixture: import equals escape (76.577875ms)
+✔ boundary negative fixture: new graph cycle (76.063958ms)
+✔ boundary negative fixture: old graph cycle (71.72175ms)
+✔ boundary negative fixture: production test dependency (73.443875ms)
+✔ boundary negative fixture: cross adapter flat files (79.932042ms)
+✔ boundary negative fixture: cross adapter nested directories (73.15675ms)
+✔ boundary negative fixture: cross adapter kinds (73.391875ms)
+✔ boundary negative fixture: core process global (74.630875ms)
+✔ boundary negative fixture: core fetch global (71.241541ms)
+✔ boundary negative fixture: core global alias (75.8155ms)
+✔ boundary negative fixture: ambient clock alias (72.849042ms)
+✔ boundary negative fixture: actual context use case cannot reach native hashing (72.185542ms)
+✔ boundary negative fixture: actual context use case cannot use ambient timing (71.659041ms)
+✔ boundary negative fixture: context forwarding cannot restore its obsolete text helper edge (72.908541ms)
+✔ boundary negative fixture: ambient random alias (75.124542ms)
+✔ boundary negative fixture: Math object alias (74.304333ms)
+✔ boundary negative fixture: computed Math operation (75.447958ms)
+✔ boundary negative fixture: new source cannot import old lib helper (70.75525ms)
+✔ boundary negative fixture: unregistered legacy file (70.250458ms)
+✔ boundary negative fixture: unrecorded forwarding edge (71.8105ms)
+✔ boundary negative fixture: memory adapter cannot reach legacy config (77.07325ms)
+✔ boundary negative fixture: memory adapter cannot read ambient config (72.335958ms)
+✔ boundary negative fixture: memory query cannot use an ambient clock (72.791208ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient timing source (72.518541ms)
+✔ boundary negative fixture: memory adapter cannot create a runtime native connection (80.706625ms)
+✔ boundary negative fixture: memory adapter cannot alias a runtime native connection (72.891208ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform clock through a package alias (75.929875ms)
+✔ boundary negative fixture: memory adapter cannot reach a platform sink through a tsconfig alias (71.0875ms)
+✔ boundary negative fixture: memory adapter cannot use an ambient measurement sink (71.427375ms)
+✔ boundary negative fixture: validation cannot load runtime filesystem (77.338458ms)
+✔ boundary negative fixture: memory isolation cannot reach ambient state through an unreviewed contract helper (73.10725ms)
+✔ boundary negative fixture: validation isolation cannot reexport an ambient helper (71.6525ms)
+✔ boundary negative fixture: memory isolation cannot alias an unreviewed contract sink (72.692292ms)
+✔ boundary negative fixture: pure validation cannot reach storage (78.387917ms)
+✔ boundary negative fixture: memory query cannot import maintenance (73.039625ms)
+✔ boundary negative fixture: docs snapshot query cannot import its index use case (76.079333ms)
+✔ boundary negative fixture: docs snapshot query cannot reach filesystem helper (72.274959ms)
+✔ boundary negative fixture: docs index cannot import effectful source helper (72.56875ms)
+✔ boundary negative fixture: docs query cannot use ambient config (77.921125ms)
+✔ boundary negative fixture: docs index cannot use runtime filesystem (71.952791ms)
+✔ boundary negative fixture: docs index cannot use ambient timing (71.761083ms)
+✔ boundary negative fixture: docs query cannot alias a platform source (72.660416ms)
+✔ boundary negative fixture: docs query cannot reach unreviewed contract metrics (79.226375ms)
+✔ boundary negative fixture: docs filesystem helper cannot reach legacy state (74.511791ms)
+✔ boundary negative fixture: docs compatibility forwarder cannot reach unrelated native writer (73.711292ms)
+✔ boundary negative fixture: local hook reader cannot import writable store (75.11125ms)
+✔ boundary negative fixture: service forwarding does not allow unrelated memory internals (72.731958ms)
+✔ boundary negative fixture: unknown new production zone (77.447ms)
+✔ AST parsing ignores fake imports in comments/text and permits local symbols and same-adapter internals (73.475958ms)
+✔ isolated memory allows named type-only SQLite, injected clock/sink properties and pure builtins (73.036916ms)
+✔ boundary resolution cannot escape the checked graph through a symlink (5.204417ms)
+✔ app path aliases cannot escape the checked graph as apparent external dependencies (71.776958ms)
+✔ final run selects OpenCode by default and preserves each explicit native host, model, effort and literal task (194.762333ms)
+✔ final read-only run uses restricted native Claude tools and holds unqualified Codex without changing host or model (485.758417ms)
+✔ final queued native run retains auth and cwd, clears parent controls and preserves unknown native exits without replay (747.30425ms)
+✔ final revision-bound review captures the whole checkout from a subdirectory, selects the read-only vendor and holds unsafe selections (1315.955958ms)
+✔ run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns (889.719125ms)
+✔ run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor (638.139042ms)
+✔ llm: Ollama success sends the schema and context size and reads token counts (19.056334ms)
+✔ llm: timeout, retry then success, bad JSON and schema violations fail without retrying (823.726208ms)
+✔ llm: fallback chain; the remote provider only when opted in, allowed, and not private; the usage log has no content (104.577792ms)
+✔ consolidate: proposals with provenance; exact and near duplicates are skipped; invalid output writes nothing; review accepts (16.806625ms)
+✔ final memory CLI queues cited proposals and public title/tag jobs while retaining source IDs, explicit fields and external data (345.516958ms)
+✔ owned split watches one existing job; only IDs enter commands and UI metadata; duplicate requests never replay (639.023625ms)
+✔ standalone terminal creation uses a host-qualified workspace and never launches a native agent (520.524666ms)
+✔ native lost receipt stays held across restart; late pane observation never runs a second job (507.626291ms)
+✔ native malformed receipt stays held across restart; late pane observation never runs a second job (508.453375ms)
+✔ missing, remote, changed or unsupported terminal preflight leaves a concrete existing-job observation path and no pane effect (460.905208ms)
+✔ closed or uncertain pane observation preserves the original job state and never changes execution ownership (767.264625ms)
+✔ watch rejects model callers, missing jobs, other projects/checkouts and credential-bearing source IDs before native discovery (128.231791ms)
+✔ lost watch intent COMMIT preserves the finite original receipt without replay (322.16325ms)
+✔ lost watch completion COMMIT preserves the finite original receipt without replay (531.456667ms)
+✔ owner drift after async preflight rejects the native effect; durable pending intent recovers as unknown without replay (390.025542ms)
+✔ watch shutdown joins the bounded native CLI process and records unknown without cancelling or repeating the job (400.014791ms)
+✔ job binding drift at terminal effect entry rejects the pane and preserves the original durable task (371.59075ms)
+✔ finite durable watch receipt capacity holds another pane before its native effect and leaves the job queued (622.399292ms)
+✔ observer entry drift during async terminal preflight holds the pane before the native effect (367.859166ms)
+✔ unknown executor outcomes remain held when a pane opens or closes; observation supplies no retry path (652.427459ms)
+✔ source observer safely quotes literal paths and refuses entry drift; idle daemon never discovers Orca (332.502708ms)
+✔ spin keeps the literal task and selected model in its owned daemon job when an Orca pane cannot bind the new worktree (557.878458ms)
+✔ revision-bound review uses the same metadata observer and original read-only selected job (789.600375ms)
+✔ subdirectory callers retain each job exact execution cwd and canonical Orca pane binding (1626.926708ms)
+ℹ tests 103
+ℹ suites 0
+ℹ pass 103
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24755.41725

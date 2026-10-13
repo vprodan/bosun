@@ -1,32 +1,32 @@
 import './bootstrap.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DatabaseSync, backup } from 'node:sqlite';
+import { SqliteDatabase, sqliteBackup } from '../src/platform/sqlite.ts';
 import { sandbox, fresh } from './helpers.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { REPO } from './helpers.ts';
-import { MemoryService } from '../lib/memory/service.ts';
-import { load } from '../lib/config.ts';
-import { MIGRATIONS } from '../lib/memory/sqlite.ts';
+import { MEMORY_MIGRATIONS } from '../src/adapters/memory/sqlite-schema.ts';
+import { defaultConfig } from '../src/core/domain/config.ts';
 import { fixture, openLease, footprint, publish, gate, qualified, installFloor, sourceGeneration, buildUnderAdmission, patchedVersion,
-  beginAdmission, endAdmission, hold, protectSchema, FLOOR_FN } from './read-view-prototype.ts';
+  beginAdmission, endAdmission, protectSchema, FLOOR_FN } from './read-view-prototype.ts';
+import { createTestMemoryStore } from './memory-store-fixture.ts';
 
-const native = new DatabaseSync(':memory:');
+const native = new SqliteDatabase(':memory:');
 const nativeVersion = String(native.prepare('SELECT sqlite_version() AS version').get()!.version);
 const capabilities = Object.fromEntries(['function', 'setAuthorizer', 'serialize', 'deserialize', 'isTransaction'].map((name) => [name, typeof Reflect.get(native, name)]));
 native.close();
 const patched = patchedVersion(nativeVersion);
-const qualifiedNative = patched && typeof backup === 'function' && capabilities.function === 'function'
+const qualifiedNative = patched && typeof sqliteBackup === 'function' && capabilities.function === 'function'
   && capabilities.setAuthorizer === 'function' && capabilities.isTransaction === 'boolean';
 const probeOptions = { skip: !qualifiedNative && 'Native prerequisites unqualified: runtime HOLD, WAL prototypes deferred' };
 const CTX = { projectId: 'p_a', sessionId: null, linked: ['p_b'] };
 
 test('read-view qualification: actual native version/APIs before any multi-connection WAL probe', () => {
   console.log('Read-view native qualification:', JSON.stringify({ node: process.version, sqlite: nativeVersion, patchedWalReset: patched,
-    backup: typeof backup, unsafeProbes: qualifiedNative ? 'enabled-test-prototype' : 'deferred-HOLD', ...capabilities }));
+    backup: typeof sqliteBackup, unsafeProbes: qualifiedNative ? 'enabled-test-prototype' : 'deferred-HOLD', ...capabilities }));
   for (const value of ['3.51.2', '3.50.6', 'malformed', '4.0.0']) assert.equal(patchedVersion(value), false);
   for (const value of ['3.51.3', '3.50.7', '3.44.6', '3.53.0']) assert.equal(patchedVersion(value), true);
 });
@@ -50,9 +50,9 @@ test('read-view qualification: READY rollback lease preserves public IDs/scope a
 });
 
 test('read-view qualification: old already-prepared INSERT/UPDATE/DELETE/touch/expiry are fenced after floor cutover', probeOptions, () => {
-  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let old: DatabaseSync | undefined;
+  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let old: SqliteDatabase | undefined;
   try {
-    fresh(sb); f = fixture(sb.root, false); old = new DatabaseSync(f.primaryFile); old.exec('PRAGMA busy_timeout=0;');
+    fresh(sb); f = fixture(sb.root, false); old = new SqliteDatabase(f.primaryFile); old.exec('PRAGMA busy_timeout=0;');
     const sql = [
       "INSERT INTO memories(id,category,title,body,source,hash,created_at,updated_at) VALUES('m_old','personal','Old','Old body','old','old-hash',1,1)",
       "UPDATE memories SET private=1 WHERE id='m_project'", "DELETE FROM memories WHERE id='m_project'",
@@ -63,7 +63,7 @@ test('read-view qualification: old already-prepared INSERT/UPDATE/DELETE/touch/e
     prepared[3].run();
     installFloor(f.source); publish(f.source, f.view);
     for (const statement of prepared) assert.throws(() => statement.run(), /no such function.*bosun_read_view_floor_v1/);
-    const direct = new DatabaseSync(f.primaryFile);
+    const direct = new SqliteDatabase(f.primaryFile);
     try { for (const statement of sql) assert.throws(() => direct.exec(statement), /no such function.*bosun_read_view_floor_v1/); }
     finally { direct.close(); }
     assert.equal(sourceGeneration(f.source), 0);
@@ -99,7 +99,7 @@ test('read-view qualification: retained lease blocks supported revocation throug
 });
 
 test('read-view qualification: primary write admission serializes publishers/mutators; aborted primary DML leaves durable HOLD', probeOptions, () => {
-  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let other: DatabaseSync | undefined;
+  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let other: SqliteDatabase | undefined;
   try {
     fresh(sb); f = fixture(sb.root); publish(f.source, f.view);
     const calls = { calls: 0 }; other = qualified(f.primaryFile, f.view, calls);
@@ -133,13 +133,11 @@ test('read-view qualification: deferred isTransaction is not publisher write adm
   } finally { f?.close(); sb.cleanup(); }
 });
 
-test('read-view qualification: actual legacy MemoryService mutations/expiry cannot bypass floor through another connection', probeOptions, async () => {
-  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let old: MemoryService | undefined;
+test('read-view qualification: supported adapter mutations/expiry cannot bypass floor through another connection', probeOptions, async () => {
+  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let old: ReturnType<typeof createTestMemoryStore> | undefined;
   try {
     fresh(sb); f = fixture(sb.root, false);
-    old = new MemoryService(new DatabaseSync(f.primaryFile), load());
-    // Prepare an actual expired row before cutover, after the old constructor's initial expiry.
-    f.source.exec("UPDATE memories SET status='active',expires_at=0 WHERE id='m_expired'");
+    old = createTestMemoryStore(new SqliteDatabase(f.primaryFile), defaultConfig());
     installFloor(f.source); publish(f.source, f.view);
     const events = f.source.prepare('SELECT COUNT(*) AS n FROM memory_events').get()!.n;
     await assert.rejects(old.store({ category: 'personal', title: 'Legacy insert', body: 'Synthetic legacy body' }, CTX), /no such function/);
@@ -169,21 +167,21 @@ test('read-view qualification: shared/project/expiry mutations revoke current ge
 });
 
 test('read-view qualification: SQLite-aware pre-floor backup under admission is exact, owner-only and separate from public view', probeOptions, async () => {
-  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let snapshotSource: DatabaseSync | undefined;
-  let contender: DatabaseSync | undefined; let copy: DatabaseSync | undefined;
+  const sb = sandbox(); let f: ReturnType<typeof fixture> | undefined; let snapshotSource: SqliteDatabase | undefined;
+  let contender: SqliteDatabase | undefined; let copy: SqliteDatabase | undefined;
   try {
     fresh(sb); f = fixture(sb.root, false);
     const backupDir = path.join(sb.root, 'owner-backup'); fs.mkdirSync(backupDir, { mode: 0o700 });
     const artifact = path.join(backupDir, 'before-floor.db'); fs.closeSync(fs.openSync(artifact, 'wx', 0o600));
     beginAdmission(f.source);
-    contender = new DatabaseSync(f.primaryFile); contender.exec('PRAGMA busy_timeout=0;');
+    contender = new SqliteDatabase(f.primaryFile); contender.exec('PRAGMA busy_timeout=0;');
     assert.throws(() => contender!.exec("UPDATE memories SET body='unadmitted' WHERE id='m_project'"), /locked/);
-    snapshotSource = new DatabaseSync(f.primaryFile, { readOnly: true });
-    const pages = await backup(snapshotSource, artifact, {}); // Explicit options also survive the mandatory guard wrapper.
+    snapshotSource = new SqliteDatabase(f.primaryFile, { readOnly: true });
+    const pages = await sqliteBackup(snapshotSource, artifact, {}); // Explicit options also survive the mandatory guard wrapper.
     assert.ok(pages > 0);
     endAdmission(f.source, true);
     snapshotSource.close(); snapshotSource = undefined;
-    copy = new DatabaseSync(artifact);
+    copy = new SqliteDatabase(artifact);
     assert.deepEqual(copy.prepare('SELECT * FROM memories ORDER BY seq').all(), f.source.prepare('SELECT * FROM memories ORDER BY seq').all());
     assert.deepEqual(copy.prepare('SELECT * FROM memory_events ORDER BY id').all(), f.source.prepare('SELECT * FROM memory_events ORDER BY id').all());
     assert.equal(copy.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE name='source_gate'").get()!.n, 0);
@@ -240,7 +238,7 @@ test('read-view qualification: trusted-application floor does not protect uncont
     fresh(sb);
     for (const arm of ['drop', 'spoof']) {
       const root = path.join(sb.root, arm); fs.mkdirSync(root); const f = fixture(root);
-      const uncontrolled = new DatabaseSync(f.primaryFile);
+      const uncontrolled = new SqliteDatabase(f.primaryFile);
       try {
         publish(f.source, f.view);
         if (arm === 'drop') uncontrolled.exec('DROP TRIGGER bosun_floor_update');
@@ -268,10 +266,10 @@ test('read-view qualification: early-close cached delivery and view-inode replac
     assert.ok(cached.some((row) => row.id === 'm_project'), 'returned JS arrays cannot be revoked after early close');
     publish(f.source, f.view);
     const retained = openLease(f.viewFile);
-    let replacement: DatabaseSync | undefined; let other: DatabaseSync | undefined;
+    let replacement: SqliteDatabase | undefined; let other: SqliteDatabase | undefined;
     try {
       fs.renameSync(f.viewFile, f.viewFile + '.retired');
-      replacement = new DatabaseSync(f.viewFile); replacement.exec(MIGRATIONS[0]);
+      replacement = new SqliteDatabase(f.viewFile); replacement.exec(MEMORY_MIGRATIONS[0]);
       replacement.exec("CREATE TABLE view_gate(id INTEGER PRIMARY KEY,state TEXT,source_id TEXT,generation INTEGER,floor INTEGER);");
       replacement.exec("INSERT INTO view_gate VALUES(1,'HOLD','synthetic-source',0,1)");
       publish(f.source, replacement);

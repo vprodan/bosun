@@ -1,0 +1,67 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings (5.195375ms)
+✔ fresh Codex seed is persisted and independently read back with no turn/model request before readiness (134.840167ms)
+✔ owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics (132.34475ms)
+✔ wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference (1260.002792ms)
+✔ empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated (388.042667ms)
+✔ pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay (786.69425ms)
+✔ cancellation request without original terminal receipt joins the process and leaves unknown effects (1198.472375ms)
+✔ fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history (142.475167ms)
+✔ Codex fresh generation creates an independent root and joins the retired process before destination dispatch (190.804041ms)
+✖ production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) (110.741ms)
+✖ production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) (87.771959ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 9
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4634.383375
+
+✖ failing tests:
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/codex-control.test.ts:247:45
+✖ production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) (110.741ms)
+  Error: Request failed
+      at callLocalRpc (file:///Users/edge/Developer/bosun/src/adapters/transport/local-rpc.ts:37:24)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/codex-control.test.ts:266:21)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'internal',
+    exitCode: 1,
+    details: undefined
+  }
+
+test at ../../../../../../../../Users/edge/Developer/bosun/test/codex-control.test.ts:247:45
+✖ production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) (87.771959ms)
+  Error: Request failed
+      at callLocalRpc (file:///Users/edge/Developer/bosun/src/adapters/transport/local-rpc.ts:37:24)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/edge/Developer/bosun/test/codex-control.test.ts:266:21)
+      at async Test.run (node:internal/test_runner/test:1313:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:897:7) {
+    code: 'internal',
+    exitCode: 1,
+    details: undefined
+  }

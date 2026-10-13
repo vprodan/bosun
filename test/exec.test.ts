@@ -1,235 +1,486 @@
-import "./bootstrap.ts";
+import './bootstrap.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { sandbox, fresh, bosun, mock } from './helpers.ts';
-import { load } from '../lib/config.ts';
-import * as exec from '../lib/exec.ts';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
+import { bosun } from './helpers.ts';
+import { runtimeFixture } from './runtime-fixture.ts';
+import { createClaudeRunner, CLAUDE_VERSION } from '../src/adapters/hosts/claude/runner.ts';
+import { createCodexRunner, CODEX_VERSION } from '../src/adapters/hosts/codex/runner.ts';
+import type { AgentRunner, RunSpec } from '../src/core/ports/runner.ts';
+import { watchedRuntime, WATCH_TASK, watchCaps } from './orca-fixture.ts';
+import { gitEnvelope } from './git-fixture.ts';
 
 const val = (args: string[], flag: string) => args[args.indexOf(flag) + 1];
-const git = (cwd: string, ...a: string[]) => spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd, encoding: 'utf8' });
-
-test('buildRun: the four executor paths', () => {
-  const sb = sandbox();
+function git(cwd: string, ...args: string[]) {
+  const result = spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], {
+    cwd,
+    encoding: 'utf8',
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout;
+}
+type Fixture = Awaited<ReturnType<typeof runtimeFixture>>;
+async function terminal(f: Fixture, id: string) {
+  let job = await f.rpc('job.get', { id });
+  const deadline = performance.now() + 5000;
+  while (['queued', 'running'].includes(job.state)) {
+    assert.ok(performance.now() < deadline, 'original job must settle');
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    job = await f.rpc('job.get', { id });
+  }
+  return job;
+}
+function nativeOutput(f: Fixture, model = 'claude-sonnet-5') {
+  const session = '00000000-0000-4000-8000-000000000002';
+  const rows = [
+    {
+      type: 'system',
+      subtype: 'init',
+      session_id: session,
+      cwd: f.workspace,
+      model,
+      permissionMode: 'dontAsk',
+      tools: ['Read', 'Glob', 'Grep', 'EndConversation'],
+      mcp_servers: [],
+    },
+    {
+      type: 'assistant',
+      session_id: session,
+      message: { model, content: [{ type: 'text', text: 'Owner verifies this result.' }] },
+    },
+    {
+      type: 'result',
+      subtype: 'success',
+      is_error: false,
+      session_id: session,
+      result: 'Owner verifies this result.',
+      usage: { input_tokens: 7, output_tokens: 3 },
+      modelUsage: { [model]: { inputTokens: 7, outputTokens: 3 } },
+    },
+  ];
+  f.env.STUB_MAP = JSON.stringify({
+    'claude --version': { out: CLAUDE_VERSION + ' (Claude Code)\n' },
+    'claude -p': { out: rows.map((row) => JSON.stringify(row)).join('\n') + '\n' },
+    'codex --version': { out: 'codex-cli ' + CODEX_VERSION + '\n' },
+  });
+}
+async function nativeFixture() {
+  let f: Fixture;
+  f = await runtimeFixture(
+    '[hosts]\nprimary="claude"\n[roles.worker.claude]\nmodel="claude-sonnet-5"\neffort="high"\n[roles.cross-reviewer.claude]\nmodel="claude-opus-5"\neffort="high"\n[roles.cross-reviewer.codex]\nmodel="gpt-6.1-sol:owner"\neffort="ultra"\n',
+    {
+      env: {
+        CLAUDECODE: '1',
+        CLAUDE_EFFORT: 'xhigh',
+        CLAUDE_CODE_MESSAGING_SOCKET: '/tmp/parent.sock',
+        CLAUDE_CODE_SUBAGENT_MODEL: 'owner-subagent',
+        ANTHROPIC_AUTH_TOKEN: 'native-auth-fixture',
+      },
+      runners: {
+        claude: () => createClaudeRunner({ env: f.env }),
+        codex: () => createCodexRunner({ env: f.env }),
+      },
+    },
+  );
+  nativeOutput(f);
+  return f;
+}
+const nativeExecutions = (f: Fixture) =>
+  f.sb.calls().filter((call) => call.bin === 'claude' && call.argv[0] === '-p');
+function storedInput(f: Fixture, id: string) {
+  const db = new SqliteDatabase(f.paths.state, { readOnly: true });
   try {
-    fresh(sb);
-    const cfg = load();
+    return JSON.parse(String(db.prepare('SELECT payload FROM jobs WHERE id=?').get(id)!.payload));
+  } finally {
+    db.close();
+  }
+}
 
-    const lc = exec.buildRun('local', 'rename a to b', cfg);
-    assert.equal(lc.cmd, 'claude');
-    assert.ok(lc.args.includes('--bare'));
-    assert.equal(val(lc.args, '--model'), cfg.LOCAL_MODEL);
-    assert.equal(val(lc.args, '--permission-mode'), 'dontAsk');
-    assert.ok(lc.args.includes('Bash(git commit*)') && lc.args.includes('Bash(grep *)'));
-    assert.ok(lc.args.includes('Bash(git mv *)') && lc.args.includes('Bash(mkdir -p *)'), 'the local lane can move files');
-    assert.ok(val(lc.args, '-p').includes('TASK:\nrename a to b'));
-    assert.deepEqual([lc.set.ANTHROPIC_BASE_URL, lc.set.ANTHROPIC_API_KEY, lc.set.BOSUN_DEPTH], [cfg.OLLAMA_URL, 'ollama', '1']);
-    assert.ok(lc.unset.includes('ANTHROPIC_AUTH_TOKEN'));
-
-    const lx = exec.buildRun('local', 't', { ...cfg, LOCAL_HARNESS: 'codex' });
-    assert.equal(lx.cmd, 'codex');
-    assert.deepEqual(lx.args.slice(0, 4), ['exec', '--oss', '--local-provider', 'ollama']);
-    assert.equal(val(lx.args, '-s'), 'workspace-write');
-    assert.ok(lx.args.includes('sandbox_workspace_write.network_access=false') && lx.args.includes('--ignore-user-config'));
-    assert.equal(lx.set.CODEX_OSS_BASE_URL, `${cfg.OLLAMA_URL}/v1`);
-
-    const xc = exec.buildRun('codex', 't', cfg);
-    assert.equal(val(xc.args, '-m'), 'gpt-6-luna');
-    assert.ok(xc.args.includes('model_reasoning_effort="high"') && !xc.args.includes('--oss'));
-
-    const xa = exec.buildRun('claude', 't', cfg);
-    assert.equal(val(xa.args, '--model'), 'sonnet');
-    assert.ok(xa.args.includes('--restricted') && xa.args.includes('--strict-mcp-config'), 'no user/project settings, plugins or MCP');
-    assert.ok(!xa.args.includes('--setting-sources'));
-    assert.ok(!xa.args.includes('--bare') && xa.unset.includes('ANTHROPIC_API_KEY'));
-    assert.throws(() => exec.buildRun('gpt', 't', cfg), /-e must be/);
-  } finally { sb.cleanup(); }
+test('final run preserves configured primary and explicit native host/model/effort and literal task', async () => {
+  const calls: Array<{ host: string; spec: RunSpec }> = [];
+  const runners: Record<string, () => AgentRunner> = {};
+  for (const host of ['opencode', 'codex', 'claude'])
+    runners[host] = () => ({
+      id: host,
+      caps: watchCaps,
+      detect: async () => ({ installed: true }),
+      async *run(spec) {
+        calls.push({ host, spec });
+        yield { t: 'done', code: 0, result: 'Selected ' + host };
+      },
+    });
+  const f = await runtimeFixture(
+    '[hosts]\nprimary="opencode"\n[roles.worker.opencode]\nmodel="owner/opencode:model"\neffort="high"\n[roles.worker.codex]\nmodel="gpt-6.1-sol:owner"\neffort="ultra"\n[roles.worker.claude]\nmodel="claude-sonnet-5"\neffort="high"\n',
+    { runners },
+  );
+  try {
+    const tick = String.fromCharCode(96),
+      task = 'Keep "$HOME", ' + tick + 'literal' + tick + ' and $(text) unchanged — public.';
+    const cases = [
+      { args: [], host: 'opencode', model: 'owner/opencode:model', effort: 'high' },
+      { args: ['--host', 'codex'], host: 'codex', model: 'gpt-6.1-sol:owner', effort: 'ultra' },
+      { args: ['--host', 'claude'], host: 'claude', model: 'claude-sonnet-5', effort: 'high' },
+      {
+        args: ['--host', 'codex', '--model', 'owner:exact:tag', '--effort', 'max'],
+        host: 'codex',
+        model: 'owner:exact:tag',
+        effort: 'max',
+      },
+    ];
+    for (const [n, expected] of cases.entries()) {
+      const response = await f.cli([
+        'run',
+        task,
+        '--request-id',
+        'selection_' + n,
+        ...expected.args,
+      ]);
+      assert.equal(response.code, 0, response.err);
+      const queued = JSON.parse(response.out);
+      assert.equal((await terminal(f, queued.job.id)).state, 'succeeded');
+      const call = calls[n];
+      assert.equal(call.host, expected.host);
+      assert.equal(call.spec.model, expected.model);
+      assert.equal(call.spec.effort, expected.effort);
+      assert.equal(call.spec.prompt, task);
+      assert.equal(call.spec.cwd, f.workspace);
+      assert.equal(call.spec.access, 'edit');
+    }
+    assert.equal(calls.length, 4);
+    const invalid = await f.cli(['run', task, '--host', 'local']);
+    assert.equal(invalid.code, 2);
+    assert.equal(JSON.parse(invalid.err).error.code, 'invalid');
+    assert.equal((await f.rpc('job.list', {})).jobs.length, 4);
+  } finally {
+    await f.close();
+  }
 });
 
-test('buildReview + hostNow: other vendor, read-only', () => {
-  const sb = sandbox();
+test('final read-only run uses restricted native Claude tools and holds unqualified Codex without changing host or model', async () => {
+  const f = await nativeFixture();
   try {
-    fresh(sb);
-    const cfg = load();
-    assert.equal(exec.hostNow({ CLAUDECODE: '1' }), 'claude');
-    assert.equal(exec.hostNow({ CODEX_THREAD_ID: 't1' }), 'codex');
-    assert.equal(exec.hostNow({}), null);
-    const c = exec.buildReview('codex', cfg);
-    assert.deepEqual([c.cmd, val(c.args, '-m'), val(c.args, '-s'), c.args.at(-1)], ['codex', 'gpt-6-sol', 'read-only', '-']);
-    const a = exec.buildReview('claude', cfg);
-    assert.deepEqual([a.cmd, val(a.args, '--model'), val(a.args, '--effort'), val(a.args, '--tools')], ['claude', 'opus', 'high', 'Read,Glob,Grep']);
-    assert.ok(a.args.includes('--restricted') && !a.args.includes('--setting-sources'), 'project settings cannot widen the reviewer');
-    assert.ok(!a.args.some((x) => /Edit|Write|Bash/.test(x)), 'no write or shell tools');
-    assert.equal(val(exec.buildReview('claude', cfg, 'sonnet').args, '--model'), 'sonnet');
-  } finally { sb.cleanup(); }
+    const response = await f.cli([
+      'run',
+      'Read this public checkout.',
+      '--read-only',
+      '--request-id',
+      'read_claude',
+    ]);
+    assert.equal(response.code, 0, response.err);
+    const queued = JSON.parse(response.out);
+    assert.equal((await terminal(f, queued.job.id)).state, 'succeeded');
+    const [call] = nativeExecutions(f);
+    assert.equal(val(call.argv, '--tools'), 'Read,Glob,Grep');
+    assert.equal(val(call.argv, '--allowedTools'), 'Read,Glob,Grep');
+    assert.equal(val(call.argv, '--disallowedTools'), 'mcp__*');
+    assert.ok(call.argv.includes('--restricted') && call.argv.includes('--strict-mcp-config'));
+    assert.ok(!call.argv.some((arg) => /^(Edit|Write|Bash)(,|$)/.test(arg)));
+    const held = await f.cli([
+      'run',
+      'Read this public checkout.',
+      '--host',
+      'codex',
+      '--read-only',
+      '--model',
+      'owner:exact:tag',
+      '--effort',
+      'ultra',
+      '--request-id',
+      'read_codex',
+    ]);
+    assert.equal(held.code, 0, held.err);
+    const job = await terminal(f, JSON.parse(held.out).job.id);
+    assert.equal(job.state, 'held');
+    assert.equal(job.runnerId, 'codex');
+    assert.equal(job.reason, 'unsupported');
+    assert.equal(storedInput(f, job.id).model, 'owner:exact:tag');
+    assert.equal(storedInput(f, job.id).effort, 'ultra');
+    assert.equal(nativeExecutions(f).length, 1);
+    assert.ok(!f.sb.calls().some((call) => call.bin === 'codex' && call.argv[0] === 'exec'));
+  } finally {
+    await f.close();
+  }
 });
 
-test('run (inline): exact call, token stripped, stdin spec, guards', async () => {
-  const sb = sandbox();
-  const m = await mock();
+test('final queued native run retains auth and cwd, clears parent controls and preserves unknown native exits without replay', async () => {
+  const f = await nativeFixture();
   try {
-    const repo = path.join(sb.root, 'repo');
-    fs.mkdirSync(repo);
-    git(repo, 'init', '-q');
-    const env = sb.env({ OLLAMA_URL: m.url, ANTHROPIC_AUTH_TOKEN: 'secret' });
-    let r = await bosun(['run', 'rename a to b'], { env: { ...env, CLAUDECODE: '1', CLAUDE_EFFORT: 'xhigh', CLAUDE_CODE_MESSAGING_SOCKET: '/tmp/parent.sock' }, cwd: repo });
-    assert.equal(r.code, 0, r.err);
-    const [c] = sb.calls();
-    for (const k of ['CLAUDECODE', 'CLAUDE_EFFORT', 'CLAUDE_CODE_MESSAGING_SOCKET']) assert.equal(c.env[k], undefined, `parent session var ${k} is not inherited`);
-    assert.equal(c.env.CLAUDE_CODE_SUBAGENT_MODEL, 'qwen3.6:35b-a3b-coding-nvfp4', 'our own CLAUDE_CODE_* vars survive');
-    assert.equal(val(c.argv, '--output-format'), 'text', 'inline runs print the final text');
-    assert.equal(c.bin, 'claude');
-    assert.equal(c.env.ANTHROPIC_API_KEY, 'ollama');
-    assert.equal(c.env.ANTHROPIC_AUTH_TOKEN, undefined);
-    assert.equal(c.env.BOSUN_DEPTH, '1');
-    assert.equal(c.stdin, '', 'stdin closed');
-    assert.equal(fs.realpathSync(c.cwd), fs.realpathSync(repo));
-    sb.reset();
-    r = await bosun(['run', '-f', '-'], { env, cwd: repo, input: 'rename x\nverify: yarn tsc --noEmit\n' });
-    assert.ok(sb.calls()[0].argv.some((a) => a.includes('verify: yarn tsc --noEmit')));
-    assert.match((await bosun(['run', 'x'], { env: { ...env, BOSUN_DEPTH: '1' }, cwd: repo })).err, /nested/);
-    const down = (await bosun(['run', 'x'], { env: { ...env, OLLAMA_URL: 'http://127.0.0.1:1' }, cwd: repo })).err;
-    assert.match(down, /Ollama down/);
-    assert.match(down, /unreachable at http:\/\/127\.0\.0\.1:1/, 'says where it looked (a remote OLLAMA_URL too)');
-    assert.equal((await bosun(['run'], { env, cwd: repo })).code, 2);
-    assert.equal((await bosun(['run', '-e', 'claude', 'x'], { env: { ...env, STUB_EXIT_CLAUDE: '3' }, cwd: repo })).code, 3, 'exit code passes through');
-  } finally { await m.close(); sb.cleanup(); }
+    const file = path.join(f.workspace, 'public-task.txt'),
+      task = 'rename x\nverify: yarn tsc --noEmit\n';
+    fs.writeFileSync(file, task);
+    const response = await bosun(['run', '-f', '-', '--request-id', 'native_original'], {
+      env: f.env,
+      cwd: f.workspace,
+      input: task,
+    });
+    assert.equal(response.code, 0, response.err);
+    const queued = JSON.parse(response.out);
+    assert.equal((await terminal(f, queued.job.id)).state, 'succeeded');
+    const [call] = nativeExecutions(f);
+    assert.equal(call.stdin, task);
+    assert.equal(call.cwd, f.workspace);
+    assert.equal(val(call.argv, '--model'), 'claude-sonnet-5');
+    assert.equal(val(call.argv, '--effort'), 'high');
+    assert.equal(val(call.argv, '--output-format'), 'stream-json');
+    assert.equal(call.env.ANTHROPIC_AUTH_TOKEN, 'native-auth-fixture');
+    assert.equal(call.env.ANTHROPIC_API_KEY, undefined);
+    for (const key of ['CLAUDECODE', 'CLAUDE_EFFORT', 'CLAUDE_CODE_MESSAGING_SOCKET'])
+      assert.equal(call.env[key], undefined);
+    assert.equal(call.env.CLAUDE_CODE_SUBAGENT_MODEL, 'owner-subagent');
+    assert.equal(call.env.BOSUN_DEPTH, '1');
+    assert.equal(call.env.BOSUN_CALLER, 'model');
+    const repeat = await f.cli(['run', '-f', file, '--request-id', 'native_original']);
+    assert.equal(repeat.code, 0, repeat.err);
+    assert.equal(JSON.parse(repeat.out).job.id, queued.job.id);
+    const nested = await bosun(['run', '-f', 'missing-task'], {
+      env: { ...f.env, BOSUN_DEPTH: '1' },
+      cwd: f.workspace,
+    });
+    assert.equal(JSON.parse(nested.err).error.code, 'unsupported');
+    const before = (await f.rpc('job.list', {})).jobs.length;
+    assert.equal((await f.cli(['run'])).code, 2);
+    assert.equal((await f.rpc('job.list', {})).jobs.length, before);
+    const replies = JSON.parse(f.env.STUB_MAP);
+    replies['claude -p'].code = 3;
+    f.env.STUB_MAP = JSON.stringify(replies);
+    const failed = await f.cli([
+      'run',
+      'Public bounded failure.',
+      '--request-id',
+      'native_unknown',
+    ]);
+    assert.equal(failed.code, 0, failed.err);
+    const unknown = await terminal(f, JSON.parse(failed.out).job.id);
+    assert.equal(unknown.state, 'unknown');
+    const duplicate = JSON.parse(
+      (await f.cli(['run', 'Public bounded failure.', '--request-id', 'native_unknown'])).out,
+    );
+    assert.equal(duplicate.job.id, unknown.id);
+    assert.equal(duplicate.job.state, 'unknown');
+    await assert.rejects(() => f.rpc('job.release', { id: unknown.id }));
+    assert.equal(nativeExecutions(f).length, 2);
+  } finally {
+    await f.close();
+  }
 });
 
-test('run (watch): runs in the Orca split, falls back inline, detects a closed or dead split', async () => {
-  const sb = sandbox();
-  const m = await mock();
+test('final revision-bound review captures the whole checkout from a subdirectory, selects the read-only vendor and holds unsafe selections', async () => {
+  const f = await nativeFixture();
   try {
-    const repo = path.join(sb.root, 'repo');
-    fs.mkdirSync(repo);
-    git(repo, 'init', '-q');
-    const base = sb.env({ OLLAMA_URL: m.url, ORCA_PANE_KEY: 'p1', STUB_MAP: JSON.stringify({ 'orca status': { out: { ok: true } } }) });
-
-    let r = await bosun(['run', 'rename a to b'], { env: { ...base, STUB_EXIT_CLAUDE: '4' }, cwd: repo });
-    assert.equal(r.code, 4, r.err);
-    const split = sb.calls().find((c) => c.bin === 'orca' && c.argv[1] === 'split')!;
-    assert.match(val(split.argv, '--command'), /bin\/bosun' _exec \d+-[0-9a-f]{6}$/);
-    const watched = sb.calls().find((c) => c.bin === 'claude')!;
-    assert.equal(watched.env.BOSUN_DEPTH, '1');
-    assert.equal(val(watched.argv, '--output-format'), 'stream-json', 'the split shows progress');
-    assert.ok(watched.argv.includes('--verbose'));
-
-    sb.reset();
-    const noSplit = { ...base, STUB_MAP: JSON.stringify({ 'orca status': { out: { ok: true } }, 'orca terminal': { code: 1 } }) };
-    r = await bosun(['run', 'rename a to b'], { env: noSplit, cwd: repo });
-    assert.equal(r.code, 0);
-    assert.ok(sb.calls().some((c) => c.bin === 'claude'), 'split failed: ran inline');
-
-    sb.reset();
-    r = await bosun(['run', 'rename a to b'], { env: { ...base, STUB_SPLIT: 'noop', BOSUN_SPLIT_START_S: '1' }, cwd: repo });
-    assert.equal(r.code, 0);
-    assert.match(r.err, /did not start the run/);
-    assert.equal(sb.calls().filter((c) => c.bin === 'claude').length, 1, 'exactly one run');
-
-    sb.reset();
-    const t0 = Date.now();
-    r = await bosun(['run', 'rename a to b'], { env: { ...base, STUB_SPLIT: 'dead' }, cwd: repo });
-    assert.equal(r.code, 130);
-    assert.match(r.err, /split closed/);
-    assert.ok(Date.now() - t0 < 10000, 'returns promptly');
-
-    sb.reset();
-    r = await bosun(['run', '--no-watch', 'rename a to b'], { env: base, cwd: repo });
-    assert.ok(!sb.calls().some((c) => c.bin === 'orca' && c.argv[1] === 'split'), '--no-watch skips the split');
-  } finally { await m.close(); sb.cleanup(); }
+    await gitEnvelope(f.sb, async () => {
+      nativeOutput(f, 'claude-opus-5');
+      const unchanged = await f.cli([
+        'review',
+        '--public',
+        '--source-host',
+        'codex',
+        '--request-id',
+        'unchanged',
+      ]);
+      assert.equal(unchanged.code, 0, unchanged.err);
+      assert.equal(JSON.parse(unchanged.out).state, 'unchanged');
+      assert.equal(nativeExecutions(f).length, 0);
+      fs.writeFileSync(path.join(f.workspace, 'a.ts'), 'export const x = 1;\n');
+      git(f.workspace, 'add', 'a.ts');
+      git(f.workspace, 'commit', '-qm', 'public base');
+      fs.writeFileSync(path.join(f.workspace, 'a.ts'), 'export const x = 2;\n');
+      fs.writeFileSync(path.join(f.workspace, 'new-file.ts'), 'export const y = 3;\n');
+      const cwd = path.join(f.workspace, 'pkg');
+      fs.mkdirSync(cwd);
+      const before = git(f.workspace, 'status', '--porcelain=v1', '-z');
+      const args = [
+        'review',
+        '--public',
+        '--source-host',
+        'codex',
+        '--request-id',
+        'review_original',
+      ];
+      const response = await bosun(args, { env: f.env, cwd });
+      assert.equal(response.code, 0, response.err);
+      const queued = JSON.parse(response.out),
+        job = await terminal(f, queued.job.id);
+      assert.equal(job.state, 'succeeded');
+      assert.equal(job.runnerId, 'claude');
+      assert.equal(queued.record.model, 'claude-opus-5');
+      assert.equal(queued.record.sourceHost, 'codex');
+      const [call] = nativeExecutions(f);
+      assert.equal(call.cwd, f.workspace);
+      assert.equal(val(call.argv, '--tools'), 'Read,Glob,Grep');
+      assert.equal(val(call.argv, '--model'), 'claude-opus-5');
+      assert.equal(val(call.argv, '--effort'), 'high');
+      assert.match(call.stdin, /Revision: [a-f0-9]{64}/);
+      assert.match(call.stdin, /export const x = 2/);
+      assert.match(call.stdin, /new-file\.ts/);
+      assert.match(call.stdin, /export const y = 3/);
+      assert.equal(git(f.workspace, 'status', '--porcelain=v1', '-z'), before);
+      const repeated = await bosun(args, { env: f.env, cwd });
+      assert.equal(repeated.code, 0, repeated.err);
+      assert.equal(JSON.parse(repeated.out).job.id, job.id);
+      const inspected = await f.rpc('review.get', { id: queued.record.id });
+      assert.equal(inspected.freshness, 'matches');
+      assert.equal(inspected.decision, 'owner-review-required');
+      assert.equal(inspected.checks, 'unverified');
+      const held = await f.cli([
+        'review',
+        '--public',
+        '--source-host',
+        'claude',
+        '--request-id',
+        'unsafe_review',
+      ]);
+      assert.equal(held.code, 0, held.err);
+      const heldJob = await terminal(f, JSON.parse(held.out).job.id);
+      assert.equal(heldJob.state, 'held');
+      assert.equal(heldJob.runnerId, 'codex');
+      assert.equal(nativeExecutions(f).length, 1);
+      assert.ok(!f.sb.calls().some((call) => call.bin === 'codex' && call.argv[0] === 'exec'));
+      const count = (await f.rpc('job.list', {})).jobs.length;
+      const denied = await f.cli(['review', '--source-host', 'codex']);
+      assert.equal(JSON.parse(denied.err).error.code, 'private_input');
+      assert.equal((await f.rpc('job.list', {})).jobs.length, count);
+      assert.equal((await f.cli(['review', '--bogus'])).code, 2);
+    });
+  } finally {
+    await f.close();
+  }
 });
 
-test('review: other vendor from env, diff + untracked files on stdin, fallback, nothing to review', async () => {
-  const sb = sandbox();
+test('run (watch): the pane observes the existing durable job, optional failure uses job wait, and closing never reruns', async () => {
+  const f = await watchedRuntime();
   try {
-    const repo = path.join(sb.root, 'repo');
-    fs.mkdirSync(repo);
-    git(repo, 'init', '-q', '-b', 'main');
-    fs.writeFileSync(path.join(repo, 'a.ts'), 'export const x = 1;\n');
-    git(repo, 'add', '.');
-    git(repo, 'commit', '-q', '-m', 'init');
-    assert.match((await bosun(['review'], { env: sb.env({ CLAUDECODE: '1' }), cwd: repo })).out, /nothing to review/);
-
-    fs.writeFileSync(path.join(repo, 'a.ts'), 'export const x = 2;\n');
-    fs.writeFileSync(path.join(repo, 'new-file.ts'), 'export const y = 3;\n');
-    let r = await bosun(['review'], { env: sb.env({ CLAUDECODE: '1' }), cwd: repo });
-    assert.equal(r.code, 0, r.err);
-    let c = sb.calls().find((x) => x.bin === 'codex')!;
-    assert.ok(c, 'from Claude, codex reviews');
-    assert.equal(val(c.argv, '-s'), 'read-only');
-    assert.match(c.stdin, /P0 \(must fix\)/);
-    assert.match(c.stdin, /\+export const x = 2;/);
-    assert.match(c.stdin, /New untracked files \(read them too\): new-file\.ts/);
-    sb.reset();
-    fs.mkdirSync(path.join(repo, 'pkg'));
-    await bosun(['review'], { env: sb.env({ CLAUDECODE: '1' }), cwd: path.join(repo, 'pkg') });
-    assert.match(sb.calls().find((x) => x.bin === 'codex')!.stdin, /new-file\.ts/, 'untracked files outside the current directory are included');
-
-    sb.reset();
-    await bosun(['review'], { env: sb.env({ CODEX_THREAD_ID: 't1' }), cwd: repo });
-    c = sb.calls().find((x) => x.bin === 'claude')!;
-    assert.equal(val(c.argv, '--model'), 'opus');
-    assert.equal(c.env.BOSUN_DEPTH, '1');
-
-    const only = sandbox({ stubs: ['claude'] });
-    try {
-      r = await bosun(['review'], { env: only.env({ CLAUDECODE: '1' }), cwd: repo });
-      assert.match(r.err, /same-vendor review/);
-      assert.equal(val(only.calls()[0].argv, '--model'), 'sonnet');
-    } finally { only.cleanup(); }
-    assert.equal((await bosun(['review', '--bogus'], { env: sb.env(), cwd: repo })).code, 2);
-  } finally { sb.cleanup(); }
+    await gitEnvelope(f.sb, async () => {
+      let result = await f.cli([
+        'run',
+        WATCH_TASK,
+        '--host',
+        'codex',
+        '--request-id',
+        'watched',
+        '--watch',
+      ]);
+      assert.equal(result.code, 0, result.err);
+      const queued = JSON.parse(result.out);
+      assert.equal(queued.watch.record.state, 'opened');
+      const split = f.native.calls().find((c) => c.args[1] === 'split')!;
+      assert.match(val(split.args, '--command'), /job wait '.*' --timeout 300000 --progress$/);
+      assert.doesNotMatch(val(split.args, '--command'), /_exec|rename|backticks|job submit/);
+      assert.equal((await f.cli(['job', 'wait', queued.job.id, '--result'])).code, 0);
+      assert.equal(f.calls(), 1);
+      f.native.change({ connected: false });
+      const reconciled = JSON.parse((await f.cli(['job', 'watch-reconcile', queued.job.id])).out);
+      assert.equal(reconciled.pane, 'closed');
+      assert.equal(reconciled.job.state, 'succeeded');
+      const repeated = JSON.parse(
+        (await f.cli(['run', WATCH_TASK, '--host', 'codex', '--request-id', 'watched', '--watch']))
+          .out,
+      );
+      assert.equal(repeated.job.id, queued.job.id);
+      assert.equal(repeated.watch.duplicate, true);
+      assert.equal(f.calls(), 1);
+      f.native.change({ version: 'unsupported' });
+      result = await f.cli([
+        'run',
+        WATCH_TASK,
+        '--host',
+        'codex',
+        '--request-id',
+        'fallback',
+        '--watch',
+      ]);
+      assert.equal(result.code, 0, result.err);
+      const fallback = JSON.parse(result.out);
+      assert.equal(fallback.watch.state, 'not_started');
+      assert.deepEqual(fallback.watch.observation.wait, ['bosun', 'job', 'wait', fallback.job.id]);
+      assert.equal((await f.cli(fallback.watch.observation.wait.slice(1))).code, 0);
+      assert.equal(f.calls(), 2);
+      const before = f.native.calls().length;
+      result = await f.cli([
+        'run',
+        WATCH_TASK,
+        '--host',
+        'codex',
+        '--request-id',
+        'no-watch',
+        '--no-watch',
+      ]);
+      assert.equal(result.code, 0, result.err);
+      assert.equal(f.native.calls().length, before);
+    });
+  } finally {
+    await f.close();
+  }
 });
 
-test('run (watch, hardening): split target, no double run, atomic exit code, timeout stops the executor, tricky text, pruning', async () => {
-  const sb = sandbox();
-  const m = await mock();
+test('run (watch, hardening): selected terminal, literal task, lost split, duplicate late observers and timeout preserve one executor', async () => {
+  let complete!: () => void,
+    calls = 0;
+  const finish = new Promise<void>((resolve) => {
+    complete = resolve;
+  });
+  const f = await watchedRuntime({
+    runner: {
+      id: 'codex',
+      caps: watchCaps,
+      detect: async () => ({ installed: true }),
+      async *run(spec) {
+        calls++;
+        assert.equal(spec.prompt, WATCH_TASK);
+        assert.equal(spec.model, 'PINNED');
+        assert.equal(spec.effort, 'high');
+        yield { t: 'tool', name: 'Edit', target: 'tool-output-canary' };
+        await finish;
+        yield { t: 'done', code: 0, result: 'FINAL RESULT ONLY' };
+      },
+    },
+  });
   try {
-    const repo = path.join(sb.root, 'repo');
-    fs.mkdirSync(repo);
-    git(repo, 'init', '-q');
-    const base = sb.env({ OLLAMA_URL: m.url, ORCA_PANE_KEY: 'p1', ORCA_TERMINAL_HANDLE: 'term_me', STUB_MAP: JSON.stringify({ 'orca status': { out: { ok: true } } }) });
-    const runs = path.join(sb.home, '.bosun', 'runs');
-    fs.mkdirSync(runs, { recursive: true });
-    const old = path.join(runs, 'old-run.log');
-    fs.writeFileSync(old, 'x');
-    const eightDays = Date.now() / 1000 - 8 * 86400;
-    fs.utimesSync(old, eightDays, eightDays);
-
-    const tricky = 'rename a to b; keep "$HOME" and `backticks` literal';
-    let r = await bosun(['run', tricky], { env: base, cwd: repo });
-    assert.equal(r.code, 0, r.err);
-    const split = sb.calls().find((c) => c.bin === 'orca' && c.argv[1] === 'split')!;
-    assert.equal(val(split.argv, '--terminal'), 'term_me', 'split next to the calling terminal');
-    assert.ok(sb.calls().find((c) => c.bin === 'claude')!.argv.some((a) => a.includes(tricky)), 'task text reaches the executor literally');
-    assert.ok(!fs.existsSync(old), 'runs older than 7 days are pruned');
-
-    sb.reset();
-    const failed = { ...base, STUB_SPLIT: 'force', STUB_MAP: JSON.stringify({ 'orca status': { out: { ok: true } }, 'orca terminal': { code: 1 } }) };
-    r = await bosun(['run', 'rename a to b'], { env: failed, cwd: repo });
-    await new Promise((res) => setTimeout(res, 1500));   // give a late pane time to (not) run it
-    assert.equal(sb.calls().filter((c) => c.bin === 'claude').length, 1, 'a pane that opened despite a failure report does not run it again');
-
-    sb.reset();
-    r = await bosun(['run', 'rename a to b'], { env: { ...base, STUB_SPLIT: 'emptyrc' }, cwd: repo });
-    assert.equal(r.code, 7, 'an empty exit-code file means "not written yet", never success');
-
-    sb.reset();
-    const t0 = Date.now();
-    r = await bosun(['run', 'rename a to b'], { env: { ...base, RUN_TIMEOUT_MIN: '0.05', STUB_SLEEP_CLAUDE: '30' }, cwd: repo });
-    assert.equal(r.code, 124);
-    assert.match(r.err, /stopped it/);
-    assert.ok(Date.now() - t0 < 15000);
-    const pid = sb.calls().find((c) => c.bin === 'claude')!.pid;
-    let alive = true;
-    for (let i = 0; i < 30 && alive; i++) { try { process.kill(pid, 0); await new Promise((res) => setTimeout(res, 100)); } catch { alive = false; } }
-    assert.ok(!alive, 'the timed-out executor was stopped');
-
-    sb.reset();
-    r = await bosun(['run', 'rename a to b'], { env: { ...base, STUB_SPLIT: 'dead' }, cwd: repo });
-    assert.equal(r.code, 130);
-    assert.match(r.err, /partial log: .+\.log/);
-  } finally { await m.close(); sb.cleanup(); }
+    await gitEnvelope(f.sb, async () => {
+      f.native.change({ mode: 'lost' });
+      const result = await f.cli([
+        'run',
+        WATCH_TASK,
+        '--host',
+        'codex',
+        '--request-id',
+        'original',
+        '--watch',
+      ]);
+      assert.equal(result.code, 0, result.err);
+      const queued = JSON.parse(result.out);
+      assert.equal(queued.watch.record.state, 'unknown');
+      const split = f.native.calls().find((c) => c.args[1] === 'split')!;
+      assert.equal(val(split.args, '--terminal'), 'term_source');
+      const timeout = await f.cli(['job', 'wait', queued.job.id, '--timeout', '10', '--progress']);
+      assert.equal(timeout.code, 124);
+      assert.equal(JSON.parse(timeout.err).error.code, 'timeout');
+      assert.doesNotMatch(timeout.out, /FINAL RESULT|tool-output-canary|rename/);
+      assert.equal((await f.rpc('job.get', { id: queued.job.id })).cancelRequested, false);
+      complete();
+      const observers = await Promise.all([
+        f.cli(['job', 'wait', queued.job.id, '--progress', '--result']),
+        f.cli(['job', 'wait', queued.job.id, '--progress']),
+      ]);
+      assert.ok(observers.every((o) => o.code === 0));
+      assert.match(observers[0].out, /FINAL RESULT ONLY/);
+      assert.doesNotMatch(observers[1].out, /FINAL RESULT|tool-output-canary|rename/);
+      const repeated = JSON.parse(
+        (await f.cli(['run', WATCH_TASK, '--host', 'codex', '--request-id', 'original', '--watch']))
+          .out,
+      );
+      assert.equal(repeated.watch.record.state, 'unknown');
+      assert.equal(calls, 1);
+      assert.equal(f.native.calls().filter((c) => c.args[1] === 'split').length, 1);
+      assert.ok(
+        !fs.existsSync(path.join(f.paths.home, 'runs')),
+        'final observer creates no legacy executable spec/log/exit files',
+      );
+    });
+  } finally {
+    complete();
+    await f.close();
+  }
 });

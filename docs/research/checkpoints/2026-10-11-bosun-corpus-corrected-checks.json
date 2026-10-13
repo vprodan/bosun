@@ -1,0 +1,3805 @@
+{
+  "schema": 1,
+  "status": "source/gold/contract preflight verified; owner approval pending",
+  "checkedAt": "2026-10-11T20:33:19.783Z",
+  "scope": "Static source/gold audit plus guarded Node strict-schema validation only. No retrieval evaluation/model/native/provider/storage execution.",
+  "pins": [
+    {
+      "file": "docs/research/checkpoints/2026-10-11-bosun-corpus-corrected.json",
+      "sha256": "daf7f06dda27aa846d7f9d9b44378d75313c65e8d8b40790c49fe4b410e04989",
+      "bytes": 266111
+    },
+    {
+      "file": "docs/research/checkpoints/2026-10-11-bosun-corpus-corrected-provenance.json",
+      "sha256": "36f8c948b17d8986d4ad7f36bd673e89c9066077726ab5a06c634236c55a61a5",
+      "bytes": 467786
+    },
+    {
+      "file": "docs/research/checkpoints/2026-10-11-bosun-corpus-corrected-source-manifest.json",
+      "sha256": "b3b106a8eb593d8226ac813c7a92d2b13e86afca9f9ab2759b5c2b1cd19a0d67",
+      "bytes": 11200
+    },
+    {
+      "file": "docs/research/checkpoints/2026-10-11-bosun-corpus-corrected-contract-final-node.log",
+      "sha256": "e145f2ab1060b834a2b37c9b3f28068e146d795640f636f4a36b519c6736398f",
+      "bytes": 627
+    }
+  ],
+  "checks": {
+    "sourceHashes": true,
+    "exactRawSpans": true,
+    "noEquivalentCuratedGoldCopies": true,
+    "goldAndAlternatives": true,
+    "graphAndRuntimeParentLineage": true,
+    "uniqueQueries": true,
+    "disjointSourceGroups": true,
+    "disjointSessionGroups": true,
+    "originalsUntouched": true
+  },
+  "counts": {
+    "notes": 58,
+    "cases": 100,
+    "graph": 88,
+    "development": 20,
+    "heldout": 80,
+    "negative": 20,
+    "multiSupport": 38,
+    "twoHopCases": [
+      "bc_03_2",
+      "bc_05_2"
+    ],
+    "temporalContrastCases": [
+      "bc_02_1"
+    ],
+    "sourceClusters": 20,
+    "developmentClusters": 4,
+    "heldoutClusters": 16,
+    "nominalCategories": {
+      "development": {
+        "identifier": 4,
+        "paraphrase": 3,
+        "preference": 1,
+        "summary": 4,
+        "negative": 4,
+        "relationship": 2,
+        "current": 1,
+        "rationale": 1
+      },
+      "heldout": {
+        "identifier": 16,
+        "paraphrase": 8,
+        "preference": 2,
+        "summary": 16,
+        "negative": 16,
+        "relationship": 14,
+        "current": 5,
+        "rationale": 3
+      }
+    },
+    "unapprovedFlags": {
+      "evidence": "review-pending",
+      "graphReviewedTrue": 0
+    },
+    "uniquePositiveGoldAssignments": 72,
+    "gradeCounts": {
+      "1": 0,
+      "2": 38,
+      "3": 100
+    },
+    "graphKinds": {
+      "fact": 58,
+      "profile": 10,
+      "summary": 10,
+      "entity": 6,
+      "relation": 4
+    },
+    "maximumSourceGoldChars": 380,
+    "maximumOverviewChars": 595,
+    "positiveAssignmentsBySplit": {
+      "development": 16,
+      "heldout": 56
+    }
+  },
+  "guarded": {
+    "exit": 0,
+    "signal": null,
+    "error": null,
+    "stdout": "{\"scope\":\"in-memory synthetic schema projection only; no eval/storage import/provider/native activity\",\"guardPreloaded\":true,\"rawDatasetRejected\":true,\"rawWrapperRejected\":true,\"projectedSchemaAccepted\":true,\"notes\":58,\"cases\":100,\"graph\":88,\"savedEvidence\":\"review-pending\",\"savedReviewedTrue\":0,\"modelCalls\":0,\"providerCalls\":0,\"nativeHostsExecuted\":false,\"storageOpened\":false}\n",
+    "stderr": "",
+    "joined": true,
+    "tempRemoved": true,
+    "candidateSha256": "daf7f06dda27aa846d7f9d9b44378d75313c65e8d8b40790c49fe4b410e04989"
+  },
+  "sourceChecks": [
+    {
+      "snapshotKey": "README.md",
+      "file": "README.md",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/domain/config.ts",
+      "file": "src/core/domain/config.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/ports/host.ts",
+      "file": "src/core/ports/host.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/platform/paths.ts",
+      "file": "src/platform/paths.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/native-runners.ts",
+      "file": "src/app/native-runners.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/use-cases/quota.ts",
+      "file": "src/core/use-cases/quota.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/use-cases/handoff.ts",
+      "file": "src/core/use-cases/handoff.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/adapters/hosts/opencode/control.ts",
+      "file": "src/adapters/hosts/opencode/control.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/adapters/hosts/codex/control.ts",
+      "file": "src/adapters/hosts/codex/control.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/lexical-memory.ts",
+      "file": "src/core/lexical-memory.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/secret-screen.ts",
+      "file": "src/core/secret-screen.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/use-cases/retrieve-context.ts",
+      "file": "src/core/use-cases/retrieve-context.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/core/domain/graph.ts",
+      "file": "src/core/domain/graph.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/consolidation.ts",
+      "file": "src/app/consolidation.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/embeddings.ts",
+      "file": "src/app/embeddings.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/remote-views.ts",
+      "file": "src/app/remote-views.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/upgrade-router.ts",
+      "file": "src/app/upgrade-router.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/adapters/services/launchd.ts",
+      "file": "src/adapters/services/launchd.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/app/installation.ts",
+      "file": "src/app/installation.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "src/platform/watch-command.ts",
+      "file": "src/platform/watch-command.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    },
+    {
+      "snapshotKey": "host-later",
+      "file": "src/core/ports/host.ts",
+      "sha256Matches": true,
+      "bytesMatch": true
+    }
+  ],
+  "noteChecks": [
+    {
+      "id": "m_bc00a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 29,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc00b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 20,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc00c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 37,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc01a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 15,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc01b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 47,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc01c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 31,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc02a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 153,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc02b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 98,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc02c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 102,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc02d",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 178,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc03a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 99,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc03b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 35,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc03c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 66,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc04a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 158,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc04b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 246,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc04c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 180,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc05a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 234,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc05b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 90,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc05c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 77,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc05d",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 205,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc05e",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 225,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc06a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 95,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc06b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 240,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc06c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 197,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc07a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 210,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc07b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 194,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc07c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 164,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc07d",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 327,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc08a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 199,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc08b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 317,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc09a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 44,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc09b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 34,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc09c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 70,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc10a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 190,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc10b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 175,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc11a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 159,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc11b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 239,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc12a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 109,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc12b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 181,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc12c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 206,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc13a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 40,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc13b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 136,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc13c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 318,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc14a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 183,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc14b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 249,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc15a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 160,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc15b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 138,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc16a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 216,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc16b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 340,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc17a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 151,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc17b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 194,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc17c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 342,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc18a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 380,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc18b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 256,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc19a",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 56,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc19b",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 30,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc04d",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 170,
+      "otherNoteIdsContainingCompleteGold": []
+    },
+    {
+      "id": "m_bc16c",
+      "rawSpanExact": true,
+      "sourceHashExact": true,
+      "foldedBodyExact": true,
+      "bodyHashExact": true,
+      "quoteChars": 203,
+      "otherNoteIdsContainingCompleteGold": []
+    }
+  ],
+  "caseChecks": [
+    {
+      "id": "bc_00_0",
+      "sourceGroup": "file_b33563055168",
+      "sessionGroup": "topic_corrected_00",
+      "split": "development",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc00a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_00_1",
+      "sourceGroup": "file_b33563055168",
+      "sessionGroup": "topic_corrected_00",
+      "split": "development",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc00c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_00_2",
+      "sourceGroup": "file_b33563055168",
+      "sessionGroup": "topic_corrected_00",
+      "split": "development",
+      "category": "preference",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc00b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_00_3",
+      "sourceGroup": "file_b33563055168",
+      "sessionGroup": "topic_corrected_00",
+      "split": "development",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc00a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc00b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc00c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_00_negative",
+      "sourceGroup": "file_b33563055168",
+      "sessionGroup": "topic_corrected_00",
+      "split": "development",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_01_0",
+      "sourceGroup": "file_b30623dad746",
+      "sessionGroup": "topic_corrected_01",
+      "split": "development",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc01a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_01_1",
+      "sourceGroup": "file_b30623dad746",
+      "sessionGroup": "topic_corrected_01",
+      "split": "development",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc01b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_01_2",
+      "sourceGroup": "file_b30623dad746",
+      "sessionGroup": "topic_corrected_01",
+      "split": "development",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc01a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc01b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_01_3",
+      "sourceGroup": "file_b30623dad746",
+      "sessionGroup": "topic_corrected_01",
+      "split": "development",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc01a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc01b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc01c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_01_negative",
+      "sourceGroup": "file_b30623dad746",
+      "sessionGroup": "topic_corrected_01",
+      "split": "development",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_02_0",
+      "sourceGroup": "file_1212d5d7a8f9",
+      "sessionGroup": "topic_corrected_02",
+      "split": "development",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc02a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_02_1",
+      "sourceGroup": "file_1212d5d7a8f9",
+      "sessionGroup": "topic_corrected_02",
+      "split": "development",
+      "category": "current",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc02a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc02d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_02_2",
+      "sourceGroup": "file_1212d5d7a8f9",
+      "sessionGroup": "topic_corrected_02",
+      "split": "development",
+      "category": "rationale",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc02b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_02_3",
+      "sourceGroup": "file_1212d5d7a8f9",
+      "sessionGroup": "topic_corrected_02",
+      "split": "development",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc02a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc02b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc02c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_02_negative",
+      "sourceGroup": "file_1212d5d7a8f9",
+      "sessionGroup": "topic_corrected_02",
+      "split": "development",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_03_0",
+      "sourceGroup": "file_2d18755e5cc3",
+      "sessionGroup": "topic_corrected_03",
+      "split": "development",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc03a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_03_1",
+      "sourceGroup": "file_2d18755e5cc3",
+      "sessionGroup": "topic_corrected_03",
+      "split": "development",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc03c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_03_2",
+      "sourceGroup": "file_2d18755e5cc3",
+      "sessionGroup": "topic_corrected_03",
+      "split": "development",
+      "category": "relationship",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc03c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc03b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc03a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_03_3",
+      "sourceGroup": "file_2d18755e5cc3",
+      "sessionGroup": "topic_corrected_03",
+      "split": "development",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc03a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc03b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc03c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_03_negative",
+      "sourceGroup": "file_2d18755e5cc3",
+      "sessionGroup": "topic_corrected_03",
+      "split": "development",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_04_0",
+      "sourceGroup": "file_83b3af40b821",
+      "sessionGroup": "topic_corrected_04",
+      "split": "heldout",
+      "category": "rationale",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc04a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_04_1",
+      "sourceGroup": "file_83b3af40b821",
+      "sessionGroup": "topic_corrected_04",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc04b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_04_2",
+      "sourceGroup": "file_83b3af40b821",
+      "sessionGroup": "topic_corrected_04",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc04b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc04c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc04d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_04_3",
+      "sourceGroup": "file_83b3af40b821",
+      "sessionGroup": "topic_corrected_04",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 4,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc04a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc04b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc04c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc04d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_04_negative",
+      "sourceGroup": "file_83b3af40b821",
+      "sessionGroup": "topic_corrected_04",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_05_0",
+      "sourceGroup": "file_6270f057b207",
+      "sessionGroup": "topic_corrected_05",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc05a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_05_1",
+      "sourceGroup": "file_6270f057b207",
+      "sessionGroup": "topic_corrected_05",
+      "split": "heldout",
+      "category": "current",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc05d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05e",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_05_2",
+      "sourceGroup": "file_6270f057b207",
+      "sessionGroup": "topic_corrected_05",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc05b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_05_3",
+      "sourceGroup": "file_6270f057b207",
+      "sessionGroup": "topic_corrected_05",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 4,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc05a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc05e",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_05_negative",
+      "sourceGroup": "file_6270f057b207",
+      "sessionGroup": "topic_corrected_05",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_06_0",
+      "sourceGroup": "file_6b73fbaee4bc",
+      "sessionGroup": "topic_corrected_06",
+      "split": "heldout",
+      "category": "current",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc06a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_06_1",
+      "sourceGroup": "file_6b73fbaee4bc",
+      "sessionGroup": "topic_corrected_06",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc06b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_06_2",
+      "sourceGroup": "file_6b73fbaee4bc",
+      "sessionGroup": "topic_corrected_06",
+      "split": "heldout",
+      "category": "rationale",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc06c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_06_3",
+      "sourceGroup": "file_6b73fbaee4bc",
+      "sessionGroup": "topic_corrected_06",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc06a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc06b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc06c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_06_negative",
+      "sourceGroup": "file_6b73fbaee4bc",
+      "sessionGroup": "topic_corrected_06",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_07_0",
+      "sourceGroup": "file_69f1b440b0ef",
+      "sessionGroup": "topic_corrected_07",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc07a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_07_1",
+      "sourceGroup": "file_69f1b440b0ef",
+      "sessionGroup": "topic_corrected_07",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc07b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc07c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_07_2",
+      "sourceGroup": "file_69f1b440b0ef",
+      "sessionGroup": "topic_corrected_07",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc07d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_07_3",
+      "sourceGroup": "file_69f1b440b0ef",
+      "sessionGroup": "topic_corrected_07",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 4,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc07a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc07b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc07c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc07d",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_07_negative",
+      "sourceGroup": "file_69f1b440b0ef",
+      "sessionGroup": "topic_corrected_07",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_08_0",
+      "sourceGroup": "file_987726a22d8a",
+      "sessionGroup": "topic_corrected_08",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc08a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_08_1",
+      "sourceGroup": "file_987726a22d8a",
+      "sessionGroup": "topic_corrected_08",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc08b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_08_2",
+      "sourceGroup": "file_987726a22d8a",
+      "sessionGroup": "topic_corrected_08",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc08a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc08b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_08_3",
+      "sourceGroup": "file_987726a22d8a",
+      "sessionGroup": "topic_corrected_08",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc08a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc08b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_08_negative",
+      "sourceGroup": "file_987726a22d8a",
+      "sessionGroup": "topic_corrected_08",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_09_0",
+      "sourceGroup": "file_c5e6e6afeef5",
+      "sessionGroup": "topic_corrected_09",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc09a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_09_1",
+      "sourceGroup": "file_c5e6e6afeef5",
+      "sessionGroup": "topic_corrected_09",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc09b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_09_2",
+      "sourceGroup": "file_c5e6e6afeef5",
+      "sessionGroup": "topic_corrected_09",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc09c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_09_3",
+      "sourceGroup": "file_c5e6e6afeef5",
+      "sessionGroup": "topic_corrected_09",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc09a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc09b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc09c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_09_negative",
+      "sourceGroup": "file_c5e6e6afeef5",
+      "sessionGroup": "topic_corrected_09",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_10_0",
+      "sourceGroup": "file_40f8de73e56d",
+      "sessionGroup": "topic_corrected_10",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc10a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_10_1",
+      "sourceGroup": "file_40f8de73e56d",
+      "sessionGroup": "topic_corrected_10",
+      "split": "heldout",
+      "category": "rationale",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc10b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_10_2",
+      "sourceGroup": "file_40f8de73e56d",
+      "sessionGroup": "topic_corrected_10",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc10a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc10b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_10_3",
+      "sourceGroup": "file_40f8de73e56d",
+      "sessionGroup": "topic_corrected_10",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc10a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc10b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_10_negative",
+      "sourceGroup": "file_40f8de73e56d",
+      "sessionGroup": "topic_corrected_10",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_11_0",
+      "sourceGroup": "file_94810f440415",
+      "sessionGroup": "topic_corrected_11",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc11a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_11_1",
+      "sourceGroup": "file_94810f440415",
+      "sessionGroup": "topic_corrected_11",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc11b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_11_2",
+      "sourceGroup": "file_94810f440415",
+      "sessionGroup": "topic_corrected_11",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc11a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc11b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_11_3",
+      "sourceGroup": "file_94810f440415",
+      "sessionGroup": "topic_corrected_11",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc11a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc11b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_11_negative",
+      "sourceGroup": "file_94810f440415",
+      "sessionGroup": "topic_corrected_11",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_12_0",
+      "sourceGroup": "file_639929f83cd0",
+      "sessionGroup": "topic_corrected_12",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc12a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_12_1",
+      "sourceGroup": "file_639929f83cd0",
+      "sessionGroup": "topic_corrected_12",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc12b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc12a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_12_2",
+      "sourceGroup": "file_639929f83cd0",
+      "sessionGroup": "topic_corrected_12",
+      "split": "heldout",
+      "category": "current",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc12c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_12_3",
+      "sourceGroup": "file_639929f83cd0",
+      "sessionGroup": "topic_corrected_12",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc12a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc12b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc12c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_12_negative",
+      "sourceGroup": "file_639929f83cd0",
+      "sessionGroup": "topic_corrected_12",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_13_0",
+      "sourceGroup": "file_b84788634426",
+      "sessionGroup": "topic_corrected_13",
+      "split": "heldout",
+      "category": "preference",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc13a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_13_1",
+      "sourceGroup": "file_b84788634426",
+      "sessionGroup": "topic_corrected_13",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc13b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_13_2",
+      "sourceGroup": "file_b84788634426",
+      "sessionGroup": "topic_corrected_13",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc13a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc13c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_13_3",
+      "sourceGroup": "file_b84788634426",
+      "sessionGroup": "topic_corrected_13",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc13a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc13b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc13c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_13_negative",
+      "sourceGroup": "file_b84788634426",
+      "sessionGroup": "topic_corrected_13",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_14_0",
+      "sourceGroup": "file_19b958ee9f3a",
+      "sessionGroup": "topic_corrected_14",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc14a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_14_1",
+      "sourceGroup": "file_19b958ee9f3a",
+      "sessionGroup": "topic_corrected_14",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc14b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_14_2",
+      "sourceGroup": "file_19b958ee9f3a",
+      "sessionGroup": "topic_corrected_14",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc14a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc14b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_14_3",
+      "sourceGroup": "file_19b958ee9f3a",
+      "sessionGroup": "topic_corrected_14",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc14a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc14b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_14_negative",
+      "sourceGroup": "file_19b958ee9f3a",
+      "sessionGroup": "topic_corrected_14",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_15_0",
+      "sourceGroup": "file_5274349bfdfb",
+      "sessionGroup": "topic_corrected_15",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc15a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_15_1",
+      "sourceGroup": "file_5274349bfdfb",
+      "sessionGroup": "topic_corrected_15",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc15b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_15_2",
+      "sourceGroup": "file_5274349bfdfb",
+      "sessionGroup": "topic_corrected_15",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc15a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc15b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_15_3",
+      "sourceGroup": "file_5274349bfdfb",
+      "sessionGroup": "topic_corrected_15",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc15a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc15b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_15_negative",
+      "sourceGroup": "file_5274349bfdfb",
+      "sessionGroup": "topic_corrected_15",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_16_0",
+      "sourceGroup": "file_b01eecba86d2",
+      "sessionGroup": "topic_corrected_16",
+      "split": "heldout",
+      "category": "current",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc16a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_16_1",
+      "sourceGroup": "file_b01eecba86d2",
+      "sessionGroup": "topic_corrected_16",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc16b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc16c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_16_2",
+      "sourceGroup": "file_b01eecba86d2",
+      "sessionGroup": "topic_corrected_16",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc16a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc16b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc16c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_16_3",
+      "sourceGroup": "file_b01eecba86d2",
+      "sessionGroup": "topic_corrected_16",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc16a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc16b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc16c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_16_negative",
+      "sourceGroup": "file_b01eecba86d2",
+      "sessionGroup": "topic_corrected_16",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_17_0",
+      "sourceGroup": "file_edc706130c2d",
+      "sessionGroup": "topic_corrected_17",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc17a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_17_1",
+      "sourceGroup": "file_edc706130c2d",
+      "sessionGroup": "topic_corrected_17",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc17b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_17_2",
+      "sourceGroup": "file_edc706130c2d",
+      "sessionGroup": "topic_corrected_17",
+      "split": "heldout",
+      "category": "current",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc17c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_17_3",
+      "sourceGroup": "file_edc706130c2d",
+      "sessionGroup": "topic_corrected_17",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 3,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc17a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc17b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc17c",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_17_negative",
+      "sourceGroup": "file_edc706130c2d",
+      "sessionGroup": "topic_corrected_17",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_18_0",
+      "sourceGroup": "file_59a0a119c030",
+      "sessionGroup": "topic_corrected_18",
+      "split": "heldout",
+      "category": "preference",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc18a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_18_1",
+      "sourceGroup": "file_59a0a119c030",
+      "sessionGroup": "topic_corrected_18",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc18b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_18_2",
+      "sourceGroup": "file_59a0a119c030",
+      "sessionGroup": "topic_corrected_18",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc18a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc18b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_18_3",
+      "sourceGroup": "file_59a0a119c030",
+      "sessionGroup": "topic_corrected_18",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc18a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc18b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_18_negative",
+      "sourceGroup": "file_59a0a119c030",
+      "sessionGroup": "topic_corrected_18",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    },
+    {
+      "id": "bc_19_0",
+      "sourceGroup": "file_eb095a6ce235",
+      "sessionGroup": "topic_corrected_19",
+      "split": "heldout",
+      "category": "identifier",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc19a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_19_1",
+      "sourceGroup": "file_eb095a6ce235",
+      "sessionGroup": "topic_corrected_19",
+      "split": "heldout",
+      "category": "paraphrase",
+      "supportCount": 1,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc19b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_19_2",
+      "sourceGroup": "file_eb095a6ce235",
+      "sessionGroup": "topic_corrected_19",
+      "split": "heldout",
+      "category": "relationship",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc19a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc19b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_19_3",
+      "sourceGroup": "file_eb095a6ce235",
+      "sessionGroup": "topic_corrected_19",
+      "split": "heldout",
+      "category": "summary",
+      "supportCount": 2,
+      "checks": [
+        {
+          "sourceNoteId": "m_bc19a",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        },
+        {
+          "sourceNoteId": "m_bc19b",
+          "quoteMatchesAuthoritativeNote": true,
+          "groupMatches": true,
+          "completeAlternatives": true,
+          "otherCuratedIdsWithFullGold": [],
+          "unlabelledGraphIdsWithCompleteFact": []
+        }
+      ]
+    },
+    {
+      "id": "bc_19_negative",
+      "sourceGroup": "file_eb095a6ce235",
+      "sessionGroup": "topic_corrected_19",
+      "split": "heldout",
+      "category": "negative",
+      "supportCount": 0,
+      "checks": []
+    }
+  ],
+  "graphChecks": [
+    {
+      "id": "g_bc00afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc00bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc00cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc00overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc01afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc01bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc01cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc01overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc02afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc02bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc02cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc02dfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc02overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc04afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc04bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc04cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc04dfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc04overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05dfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05efact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc06afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc06bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc06cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc06overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc07afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc07bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc07cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc07dfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc07overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc08afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc08bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc08overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc09afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc09bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc09cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc09overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc10afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc10bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc10overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc11afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc11bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc11overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc12afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc12bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc12cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc12overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc13afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc13bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc13cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc13overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc14afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc14bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc14overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc15afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc15bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc15overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc16afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc16bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc16cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc16overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc17afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc17bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc17cfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc17overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc18afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc18bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc18overview",
+      "kind": "summary",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc19afact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc19bfact",
+      "kind": "fact",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc19overview",
+      "kind": "profile",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03sym0",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03sym1",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03sym2",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03edge0",
+      "kind": "relation",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc03edge1",
+      "kind": "relation",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05sym0",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05sym1",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05sym2",
+      "kind": "entity",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05edge0",
+      "kind": "relation",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    },
+    {
+      "id": "g_bc05edge1",
+      "kind": "relation",
+      "reviewed": false,
+      "supportRefsValid": true,
+      "allExplicitAndAutomaticParentLineageComplete": true,
+      "navigationTextDoesNotContainCompleteFact": true
+    }
+  ],
+  "groups": {
+    "development": {
+      "sourceGroups": [
+        "file_b33563055168",
+        "file_b30623dad746",
+        "file_1212d5d7a8f9",
+        "file_2d18755e5cc3"
+      ],
+      "sessionGroups": [
+        "topic_corrected_00",
+        "topic_corrected_01",
+        "topic_corrected_02",
+        "topic_corrected_03"
+      ]
+    },
+    "heldout": {
+      "sourceGroups": [
+        "file_83b3af40b821",
+        "file_6270f057b207",
+        "file_6b73fbaee4bc",
+        "file_69f1b440b0ef",
+        "file_987726a22d8a",
+        "file_c5e6e6afeef5",
+        "file_40f8de73e56d",
+        "file_94810f440415",
+        "file_639929f83cd0",
+        "file_b84788634426",
+        "file_19b958ee9f3a",
+        "file_5274349bfdfb",
+        "file_b01eecba86d2",
+        "file_edc706130c2d",
+        "file_59a0a119c030",
+        "file_eb095a6ce235"
+      ],
+      "sessionGroups": [
+        "topic_corrected_04",
+        "topic_corrected_05",
+        "topic_corrected_06",
+        "topic_corrected_07",
+        "topic_corrected_08",
+        "topic_corrected_09",
+        "topic_corrected_10",
+        "topic_corrected_11",
+        "topic_corrected_12",
+        "topic_corrected_13",
+        "topic_corrected_14",
+        "topic_corrected_15",
+        "topic_corrected_16",
+        "topic_corrected_17",
+        "topic_corrected_18",
+        "topic_corrected_19"
+      ]
+    }
+  },
+  "negativeChecks": [
+    {
+      "id": "bc_00_negative",
+      "query": "What recall score was measured for enabled vectors in the most recent real Bosun corpus evaluation?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_01_negative",
+      "query": "What handoff threshold did the owner actually select in the most recent live runtime configuration?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_02_negative",
+      "query": "Which native process PID was joined by the last managed-driver close operation?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_03_negative",
+      "query": "What absolute socket path was actually selected in the most recent owner session?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_04_negative",
+      "query": "Which concrete Codex account authenticated the most recent native quota callback?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_05_negative",
+      "query": "At what timestamp does the current account weekly quota allowance reset?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_06_negative",
+      "query": "Which exact destination session ID won the most recent ownership transfer CAS?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_07_negative",
+      "query": "Which destination TUI session did the last live OpenCode handoff actually select?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_08_negative",
+      "query": "What SHA256 was observed for the retained rollout in the last live Codex readiness check?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_09_negative",
+      "query": "Which lexical weight setting achieved the best measured held-out score on the real owner-reviewed corpus?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_10_negative",
+      "query": "Which credential rule produced the latest actual public-input false positive?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_11_negative",
+      "query": "How many supports were lost to truncation in the most recent400-token hook pack?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_12_negative",
+      "query": "Which graph entity ID was most recently accepted by the owner?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_13_negative",
+      "query": "How many proposals did the most recent live consolidation review accept?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_14_negative",
+      "query": "What cache-hit rate was measured in the most recent warm embedding-query run?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_15_negative",
+      "query": "What remote lease receipt ID is currently active on the owner installation?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_16_negative",
+      "query": "What exact hash of the owner actual retired router plist was adopted?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_17_negative",
+      "query": "What PID does launchd currently report for the owner daemon service?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_18_negative",
+      "query": "What inode identified the existing installed binary in the owner latest backup?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    },
+    {
+      "id": "bc_19_negative",
+      "query": "Which Orca terminal handle did the most recent job observer actually create?",
+      "reason": "Selected corpus contains source policies, not the requested actual owner/session receipt, account observation or measured evaluation outcome. Static defaults/contract shapes are not evidence of this runtime value.",
+      "sourceScope": "All58 source notes/88 graph proposals; only source contracts/policies, no actual owner receipts/measurement/account state.",
+      "noGoldAnswerSupported": true,
+      "proofScope": "Manual semantic review of every negative; no universal absence claim outside this frozen corpus."
+    }
+  ],
+  "remainingCoverage": [
+    "Only one genuine earlier/later contract comparison, in development. Held-out competing historical memories remain outstanding.",
+    "Topic groups are not captured native sessions.",
+    "These are repository-authored proposed questions, not captured owner tasks.",
+    "Actual model/vector/summary generation, privacy/retention canaries, tokens and latency are separate qualification."
+  ],
+  "applicationContractPins": [
+    {
+      "file": "src/contracts/memory-evaluation.ts",
+      "sha256": "c681eaf0c624adb9b7bf94edd70ed33048656a88e87588927c8bea059fb1e78b"
+    },
+    {
+      "file": "src/core/domain/memory-evaluation.ts",
+      "sha256": "1d7d6b08ddcaf14d884889c3ff9d31c5e9721797a8fbcb9b0682b1166dacb87a"
+    },
+    {
+      "file": "src/core/use-cases/evaluate-memory.ts",
+      "sha256": "da1efdd64bd7165dc03517322509a20b345bc3508e8062c99fa0a4eaf3f1ea1d"
+    },
+    {
+      "file": "src/adapters/memory/sqlite-graph.ts",
+      "sha256": "7f58bc2df5e368cd207a58f05c676aa1a32198692e9591f1892a923ed9469059"
+    },
+    {
+      "file": "src/app/memory-evaluation.ts",
+      "sha256": "de20f4a7076c180c5e282220b6a60bc08ff40b64f278f4b39a94e38bd55d35e3"
+    },
+    {
+      "file": "scripts/test-preload.cjs",
+      "sha256": "3106f3539788dadb8029c810861a5e8d6225eff13cd4935236c0886d645bb791"
+    }
+  ]
+}

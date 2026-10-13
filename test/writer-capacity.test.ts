@@ -4,10 +4,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { DatabaseSync } from 'node:sqlite';
+import { SqliteDatabase } from '../src/platform/sqlite.ts';
 import { sandbox, fresh } from './helpers.ts';
-import { openDb } from '../lib/memory/sqlite.ts';
-import { MemoryError } from '../lib/memory/types.ts';
+import { openSchemaOneMemory } from './memory-store-fixture.ts';
+import { MemoryError } from '../src/core/errors.ts';
 import { cutoverMemory, CutoverWriter, CutoverError } from '../src/adapters/memory/sqlite-cutover.ts';
 
 const LIMIT = 64 * 1024 * 1024;
@@ -16,15 +16,15 @@ async function fixture(options: { pageSize?: number; legacyBytes?: number } = {}
   for (const name of ['primary', 'view', 'backups']) fs.mkdirSync(path.join(sb.root, name), { mode: 0o700 });
   const paths = { primary: path.join(sb.root, 'primary', 'memory.db'), view: path.join(sb.root, 'view', 'public.db'), backups: path.join(sb.root, 'backups') };
   if (options.pageSize) {
-    fs.closeSync(fs.openSync(paths.primary, 'wx', 0o600)); const initial = new DatabaseSync(paths.primary);
+    fs.closeSync(fs.openSync(paths.primary, 'wx', 0o600)); const initial = new SqliteDatabase(paths.primary);
     try { initial.exec(`PRAGMA page_size=${options.pageSize}; VACUUM;`); } finally { initial.close(); }
   }
-  let db = openDb(paths.primary);
+  let db = openSchemaOneMemory(paths.primary);
   db.exec("INSERT INTO memories(id,category,title,body,private,source,hash,created_at,updated_at) VALUES('m_saved','personal','PRIVATE canary title','PRIVATE canary body',1,'owner','saved-hash',1,1);");
   db.exec("INSERT INTO memory_events(memory_id,op,at,source,hash_after) VALUES('m_saved','store',1,'owner','saved-hash');");
   if (options.legacyBytes) {
     db.prepare("UPDATE memories SET source_ref=hex(randomblob(?)) WHERE id='m_saved'").run(options.legacyBytes / 2);
-    db.close(); db = openDb(paths.primary);
+    db.close(); db = openSchemaOneMemory(paths.primary);
   }
   await cutoverMemory({ paths, now: () => 100, id: crypto.randomUUID });
   const writer = new CutoverWriter(paths);
@@ -49,9 +49,9 @@ for (const operation of ['read', 'transaction'] as const) for (const file of ['p
 });
 
 test('native large source/FTS transaction is refused without committed row/event/floor changes', async () => {
-  const f = await fixture(); const before = f.state(); const exec = DatabaseSync.prototype.exec; let called = 0; let full = 0; let source: DatabaseSync | undefined;
+  const f = await fixture(); const before = f.state(); const exec = SqliteDatabase.prototype.exec; let called = 0; let full = 0; let source: SqliteDatabase | undefined;
   try {
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       try { return exec.call(this, sql); } catch (error) { if (this === source && (error as { errcode?: number }).errcode === 13) full++; throw error; }
     };
     let failure: unknown;
@@ -70,16 +70,16 @@ test('native large source/FTS transaction is refused without committed row/event
       assert.equal(query.read((db) => db.prepare('SELECT body FROM memories WHERE id=?').get('m_saved')!.body), 'PRIVATE canary body');
       query.transaction((db) => db.exec("UPDATE memories SET access_count=access_count+1 WHERE id='m_saved'"));
     } finally { query.close(); }
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });
 
 test('registered higher-entropy pending FTS COMMIT hits native page limit with unchanged data and unknown receipt', async () => {
   const f = await fixture(); const before = f.state(); const body = crypto.randomBytes(8 * 1024 * 1024).toString('hex').replace(/(.{32})/g, '$1 ');
-  const exec = DatabaseSync.prototype.exec;
-  let full = 0; let commitFull = 0; let acceptedRowStatement = 0; let source: DatabaseSync | undefined;
+  const exec = SqliteDatabase.prototype.exec;
+  let full = 0; let commitFull = 0; let acceptedRowStatement = 0; let source: SqliteDatabase | undefined;
   try {
     assert.ok(Buffer.byteLength(body) < 18 * 1024 * 1024, 'body alone is below the approximately 32MiB native reservation');
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       try { return exec.call(this, sql); }
       catch (error) { if (this === source && sql === 'COMMIT' && (error as { errcode?: number }).errcode === 13) commitFull++; throw error; }
     };
@@ -94,13 +94,13 @@ test('registered higher-entropy pending FTS COMMIT hits native page limit with u
     const freshWriter = new CutoverWriter(f.paths);
     try { freshWriter.transaction((db) => db.exec("UPDATE memories SET access_count=1 WHERE id='m_saved'")); }
     finally { freshWriter.close(); }
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });
 
 test('error after actual native COMMIT has unknown receipt, committed data and a fenced cached writer', async () => {
-  const f = await fixture(); const exec = DatabaseSync.prototype.exec; let source: DatabaseSync | undefined; let commits = 0;
+  const f = await fixture(); const exec = SqliteDatabase.prototype.exec; let source: SqliteDatabase | undefined; let commits = 0;
   try {
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       const result = exec.call(this, sql);
       if (this === source && sql === 'COMMIT') { commits++; throw new MemoryError('conflict', 'PRIVATE canary conflict', 99); }
       return result;
@@ -121,28 +121,28 @@ test('error after actual native COMMIT has unknown receipt, committed data and a
     const reopened = new CutoverWriter(f.paths);
     try { assert.equal(reopened.read((db) => db.prepare("SELECT access_count FROM memories WHERE id='m_saved'").get()!.access_count), 1); }
     finally { reopened.close(); }
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });
 
 test('error before native COMMIT retains exact domain identity only after successful rollback', async () => {
-  const f = await fixture(); const exec = DatabaseSync.prototype.exec; const before = f.state();
-  const error = new MemoryError('conflict', 'owner conflict', 7); let source: DatabaseSync | undefined; let rollbacks = 0;
+  const f = await fixture(); const exec = SqliteDatabase.prototype.exec; const before = f.state();
+  const error = new MemoryError('conflict', 'owner conflict', 7); let source: SqliteDatabase | undefined; let rollbacks = 0;
   try {
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       if (this === source && sql === 'COMMIT') throw error;
       const result = exec.call(this, sql); if (this === source && sql === 'ROLLBACK') rollbacks++;
       return result;
     };
     assert.throws(() => f.writer.transaction((db) => { source = db; db.exec("UPDATE memories SET access_count=3 WHERE id='m_saved'"); }), (e) => e === error);
     assert.equal(rollbacks, 1); assert.deepEqual(f.state(), before);
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });
 
 test('error after actual native BEGIN releases unrecorded admission before any callback and permits a fresh write', async () => {
-  const f = await fixture(); const before = f.state(); const exec = DatabaseSync.prototype.exec;
-  let begun: DatabaseSync | undefined; let fault = true; let callbacks = 0; let rolledBack = 0;
+  const f = await fixture(); const before = f.state(); const exec = SqliteDatabase.prototype.exec;
+  let begun: SqliteDatabase | undefined; let fault = true; let callbacks = 0; let rolledBack = 0;
   try {
-    DatabaseSync.prototype.exec = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) {
       const result = exec.call(this, sql);
       if (sql === 'BEGIN IMMEDIATE' && fault) { fault = false; begun = this; assert.equal(this.isTransaction, true); throw Error('PRIVATE native admission canary'); }
       if (this === begun && sql === 'ROLLBACK') rolledBack++;
@@ -157,7 +157,7 @@ test('error after actual native BEGIN releases unrecorded admission before any c
     finally { freshWriter.close(); }
     assert.equal(f.db.prepare("SELECT access_count FROM memories WHERE id='m_saved'").get()!.access_count, 1);
     f.writer.transaction(() => { callbacks++; }); assert.equal(callbacks, 1, 'successful rollback keeps cached writer reusable');
-  } finally { DatabaseSync.prototype.exec = exec; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; f.close(); }
 });
 
 for (const operation of ['read', 'transaction'] as const) for (const kind of ['journal', 'wal-mode', 'parent-mode', 'wal-link'] as const) test(`cached ${operation} rejects changed ${kind} before callback without repair`, async () => {
@@ -187,7 +187,7 @@ for (const page of [512, 4096, 65536]) test(`native ${page}-byte pages honor exa
   assert.equal(f.db.prepare('PRAGMA page_size').get()!.page_size, page);
   const threshold = LIMIT - Math.max(fs.statSync(f.paths.primary).size, count * page) - count * (page + 24) - 32 - 65536 - (page + 24);
   const originalLength = fs.statSync(wal).size; assert.ok(threshold > originalLength);
-  let source: DatabaseSync | undefined; let touched = 0;
+  let source: SqliteDatabase | undefined; let touched = 0;
   try {
     const fd = fs.openSync(wal, 'r+'); try { fs.ftruncateSync(fd, threshold + 1); } finally { fs.closeSync(fd); }
     assert.throws(() => f.writer.transaction((db) => { source = db; touched++; db.exec("UPDATE memories SET access_count=1 WHERE id='m_saved'"); }), finite());
@@ -221,9 +221,9 @@ test('eligible larger legacy store keeps reads and no-DML maintenance while refu
 });
 
 test('driver PRAGMA prepare failure clears private authorization and callback controls remain denied', async () => {
-  const f = await fixture(); const prepare = DatabaseSync.prototype.prepare; let failNext = true; let attempts = 0; let called = 0;
+  const f = await fixture(); const prepare = SqliteDatabase.prototype.prepare; let failNext = true; let attempts = 0; let called = 0;
   try {
-    DatabaseSync.prototype.prepare = function (sql) {
+    SqliteDatabase.prototype.prepare = function (sql) {
       if (sql.startsWith('PRAGMA main.max_page_count=')) { attempts++; if (failNext) { failNext = false; throw Error('PRIVATE driver control canary'); } }
       return prepare.call(this, sql);
     };
@@ -235,15 +235,15 @@ test('driver PRAGMA prepare failure clears private authorization and callback co
     });
     assert.equal(called, 1); assert.equal(attempts, 3, 'fresh pre/post-DML native controls after failed private prepare');
     assert.equal(f.db.prepare('PRAGMA journal_mode').get()!.journal_mode, 'wal');
-  } finally { DatabaseSync.prototype.prepare = prepare; f.close(); }
+  } finally { SqliteDatabase.prototype.prepare = prepare; f.close(); }
 });
 
 test('post-native-COMMIT confirmation read failure reports unknown and preserves committed rows without replay', async () => {
-  const f = await fixture(); const exec = DatabaseSync.prototype.exec; const prepare = DatabaseSync.prototype.prepare;
-  let source: DatabaseSync | undefined; let committed = false; let failures = 0;
+  const f = await fixture(); const exec = SqliteDatabase.prototype.exec; const prepare = SqliteDatabase.prototype.prepare;
+  let source: SqliteDatabase | undefined; let committed = false; let failures = 0;
   try {
-    DatabaseSync.prototype.exec = function (sql) { const result = exec.call(this, sql); if (this === source && sql === 'COMMIT') committed = true; return result; };
-    DatabaseSync.prototype.prepare = function (sql) {
+    SqliteDatabase.prototype.exec = function (sql) { const result = exec.call(this, sql); if (this === source && sql === 'COMMIT') committed = true; return result; };
+    SqliteDatabase.prototype.prepare = function (sql) {
       if (this === source && committed && sql.includes('bosun_source_floor')) { failures++; throw Error('PRIVATE post-commit read canary'); }
       return prepare.call(this, sql);
     };
@@ -251,11 +251,11 @@ test('post-native-COMMIT confirmation read failure reports unknown and preserves
     assert.ok(committed); assert.ok(failures > 0); assert.equal(f.db.prepare("SELECT access_count FROM memories WHERE id='m_saved'").get()!.access_count, 2);
     assert.equal(f.db.prepare('SELECT generation FROM bosun_source_floor').get()!.generation, 1);
     let replay = 0; assert.throws(() => f.writer.read(() => { replay++; }), finite()); assert.equal(replay, 0);
-  } finally { DatabaseSync.prototype.exec = exec; DatabaseSync.prototype.prepare = prepare; f.close(); }
+  } finally { SqliteDatabase.prototype.exec = exec; SqliteDatabase.prototype.prepare = prepare; f.close(); }
 });
 
 for (const spill of [true, false]) test(`native dirty-page probe observes cache_spill=${spill} before actual commit`, () => {
-  const sb = sandbox(); fresh(sb); const file = path.join(sb.root, 'spill.db'); const db = openDb(file);
+  const sb = sandbox(); fresh(sb); const file = path.join(sb.root, 'spill.db'); const db = openSchemaOneMemory(file);
   const bytes = () => fs.statSync(file + '-wal').size;
   try {
     db.exec(`PRAGMA wal_autocheckpoint=0; PRAGMA cache_size=1; PRAGMA cache_spill=${spill ? 'ON' : 'OFF'}; BEGIN IMMEDIATE;`);
@@ -272,8 +272,8 @@ for (const spill of [true, false]) test(`native dirty-page probe observes cache_
 
 for (const full of [false, true]) test(`native FTS xSync ${full ? 'page-limit failure' : 'allocation'} occurs at actual COMMIT`, () => {
   const sb = sandbox(); fresh(sb); const file = path.join(sb.root, 'fts.db'); fs.closeSync(fs.openSync(file, 'wx', 0o600));
-  const initial = new DatabaseSync(file); initial.exec('PRAGMA page_size=512; VACUUM;'); initial.close();
-  const db = openDb(file); const count = () => Number(db.prepare('PRAGMA page_count').get()!.page_count);
+  const initial = new SqliteDatabase(file); initial.exec('PRAGMA page_size=512; VACUUM;'); initial.close();
+  const db = openSchemaOneMemory(file); const count = () => Number(db.prepare('PRAGMA page_count').get()!.page_count);
   try {
     // A native FTS primitive isolates xSync without the legacy triggers' implicit
     // statement savepoints, which can flush their terms before COMMIT.

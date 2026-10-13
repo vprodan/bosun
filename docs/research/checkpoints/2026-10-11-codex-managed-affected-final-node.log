@@ -1,0 +1,129 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ Codex managed constructor and rejected privacy/read/secret input never discover a host or read settings (4.81675ms)
+✔ fresh Codex seed is persisted and independently read back with no turn/model request before readiness (331.986417ms)
+✔ owned Codex turn and capture retain literal admitted text, exact native receipts, bounded references and unknown occupancy semantics (132.270458ms)
+✔ wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference (1269.659084ms)
+✔ empty injection receipt cannot mask wrong/missing seed or lost native return; original mutation is never repeated (411.882875ms)
+✔ lost creation receipt retains original native history and prevents repeating the same source request (126.580792ms)
+✔ pending tools, foreign original turn/user, model reroute, secret answer and lost terminal prevent completion or replay (793.128875ms)
+✔ cancellation request without original terminal receipt joins the process and leaves unknown effects (1199.652125ms)
+✔ fresh rollout reader rejects native links, inode replacement, foreign roots, malformed UTF8 and added history (144.535125ms)
+✔ Codex fresh generation creates an independent root and joins the retired process before destination dispatch (195.022916ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (normal) (333.05475ms)
+✔ production Codex managed daemon startup/turn/capture/restart binds original jobs (lost-turn) (302.731375ms)
+✔ manual artifact publishes manifest/readable pair before content-free pointer; exact constraints/model/revisions survive reopen and duplicate requests (32.115167ms)
+✔ owner/scope/privacy/secret/bounds/path rejection precedes artifact publication or pointer changes (7.590084ms)
+✔ import validates both checksums and deterministic permissions text; changed/unsafe bundle never starts native work (19.575291ms)
+✔ two-file rename failure leaves no published pair/pointer; pre-existing files and dangling symlinks are never overwritten (17.08975ms)
+✔ actual pointer COMMIT then lost receipt preserves immutable artifact and prevents orphan adoption or repeated publication after reopen (22.568875ms)
+✔ portable checkout checks loose/packed/detached heads and file hashes without Git changes, symlink reads or claiming staged blobs (41.460667ms)
+✔ portable worktree metadata reads common refs while retaining the selected worktree HEAD (33.138833ms)
+✔ durable handoff blocks both dispatch paths until exact native acknowledgement and one ownership CAS retires source (12.139792ms)
+✔ unverified host controls and stale/foreign/body-only/estimated context never fence or prepare a source (8.798625ms)
+✔ bad quiescence, public classification/secret/hash/acknowledgement failures preserve source ownership and retain a held attempt (44.518917ms)
+✔ concurrent ownership changes during summary cancel destination bootstrap and do not replay source work (8.107417ms)
+✔ actual ownership transfer COMMIT then lost receipt fences both owners; reopen preserves destination retirement and holds without replay (8.978583ms)
+✔ owner authority is immutable and normalized; unqualified production handoff is held before summary or native effects (258.088125ms)
+✔ synthetic qualified handoff uses the existing executor and exact artifact, then transfers native ownership without dispatching seed text (487.150334ms)
+✔ synthetic managed handoff invented-summary remains held without dispatch or retry (352.445625ms)
+✔ synthetic managed handoff seed-acknowledgement remains held without dispatch or retry (455.860875ms)
+✔ synthetic managed handoff source-drift remains held without dispatch or retry (343.146834ms)
+✔ synthetic managed handoff checkout-drift remains held without dispatch or retry (431.010917ms)
+✔ automatic watcher schedules one handoff per generation after a completed native turn and rechecks telemetry (421.514458ms)
+✔ multiple captured windows publish one incremental chain with full cursor coverage and exact owner constraints (3401.5775ms)
+✔ a second handoff preserves owner authority and permanent retirements while reusing the same pinned native model (676.428417ms)
+✔ actual CLI authority and handoff use owner-only shared contracts and refuse private, secret and unsettled facts before publication (445.237834ms)
+✔ cancellation during inline generation holds the fenced source and never publishes or seeds late provider output (290.631125ms)
+✔ actual managed transfer COMMIT followed by lost return preserves native history and holds without replay (438.668833ms)
+✔ actual managed terminal-job COMMIT followed by lost return preserves native history and holds without replay (436.419625ms)
+✔ below-threshold, stale, future, fractional, estimated and native-preempted samples do not enqueue automatic handoffs (1667.842417ms)
+✔ changed telemetry between scheduling and execution fails before fencing and keeps the source active (231.543ms)
+✔ actual managed bootstrap creates and seeds one owned idle root without inference, then pinned turns use the existing native runner and capture flow (215.509834ms)
+✔ bootstrap bypasses no model quota; later turns remain held on known quota and source policy before native prompts (157.96625ms)
+✔ lost native createFault remains held across duplicate requests and daemon restart without replay (157.400875ms)
+✔ lost native seedFault remains held across duplicate requests and daemon restart without replay (157.01ms)
+✔ lost native turnFault remains held across duplicate requests and daemon restart without replay (177.980333ms)
+✔ owner/model/private/credential/malformed requests and reserved bootstrap runners refuse before source effects (153.703625ms)
+✔ same-origin foreign checkouts cannot read original source/job bindings, and native directory rebinding holds before effects (172.050875ms)
+✔ restart preserves an idle live source as held, original requests remain linked after content retention, and no ordinary task can bypass it (164.322125ms)
+✔ permanent managed job bindings and original request receipts survive actual content retention (144.353667ms)
+✔ actual starting ownership COMMIT followed by lost return keeps original source intent without native replay (148.649625ms)
+✔ actual seeding ownership COMMIT followed by lost return keeps original source intent without native replay (160.888791ms)
+✔ actual active ownership COMMIT followed by lost return keeps original source intent without native replay (169.043208ms)
+✔ Codex constructor is inert and privacy screening precedes content, options and executable discovery (4.800333ms)
+✔ Codex exact model/effort/cwd/native environment and stdin survive actual guarded process execution (131.81975ms)
+✔ Codex unsupported controls and unqualified read-only stay held before prompt getters or native probes (3.477875ms)
+✔ Codex native version mismatch never starts an agent or substitutes an older protocol (126.408292ms)
+✔ Codex partial, malformed, failed and duplicate native terminal records never invent completion or retry (474.178584ms)
+✔ Codex native completion followed by a stuck process times out and awaits actual termination (270.871708ms)
+✔ Codex cancellation stops native work before the iterator and queued ownership can drain (155.011584ms)
+✔ Claude explicit native read tools/model/effort/MCP deny rules preserve auth selection and protocol stdout (122.968458ms)
+✔ Claude edit jobs expose file editing only; native aliases resolve without changing model families (128.335792ms)
+✔ Claude preserves native overflow protection and explicit native context/compaction choices (296.964458ms)
+✔ Claude public classification and unsupported controls are checked before content, env and native probes (3.39575ms)
+✔ Claude native version mismatch holds the requested host without fallback or execution (96.663ms)
+✔ Claude mismatched native access/model/cwd/session and widened tools never produce a successful receipt (636.139041ms)
+✔ Claude native error/partial/malformed/duplicate result and nonzero process close are unknown without retry (402.701583ms)
+✔ Claude cancellation after native text awaits process termination and never claims a successful result (258.297291ms)
+✔ final native registry loads only the selected host, preserves explicit native home and performs no probes (145.035792ms)
+✔ actual durable job dispatcher executes the selected native Codex once and persists the positive result (141.397541ms)
+✔ native Codex app-server performs correlated initialization and concurrent metadata reads over bounded interactive stdio (158.942667ms)
+✔ Codex transport rejects native server approvals and auth mutation methods instead of granting or forwarding credentials (156.535084ms)
+✔ Codex native app-server malformed/foreign response loss closes the process and never retries (197.948209ms)
+✔ Codex native metadata errors are finite and discarded without token or provider message exposure (134.193625ms)
+✔ Codex metadata request deadline and caller cancellation wait for native close even when TERM is ignored (349.331667ms)
+✔ Codex startup is held on wrong native home/version and pre-aborted connection without adopting foreign state (165.660917ms)
+✔ native Codex quota source reads only native ChatGPT account/limits and returns scrubbed generic plus selected-model batches (130.35125ms)
+✔ native Codex quota source never treats API auth, absent account binding or absent included-access permission as a renewed subscription balance (245.817042ms)
+✔ actual queued native Codex remains held through a short reset and owner unknown opt-in, then runs once after fresh weekly/model recovery (315.118291ms)
+✔ OpenCode runner is inert; private/unknown classification precedes prompt/config/HTTP getters (0.841209ms)
+✔ native OpenCode HTTP run preserves model colons, cwd/variant and deny-all read permissions; projects closed metadata and step usage (19.404875ms)
+✔ edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable (6.757209ms)
+✔ Basic auth uses only explicit username/passwordEnv; detect is selected and auth/provider errors remain finite (5.645791ms)
+✔ completed native message remains buffered until idle; early consumer return leaves no active native request (10.456584ms)
+✔ unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP (5.941875ms)
+✔ fresh session model/cwd/permission must match before any prompt; uncertain create response never adopts or aborts a foreign session (8.320666ms)
+✔ missing/failed/malformed/foreign/unfinished completion never fabricates done; native cleanup is single-attempt and independently scoped (25.014792ms)
+✔ lost, malformed and oversized native prompt responses stay unknown without retry or credential/error echoes (9.900667ms)
+✔ abort waits for positive native idle rather than releasing a client HTTP connection; absent completion remains unknown (10.196ms)
+✔ timeout and unsupported abort receipt have finite unknown outcome and never repeat the prompt/abort (168.675209ms)
+✔ actual durable jobs close waits for native OpenCode abort/idle, persists unknown, and never redispatches after reopen (18.505834ms)
+✔ pure quota windows independently latch: short reset, sparse/stale/null data and clock passage never clear weekly exhaustion (1.1595ms)
+✔ native quota codecs preserve actual durations, separate generic/model buckets, require account/access evidence, and omit source payload/credits (0.551792ms)
+✔ native SQLite persists shared-pool exhaustion across restart/source absence; owner unknown opt-in cannot bypass it or change model pools (17.296708ms)
+✔ default unknown holds, explicit exact owner opt-in is durable, model setters deny before content getters; two-argument admits receive immutable metadata (17.7155ms)
+✔ fresh supported matching state permits held release/dispatch; selected refreshes coalesce and unrelated sources are untouched (11.697125ms)
+✔ wrong account/model and invalid clocks reject before atomic native quota/job changes (7.135583ms)
+✔ generic and exact model-specific quota restrictions share one atomic native batch without blocking unrelated models (10.049833ms)
+✔ actual quota batch COMMIT then error persists every bucket and mapping, fences admission, and never duplicates dispatch after reopen (10.124833ms)
+✔ async held release cannot queue after concurrent cancellation or daemon close; late source completion cannot write closed SQLite (16.179667ms)
+✔ actual daemon UDS and CLI default quota holds, owner-only status/refresh and unknown opt-in use the shared method table (161.137625ms)
+✔ durable runner failure refreshes the selected quota before the next dispatch despite a recent healthy cache (10.44075ms)
+✔ unknown quota COMMIT after a durable runner failure fences later dispatch and preserves the native outcome across reopen (10.983625ms)
+ℹ tests 101
+ℹ suites 0
+ℹ pass 101
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24740.213

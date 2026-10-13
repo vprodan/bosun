@@ -1,0 +1,46 @@
+ok 1 - missing HOME fails before application evaluation
+ok 2 - outside HOME fails before application evaluation
+ok 3 - symlink HOME escape fails before application evaluation
+ok 4 - every host/XDG/temp root is mandatory and contained
+ok 5 - direct test invocation fails before application evaluation
+ok 6 - clean environment excludes inherited credentials and user configuration
+ok 7 - child custom environment regains mandatory preload
+ok 8 - escaped child environment and cwd are rejected before spawn
+ok 9 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 10 - shell and PATH fallback cannot bypass process guard
+ok 11 - outside writes and symlink writes fail
+ok 12 - outside SQLite opens and attached databases fail
+ok 13 - real credential/config reads fail
+ok 14 - git and plutil external/config mutations fail
+ok 15 - fetch external and unregistered loopback endpoints fail
+ok 16 - raw TCP, TLS, UDP and HTTP external attempts fail
+ok 17 - registered ephemeral HTTP mocks remain usable
+ok 18 - only registered synthetic local sockets can be connected
+ok 19 - unknown suites/options and prohibited runtimes fail closed
+Containment: 19/19 probes passed; application suites not imported.
+✔ entire embedding batch is classified before any payload and before model metadata/generation (4.384042ms)
+✔ native embedding uses exact model/digest, versioned query prefix, truncatefalse, finite shape and measured units (16.175917ms)
+✔ document transform preserves title; credentials and unsupported batch/space hold before metadata (0.731916ms)
+✔ cloud metadata, missing/duplicate tag, wrong digest and completion-only models stop before embedding (7.009125ms)
+✔ mismatched model/count/dimensions/finite vectors and malformed metrics are unknown, single-attempt outcomes (13.643875ms)
+✔ model digest drift after actual embedding retains unknown with no retry or substitution (1.950125ms)
+✔ vector encoding is finite normalized little-endian float32 and dimensions never mix (0.227542ms)
+✔ generative construction is inert and denied classification precedes content/config/schema getters (0.780792ms)
+✔ Ollama wire preserves explicit model/schema/context/output bounds and projects validated text/JSON/usage (18.8625ms)
+✔ explicit model override is preserved; metadata health does not generate, download or switch models (5.601958ms)
+✔ mismatched/unfinished/truncated/tool-bearing/bad-schema responses never become summaries or retries (6.050875ms)
+✔ input/model/schema bounds and explicit loopback policy fail before HTTP with finite errors (0.506542ms)
+✔ timeout preserves one finite unknown generation; absent native token counters remain unknown (14.052708ms)
+✔ deterministic credential screening withholds explicitly public inputs before any generation (0.443792ms)
+✔ configured compatible provider sends one tool-free schema request with only the declared credential and exact model (2.4685ms)
+✔ compatible refusals, truncation, tools, model drift and invalid outputs are finite unknown and never retried (3.363ms)
+✔ compatible denied input precedes credential access; missing credentials never silently become anonymous or borrowed authentication (0.225333ms)
+✔ final provider registry is inert, loads only configured selection and refuses unqualified native summary isolation (0.263ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 318.6985

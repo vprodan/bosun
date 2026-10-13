@@ -1,0 +1,74 @@
+ok 1 - OS sandbox starts the pinned Bun with a fresh startup HOME
+ok 2 - Bun socket realpath limitation is bound to a non-symlink leaf and canonical parent
+ok 3 - missing HOME fails before application evaluation
+ok 4 - outside HOME fails before application evaluation
+ok 5 - symlink HOME escape fails before application evaluation
+ok 6 - every host/XDG/temp root is mandatory and contained
+ok 7 - direct test invocation fails before application evaluation
+ok 8 - clean environment excludes inherited credentials and user configuration
+ok 9 - child custom environment regains mandatory preload
+ok 10 - escaped child environment and cwd are rejected before spawn
+ok 11 - absolute supervisor/installer/model executables cannot bypass stubs
+ok 12 - shell and PATH fallback cannot bypass process guard
+ok 13 - outside writes and symlink writes fail
+ok 14 - upstream diagnostic SQLite opens and attached databases remain contained
+24 | function run(source, extra = {}) {
+25 |   return launch(root, ['-e', source], {
+26 |     cwd, env: { ...env, ...extra }, encoding: 'utf8', timeout: 15000,
+27 |   });
+28 | }
+29 | function good(source) { const r = run(source); assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`); }
+                                                           ^
+AssertionError: 
+15 |         "SELECT load_extension('"+"/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/oVZoTcG/escape"+"')"]) {
+16 |         assert.throws(()=>db.exec(sql),/containment/); assert.throws(()=>db.prepare(sql),/containment/);
+17 |       }
+18 |       for(const file of ["/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/oVZoTcG/escape","/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cxR4i91/escape-link/escape",uri])
+19 |         await assert.rejects(async()=>sqliteBackup(db,file),/containment/);
+20 |       assert.throws(()=>db.loadExtension("/private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/oVZoTcG/escape"),/containment/);
+                  ^
+AssertionError: The input did not match the regular expression /containment/. Input:
+
+'Error: SQLite extension loading is disabled'
+
+ generatedMessage: true,
+   expected: /containment/,
+   operator: "throws",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cxR4i91/work/[eval]:20:14
+
+ 99 |       safeIntegers: settings.useBigIntArguments ?? false, varargs: settings.varargs ?? false,
+100 |     }, selected);
+101 |   }
+102 |   setAuthorizer(callback: SqliteAuthorizer | null): void { this.#native.setAuthorizer(callback); }
+103 |   loadExtension(file: string): void {
+104 |     if (!this.#extensions) throw new BosunError('unsupported', 'SQLite extension loading is disabled');
+                                       ^
+error: SQLite extension loading is disabled
+ exitCode: 1,
+  details: undefined,
+     code: "unsupported"
+
+      at loadExtension (/Users/edge/Developer/bosun/src/platform/sqlite.ts:104:34)
+      at getActual (node:assert:340:7)
+      at throws (node:assert:430:33)
+      at /private/var/folders/p6/sngls2r11f15r_rzn1dslc8h0000gn/T/opencode/cxR4i91/work/[eval]:20:14
+
+Bun v1.4.3 (macOS arm64)
+
+
+1 !== 0
+
+ generatedMessage: false,
+     actual: 1,
+   expected: 0,
+   operator: "strictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at good (/Users/edge/Developer/bosun/scripts/check-containment.mjs:29:55)
+      at probe (/Users/edge/Developer/bosun/scripts/check-containment.mjs:23:28)
+
+Bun v1.4.3 (macOS arm64)
