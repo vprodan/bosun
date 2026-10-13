@@ -36,15 +36,20 @@ remain unchanged.
 
 ### Host integrations
 
-These are the current **source profile templates**, not a claim that every live
-host capability is qualified:
+Native release admission uses **supported major versions**. Actual detected
+versions remain in receipts and owned-session bindings; compatibility admission
+does not qualify live tools or automatic controls.
 
-| Host | Template version | Selection |
+| Host | Supported major | Selection |
 | --- | --- | --- |
-| OMP | `18.10.3` | Primary for new configuration |
-| OpenCode 2 | `2.0.27` | Native `opencode2` profiles |
-| Codex | `0.161.0` | Native Codex profiles |
-| Claude Code | `2.1.292` | Native Claude profiles |
+| OMP | `18.x` | Primary for new configuration |
+| OpenCode 2 | `2.x` | Native `opencode2` profiles |
+| Codex | `0.x` | Native Codex profiles |
+| Claude Code | `2.x` | Native Claude profiles |
+
+Codex is pre-1.0: minor releases may break protocol compatibility. Structural
+validation still fails closed. Prereleases, malformed versions and other majors
+are rejected; an existing prepared profile still binds its exact reviewed version.
 
 An independent ACP v1 runner can use an already installed agent with an exact
 pinned identity and acknowledged selectors. No live ACP agent is qualified yet.
@@ -56,16 +61,16 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 **Version 1.0.0 is a local macOS arm64 release, not a published download or package
 installation.** The latest maintained artifact is
-`dist/bosun-1.0.0-darwin-arm64-bun-only/` in the prepared checkout. Its standalone
+`dist/bosun-1.0.0-darwin-arm64-host-major/` in the prepared checkout. Its standalone
 executable needs no external Node runtime or `node_modules`.
 
 ```sh
-dist/bosun-1.0.0-darwin-arm64-bun-only/bosun --version
-shasum -a 256 dist/bosun-1.0.0-darwin-arm64-bun-only/bosun-1.0.0-darwin-arm64.tar.gz
+dist/bosun-1.0.0-darwin-arm64-host-major/bosun --version
+shasum -a 256 dist/bosun-1.0.0-darwin-arm64-host-major/bosun-1.0.0-darwin-arm64.tar.gz
 ```
 
 Use that artifact's `build.json`, `SHA256SUMS` and matching qualification receipt.
-The [maintenance guide](docs/maintenance.md#latest-maintained-artifact) records its
+The [maintenance guide](docs/maintenance.md#native-major-compatibility-and-ci-correction-2026-10-14) records its
 hashes and candidate-bound evidence. A later rebuild needs its own receipts;
 prior results do not qualify changed source or tooling.
 

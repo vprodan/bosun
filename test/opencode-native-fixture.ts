@@ -36,7 +36,7 @@ export async function nativeOpenCodeFixture(options: Options = {}) {
         if (res.destroyed) return;
         res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(value));
       };
-      if (route === '/api/info') return send({ ...fixture.server, version: options.version ?? '2.0.27', pid: options.pid ?? 4242 });
+      if (route === '/api/info') return send({ ...fixture.server, version: options.version ?? fixture.server.version, pid: options.pid ?? 4242 });
       if (route === '/api/model') return send({ location: { directory: url.searchParams.get('location[directory]') }, data: [{
         id: 'gpt-6.1-sol', modelID: 'gpt-6.1-sol', providerID: 'openai', enabled: true,
         variants: [{ id: 'high' }], capabilities: { tools: true, input: ['text'], output: ['text'] },

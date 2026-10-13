@@ -28,7 +28,7 @@ import { hostPlan, hostPlanSchema } from '../src/contracts/host-install.ts';
 
 const code = (name: string) => (error: unknown) =>
   error instanceof BosunError && error.code === name;
-const versions = { omp: '18.10.3', opencode: '2.0.27', codex: '0.161.0', claude: '2.1.292' } as const;
+const versions = { omp: '18.11.0', opencode: '2.1.0', codex: '0.162.0', claude: '2.2.0' } as const;
 async function fixture() {
   const sb = sandbox({ stubs: ['bosun'] });
   fresh(sb);
@@ -212,14 +212,13 @@ for (const host of Object.keys(versions) as (keyof typeof versions)[])
     }
   });
 
-test('only the pinned OpenCode 2 standalone overlay exceeds ordinary launch environment bounds in plans and receipts', async () => {
+test('only supported OpenCode 2 standalone overlays exceed ordinary launch environment bounds in plans and receipts', async () => {
   const f = await fixture();
   try {
     const plan = await f.plan('opencode');
     const invalid = [
       { ...plan, hostId: 'claude' },
       { ...plan, nativeVersion: '1.18.34' },
-      { ...plan, nativeVersion: '2.0.28' },
       { ...plan, launch: { ...plan.launch, args: [] } },
       { ...plan, launch: { ...plan.launch, env: { ...plan.launch.env, EXTRA: 'owner' } } },
       { ...plan, launch: { ...plan.launch, env: {
@@ -314,7 +313,7 @@ test('private, credential, stale, unsupported or modified plans have no profile/
       () =>
         planHostInstallation(f.options, {
           hostId: 'codex',
-          nativeVersion: '0.162.0',
+          nativeVersion: '1.0.0',
           requestId: 'unsupported',
         }),
       code('unsupported'),

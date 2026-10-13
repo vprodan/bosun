@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { BosunError } from '../core/errors.ts';
 import { screenPublicText } from '../core/secret-screen.ts';
+import { sameNativeMajor } from '../core/domain/host-version.ts';
 import type { Env, Detect } from '../core/domain/inference.ts';
 import type {
   FileChange,
@@ -30,7 +31,7 @@ export function hostSettings(input: HostSettings, versions: readonly string[]): 
     !path.isAbsolute(input.root) ||
     path.resolve(input.root) !== input.root ||
     /[\x00-\x1f\x7f]/.test(input.root) ||
-    !versions.includes(input.nativeVersion)
+    !versions.some(version => sameNativeMajor(input.nativeVersion, version))
   )
     throw new BosunError('unsupported', 'Host profile version unavailable');
   screenPublicText(input.root);

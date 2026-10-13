@@ -1,4 +1,5 @@
 import type { HostId } from './config.ts';
+import { sameNativeMajor } from './host-version.ts';
 export const OPENCODE2_VERSION = '2.0.27';
 
 export function hostLaunchPermitted(
@@ -6,7 +7,7 @@ export function hostLaunchPermitted(
   nativeVersion: string,
   launch: Readonly<{ args: readonly string[]; env: Readonly<Record<string, string>> }>,
 ): boolean {
-  if (hostId !== 'opencode' || nativeVersion !== OPENCODE2_VERSION) {
+  if (hostId !== 'opencode' || !sameNativeMajor(nativeVersion, OPENCODE2_VERSION)) {
     for (const key in launch.env)
       if (Object.hasOwn(launch.env, key) && launch.env[key].length > 4096) return false;
     return true;

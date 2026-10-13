@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { BosunError } from '../../../core/errors.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
 import { screenPublicText } from '../../../core/secret-screen.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import { privateDirectory } from '../../../platform/private-file.ts';
 import { CLAUDE_VERSION } from './runner.ts';
 
@@ -22,7 +23,7 @@ export type ClaudeTranscriptSnapshot = Readonly<{
   messages: readonly ClaudeTranscriptMessage[]; sha256: string; bytes: number;
 }>;
 type Identity = { path: string; dev: bigint; ino: bigint };
-type Bound = { parents: Identity[]; cwd: Identity; prefix: Buffer };
+type Bound = { parents: Identity[]; cwd: Identity; prefix: Buffer; version?: string };
 const bindings = new WeakMap<ClaudeTranscriptBinding, Bound>();
 const unavailable = () => new BosunError('unverified', 'Claude retained transcript unavailable');
 const object = (value: unknown): value is Record<string, unknown> =>
@@ -161,7 +162,7 @@ export function readClaudeTranscript(binding: ClaudeTranscriptBinding): ClaudeTr
     const lines = source.slice(0, -1).split('\n');
     if (!lines.length || lines.length > CLAUDE_TRANSCRIPT_LIMITS.rows) throw unavailable();
     const ids = new Set<string>(), messages: ClaudeTranscriptMessage[] = [];
-    let parent: string | null = null;
+    let parent: string | null = null, version = state.version;
     for (const line of lines) {
       if (!line || Buffer.byteLength(line) > CLAUDE_TRANSCRIPT_LIMITS.lineBytes) throw unavailable();
       const row: unknown = JSON.parse(line);
@@ -171,13 +172,15 @@ export function readClaudeTranscript(binding: ClaudeTranscriptBinding): ClaudeTr
         'timestamp', 'userType', 'gitBranch', 'requestId', 'isMeta', 'isCompactSummary', 'isApiErrorMessage', 'privacy']);
       if (!['user', 'assistant'].includes(String(row.type)) || !uuid(row.uuid) || ids.has(row.uuid)
         || row.parentUuid !== parent || row.isSidechain !== false || row.cwd !== binding.cwd
-        || row.sessionId !== binding.id || row.version !== CLAUDE_VERSION || !object(row.message)
+        || row.sessionId !== binding.id || !sameNativeMajor(typeof row.version === 'string' ? row.version : undefined, CLAUDE_VERSION)
+        || version !== undefined && row.version !== version || !object(row.message)
         || ['isMeta', 'isCompactSummary', 'isApiErrorMessage'].some(key => row[key] !== undefined && row[key] !== false)
         || row.userType !== undefined && row.userType !== 'external'
         || row.gitBranch !== undefined && !bounded(row.gitBranch, 256)
         || row.requestId !== undefined && !bounded(row.requestId, 256)
         || typeof row.timestamp !== 'string' || !Number.isFinite(Date.parse(row.timestamp))
         || !messages.length && row.type !== 'user') throw unavailable();
+      version ??= row.version as string;
       const role = row.type as 'user' | 'assistant', body = messageText(row.message, role);
       if (role === 'user' && !body.trim()) throw unavailable();
       let model: string | undefined;
@@ -193,6 +196,7 @@ export function readClaudeTranscript(binding: ClaudeTranscriptBinding): ClaudeTr
       ids.add(row.uuid); parent = row.uuid;
     }
     state.prefix = Buffer.from(raw);
+    state.version = version;
     return Object.freeze({ messages: Object.freeze(messages), sha256: sha(raw), bytes: raw.length });
   } catch (error) { return finite(error); }
 }

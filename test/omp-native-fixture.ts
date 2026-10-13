@@ -4,16 +4,16 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline';
 import { sandbox, fresh } from './helpers.ts';
 import type { Sandbox } from './helpers.ts';
-import { object, identifier } from '../src/adapters/hosts/omp/protocol.ts';
+import { object, identifier, OMP_VERSION } from '../src/adapters/hosts/omp/protocol.ts';
 
 export type OmpFixture = { sb: Sandbox; env: NodeJS.ProcessEnv; workspace: string; calls(): Record<string, unknown>[]; close(): void };
-export function ompFixture(mode = 'normal'): OmpFixture {
+export function ompFixture(mode = 'normal', version = OMP_VERSION): OmpFixture {
   const sb = sandbox({ stubs: ['omp'] }); fresh(sb);
-  const env = sb.env({ OMP_FIXTURE_MODE: mode });
+  const env = sb.env({ OMP_FIXTURE_MODE: mode, OMP_FIXTURE_VERSION: version });
   fs.mkdirSync(env.BOSUN_HOME!, { recursive: true, mode: 0o700 });
   const workspace = path.join(sb.home, 'workspace'); fs.mkdirSync(workspace, { mode: 0o700 });
   const implementation = fileURLToPath(import.meta.url);
-  fs.writeFileSync(path.join(sb.bin, 'omp'), `#!/usr/bin/env bun\nif(process.argv.includes('--version')){console.log('omp/18.10.3');process.exit(0);}\nrequire(${JSON.stringify(implementation)}).serveOmpFixture().catch(()=>process.exit(2));\n`, { mode: 0o755 });
+  fs.writeFileSync(path.join(sb.bin, 'omp'), `#!/usr/bin/env bun\nif(process.argv.includes('--version')){console.log('omp/'+process.env.OMP_FIXTURE_VERSION);process.exit(0);}\nrequire(${JSON.stringify(implementation)}).serveOmpFixture().catch(()=>process.exit(2));\n`, { mode: 0o755 });
   return { sb, env, workspace,
     calls() { return fs.existsSync(sb.out) ? fs.readFileSync(sb.out, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line)) : []; },
     close() { sb.cleanup(); } };
@@ -58,6 +58,7 @@ export async function serveOmpFixture(): Promise<void> {
     return result;
   }
   const pi = {
+    pi: { VERSION: mode === 'runtime-version-mismatch' ? '18.99.0' : process.env.OMP_FIXTURE_VERSION },
     on(name: string, handler: Handler) {
       const callbacks = handlers.get(name) ?? []; callbacks.push(handler); handlers.set(name, callbacks);
     },
@@ -65,7 +66,13 @@ export async function serveOmpFixture(): Promise<void> {
     getActiveTools: () => tools,
     getAllTools: () => tools.map(name => ({ name, sourceInfo: { source: 'builtin', path: '<builtin:' + name + '>' } })),
     getThinkingLevel: () => value('--thinking'),
-    appendEntry(customType: string, data: unknown) { append({ type: 'custom', customType, data }); },
+    appendEntry(customType: string, data: unknown) {
+      if (customType === 'bosun-native-control' && object(data) && data.op === 'run') {
+        if (mode === 'version-drift') data.version = '18.99.1';
+        if (mode === 'source-drift') data.sourceCommit = '0'.repeat(40);
+      }
+      append({ type: 'custom', customType, data });
+    },
     sendMessage(message: Record<string, unknown>, options: { triggerTurn?: boolean }) {
       if (options.triggerTurn !== false || typeof message.content !== 'string') throw Error('Fixture requires a text-only no-inference seed');
       const content = mode === 'bad-seed' ? message.content + ' changed' : message.content;

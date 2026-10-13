@@ -1,4 +1,4 @@
-// Process-local owned-session driver over pinned OpenCode 2. No adoption, DB, process or server startup.
+// Process-local owned-session driver over OpenCode 2's pinned schema. No adoption, DB, process or server startup.
 import path from 'node:path';
 import { BosunError, type BosunErrorCode } from '../../../core/errors.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
@@ -80,6 +80,7 @@ type Owned = {
   phase: 'fresh' | 'seeded' | 'ready' | 'unknown' | 'invalid';
   identityHash?: string;
   serverPid?: number;
+  serverVersion?: string;
   modelHash?: string;
   locked: boolean;
   users: Map<string, UserBinding>;
@@ -234,8 +235,8 @@ export function createOpenCodeControl(
     if (requireDispatch) dispatch(record);
     if (route === '/api/info') {
       const info = decodeServerInfo(value);
-      if (record.serverPid !== undefined && record.serverPid !== info.pid) throw fail('unverified');
-      record.serverPid = info.pid;
+      if (record.serverPid !== undefined && (record.serverPid !== info.pid || record.serverVersion !== info.version)) throw fail('unverified');
+      record.serverPid = info.pid; record.serverVersion = info.version;
     }
     return value;
   }
@@ -868,7 +869,7 @@ export function createOpenCodeControl(
         await json(record, cfg, '/api/info', 'GET', undefined, bounded, 16384);
         const before = await snapshot(record, cfg, bounded);
         if (!before.stable || !before.isIdle || before.pending) throw fail('unverified');
-        const binding = { cwd: record.cwd, association: record.association, seed: record.seed };
+        const binding = { cwd: record.cwd, association: record.association, serverVersion: record.serverVersion!, seed: record.seed };
         const captured = captureOpenCodeEvidence(
           record.session,
           before.rows,

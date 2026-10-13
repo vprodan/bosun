@@ -5,11 +5,13 @@ import type { ProcessInput } from '../../../platform/process.ts';
 import type { OmpFrame, OmpMethod } from './protocol.ts';
 import { BosunError } from '../../../core/errors.ts';
 import { executable, streamProcess } from '../../../platform/process.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import { assertReadyFrame, identifier, object, OmpFrameDecoder, ompFailure, OMP_LIMITS, OMP_VERSION } from './protocol.ts';
 
 export type OmpClientSettings = { command?: string; env: Env; timeoutMs?: number; requestTimeoutMs?: number; killGraceMs?: number };
 export type OmpReceipt = { id: string; command: OmpMethod; admission: 'pending' | 'accepted' | 'rejected' | 'unknown'; completion?: OmpFrame };
 export type OmpClient = {
+  readonly version: string;
   request(method: OmpMethod, params: Record<string, unknown>, signal?: AbortSignal, id?: string): Promise<unknown>;
   waitPrompt(id: string, signal?: AbortSignal): Promise<OmpFrame>;
   receipt(id: string): Readonly<OmpReceipt> | undefined;
@@ -48,7 +50,7 @@ export async function connectOmpRpc(options: OmpClientOptions, signal: AbortSign
   const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model', PI_NO_TITLE: '1', PI_NO_PTY: '1' };
   const detected = await detectOmp(options.command ?? 'omp', env);
   if (!detected.installed) throw ompFailure();
-  if (detected.version !== OMP_VERSION) throw ompFailure('unverified');
+  if (!sameNativeMajor(detected.version, OMP_VERSION)) throw ompFailure('unverified');
   if (signal.aborted) throw ompFailure('cancelled');
   const control = new AbortController(), pending = new Map<string, Pending>(), prompts = new Map<string, Prompt>();
   const receipts = new Map<string, OmpReceipt>(), decoder = new OmpFrameDecoder();
@@ -163,7 +165,7 @@ export async function connectOmpRpc(options: OmpClientOptions, signal: AbortSign
     await readiness; clearTimeout(readyTimer);
     const negotiated = await request('negotiate_protocol', { protocolVersion: 2 }, signal);
     if (!object(negotiated) || negotiated.protocolVersion !== 2) throw ompFailure('unavailable', true);
-    return { request, close, receipt(id) { const value = receipts.get(id); return value ? { ...value } : undefined; },
+    return { version: detected.version!, request, close, receipt(id) { const value = receipts.get(id); return value ? { ...value } : undefined; },
       async waitPrompt(id, abortSignal) {
         const prompt = prompts.get(id); if (!prompt) throw ompFailure('invalid');
         const cancel = () => stop(ompFailure('cancelled', true));

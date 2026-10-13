@@ -40,7 +40,7 @@ test('OpenCode 2 metadata projections omit native content, paths and billing', (
   f.page.data[1].content[1].text = 'PRIVATE-REASONING';
   f.page.data[1].content[2].state.input = { echo: 'PRIVATE-TOOL' };
   f.page.data[1].providerState = { echo: 'PRIVATE-STATE' };
-  assert.deepEqual(decodeServerInfo(f.server), { hostId: 'opencode', version: '2.0.27', pid: 4242 });
+  assert.deepEqual(decodeServerInfo(f.server), { hostId: 'opencode', version: f.server.version, pid: 4242 });
   const d = decoded(f);
   assert.deepEqual(d.session.selection, SELECTED);
   assert.deepEqual(d.page.messages[1].selection, SELECTED);
@@ -55,8 +55,16 @@ test('OpenCode 2 does not accept a V1 health, session or WithParts message envel
   assert.throws(() => decodeServerInfo(old.health), failure('unsupported'));
   assert.throws(() => decodeSession(old.session, PUBLIC), failure('invalid'));
   assert.throws(() => decodeMessagePage(old.messages, 'ses_fixture', PUBLIC), failure('invalid'));
-  for (const version of ['2.0.26', '2.0.28', '1.18.34', 'PRIVATE-VERSION'])
+  for (const version of ['1.18.34', '3.0.0', '2.1', '2.1.0-preview', '2.1.0+build', '02.1.0', 'PRIVATE-VERSION'])
     assert.throws(() => decodeServerInfo({ ...fixture().server, version }), failure('unsupported'));
+});
+
+test('OpenCode 2 admits release versions throughout its major without replacing observed identity or qualifying controls', () => {
+  for (const version of ['2.0.0', '2.0.26', '2.0.28', '2.17.4']) {
+    const info = decodeServerInfo({ ...fixture().server, version });
+    assert.deepEqual(info, { hostId: 'opencode', version, pid: 4242 });
+    assert.ok(Object.values(OPENCODE2_MANAGED_CAPS).every(value => value === 'unverified'));
+  }
 });
 
 test('OpenCode 2 malformed metadata, counts, message types, cursors and duplicate IDs fail closed', () => {
@@ -210,7 +218,7 @@ test('OpenCode 2 repeated session/process bindings hold read-only observations o
     const f = fixture(); let infos = 0, sessions = 0;
     const m = await mock({
       '/api/info': () => ({ json: ++infos === 1 ? f.server : {
-        ...f.server, pid: arm === 'process' ? 4243 : 4242, version: arm === 'version' ? '2.0.28' : '2.0.27',
+        ...f.server, pid: arm === 'process' ? 4243 : 4242, version: arm === 'version' ? '2.17.4' : f.server.version,
       } }),
       '/api/session/ses_fixture': () => {
         if (++sessions > 1) {
@@ -229,7 +237,7 @@ test('OpenCode 2 repeated session/process bindings hold read-only observations o
     });
     try {
       await assert.rejects(createOpenCodeProbe({ url: m.url, now: () => 100001 }).readSession(INPUT, SIGNAL),
-        failure(arm === 'version' ? 'unsupported' : 'unverified'));
+        failure('unverified'));
       assert.equal(m.requests.length, 6);
       assert.ok(m.requests.every((r) => r.method === 'GET' && r.path.startsWith('/api/')));
     } finally { await m.close(); }
@@ -238,6 +246,7 @@ test('OpenCode 2 repeated session/process bindings hold read-only observations o
 
 test('OpenCode 2 a server-supplied cursor or connection URL is never followed by the metadata probe', async () => {
   const f = fixture();
+  f.server.version = '2.17.4';
   f.server.urls = ['https://example.invalid/PRIVATE-URL'];
   f.page.cursor.next = 'https://example.invalid/PRIVATE-CURSOR';
   const m = await mock({
@@ -246,6 +255,8 @@ test('OpenCode 2 a server-supplied cursor or connection URL is never followed by
   });
   try {
     const result = await createOpenCodeProbe({ url: m.url, now: () => 100001 }).readSession(INPUT, SIGNAL);
+    assert.equal(result.version, f.server.version);
+    assert.ok(Object.values(result.managedCapabilities).every(value => value === 'unverified'));
     assert.doesNotMatch(JSON.stringify(result), /PRIVATE-|directory|paths|urls|cursor|cost/);
     assert.equal(result.observation.sample.quality, 'unknown');
     assert.equal(m.requests.length, 6);

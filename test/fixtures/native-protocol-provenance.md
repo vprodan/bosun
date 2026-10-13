@@ -330,4 +330,3 @@ inherited credential, joins it, opens one synthetic pane for one original job
 and executes actual metadata CLI polling through only `job.get`. No task/result/
 tool output leaks into that observation. Native Orca and SQLite-memory
 qualification remain false; live/compiled/corpus/runtime gates remain held.
-

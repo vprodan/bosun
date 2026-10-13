@@ -9,12 +9,12 @@ import type { RunSpec } from '../src/core/ports/runner.ts';
 import { BosunError } from '../src/core/errors.ts';
 import { createOmpControl } from '../src/adapters/hosts/omp/control.ts';
 import { createOmpRunner } from '../src/adapters/hosts/omp/runner.ts';
-import { OmpFrameDecoder } from '../src/adapters/hosts/omp/protocol.ts';
+import { OmpFrameDecoder, OMP_VERSION, object } from '../src/adapters/hosts/omp/protocol.ts';
 import { ompFixture } from './omp-native-fixture.ts';
 
 const hash = (text: string) => createHash('sha256').update(text).digest('hex');
-function controlFixture(mode = 'normal') {
-  const native = ompFixture(mode);
+function controlFixture(mode = 'normal', version = OMP_VERSION) {
+  const native = ompFixture(mode, version);
   let active: ManagedSession | undefined;
   const driver = createOmpControl({ env: native.env, timeoutMs: 5000, requestTimeoutMs: 2000, killGraceMs: 50 }, {
     hash, now: Date.now, id: () => randomUUID().replaceAll('-', ''),
@@ -61,6 +61,48 @@ test('native OMP source owns one literal turn, captures only admitted evidence a
   } finally { await f.driver.close!(); f.native.close(); }
 });
 
+test('OMP admits major 18 releases and retains the actual CLI/runtime version in owned receipts and captures', async () => {
+  for (const version of ['18.0.0', '18.10.4', '18.17.2']) {
+    const f = controlFixture('normal', version);
+    try {
+      const runner = createOmpRunner({ env: f.native.env, timeoutMs: 5000, killGraceMs: 50 });
+      assert.equal((await runner.detect(f.native.env)).version, version);
+      const session = await f.start();
+      assert.ok(Object.values(f.driver.caps).every(value => value === 'unverified'));
+      const root = path.join(f.native.env.BOSUN_HOME!, 'native-omp');
+      const owned = fs.readdirSync(root);
+      assert.equal(owned.length, 1);
+      const entries = fs.readFileSync(path.join(root, owned[0]!, 'sessions', session.sessionId + '.jsonl'), 'utf8')
+        .trim().split('\n').map((line): unknown => JSON.parse(line));
+      const receipts = entries.filter(entry => object(entry) && entry.customType === 'bosun-native-control');
+      assert.ok(receipts.length >= 3);
+      for (const receipt of receipts) {
+        assert.ok(object(receipt) && object(receipt.data));
+        assert.equal(receipt.data.version, version);
+      }
+      const first = await f.driver.capture!(session, { privacy: 'public', afterCursor: null }, new AbortController().signal);
+      const repeated = await f.driver.capture!(session, { privacy: 'public', afterCursor: null }, new AbortController().signal);
+      assert.equal(first.sourceBindingHash, repeated.sourceBindingHash);
+    } finally { await f.driver.close!(); f.native.close(); }
+  }
+});
+
+test('OMP unsupported major or nonrelease versions fail before native session requests; runtime identity mismatch cannot be admitted', async () => {
+  for (const version of ['17.99.0', '19.0.0', '18.1', '18.1.0-preview', '18.1.0+build', '018.1.0']) {
+    const f = controlFixture('normal', version);
+    try {
+      await assert.rejects(f.start(), error => error instanceof BosunError && error.code === 'unverified');
+      assert.deepEqual(f.native.calls(), []);
+    } finally { await Promise.allSettled([f.driver.close!()]); f.native.close(); }
+  }
+  const mismatch = controlFixture('runtime-version-mismatch', '18.10.4');
+  try {
+    await assert.rejects(mismatch.start(), unknown);
+    assert.equal(mismatch.native.calls().filter(call => call.op === 'observe').length, 1);
+    assert.equal(mismatch.native.calls().filter(call => call.op === 'seed' || call.op === 'run').length, 0);
+  } finally { await Promise.allSettled([mismatch.driver.close!()]); mismatch.native.close(); }
+});
+
 test('no-inference seed mismatch holds the original root without a second seed attempt', async () => {
   const f = controlFixture('bad-seed');
   try {
@@ -81,7 +123,7 @@ test('native OMP admission fence blocks a later builtin tool effect even when th
   } finally { await Promise.allSettled([f.driver.close!()]); f.native.close(); }
 });
 
-for (const mode of ['lost-run-receipt', 'model-drift', 'selection-event', 'foreign-history', 'foreign-control', 'private-control', 'async-work', 'secret-echo']) {
+for (const mode of ['lost-run-receipt', 'model-drift', 'selection-event', 'foreign-history', 'foreign-control', 'private-control', 'async-work', 'secret-echo', 'version-drift', 'source-drift']) {
   test(`OMP ${mode} retains unknown ownership and never replays or exposes a success`, async () => {
     const f = controlFixture(mode);
     try {
@@ -98,7 +140,7 @@ for (const mode of ['lost-run-receipt', 'model-drift', 'selection-event', 'forei
 }
 
 test('ordinary OMP result is released only after its native process joins; reused job IDs cannot start another root', async () => {
-  const f = ompFixture();
+  const f = ompFixture('normal', '18.17.2');
   try {
     const runner = createOmpRunner({ env: f.env, timeoutMs: 5000, killGraceMs: 50 });
     const spec: RunSpec = { privacy: 'public', prompt: 'Inspect approved public source.', cwd: f.workspace,

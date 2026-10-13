@@ -3,6 +3,7 @@ import { BosunError } from '../../../core/errors.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
 import { screenPublicText } from '../../../core/secret-screen.ts';
 import type { Detect, Env } from '../../../core/domain/inference.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import type { AgentRunner, RunEvent, RunSpec } from '../../../core/ports/runner.ts';
 import { executable, streamProcess } from '../../../platform/process.ts';
 
@@ -56,7 +57,7 @@ export function createCodexRunner(options: CodexRunnerOptions): AgentRunner {
       const env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
       const detected = await detect(env);
       if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
-      if (detected.version !== CODEX_VERSION) throw new BosunError('unverified', 'Codex version unverified');
+      if (!sameNativeMajor(detected.version, CODEX_VERSION)) throw new BosunError('unverified', 'Codex version unverified');
       const args = ['exec', '--json', '--color', 'never', '--ephemeral', '--skip-git-repo-check', '--ignore-rules',
         '-s', 'workspace-write', '-C', spec.cwd, '-m', spec.model,
         '-c', 'approval_policy="never"', '-c', 'sandbox_workspace_write.network_access=false',

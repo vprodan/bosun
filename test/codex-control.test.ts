@@ -35,14 +35,15 @@ const failure = (error: unknown) =>
   error instanceof BosunError &&
   error.details?.outcome === 'unknown' &&
   !/CANARY|secret|foreign/.test(JSON.stringify(error));
-function fixture(sb: Sandbox, mode = 'normal') {
+function fixture(sb: Sandbox, mode = 'normal', nativeVersion = CODEX_VERSION) {
   const home = path.join(sb.home, '.codex');
   fs.mkdirSync(path.join(home, 'sessions'), { recursive: true, mode: 0o700 });
   const source = `#!/usr/bin/env node
 const fs=require('node:fs'),path=require('node:path');
 const record=row=>fs.appendFileSync(process.env.STUB_OUT,JSON.stringify(row)+'\\n');
 record({argv:process.argv.slice(2),pid:process.pid});
-if(process.argv.includes('--version')){process.stdout.write('codex-cli '+(process.env.STUB_VERSION||'${CODEX_VERSION}')+'\\n');return;}
+const nativeVersion=process.env.STUB_VERSION;
+if(process.argv.includes('--version')){process.stdout.write('codex-cli '+nativeVersion+'\\n');return;}
 const mode=process.env.STUB_MODE,home=process.env.CODEX_HOME;
 const id='019aa001-aaaa-7aaa-8aaa-'+process.pid.toString(16).padStart(12,'0');
 const file=path.join(home,'sessions','rollout-2026-10-11T10-00-00-'+id+'.jsonl');
@@ -52,12 +53,12 @@ let root,turns=[],current,turnCount=0;
 const thread=()=>({...root,turns});
 const rl=require('node:readline').createInterface({input:process.stdin});
 rl.on('line',body=>{const row=JSON.parse(body);record({request:row});const p=row.params||{};
-if(row.method==='initialize'){send({id:row.id,result:{codexHome:home,platformFamily:'unix',platformOs:'macos',userAgent:'codex/${CODEX_VERSION}'}});return;}
+if(row.method==='initialize'){send({id:row.id,result:{codexHome:home,platformFamily:'unix',platformOs:'macos',userAgent:'codex/'+nativeVersion}});return;}
 if(row.method==='initialized'||row.error)return;
 if(row.method==='thread/start'){
- const meta={id,session_id:id,cwd:p.cwd,cli_version:'${CODEX_VERSION}',source:'mcp',history_mode:'legacy',base_instructions:{text:'Native policy'},creator_account_id:'ACCOUNT_CANARY'};
+ const meta={id,session_id:id,cwd:p.cwd,cli_version:mode==='wrong-rollout-version'?'0.163.0':nativeVersion,source:'mcp',history_mode:'legacy',base_instructions:{text:'Native policy'},creator_account_id:'ACCOUNT_CANARY'};
  fs.writeFileSync(file,line('session_meta',meta),{flag:'wx',mode:0o600});
- root={id,sessionId:id,forkedFromId:null,parentThreadId:null,ephemeral:false,historyMode:'legacy',cwd:p.cwd,cliVersion:'${CODEX_VERSION}',model:p.model,reasoningEffort:p.config.model_reasoning_effort||null,path:file,status:{type:'idle'},turns:[]};
+ root={id,sessionId:id,forkedFromId:null,parentThreadId:null,ephemeral:false,historyMode:'legacy',cwd:p.cwd,cliVersion:nativeVersion,model:p.model,reasoningEffort:p.config.model_reasoning_effort||null,path:file,status:{type:'idle'},turns:[]};
  if(mode==='lost-create'){process.exit(0);return;}
  if(mode==='wrong-model')root.model='different-model';if(mode==='fork')root.forkedFromId='parent';if(mode==='active')root.status={type:'active',activeFlags:[]};if(mode==='wrong-effort')root.reasoningEffort='low';if(mode==='wrong-version')root.cliVersion='0.162.0';if(mode==='foreign-path')root.path=path.join(home,'auth.json');
  send({id:row.id,result:{thread:thread(),model:p.model,cwd:p.cwd,reasoningEffort:root.reasoningEffort,approvalPolicy:mode==='wrong-policy'?'on-request':'never',sandbox:{type:'workspaceWrite',networkAccess:mode==='network',writableRoots:[p.cwd],excludeTmpdirEnvVar:false,excludeSlashTmp:false}}});return;
@@ -94,7 +95,7 @@ send({id:row.id,error:{code:-32601,message:'Unavailable'}});
 rl.on('close',()=>process.exit(0));
 `;
   fs.writeFileSync(path.join(sb.bin, 'codex'), source, { mode: 0o755 });
-  const environment = sb.env({ CODEX_HOME: home, STUB_MODE: mode });
+  const environment = sb.env({ CODEX_HOME: home, STUB_MODE: mode, STUB_VERSION: nativeVersion });
   let active = false,
     generation = 0,
     gateCount = 0;
@@ -138,8 +139,8 @@ const records = (
     .trim()
     .split('\n')
     .map((row) => JSON.parse(row));
-async function prepared(sb: Sandbox, mode = 'normal') {
-  const f = fixture(sb, mode),
+async function prepared(sb: Sandbox, mode = 'normal', nativeVersion = CODEX_VERSION) {
+  const f = fixture(sb, mode, nativeVersion),
     session = await f.driver.create(publicInput(sb), signal());
   await f.driver.seed(session, { privacy: 'public', text: seed, hash: hash(seed) }, signal());
   await f.driver.ready(
@@ -296,6 +297,40 @@ test('owned Codex turn and capture retain literal admitted text, exact native re
   }
 });
 
+test('Codex supported native major retains the actual version through owned creation, seed, turn and capture', async () => {
+  for (const nativeVersion of ['0.159.0', '0.162.0']) {
+    const sb = sandbox();
+    const f = await prepared(sb, 'normal', nativeVersion);
+    try {
+      await f.driver.run(f.session, { privacy: 'public', text: 'Public native task', turnId: 'job_fixture' }, signal());
+      const window = await f.driver.capture!(f.session, { privacy: 'public', afterCursor: null }, signal());
+      assert.equal(window.complete, true);
+      assert.equal(window.evidence.length, 3);
+      const next = await f.driver.capture!(f.session, { privacy: 'public', afterCursor: window.completedEventCursor }, signal());
+      assert.equal(next.snapshotHash, window.snapshotHash);
+      const directory = path.join(f.home, 'sessions');
+      const file = path.join(directory, fs.readdirSync(directory)[0]);
+      assert.equal(JSON.parse(fs.readFileSync(file, 'utf8').split('\n')[0]).payload.cli_version, nativeVersion);
+    } finally {
+      await f.driver.close?.();
+      sb.cleanup();
+    }
+  }
+});
+
+test('Codex incompatible majors and malformed releases are held before app-server startup', async () => {
+  for (const nativeVersion of ['1.0.0', '00.161.0', '0.0161.0', '0.161', '0.161.0-preview', '0.161.0\nextra']) {
+    const sb = sandbox(), f = fixture(sb, 'normal', nativeVersion);
+    try {
+      await assert.rejects(f.driver.create(publicInput(sb), signal()), failure);
+      assert.deepEqual(records(sb).map(row => row.argv), [['--version']]);
+    } finally {
+      await f.driver.close?.();
+      sb.cleanup();
+    }
+  }
+});
+
 test('wrong Codex creation identity/model/effort/policy/active/background/path is held before injection or inference', async () => {
   for (const mode of [
     'wrong-model',
@@ -305,6 +340,7 @@ test('wrong Codex creation identity/model/effort/policy/active/background/path i
     'fork',
     'active',
     'wrong-version',
+    'wrong-rollout-version',
     'foreign-path',
     'background',
     'background-page',
@@ -438,12 +474,13 @@ test('fresh rollout reader rejects native links, inode replacement, foreign root
   try {
     const directory = path.join(f.home, 'sessions'),
       file = path.join(directory, fs.readdirSync(directory)[0]);
-    const binding = bindRollout({ file, home: f.home, cwd: sb.home, id: f.session.sessionId }),
+    const binding = bindRollout({ file, home: f.home, cwd: sb.home, id: f.session.sessionId, version: CODEX_VERSION }),
       original = fs.readFileSync(file);
     readRolloutSeed(binding, seed);
     for (const arm of [
       'wrong-seed',
       'foreign-id',
+      'wrong-version',
       'history',
       'utf8',
       'oversize',
@@ -460,6 +497,8 @@ test('fresh rollout reader rejects native links, inode replacement, foreign root
             .toString()
             .replaceAll(f.session.sessionId, '019aa099-cccc-7ccc-8ccc-000000000001'),
         );
+      else if (arm === 'wrong-version')
+        fs.writeFileSync(file, original.toString().replace(CODEX_VERSION, '0.162.0'));
       else if (arm === 'history')
         fs.appendFileSync(
           file,

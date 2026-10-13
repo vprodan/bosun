@@ -25,6 +25,23 @@ test('OpenCode 2 refuses an old host version or an unrepresentable role variant 
   } finally { sb.cleanup(); }
 });
 
+test('OpenCode 2 profiles admit same-major release versions without changing schemas or qualified controls', async () => {
+  const sb = sandbox(); fresh(sb);
+  try {
+    const command = path.join(sb.bin, 'bosun');
+    const bundle: HostBundle = { roles: [], skills: {}, policy: 'Approved public policy.',
+      mcp: { command, args: ['mcp'], env: {} }, hook: { command, args: [], timeoutS: 1, env: {} } };
+    const host = createOpenCodeHost(), settings = { root: path.join(sb.home, 'profile'), nativeVersion: '2.0.0' };
+    const baseline = await host.plan(bundle, settings);
+    for (const nativeVersion of ['2.0.28', '2.17.4'])
+      assert.deepEqual(await host.plan(bundle, { ...settings, nativeVersion }), baseline);
+    for (const nativeVersion of ['1.99.0', '3.0.0', '2.1', '2.1.0-preview', '2.1.0+build'])
+      await assert.rejects(host.plan(bundle, { ...settings, nativeVersion }), error => error instanceof BosunError && error.code === 'unsupported');
+    assert.equal(host.caps.promptHook, 'unverified');
+    assert.equal(fs.existsSync(settings.root), false); assert.deepEqual(sb.calls(), []);
+  } finally { sb.cleanup(); }
+});
+
 test('actual V2 plugin admits only per-input public text and binds context to the original native session/message', async () => {
   const sb = sandbox({ stubs: ['bosun-hook'] }); fresh(sb);
   const command = path.join(sb.bin, 'bosun-hook'), file = path.join(sb.home, 'plugin.ts');

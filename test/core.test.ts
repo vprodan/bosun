@@ -12,6 +12,16 @@ import type { Router } from '../src/core/ports/router.ts';
 import type { ManagedSessionControl } from '../src/core/ports/host.ts';
 import { createRetrieveContext } from '../src/core/use-cases/retrieve-context.ts';
 import { contentHash } from '../src/platform/content-hash.ts';
+import { sameNativeMajor } from '../src/core/domain/host-version.ts';
+
+test('native major admission accepts stable same-major releases but rejects malformed and incompatible identities', () => {
+  for (const [actual, baseline] of [['18.11.0', '18.10.3'], ['2.8.19', '2.0.27'], ['0.200.0', '0.161.0']]) {
+    assert.equal(sameNativeMajor(actual, baseline), true);
+  }
+  for (const actual of [undefined, '', '2', '2.0', '02.0.27', '2.00.27', '2.0.27-beta.1', '2.0.27+build', '2.0.27\n', '3.0.0', '1.99.0']) {
+    assert.equal(sameNativeMajor(actual, '2.0.27'), false, String(actual));
+  }
+});
 
 const RAW = { lane: 'local' as const, conf: 0.9, risk: 'low' as const, risk_conf: 0.3, ms: 12 };
 const SIGNAL = new AbortController().signal;

@@ -5,6 +5,7 @@ import type {
   FileChange,
 } from '../../../core/ports/host.ts';
 import path from 'node:path';
+import { CLAUDE_VERSION } from './runner.ts';
 import {
   hostBundle,
   hostSettings,
@@ -18,7 +19,7 @@ import {
   nativePrompt,
 } from '../../../platform/host-files.ts';
 
-const VERSIONS = ['2.1.292'];
+const VERSIONS = [CLAUDE_VERSION];
 function files(input: HostBundle, settings: HostSettings): FileChange[] {
   const bundle = hostBundle(input);
   hostSettings(settings, VERSIONS);

@@ -208,8 +208,8 @@ test('Codex unsupported controls and unqualified read-only stay held before prom
 test('Codex native version mismatch never starts an agent or substitutes an older protocol', async () => {
   const sb = sandbox();
   try {
-    const runner = createCodexRunner({ env: env(sb, jsonl(rows), 0, '0.159.0') });
-    assert.equal((await runner.detect(env(sb, jsonl(rows), 0, '0.159.0'))).version, '0.159.0');
+    const runner = createCodexRunner({ env: env(sb, jsonl(rows), 0, '1.0.0') });
+    assert.equal((await runner.detect(env(sb, jsonl(rows), 0, '1.0.0'))).version, '1.0.0');
     sb.reset();
     await assert.rejects(
       collect(runner.run(spec(sb))),
@@ -574,7 +574,7 @@ test('Claude public classification and unsupported controls are checked before c
 test('Claude native version mismatch holds the requested host without fallback or execution', async () => {
   const sb = sandbox();
   try {
-    const runner = createClaudeRunner({ env: claudeEnv(sb, '', 0, '2.1.247') });
+    const runner = createClaudeRunner({ env: claudeEnv(sb, '', 0, '3.0.0') });
     await assert.rejects(
       collect(runner.run(spec(sb, { access: 'read', model: 'sonnet', effort: 'high' }))),
       (error: unknown) => error instanceof BosunError && error.code === 'unverified',
@@ -1027,7 +1027,7 @@ test('Codex startup is held on wrong native home/version and pre-aborted connect
     assert.equal(fs.existsSync(sb.out), false);
     await assert.rejects(
       connectCodexAppServer(
-        { env: { ...appServerStub(sb), STUB_VERSION: '0.159.0' }, cwd: sb.home },
+        { env: { ...appServerStub(sb), STUB_VERSION: '1.0.0' }, cwd: sb.home },
         new AbortController().signal,
       ),
       (error: unknown) => error instanceof BosunError && error.code === 'unverified',

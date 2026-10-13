@@ -1,5 +1,5 @@
 import type { OmpSelection } from './protocol.ts';
-import { OMP_SOURCE_COMMIT, OMP_VERSION } from './protocol.ts';
+import { OMP_SOURCE_COMMIT } from './protocol.ts';
 
 export const OMP_BRIDGE_COMMAND = 'bosun-native-control';
 export const OMP_BRIDGE_ENTRY = 'bosun-native-control';
@@ -38,7 +38,7 @@ export default function bosunNativeControl(pi: ExtensionAPI) {
       if (rows.length !== 1 || rows[0].sourceInfo.source !== 'builtin') throw new Error('Effective builtin policy unavailable');
       return { name, source: rows[0].sourceInfo.source, path: rows[0].sourceInfo.path };
     });
-    return { version: ${JSON.stringify(OMP_VERSION)}, sourceCommit: ${JSON.stringify(OMP_SOURCE_COMMIT)},
+    return { version: pi.pi.VERSION, sourceCommit: ${JSON.stringify(OMP_SOURCE_COMMIT)},
       cwd: ctx.cwd, sessionDir: sm.getSessionDir(), sessionFile: sm.getSessionFile(), sessionId: sm.getSessionId(),
       root: true, model: expected.selection.model, effort: pi.getThinkingLevel(), access: expected.selection.access,
       tools, idle: ctx.isIdle(), queued: ctx.hasPendingMessages(), pendingTools: pendingTools.size,

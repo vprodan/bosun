@@ -15,6 +15,21 @@ function bundle(command: string): HostBundle {
     mcp: { command, args: ['mcp'], env: {} }, hook: { command, args: [], timeoutS: 1, env: {} } };
 }
 
+test('OMP profiles admit release versions throughout major 18 without effects or capability promotion', async () => {
+  const sb = sandbox(); fresh(sb);
+  try {
+    const host = createOmpHost(), input = bundle(path.join(sb.bin, 'bosun'));
+    const settings = { root: path.join(sb.home, 'profile'), nativeVersion: '18.0.0' };
+    const baseline = await host.plan(input, settings);
+    for (const nativeVersion of ['18.10.4', '18.17.2'])
+      assert.deepEqual(await host.plan(input, { ...settings, nativeVersion }), baseline);
+    for (const nativeVersion of ['17.99.0', '19.0.0', '18.1', '18.1.0-preview', '18.1.0+build'])
+      await assert.rejects(host.plan(input, { ...settings, nativeVersion }), error => error instanceof BosunError && error.code === 'unsupported');
+    assert.equal(host.caps.promptHook, 'unverified');
+    assert.equal(fs.existsSync(settings.root), false); assert.deepEqual(sb.calls(), []);
+  } finally { sb.cleanup(); }
+});
+
 test('OMP native prompt admission rejects absent/private/malformed classification and credential-shaped content', () => {
   const base = { host: 'omp', privacy: 'public', prompt: 'Approved public task.', cwd: '/tmp', session_id: 'native_session' };
   for (const privateFlag of [true, 0, 1, 'false', '0', null])

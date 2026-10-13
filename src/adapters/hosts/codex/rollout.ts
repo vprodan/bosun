@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { BosunError } from '../../../core/errors.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import { privateDirectory, readPrivateFile } from '../../../platform/private-file.ts';
 import { CODEX_VERSION } from './runner.ts';
 
@@ -10,6 +11,7 @@ export type RolloutBinding = {
   home: string;
   cwd: string;
   id: string;
+  version: string;
   dev: number;
   ino: number;
 };
@@ -23,10 +25,12 @@ export function bindRollout(input: {
   home: string;
   cwd: string;
   id: string;
+  version: string;
 }): RolloutBinding {
   try {
-    const { file, home, cwd, id } = input;
+    const { file, home, cwd, id, version } = input;
     if (
+      !sameNativeMajor(version, CODEX_VERSION) ||
       typeof file !== 'string' ||
       !path.isAbsolute(file) ||
       path.resolve(file) !== file ||
@@ -52,7 +56,7 @@ export function bindRollout(input: {
     }
     const stat = fs.lstatSync(file);
     readPrivateFile(file, 1024 * 1024);
-    return { file, home, cwd, id, dev: stat.dev, ino: stat.ino };
+    return { file, home, cwd, id, version, dev: stat.dev, ino: stat.ino };
   } catch {
     throw failure();
   }
@@ -90,7 +94,7 @@ export function readRolloutSeed(binding: RolloutBinding, expected?: string): voi
           payload.id !== binding.id ||
           payload.session_id !== binding.id ||
           payload.cwd !== binding.cwd ||
-          payload.cli_version !== CODEX_VERSION ||
+          payload.cli_version !== binding.version ||
           payload.source !== 'mcp' ||
           [
             'forked_from_id',

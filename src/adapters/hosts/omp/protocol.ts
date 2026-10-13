@@ -1,5 +1,6 @@
 import { BosunError } from '../../../core/errors.ts';
 
+// Tested source/fixture baseline; release admission compares major, never rewrites runtime identity.
 export const OMP_VERSION = '18.10.3';
 export const OMP_SOURCE_COMMIT = '81e1d8927a3c16cfaff2e9456baa8c060e1e0e9b';
 export const OMP_LIMITS = Object.freeze({

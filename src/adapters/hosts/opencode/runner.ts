@@ -1,11 +1,10 @@
-// Pinned native OpenCode 2 only. No SDK, spawn, auth mutation or implicit server start.
+// Native OpenCode 2 only; pinned schema qualification stays separate from major admission.
 import crypto from 'node:crypto';
 import { BosunError } from '../../../core/errors.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
 import type { AgentRunner } from '../../../core/ports/runner.ts';
 import { httpJson } from '../../../platform/http-json.ts';
 import { decodeServerInfo, decodeMessagePage, decodeActive } from './v2-protocol.ts';
-import { OPENCODE2_VERSION } from '../../../core/domain/host-install.ts';
 import { failure, requestConfiguration, requestSpec, availableModel, validateSession, validateAdmission,
   pendingInbox, inspectHistory, object, hash, pause, completion, openCodePermissions,
   type SessionBinding, type OpenCodeRunnerSettings } from './v2-native.ts';
@@ -19,8 +18,8 @@ export function createOpenCodeRunner(settings: OpenCodeRunnerSettings): AgentRun
     async detect(env) {
       try {
         const cfg = requestConfiguration(settings, env);
-        decodeServerInfo(await httpJson(cfg.base + '/api/info', { method: 'GET', headers: cfg.headers, signal: AbortSignal.timeout(cfg.requestTimeout) }, cfg.requestTimeout, 16384));
-        return { installed: true, version: OPENCODE2_VERSION, notes: ['Pinned V2 native HTTP; live host/plugin qualification pending'] };
+        const info = decodeServerInfo(await httpJson(cfg.base + '/api/info', { method: 'GET', headers: cfg.headers, signal: AbortSignal.timeout(cfg.requestTimeout) }, cfg.requestTimeout, 16384));
+        return { installed: true, version: info.version, notes: ['V2 native HTTP; live host/plugin qualification pending'] };
       } catch { return { installed: false, notes: ['OpenCode endpoint unavailable or unsupported'] }; }
     },
     async *run(spec) {
@@ -38,13 +37,13 @@ export function createOpenCodeRunner(settings: OpenCodeRunnerSettings): AgentRun
         association: crypto.randomUUID(), cwd: requested.cwd, selection: requested.selection,
         access: requested.access, agent: requested.agent };
       const messageID = `msg_${crypto.randomUUID().replaceAll('-', '')}`;
-      let serverPid: number | undefined, identityHash: string | undefined;
+      let serverPid: number | undefined, serverVersion: string | undefined, identityHash: string | undefined;
       let mutationAttempted = false, promptAttempted = false;
       const modelPath = `/api/model?location[directory]=${encodeURIComponent(requested.cwd)}`;
       const sessionPath = `/api/session/${binding.id}`;
       async function serverIdentity(current: AbortSignal) {
         const info = decodeServerInfo(await json('/api/info', 'GET', undefined, current, 16384));
-        if (serverPid !== undefined && info.pid !== serverPid) throw failure('unverified');
+        if (serverPid !== undefined && (info.pid !== serverPid || info.version !== serverVersion)) throw failure('unverified');
         return info;
       }
       async function bound(current: AbortSignal) {
@@ -99,7 +98,7 @@ export function createOpenCodeRunner(settings: OpenCodeRunnerSettings): AgentRun
         throw failure('unavailable', true);
       }
       try {
-        serverPid = (await serverIdentity(signal)).pid;
+        const server = await serverIdentity(signal); serverPid = server.pid; serverVersion = server.version;
         const modelHash = availableModel(await json(modelPath, 'GET', undefined, signal, 4 * 1024 * 1024), requested.selection, requested.cwd);
         await serverIdentity(signal);
         mutationAttempted = true;

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { BosunError } from '../../../core/errors.ts';
 import type { Env } from '../../../core/domain/inference.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import { streamProcess, type ProcessInput } from '../../../platform/process.ts';
 import { version } from '../../../platform/assets.ts';
 import { createCodexRunner, CODEX_VERSION } from './runner.ts';
@@ -10,6 +11,7 @@ export type CodexMethod = 'account/read' | 'account/rateLimits/read' | 'config/r
 const METHODS = new Set<string>(['account/read', 'account/rateLimits/read', 'config/read', 'thread/start', 'thread/read',
   'thread/compact/start', 'thread/unsubscribe', 'thread/inject_items', 'thread/backgroundTerminals/list', 'turn/start', 'turn/interrupt']);
 export type CodexClient = {
+  readonly version: string;
   request(method: CodexMethod, params: Record<string, unknown>, signal?: AbortSignal): Promise<unknown>;
   close(): Promise<void>;
 };
@@ -36,7 +38,8 @@ export async function connectCodexAppServer(options: CodexClientOptions, signal:
   const env: Env = { ...options.env, BOSUN_DEPTH: '1', BOSUN_CALLER: 'model' };
   const detected = await createCodexRunner({ env, command: options.command }).detect(env);
   if (!detected.installed) throw new BosunError('unavailable', 'Codex executable unavailable');
-  if (detected.version !== CODEX_VERSION) throw new BosunError('unverified', 'Codex version unverified');
+  const nativeVersion = detected.version;
+  if (!nativeVersion || !sameNativeMajor(nativeVersion, CODEX_VERSION)) throw new BosunError('unverified', 'Codex version unverified');
   if (signal.aborted) throw new BosunError('cancelled', 'Codex connection cancelled');
   const control = new AbortController(); const pending = new Map<number, Pending>();
   let input: ProcessInput | undefined; let closing = false; let closed = false; let terminated = false;
@@ -104,7 +107,7 @@ export async function connectCodexAppServer(options: CodexClientOptions, signal:
     if (!object(initialized) || initialized.codexHome !== expectedHome || typeof initialized.userAgent !== 'string' || !initialized.userAgent
       || typeof initialized.platformFamily !== 'string' || typeof initialized.platformOs !== 'string') throw failed();
     await input!.write('{"method":"initialized"}\n');
-    return { close,
+    return { close, version: nativeVersion,
       request(method, params, requestSignal) {
         if (!METHODS.has(method)) return Promise.reject(new BosunError('unsupported', 'Codex method unsupported'));
         return request(method, params, requestSignal);

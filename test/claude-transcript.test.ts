@@ -20,19 +20,19 @@ const model = 'claude-sonnet-fixture';
 const seedText = 'Public constraints: preserve the original job and wait for ownership transfer.';
 const unknown = (error: unknown) => error instanceof BosunError && error.code === 'unverified'
   && !/CANARY|password|\/projects\//.test(JSON.stringify(error));
-function fixture(sb: Sandbox) {
+function fixture(sb: Sandbox, nativeVersion = CLAUDE_VERSION) {
   const home = path.join(sb.home, 'assigned-claude'), cwd = path.join(sb.home, 'workspace');
   const project = path.join(home, 'projects', 'bosun-' + sessionId);
   fs.mkdirSync(home, { mode: 0o700 }); fs.mkdirSync(cwd, { mode: 0o755 });
   fs.mkdirSync(path.join(home, 'projects'), { mode: 0o700 }); fs.mkdirSync(project, { mode: 0o700 });
   const file = path.join(project, sessionId + '.jsonl');
   const user = (uuid = seedId, text = seedText, parentUuid: string | null = null) => ({
-    type: 'user', uuid, parentUuid, isSidechain: false, cwd, sessionId, version: CLAUDE_VERSION,
+    type: 'user', uuid, parentUuid, isSidechain: false, cwd, sessionId, version: nativeVersion,
     timestamp: '2026-10-11T12:00:00Z', userType: 'external', gitBranch: 'fixture',
     message: { role: 'user', content: text },
   });
   const assistant = (text = 'Public assistant answer', uuid = assistantId, parentUuid = userId) => ({
-    type: 'assistant', uuid, parentUuid, isSidechain: false, cwd, sessionId, version: CLAUDE_VERSION,
+    type: 'assistant', uuid, parentUuid, isSidechain: false, cwd, sessionId, version: nativeVersion,
     timestamp: '2026-10-11T12:01:00Z', requestId: 'req_fixture',
     message: { id: 'msg_fixture', type: 'message', role: 'assistant', model,
       content: [{ type: 'text', text }], stop_reason: 'end_turn', stop_sequence: null,
@@ -67,6 +67,33 @@ test('Claude assigned transcript is independently retained and content hashes do
   } finally { sb.cleanup(); }
 });
 
+test('Claude transcript admits the supported major and retains its actual version across captures', () => {
+  for (const nativeVersion of ['2.1.247', '2.2.0']) {
+    const sb = sandbox();
+    try {
+      const f = fixture(sb, nativeVersion), binding = f.bind();
+      readClaudeTranscriptSeed(binding, f.expected);
+      f.append([f.user(userId, f.input().users.get(userId)!.text, seedId), f.assistant()]);
+      const snapshot = readClaudeTranscript(binding);
+      assert.equal(snapshot.messages.length, 3);
+      assert.equal(snapshot.sha256, sha(fs.readFileSync(f.file)));
+      assert.equal(readClaudeTranscript(binding).sha256, snapshot.sha256);
+      f.append([{ ...f.user(crypto.randomUUID(), 'Another public input', assistantId), version: CLAUDE_VERSION }]);
+      assert.throws(() => readClaudeTranscript(binding), unknown);
+      assert.deepEqual(sb.calls(), []);
+    } finally { sb.cleanup(); }
+  }
+});
+
+test('Claude transcript rejects same-major version drift within the first observed history', () => {
+  const sb = sandbox();
+  try {
+    const f = fixture(sb, '2.2.0');
+    f.append([{ ...f.user(userId, 'Another public input', seedId), version: CLAUDE_VERSION }]);
+    assert.throws(() => readClaudeTranscript(f.bind()), unknown);
+  } finally { sb.cleanup(); }
+});
+
 test('Claude private/unclassified binding and seed requests reject before consulting path or text getters', () => {
   const sb = sandbox();
   try {
@@ -85,7 +112,8 @@ test('Claude private/unclassified binding and seed requests reject before consul
 
 test('Claude root readback rejects foreign identities, ancestry, synthetic histories and seed changes finitely', () => {
   for (const change of [
-    { sessionId: crypto.randomUUID() }, { cwd: '/FOREIGN_CANARY' }, { version: '2.1.293' },
+    { sessionId: crypto.randomUUID() }, { cwd: '/FOREIGN_CANARY' },
+    ...['1.9.0', '3.0.0', '02.1.292', '2.01.292', '2.1', '2.1.292-preview', null].map(version => ({ version })),
     { parentUuid: userId }, { isSidechain: true }, { isMeta: true }, { isCompactSummary: true },
     { isApiErrorMessage: true }, { userType: 'internal' }, { agentId: 'AGENT_CANARY' },
     { forkedFromSessionId: sessionId }, { timestamp: 'invalid' }, { privacy: 'private' },

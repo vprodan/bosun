@@ -2,6 +2,7 @@ import path from 'node:path';
 import { constants } from 'node:os';
 import { BosunError } from '../../../core/errors.ts';
 import type { Env } from '../../../core/domain/inference.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
 import { screenPublicText } from '../../../core/secret-screen.ts';
 import { streamProcess, type ProcessInput } from '../../../platform/process.ts';
@@ -63,7 +64,7 @@ export async function connectClaudeStream(options: ClaudeStreamOptions, signal: 
   diagnostic({ phase: 'version-detection' });
   const detected = await createClaudeRunner({ env, command: options.command }).detect(env);
   if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
-  if (detected.version !== CLAUDE_VERSION) throw new BosunError('unverified', 'Claude version unverified');
+  if (!sameNativeMajor(detected.version, CLAUDE_VERSION)) throw new BosunError('unverified', 'Claude version unverified');
   diagnostic({ phase: 'version-verified' });
   if (signal.aborted) throw new BosunError('cancelled', 'Claude connection cancelled');
   const lifetime = new AbortController(), pending = new Map<string, Pending>();

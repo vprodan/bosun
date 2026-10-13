@@ -14,7 +14,7 @@ const MODEL = 'claude-sonnet-4-7';
 const signal = () => new AbortController().signal;
 const unknown = (error: unknown) => error instanceof BosunError && error.details?.outcome === 'unknown'
   && !/CANARY|password|account/.test(JSON.stringify(error));
-function fixture(mode = 'normal') {
+function fixture(mode = 'normal', nativeVersion = CLAUDE_VERSION) {
   const sb = sandbox();
   const command = path.join(sb.root, 'stubs', 'claude');
   fs.writeFileSync(command, `#!/usr/bin/env node
@@ -22,7 +22,7 @@ const fs=require('node:fs'),rl=require('node:readline').createInterface({input:p
 const record=row=>fs.appendFileSync(process.env.STUB_OUT,JSON.stringify(row)+'\\n');
 const send=row=>process.stdout.write(JSON.stringify(row)+'\\n');
 record({argv:process.argv.slice(2),pid:process.pid,suppressed:Object.hasOwn(process.env,'CLAUDE_CODE_SKIP_PROMPT_HISTORY')});
-if(process.argv.includes('--version')){process.stdout.write('${CLAUDE_VERSION} (Claude Code)\\n');process.exit(0);}
+if(process.argv.includes('--version')){process.stdout.write(process.env.STUB_VERSION+' (Claude Code)\\n');process.exit(0);}
 const mode=process.env.STUB_MODE;
 process.on('SIGTERM',()=>{setTimeout(()=>process.exit(0),60)});
 rl.on('line',line=>{
@@ -57,7 +57,7 @@ rl.on('line',line=>{
 });
 `, { mode: 0o700 });
   let closed = false;
-  const options: ClaudeStreamOptions = { command, env: sb.env({ STUB_MODE: mode }), cwd: sb.home,
+  const options: ClaudeStreamOptions = { command, env: sb.env({ STUB_MODE: mode, STUB_VERSION: nativeVersion }), cwd: sb.home,
     sessionId: SESSION, model: MODEL, effort: 'high', requestTimeoutMs: 500, killGraceMs: 150,
     closed() { closed = true; } };
   return { sb, options, get closed() { return closed; },
@@ -149,6 +149,31 @@ test('selection validation and unsupported native version precede stream startup
     await assert.rejects(connectClaudeStream(f.options, signal()), error => error instanceof BosunError && error.code === 'unverified');
     assert.equal(f.closed, false);
   } finally { f.sb.cleanup(); }
+});
+
+test('Claude stream accepts supported-major releases without widening replay or read capabilities', async () => {
+  for (const nativeVersion of ['2.1.247', '2.2.0']) {
+    const f = fixture('normal', nativeVersion);
+    const client = await connectClaudeStream(f.options, signal());
+    try {
+      await client.append({ privacy: 'public', text: 'Exact public native input', uuid: USER });
+      assert.deepEqual(await client.read('get_settings'), { ok: true });
+      await assert.rejects(client.read('set_model' as ClaudeReadMethod), error => error instanceof BosunError && error.code === 'unsupported');
+      assert.equal(f.calls().filter(call => call.row?.type === 'user').length, 1);
+      assert.equal(f.calls().filter(call => call.row?.request?.subtype === 'set_model').length, 0);
+    } finally { await client.close(); f.sb.cleanup(); }
+  }
+});
+
+test('Claude incompatible majors and malformed releases cannot start the stream', async () => {
+  for (const nativeVersion of ['1.9.0', '3.0.0', '02.1.292', '2.01.292', '2.1', '2.1.292-preview', '2.1.292\nextra']) {
+    const f = fixture('normal', nativeVersion);
+    try {
+      await assert.rejects(connectClaudeStream(f.options, signal()), error => error instanceof BosunError && error.code === 'unverified');
+      assert.deepEqual(f.calls().map(call => call.argv), [['--version']]);
+      assert.equal(f.closed, false);
+    } finally { f.sb.cleanup(); }
+  }
 });
 
 test('native text-block replay and versioned session-state notifications stay exact without becoming readiness claims', async () => {

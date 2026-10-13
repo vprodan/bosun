@@ -38,7 +38,7 @@ export function captureOpenCodeEvidence(
   rows: readonly Record<string, any>[],
   afterCursor: string | null,
   hash: (text: string) => string,
-  binding: { cwd: string; association: string; seed?: { key: string; text: string; hash: string } },
+  binding: { cwd: string; association: string; serverVersion: string; seed?: { key: string; text: string; hash: string } },
 ): SessionEvidenceWindow {
   if (rows.length > OPENCODE_EVIDENCE_LIMITS.messages) throw invalid();
   const digest = (text: string) => {
@@ -47,7 +47,7 @@ export function captureOpenCodeEvidence(
     return result;
   };
   const sourceBindingHash = digest(
-    JSON.stringify({ session, cwd: binding.cwd, association: binding.association,
+    JSON.stringify({ session, cwd: binding.cwd, association: binding.association, serverVersion: binding.serverVersion,
       seed: binding.seed ? { key: binding.seed.key, hash: binding.seed.hash } : undefined }),
   );
   let chain = sourceBindingHash;

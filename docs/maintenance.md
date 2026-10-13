@@ -2,6 +2,17 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Native major compatibility and CI correction (2026-10-14)
+
+Native agent admission accepts stable OMP18.x, OpenCode2.x, Claude2.x and Codex0.x releases. Baseline constants remain tested provenance, not runtime identity. Clients, captures and receipts retain actual observed versions and reject identity drift after binding; prepared profiles require their exact reviewed version. Malformed/prerelease/cross-major versions are denied. Codex0.x minor releases can break protocols; schemas and unverified-control gates remain fail-closed. Bun/SQLite/toolchain pins are unchanged.
+
+GitHub run38478197132 failed on three trailing blank EOF lines. Removed those lines; the existing whitespace check and reported push range pass locally. Hosted CI execution is observed; the gated native runner remains unexercised remotely.
+
+Typecheck and35/35 containment passed. Across16 affected files,302 tests initially passed and an obsolete minor-version denial failed; corrected host-installation then passed22/22. All303 distinct affected cases pass. Actual disposable CLI smoke generated18.11.0/2.8.0/0.200.0/2.2.0 profiles retaining exact versions with no native calls. No new full-suite claim.
+
+Current artifact: `dist/bosun-1.0.0-darwin-arm64-host-major/`. Binary SHA256 `0da12f5b90070d2d288c078a161b9206e6837ceed2d5d33ab5292723a9adb2e0`; archive SHA256 `7b62e35a48326b0ae6990d797f36a31c28e7c570ccca6b6b31a9ad4eda4f734f`. Static source checks and actual compiled startup/MCP, storage/privacy, shutdown/reacquisition and10000-note/21-hook delivery passed with all producers joined; no live host/model or personal activation.
+
+
 ## Current scope and permissions
 
 - Package version is **1.0.0**; **OMP is primary for new configuration**, with OpenCode 2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.

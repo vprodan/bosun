@@ -2,6 +2,7 @@ import './bootstrap.ts';
 import http from 'node:http';
 import { once } from 'node:events';
 import { createOpenCodeRunner, type OpenCodeRunnerSettings } from '../src/adapters/hosts/opencode/runner.ts';
+import { OPENCODE2_VERSION } from '../src/core/domain/host-install.ts';
 
 export const CWD = '/synthetic/project', MODEL = 'qwen3:8b/tag:exact';
 export const deferred = () => {
@@ -42,7 +43,7 @@ export async function native(options: NativeOptions = {}) {
         else res.end(json);
       };
       if (route === '/api/info') {
-        const info = { version: options.version ?? '2.0.27', pid: 4242,
+        const info = { version: options.version ?? OPENCODE2_VERSION, pid: 4242,
           urls: ['http://127.0.0.1:4096'], paths: { tmp: '/fixture/tmp' } };
         options.modifyInfo?.(info, ++infoReads);
         return reply(options.healthStatus ? { error: req.headers.authorization } : info, false, options.healthStatus ?? 200);

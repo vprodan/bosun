@@ -3,6 +3,7 @@ import { BosunError } from '../../../core/errors.ts';
 import { requirePublicInput } from '../../../core/policy.ts';
 import { screenPublicText } from '../../../core/secret-screen.ts';
 import type { Detect, Env } from '../../../core/domain/inference.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 import type { AgentRunner, RunEvent, RunSpec } from '../../../core/ports/runner.ts';
 import { executable, streamProcess } from '../../../platform/process.ts';
 
@@ -118,7 +119,7 @@ export function createClaudeRunner(options: ClaudeRunnerOptions): AgentRunner {
       delete env.CLAUDE_CODE_MESSAGING_SOCKET;
       const detected = await detect(env);
       if (!detected.installed) throw new BosunError('unavailable', 'Claude executable unavailable');
-      if (detected.version !== CLAUDE_VERSION)
+      if (!sameNativeMajor(detected.version, CLAUDE_VERSION))
         throw new BosunError('unverified', 'Claude version unverified');
       const tools =
         spec.access === 'read'

@@ -11,7 +11,7 @@ import { requirePublicInput } from '../../../core/policy.ts';
 import { screenPublicText } from '../../../core/secret-screen.ts';
 import { privateDirectory, readPrivateFile } from '../../../platform/private-file.ts';
 import { connectOmpRpc } from './client.ts';
-import { identifier, integer, object, own, ompFailure, selection, sameTools, OMP_VERSION, OMP_SOURCE_COMMIT, OMP_LIMITS } from './protocol.ts';
+import { identifier, integer, object, own, ompFailure, selection, sameTools, OMP_SOURCE_COMMIT, OMP_LIMITS } from './protocol.ts';
 import { OMP_BRIDGE_COMMAND, OMP_BRIDGE_ENTRY, OMP_SEED_ENTRY, OMP_SYSTEM_POLICY, renderOmpManagedBridge } from './managed-bridge.ts';
 import { admittedOmpEntries, captureOmpEvidence, decodeOmpHistory, ompMessageText } from './evidence.ts';
 
@@ -101,7 +101,7 @@ export function createOmpControl(settings: OmpClientSettings, gates: OmpControlG
       || value.isSettled !== true) throw ompFailure('unavailable', true);
   }
   function binding(row: Owned, value: unknown, fenced: boolean, armed = false): Record<string, unknown> {
-    if (!object(value) || value.privacy !== 'public' || value.version !== OMP_VERSION || value.sourceCommit !== OMP_SOURCE_COMMIT
+    if (!object(value) || value.privacy !== 'public' || value.version !== row.client.version || value.sourceCommit !== OMP_SOURCE_COMMIT
       || value.sessionId !== row.session.sessionId || value.sessionFile !== row.nativeFile || value.cwd !== row.cwd
       || value.sessionDir !== row.sessionDir || value.root !== true || value.model !== row.selected.model
       || value.effort !== row.selected.effort || value.access !== row.selected.access || value.fenced !== fenced
@@ -355,7 +355,7 @@ export function createOmpControl(settings: OmpClientSettings, gates: OmpControlG
       if (row.phase !== 'ready' || row.locked) throw ompFailure('invalid');
       const current = await snapshot(row, abort); idle(current.state);
       const sourceBinding = digest(JSON.stringify({ session, cwd: row.cwd, dev: row.cwdDev, ino: row.cwdIno,
-        nativeFile: row.nativeFile, version: OMP_VERSION, sourceCommit: OMP_SOURCE_COMMIT,
+        nativeFile: row.nativeFile, version: row.client.version, sourceCommit: OMP_SOURCE_COMMIT,
         tools: row.selected.tools, basePromptHash: row.basePromptHash, inferencePromptHash: digest(OMP_SYSTEM_POLICY) }));
       return captureOmpEvidence(session, current.history, { seedHash: row.seedHash, turns: row.turns,
         controls: row.controls, binding: sourceBinding }, input.afterCursor);

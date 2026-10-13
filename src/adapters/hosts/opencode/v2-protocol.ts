@@ -9,6 +9,7 @@ import type { InputPrivacy } from '../../../core/domain/inference.ts';
 import type { ContextSample } from '../../../core/domain/session.ts';
 import type { ManagedCapability } from '../../../core/ports/host.ts';
 import { OPENCODE2_VERSION } from '../../../core/domain/host-install.ts';
+import { sameNativeMajor } from '../../../core/domain/host-version.ts';
 
 export const OPENCODE2_SOURCE = 'bcf23b6775c79a429b1511b255d6d88ab0248d4a';
 export const OPENCODE2_MANAGED_CAPS: Readonly<Record<Exclude<ManagedCapability, 'isolatedBootstrapTurn'>, 'unverified'>> =
@@ -66,12 +67,12 @@ function data(value: unknown): unknown {
 export function decodeServerInfo(value: unknown) {
   const info = object(value);
   if (!info || typeof info.version !== 'string') return invalid();
-  if (info.version !== OPENCODE2_VERSION)
-    throw new BosunError('unsupported', 'OpenCode 2 protocol version is not pinned');
+  if (!sameNativeMajor(info.version, OPENCODE2_VERSION))
+    throw new BosunError('unsupported', 'OpenCode 2 protocol major version unsupported');
   if (!integer(info.pid) || info.pid < 1 || !Array.isArray(info.urls) || info.urls.length > 32 ||
     !info.urls.every((url) => text(url, 2048)) || !text(object(info.paths)?.tmp, 4096)) return invalid();
   // URLs/paths/capabilities are neither discovery instructions nor qualified controls.
-  return { hostId: 'opencode' as const, version: OPENCODE2_VERSION, pid: info.pid };
+  return { hostId: 'opencode' as const, version: info.version, pid: info.pid };
 }
 export function decodeSession(value: unknown, context: PublicContext): SessionMetadata {
   requirePublicInput(context);

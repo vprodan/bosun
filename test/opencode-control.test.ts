@@ -19,7 +19,7 @@ import { summarizeEvidence } from '../src/core/use-cases/summarize-evidence.ts';
 import { nativeOpenCodeFixture, fixture } from './opencode-native-fixture.ts';
 
 const CWD = '/fixture/project';
-const EVIDENCE_BINDING = { cwd: CWD, association: 'owned_fixture_1' };
+const EVIDENCE_BINDING = { cwd: CWD, association: 'owned_fixture_1', serverVersion: fixture.server.version };
 const MODEL = 'openai/gpt-6.1-sol';
 const SEED = 'Public synthetic bootstrap instructions';
 const hash = (text: string) => crypto.createHash('sha256').update(text).digest('hex');
@@ -102,6 +102,31 @@ function stagedAuthority(n: Awaited<ReturnType<typeof native>>) {
     },
   };
 }
+
+test('OpenCode 2 same-major managed sessions retain actual version through repeated captures without qualifying controls', async () => {
+  for (const version of ['2.0.0', '2.0.28', '2.17.4']) {
+    const n = await native({ version });
+    try {
+      const { driver, session } = await boot(n);
+      assert.ok(Object.values(driver.caps).every(value => value === 'unverified'));
+      await driver.run(session, { privacy: 'public', turnId: 'version_turn', text: 'Inspect approved public fixture.' }, signal());
+      const first = await driver.capture(session, { privacy: 'public', afterCursor: null }, signal());
+      const repeated = await driver.capture(session, { privacy: 'public', afterCursor: null }, signal());
+      assert.equal(first.sourceBindingHash, repeated.sourceBindingHash);
+      assert.equal(first.snapshotHash, repeated.snapshotHash);
+      const root = n.sessions.get(session.sessionId)!;
+      assert.equal(first.sourceBindingHash, hash(JSON.stringify({
+        session, cwd: CWD, association: root.value.metadata.bosun.association, serverVersion: version,
+        seed: { key: root.entries[0].key, hash: hash(SEED) },
+      })));
+      const before = n.requests.length;
+      n.options.version = '2.18.0';
+      await assert.rejects(driver.capture(session, { privacy: 'public', afterCursor: null }, signal()), safe('unverified'));
+      assert.deepEqual(n.requests.slice(before).map(request => [request.method, request.path]), [['GET', '/api/info']]);
+      assert.equal(n.requests.filter(request => request.path.endsWith('/prompt')).length, 1);
+    } finally { await n.close(); }
+  }
+});
 
 test('managed OpenCode constructor and denied create/seed/turn inputs touch no getters, ownership, auth or HTTP', async () => {
   let reads = 0;
@@ -1389,6 +1414,14 @@ test('bounded UTF8 windows never skip an event at a byte boundary or advance bey
       captureOpenCodeEvidence(session, rows, first.completedEventCursor, hash, {
         ...EVIDENCE_BINDING,
         association: 'foreign-native-instance',
+      }),
+    (error) => error instanceof BosunError && error.code === 'conflict',
+  );
+  assert.throws(
+    () =>
+      captureOpenCodeEvidence(session, rows, first.completedEventCursor, hash, {
+        ...EVIDENCE_BINDING,
+        serverVersion: '2.1.0',
       }),
     (error) => error instanceof BosunError && error.code === 'conflict',
   );

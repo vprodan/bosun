@@ -561,4 +561,3 @@ test("shared source entry admits a private hook before configuration or malforme
     sb.cleanup();
   }
 });
-

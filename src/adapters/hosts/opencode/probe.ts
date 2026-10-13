@@ -25,7 +25,7 @@ export function createOpenCodeProbe(settings: OpenCodeProbeSettings) {
       const active = decodeActive(await get('/api/session/active'), params.sessionID, input);
       const repeated = decodeSession(await get(`/api/session/${params.sessionID}`), input);
       const server = decodeServerInfo(await get('/api/info'));
-      if (session.bindingHash !== repeated.bindingHash || health.pid !== server.pid)
+      if (session.bindingHash !== repeated.bindingHash || health.pid !== server.pid || health.version !== server.version)
         throw new BosunError('unverified', 'OpenCode 2 observation changed during probe');
       const observation = contextCandidate(session, page.messages, { now: (settings.now ?? Date.now)(), generation: params.generation,
         selection: params.selection, resetAfter: params.resetAfter, running: active.running });

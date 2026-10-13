@@ -12,7 +12,6 @@ import type {
 import type { ManagedSessionCreate, ManagedSessionDriver } from '../../../core/ports/host.ts';
 import type { RunEvent } from '../../../core/ports/runner.ts';
 import { connectCodexAppServer, type CodexClient, type CodexClientOptions } from './client.ts';
-import { CODEX_VERSION } from './runner.ts';
 import { bindRollout, readRolloutSeed, type RolloutBinding } from './rollout.ts';
 import { captureCodexEvidence } from './evidence.ts';
 
@@ -151,7 +150,7 @@ export function createCodexControl(
       value.ephemeral !== false ||
       value.historyMode !== 'legacy' ||
       value.cwd !== owned.cwd ||
-      value.cliVersion !== CODEX_VERSION ||
+      value.cliVersion !== owned.client.version ||
       value.model !== owned.session.model ||
       value.reasoningEffort !== owned.effort ||
       value.path !== owned.rollout.file ||
@@ -455,7 +454,7 @@ export function createCodexControl(
         model,
         access,
       };
-      const rollout = bindRollout({ file: response.thread.path, home, cwd, id: session.sessionId });
+      const rollout = bindRollout({ file: response.thread.path, home, cwd, id: session.sessionId, version: client.version });
       owned = {
         session,
         cwd,

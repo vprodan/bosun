@@ -1,4 +1,4 @@
-// OpenCode 2.0.27 native runner boundary. No SDK, spawn, discovery or auth mutation.
+// OpenCode 2 native runner boundary using the pinned schema. No SDK, spawn, discovery or auth mutation.
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { BosunError, type BosunErrorCode } from '../../../core/errors.ts';

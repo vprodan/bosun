@@ -55,6 +55,30 @@ test('native OpenCode 2 HTTP run binds an explicit root, model colons, cwd/varia
   } finally { await n.close(); }
 });
 
+test('OpenCode 2 same-major releases retain actual detection identity and complete the original native turn', async () => {
+  for (const version of ['2.0.0', '2.0.28', '2.17.4']) {
+    const n = await native({ version });
+    try {
+      const runner = n.runner(), detected = await runner.detect({});
+      assert.equal(detected.installed, true); assert.equal(detected.version, version);
+      assert.equal((await collect(runner.run(spec()))).at(-1)?.t, 'done');
+      assert.equal(n.requests.filter(r => r.path.endsWith('/prompt')).length, 1);
+    } finally { await n.close(); }
+  }
+});
+
+test('OpenCode 2 same-major server replacement after admission withholds success and never interrupts the replacement', async () => {
+  const n = await native({ version: '2.17.4',
+    modifyInfo(info: { version: string }, read) { if (read >= 4) info.version = '2.17.5'; } });
+  const events: RunEvent[] = [];
+  try {
+    await assert.rejects(async () => { for await (const event of n.runner().run(spec())) events.push(event); }, safe('unverified', true));
+    assert.deepEqual(events, []);
+    assert.equal(n.requests.filter(r => r.path.endsWith('/prompt')).length, 1);
+    assert.equal(n.requests.filter(r => r.path.includes('/interrupt')).length, 0);
+  } finally { await n.close(); }
+});
+
 test('edit access uses the native edit rule, default selection prevents inherited variants, supported API providers remain selectable', async () => {
   const n = await native({ provider: 'openai' });
   try {
@@ -103,7 +127,7 @@ test('completed native message remains buffered until idle; early consumer retur
 });
 
 test('unsupported version/provider/variant never creates a session or falls back; unsupported controls fail before HTTP', async () => {
-  const unavailable: NativeOptions[] = [{ version: '1.18.34' }, { version: '2.0.28' }, { provider: 'another' },
+  const unavailable: NativeOptions[] = [{ version: '1.18.34' }, { version: '3.0.0' }, { version: '2.1.0-preview' }, { provider: 'another' },
     { modelEnabled: false }, { variants: { low: {} } }, { variants: { default: {} } }];
   for (const options of unavailable) {
     const n = await native(options);
@@ -248,6 +272,7 @@ test('lost V2 root receipt never adopts an arbitrary root, sends input, deletes 
 test('V2 server identity, native catalog/variant overlay and owned session bindings repeat immediately before effects', async () => {
   for (const options of [
     { modifyInfo: (r: any, read: number) => { if (read >= 2) r.pid++; } },
+    { modifyInfo: (r: { version: string }, read: number) => { if (read >= 2) r.version = '2.17.4'; } },
     { modifyCatalog: (r: any, read: number) => { if (read >= 2) r.variants[0].settings = { changed: true }; } },
     { modifyCatalog: (r: any, read: number) => { if (read >= 2) r.modelID = 'different-backend'; } },
     { modifyReadback: (r: any, read: number) => { if (read >= 3) r.projectID = 'foreign'; } },
