@@ -1,0 +1,68 @@
+name: Prepare and qualify pinned Bun
+description: Install immutable Bun and dependencies on an ephemeral arm64 runner, then qualify fresh native output and run all guarded checks.
+outputs:
+  bun:
+    description: Absolute SHA-verified Bun compiler path
+    value: ${{ steps.bun.outputs.path }}
+  native-qualification:
+    description: Checkout-local qualification receipt from this fresh native build
+    value: .omp/tooling/sqlite-native-13.0.3/qualification.json
+runs:
+  using: composite
+  steps:
+    - name: Install SHA-verified Bun in the ephemeral runner directory
+      id: bun
+      shell: bash
+      run: |
+        set -euo pipefail
+        [[ $(uname -s) == Darwin && $(uname -m) == arm64 ]]
+        [[ -x /usr/bin/sandbox-exec ]]
+        root=$(mktemp -d "$RUNNER_TEMP/bosun-bun.XXXXXX")
+        archive="$root/bun.zip"
+        curl --fail --location --proto '=https' --tlsv1.2 --connect-timeout 30 --max-time 180 \
+          --output "$archive" 'https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-darwin-aarch64.zip'
+        printf '%s  %s\n' '80afd4c069b46a6fa8f3ec520bebc750a7843e4a8d5b9583d29ad436c00a3403' "$archive" | shasum -a 256 -c -
+        unzip -q "$archive" -d "$root"
+        bun="$root/bun-darwin-aarch64/bun"
+        [[ -x "$bun" && $("$bun" --version) == 1.4.3 ]]
+        printf 'path=%s\n' "$bun" >> "$GITHUB_OUTPUT"
+        printf '%s\n' "$(dirname "$bun")" >> "$GITHUB_PATH"
+    - name: Install frozen dependency inputs without lifecycle scripts
+      shell: bash
+      env:
+        QUALIFIED_BUN: ${{ steps.bun.outputs.path }}
+      run: |
+        set -euo pipefail
+        [[ ! -e node_modules && ! -e .omp/tooling/sqlite-native-13.0.3 ]]
+        root=$(mktemp -d "$RUNNER_TEMP/bosun-install.XXXXXX")
+        mkdir -m 700 "$root/home" "$root/cache"
+        env -i HOME="$root/home" TMPDIR=/private/tmp TMP=/private/tmp TEMP=/private/tmp \
+          XDG_CONFIG_HOME="$root/home/.config" XDG_DATA_HOME="$root/home/.local/share" \
+          XDG_STATE_HOME="$root/home/.local/state" XDG_CACHE_HOME="$root/cache" \
+          BUN_INSTALL_CACHE_DIR="$root/cache" BUN_RUNTIME_TRANSPILER_CACHE_PATH="$root/cache/transpiler" \
+          DO_NOT_TRACK=1 PATH="$(dirname "$QUALIFIED_BUN"):/usr/bin:/bin" LANG=C LC_ALL=C TZ=UTC \
+          "$QUALIFIED_BUN" --no-env-file install --frozen-lockfile --ignore-scripts
+    - name: Acquire immutable native archives
+      shell: bash
+      run: sh scripts/bun-check.sh sqlite-native-acquire
+    - name: Prepare the exact maintained native fork
+      shell: bash
+      run: sh scripts/bun-check.sh sqlite-native-prepare
+    - name: Build fresh native output with hosted toolchain provenance
+      shell: bash
+      run: sh scripts/bun-check.sh sqlite-native-build --hosted
+    - name: Qualify fresh native bytes and SQLite behavior
+      shell: bash
+      run: sh scripts/bun-check.sh sqlite-native-qualify
+    - name: Prove wrapper containment
+      shell: bash
+      run: sh scripts/bun-check.sh containment
+    - name: Typecheck with qualified tooling
+      shell: bash
+      run: sh scripts/bun-check.sh typecheck
+    - name: Check architecture boundaries
+      shell: bash
+      run: sh scripts/bun-check.sh boundaries
+    - name: Run all guarded source tests
+      shell: bash
+      run: sh scripts/bun-check.sh tests --runtime bun --suite all

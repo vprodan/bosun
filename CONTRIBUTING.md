@@ -147,57 +147,51 @@ historical, not archive-relative. Recover retired plans/specs/diagnostics from t
 Never delete evidence or owner changes merely to make the tree look clean, and
 never reapply the retained stash over newer edits.
 
-## GitHub CI
+## GitHub CI/CD
 
-[CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml) runs hosted
-**changed active-source whitespace hygiene** on pushes and pull requests. It checks
-the event's diff, not all historical files, and excludes archived research/evidence.
-It installs no application dependencies and runs no application code. A green
-workflow badge alone does **not** mean Bun/native or compiled qualification passed.
+[CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml) checks changed-source
+whitespace and runs the complete guarded suite on fresh GitHub-hosted `macos-15`
+arm64 machines. The user approved ephemeral CI dependency preparation and native
+qualification; no self-hosted runner, personal workstation service, secret or
+input-bundle variable is required. Private repositories consume Actions minutes.
 
-The `qualified-checks` job is opt-in through **Run workflow** with
-`qualified_checks=true`. Only the repository owner's original dispatch/rerun on the
-**protected default branch** can select the self-hosted runner; pull requests never
-do. Before enabling this job, the owner must:
+The shared preparation action downloads Bun1.4.3 with an exact archive SHA256,
+installs the frozen `bun.lock` with lifecycle scripts disabled, acquires only
+integrity-pinned native inputs, applies the reviewed SQLite patch, and compiles it
+using the hosted toolchain. `sqlite-native-qualify` exercises the actual new binding
+under OS containment and records a source/output/provenance/toolchain-bound receipt.
+No unknown native bytes are admitted merely because they compiled. Existing local
+fixed-output qualification remains distinct from hosted-run qualification.
+Containment, strict typecheck, boundaries and all source tests must pass.
 
-- Configure the `qualified-native` GitHub environment with required reviewers,
-  prevent self-review, disallow administrator bypass where supported, and restrict
-  deployment to the protected default branch. Review the exact commit before
-  approving; environment approval is required infrastructure, not supplied by YAML.
-- Restrict a dedicated runner/runner group to this repository and trusted workflows,
-  with labels `self-hosted`, `macOS`, `ARM64`, `bosun-qualified`. Use a disposable CI
-  account/workspace with no personal runtime, auth, databases or live host services.
-  Untrusted PR jobs must never share this machine. Checkout cleans its disposable
-  workspace; serialize use of the provisioned runner and do not store owner files there.
-- Preprovision Bun **1.4.3**, macOS arm64, `/usr/bin/sandbox-exec`, existing Git and
-  the exact reviewed CLT toolchain. Set environment variables (GitHub **Variables**)
-  `BOSUN_CI_BUN` to the absolute approved Bun executable and `BOSUN_CI_INPUTS_ROOT`
-  to an owner-reviewed input bundle outside the checkout. The bundle contains
-  matching `package.json` and `bun.lock`, the already installed
-  locked `node_modules` (including TypeScript and the patched SQLite binding), and
-  `sqlite-native-13.0.3/{better-sqlite3.tgz,node-addon-api.tgz,node-api-headers.tgz}`.
-  Keep the provisioning master read-only to the CI account; the job copies inputs
-  into its disposable checkout and fails when dependency metadata differs.
-- Preserve the exact `bosun_sqlite.node`, its `bosun_sqlite.provenance.json`, patched
-  package sources, archive/patch digests and toolchain paths/hashes admitted by
-  [native input policy](scripts/sqlite-native-inputs.mts). The job checks existing
-  bytes/provenance and actual toolchain hashes before running the wrapper's
-  containment, typecheck, boundaries and **all** guarded source tests. A new machine
-  or locally rebuilt binary is not automatically qualified: mismatches require
-  separate owner review/requalification, never relaxed pins or an automatic rebuild.
+[CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml) runs on an owner's
+stable version-tag push. The tag must equal `v` plus `package.json`'s version,
+and its commit must belong to the default branch. It repeats fresh qualification,
+builds into an absent output directory, verifies source/artifact integrity and
+exercises compiled storage/privacy/shutdown/public-hook safety before packaging.
 
-Provisioning/acquisition/install/build of native inputs remains a separate explicit
-permission-gated owner operation. CI never installs Bun/packages, executes package
-lifecycle scripts, acquires native inputs, rebuilds SQLite, or calls live hosts/models.
-Checks use isolated startup homes and the existing mandatory containment wrapper.
-GitHub's pinned checkout action is runner infrastructure, not a Node application
-runtime fallback. This workflow is configuration, not a receipt that it has run.
+```sh
+git tag v1.0.0 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
+git push origin refs/tags/v1.0.0
+```
 
-For an explicitly approved local artifact check, also select `release_build=true`
-in the same manual dispatch. After source checks, CI runs wrapper `build`, `verify
---source .` and `release-check` in a fresh absent output directory under a unique
-temporary parent, then removes only that disposable parent. It does not overwrite
-retained releases, upload/publish/install an artifact, or start a personal runtime.
-Contained minimum safety does not qualify live controls/model quality or broader
-machines; distribution metadata remains `runtimeQualification: unverified`.
+Use a new matching version/tag for future releases; never move a published tag.
+The release bundle ZIP contains the original verified distribution, compiled
+safety receipt, project/dependency/runtime license notices and source/relink
+information. Checksums and `release.json` bind it to the tag, commit and binary.
+Download and unpack the bundle, extract its original tar.gz, then verify the
+included checksums before running the executable.
+
+Only a separate Ubuntu publication job has `contents: write`. It downloads the
+exact same-run artifact, executes a trusted default-branch stdlib-only verifier
+(not product/package code), creates a draft, uploads and reads back exact assets,
+verifies them again, then publishes. Any existing draft or published release for
+the tag holds publication; no clobber/force/replay is authorized after uncertainty.
+Actions are pinned to reviewed commits. Server-side immutable releases and branch/
+tag protection are recommended additional controls, not silently changed settings.
+
+No CI/CD job calls live native hosts/models or initializes a personal runtime.
+Full model/native-control/designated-machine qualification remains separate.
+Static `runtimeQualification: unverified` stays appropriate; raw native smoke,
+source checks and compiled minimum safety are distinct evidence scopes.
 

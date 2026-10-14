@@ -1,7 +1,8 @@
 // Build only the pinned, locally patched native SQLite binding. No package scripts run.
 import fs from 'node:fs';
 import path from 'node:path';
-import { assertRuntime, inputsRoot as nativeInputsRoot, inside, PATCH, sha256, loadInputs, verifyPackage } from './sqlite-native-inputs.mts';
+import { spawnSync } from 'node:child_process';
+import { assertRuntime, inputsRoot as nativeInputsRoot, inside, PATCH, NATIVE_QUALIFICATION_PATH, regularBytes, sha256, loadInputs, verifyPackage } from './sqlite-native-inputs.mts';
 import type { NativeBuildCommand, NativeBuildProvenance } from './sqlite-native-inputs.mts';
 
 interface NativeBuildProcess {
@@ -27,11 +28,16 @@ const inputsRoot = nativeInputsRoot(repo);
 const candidate = path.join(inputsRoot, 'candidate/better-sqlite3');
 const installed = path.join(repo, 'node_modules/better-sqlite3');
 let packageDir = installed;
+let hosted = false;
+let packageArgument = false;
 const args = process.argv.slice(2);
-if (args.length) {
-  if (args.length !== 2 || args[0] !== '--package-dir')
-    throw new Error('Usage: bun scripts/build-sqlite-native.mts [--package-dir <candidate or node_modules/better-sqlite3>]');
-  packageDir = path.resolve(repo, args[1]);
+for (let index = 0; index < args.length; index++) {
+  if (args[index] === '--hosted' && !hosted) hosted = true;
+  else if (args[index] === '--package-dir' && args[index + 1] && !packageArgument) {
+    packageArgument = true;
+    packageDir = path.resolve(repo, args[++index]);
+  }
+  else throw new Error('Usage: bun scripts/build-sqlite-native.mts [--hosted] [--package-dir <candidate or node_modules/better-sqlite3>]');
 }
 if (![candidate, installed].includes(packageDir)) throw new Error('Package directory is outside the two admitted build targets');
 const realRepo = fs.realpathSync(repo);
@@ -39,14 +45,49 @@ if (!fs.existsSync(packageDir)) throw new Error('Native package missing; explici
 const realPackage = fs.realpathSync(packageDir);
 if (!inside(realRepo, realPackage)) throw new Error('Package symlink escapes the checkout');
 const patchPath = path.join(repo, PATCH);
-const clang = '/Library/Developer/CommandLineTools/usr/bin/clang';
-const clangxx = '/Library/Developer/CommandLineTools/usr/bin/clang++';
-const linker = '/Library/Developer/CommandLineTools/usr/bin/ld';
-const sdk = fs.realpathSync('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk');
+let clang = '/Library/Developer/CommandLineTools/usr/bin/clang';
+let clangxx = '/Library/Developer/CommandLineTools/usr/bin/clang++';
+let linker = '/Library/Developer/CommandLineTools/usr/bin/ld';
+let sdk = hosted ? '' : fs.realpathSync('/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk');
+let hostedToolchain: NativeBuildProvenance['hostedToolchain'];
+if (hosted) {
+  const xcrun = '/usr/bin/xcrun';
+  const resolve = (arguments_: string[]): string => {
+    const result = spawnSync(xcrun, ['--sdk', 'macosx', ...arguments_], {
+      cwd: realRepo, env: { PATH: '/usr/bin:/bin', LANG: 'C', LC_ALL: 'C' },
+      encoding: 'utf8', timeout: 30_000, maxBuffer: 4096, shell: false,
+    });
+    const value = result.stdout?.trim();
+    if (result.error || result.status !== 0 || !value || !path.isAbsolute(value) || path.normalize(value) !== value || /[\x00-\x1f\x7f]/.test(value))
+      throw new Error(`Installed Xcode resolution failed: ${arguments_.join(' ')}`);
+    return value;
+  };
+  clang = resolve(['--find', 'clang']);
+  clangxx = resolve(['--find', 'clang++']);
+  linker = resolve(['--find', 'ld']);
+  sdk = fs.realpathSync(resolve(['--show-sdk-path']));
+  const toolchainRoot = path.dirname(path.dirname(path.dirname(clang)));
+  const developerDir = path.dirname(path.dirname(toolchainRoot));
+  if (!/^\/Applications\/Xcode[^/]*\.app\/Contents\/Developer$/.test(developerDir) ||
+      toolchainRoot !== path.join(developerDir, 'Toolchains/XcodeDefault.xctoolchain') ||
+      fs.realpathSync(toolchainRoot) !== toolchainRoot ||
+      ![clang, clangxx, linker].every(binary => path.dirname(binary) === path.join(toolchainRoot, 'usr/bin') && inside(toolchainRoot, fs.realpathSync(binary))) ||
+      !inside(path.join(developerDir, 'Platforms/MacOSX.platform/Developer/SDKs'), sdk))
+    throw new Error('Hosted native build requires one canonical installed Xcode toolchain and macOS SDK');
+  const sdkSettings = path.join(sdk, 'SDKSettings.json');
+  hostedToolchain = {
+    developerDir, toolchainRoot,
+    xcrun: { path: xcrun, realpath: fs.realpathSync(xcrun), sha256: sha256(regularBytes(fs.realpathSync(xcrun))) },
+    sdkSettings: { path: sdkSettings, realpath: sdkSettings, sha256: sha256(regularBytes(sdkSettings, 64 * 1024)) },
+  };
+}
 const sandbox = '/usr/bin/sandbox-exec';
 for (const binary of [clang, clangxx, linker, sandbox]) fs.accessSync(binary, fs.constants.X_OK);
 const { archives, patch, packageFiles, selected } = loadInputs(repo);
 verifyPackage(realPackage, selected);
+// A rebuild cannot inherit a receipt from any earlier output, even if it fails.
+if (packageDir === installed && fs.existsSync(path.join(repo, NATIVE_QUALIFICATION_PATH)))
+  fs.unlinkSync(path.join(repo, NATIVE_QUALIFICATION_PATH));
 const builds = path.join(inputsRoot, 'builds');
 fs.mkdirSync(builds, { recursive: true, mode: 0o700 });
 if (!inside(realRepo, fs.realpathSync(builds))) throw new Error('Build workspace escapes the checkout');
@@ -67,10 +108,13 @@ materialize(path.join(work, 'headers'), [...archives[2].files].filter(([name]) =
 const environment = {
   HOME: path.join(work, 'home'), TMPDIR: `${path.join(work, 'tmp')}/`,
   XDG_CACHE_HOME: path.join(work, 'cache'), CLANG_MODULE_CACHE_PATH: path.join(work, 'cache/modules'),
-  PATH: '/Library/Developer/CommandLineTools/usr/bin:/usr/bin:/bin', LANG: 'C', LC_ALL: 'C',
+  PATH: `${path.dirname(clang)}:/usr/bin:/bin`, LANG: 'C', LC_ALL: 'C',
   SDKROOT: sdk, MACOSX_DEPLOYMENT_TARGET: '11.0', ZERO_AR_DATE: '1',
 };
 const literal = (value: string): string => JSON.stringify(value);
+const toolchainReads = hostedToolchain
+  ? `(subpath ${literal(hostedToolchain.toolchainRoot)}) (subpath ${literal(sdk)})`
+  : '(subpath "/Library/Developer/CommandLineTools")';
 const profile = `(version 1)
 (deny default)
 (allow process-fork)
@@ -80,8 +124,8 @@ const profile = `(version 1)
 ; dyld needs the literal root inode, not access to its descendant bytes.
 (allow file-read* (literal "/"))
 (allow file-read-metadata)
-(allow file-map-executable (subpath "/Library/Developer/CommandLineTools") (subpath "/usr/lib") (subpath "/System"))
-(allow file-read* (subpath ${literal(work)}) (subpath "/Library/Developer/CommandLineTools") (subpath "/usr/lib") (subpath "/System") (subpath "/dev") (literal "/usr") (literal "/Library") (literal "/Library/Developer") (literal "/etc/localtime") (literal "/private/etc/localtime"))
+(allow file-map-executable ${toolchainReads} (subpath "/usr/lib") (subpath "/System"))
+(allow file-read* (subpath ${literal(work)}) ${toolchainReads} (subpath "/usr/lib") (subpath "/System") (subpath "/dev") (literal "/usr") (literal "/Library") (literal "/Library/Developer") (literal "/etc/localtime") (literal "/private/etc/localtime"))
 (allow file-write* (subpath ${literal(work)}) (literal "/dev/null"))
 (deny network*)
 `;
@@ -106,6 +150,7 @@ const provenance: NativeBuildProvenance = {
   inputFiles: selected.map(([name, bytes]) => ({ name, sha256: sha256(bytes) })),
   toolchain: [clang, clangxx, linker].map((binary) => ({ path: binary, realpath: fs.realpathSync(binary), sha256: sha256(fs.readFileSync(binary)) })),
   sdk, sandboxProfileSha256: sha256(profile), environment, commands, qualification: 'not-run',
+  ...(hostedToolchain ? { buildMode: 'hosted' as const, hostedToolchain } : {}),
 };
 try {
   await run(clang, ['--version'], 'clang-version');

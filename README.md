@@ -7,9 +7,10 @@
 **Scoped memory, bounded coding jobs and reviewed handoffs for your native AI tools.**
 
 [![CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/ci.yml)
+[![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Local release 1.0.0](https://img.shields.io/badge/Local_release-1.0.0-555555.svg)](docs/maintenance.md#latest-maintained-artifact)
+[![Release 1.0.0](https://img.shields.io/badge/Release-1.0.0-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -57,22 +58,33 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 [runner architecture](ARCHITECTURE.md#durable-jobs-and-native-execution) and
 [native protocol provenance](test/fixtures/native-protocol-provenance.md).
 
-## Start with the local artifact
+## Releases
 
-**Version 1.0.0 is a local macOS arm64 release, not a published download or package
-installation.** The latest maintained artifact is
-`dist/bosun-1.0.0-darwin-arm64-host-major/` in the prepared checkout. Its standalone
-executable needs no external Node runtime or `node_modules`.
+[GitHub Releases](https://github.com/vprodan/bosun/releases) are produced by
+version-tag CI/CD after fresh native qualification, all guarded tests and actual
+compiled safety checks pass. The supported binary target is **macOS arm64**.
+No other platform or live-model qualification is implied.
+
+Each release has a licensed ZIP bundle, `release.json`, checksums and notes.
+The bundle retains the original compiled distribution, safety receipt, project/
+dependency/runtime licenses and source/relink information. The repository is
+private; downloading its releases requires appropriate GitHub access.
 
 ```sh
-dist/bosun-1.0.0-darwin-arm64-host-major/bosun --version
-shasum -a 256 dist/bosun-1.0.0-darwin-arm64-host-major/bosun-1.0.0-darwin-arm64.tar.gz
+gh release download v1.0.0 --repo vprodan/bosun --dir bosun-release
+cd bosun-release
+shasum -a 256 -c SHA256SUMS
+unzip bosun-1.0.0-darwin-arm64.zip -d unpacked
+cd unpacked
+shasum -a 256 -c SHA256SUMS
+./bosun --version
 ```
 
-Use that artifact's `build.json`, `SHA256SUMS` and matching qualification receipt.
-The [maintenance guide](docs/maintenance.md#native-major-compatibility-and-ci-correction-2026-10-14) records its
-hashes and candidate-bound evidence. A later rebuild needs its own receipts;
-prior results do not qualify changed source or tooling.
+Keep license notices and provenance with redistributed copies. The executable
+needs no external Node runtime or `node_modules`; it is not notarized. Follow
+the release notes for the exact candidate's tested scope and limitations.
+Local candidates and their historical receipts are in
+[maintenance guidance](docs/maintenance.md), not substitutes for release assets.
 
 For an existing runtime, follow the
 [upgrade, installation and onboarding guide](docs/upgrade-and-install.md).
@@ -185,11 +197,13 @@ support or runtime qualification. See the
 [build and verification architecture](ARCHITECTURE.md#verification-and-remaining-work)
 and [native admission guidance](docs/maintenance.md#native-sqlite-library-admission-2026-10-13).
 
-The [GitHub CI workflow](https://github.com/vprodan/bosun/actions/workflows/ci.yml)
-automatically checks changed-path whitespace hygiene on hosted runners. Qualified
-Bun/native checks are owner-requested and require an approved environment. The
-badge reflects workflow status, not a manually asserted passing result or
-production qualification.
+The [CI workflow](https://github.com/vprodan/bosun/actions/workflows/ci.yml)
+automatically runs source hygiene and fresh hosted macOS arm64 qualification,
+typecheck, boundaries and all guarded tests. The
+[CD workflow](https://github.com/vprodan/bosun/actions/workflows/cd.yml) builds
+and publishes matching version tags only after full pipeline success, with
+publishing permissions confined to a separate asset-verification job.
+Badges report workflow state, not complete production/model qualification.
 
 ## Documentation
 

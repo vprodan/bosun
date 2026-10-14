@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import os from 'node:os';
 import { gunzipSync } from 'node:zlib';
 export interface NativeArchiveInput {
   readonly name: string;
@@ -38,6 +39,8 @@ export interface VerifiedNativeBuild {
   bytes: Buffer;
   provenanceBytes: Buffer;
   selected: NativeSelectedFiles;
+  licenseBytes: Buffer;
+  qualificationBytes?: Buffer;
 }
 export interface NativeBuildCommand {
   binary: string;
@@ -57,6 +60,8 @@ export interface NativeBuildProvenance {
   inputFiles: { name: string; sha256: string }[];
   toolchain: NativeToolchainInput[];
   sdk: string;
+  buildMode?: 'hosted';
+  hostedToolchain?: { developerDir: string; toolchainRoot: string; xcrun: NativeToolchainInput; sdkSettings: NativeToolchainInput };
   sandboxProfileSha256: string;
   environment: Record<string, string>;
   commands: NativeBuildCommand[];
@@ -84,6 +89,43 @@ export const INPUTS: readonly NativeArchiveInput[] = Object.freeze([
   { name: 'node-addon-api', filename: 'node-addon-api.tgz', url: 'https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.0.0.tgz', sha256: '49487860e4672b30f2bb5bfd5149ab51b5b98b44e321b2be9d4b77c2e7321b15', integrity: 'sha512-ipO7rsHEBqa9STO5C5T10fj732ml+5kLN1cAG8/jdHd56ldQeGj3Q7+scUS+VHK/qy1zLEwC4wMK5+yM0btPvw==', prefix: 'package/' },
   { name: 'node-api-headers', filename: 'node-api-headers.tgz', url: 'https://nodejs.org/dist/v22.16.0/node-v22.16.0-headers.tar.gz', sha256: 'a60e5a543fab5e5105525948c596d4974c617f39606cef76eb94c3bf1df9a06c', prefix: 'node-v22.16.0/' },
 ].map((input: NativeArchiveInput) => Object.freeze(input)));
+export const NATIVE_QUALIFICATION_PATH = '.omp/tooling/sqlite-native-13.0.3/qualification.json';
+export const NATIVE_OUTPUT_PATH = 'node_modules/better-sqlite3/build/Release/bosun_sqlite.node';
+export const NATIVE_PROVENANCE_PATH = 'node_modules/better-sqlite3/build/Release/bosun_sqlite.provenance.json';
+export const NATIVE_QUALIFICATION_INPUTS = Object.freeze([
+  'scripts/qualify-sqlite-native.mts', 'scripts/sqlite-native-inputs.mts',
+  'scripts/build-sqlite-native.mts', 'scripts/check-sqlite-library.mts',
+  'scripts/test-runtime.cjs', 'scripts/test-env.cjs',
+]);
+export const NATIVE_LIBRARY_CHECKS = Object.freeze([
+  'retainedStatementClose', 'nativeWriterReacquired', 'unfinishedFtsRollback',
+  'authorizerDdlDenied', 'callbackErrorIdentity', 'asyncAuthorizerDenied',
+  'authorizerReentryDenied', 'authorizerIgnore', 'invalidAuthorizerRecovery',
+  'primitiveAuthorizerIdentity', 'authorizerReplacementReprepare', 'udf',
+  'exactIntegers', 'allIterateExactIntegers', 'unsafeUdfArgumentDenied',
+  'typedArrayBlobParity', 'literalFilename', 'literalBackupFilename',
+  'backupNulDenied', 'extensionDenied', 'doubleQuotedStringsDenied',
+  'onlineBackup', 'backupTransferCleanupErrorIdentity', 'partiallyRunningBackupClose',
+  'noDelayedBackupWrites', 'readonlyBackup', 'immutableUri',
+]);
+export interface NativeQualificationReceipt {
+  schema: 1;
+  coverage: 'native-library-smoke';
+  trust: 'trusted-workspace-not-hostile-same-user';
+  applicationAdmissionLifted: false;
+  root: string;
+  host: { platform: 'darwin'; architecture: 'arm64'; release: string; hostname: string };
+  runtime: { version: string; executable: NativeToolchainInput };
+  verifierInputs: { path: string; sha256: string }[];
+  output: { path: string; sha256: string; bytes: number };
+  provenance: { sha256: string; json: string };
+  probe: {
+    exitCode: 0; signal: null;
+    stdout: string; stdoutSha256: string;
+    stderr: string; stderrSha256: string;
+    sandboxProfile: string; sandboxProfileSha256: string;
+  };
+}
 export const sha256 = (data: Buffer | string): string => crypto.createHash('sha256').update(data).digest('hex');
 export function assertRuntime(): void {
   if (process.versions.bun !== RUNTIME || process.platform !== 'darwin' || process.arch !== 'arm64')
@@ -210,26 +252,218 @@ export function verifyPackage(packageDir: string, selected: NativeSelectedFiles)
     if (!regularBytes(path.join(packageDir, name)).equals(bytes)) throw new Error(`Native package is not the exact patched source: ${name}; run explicit sqlite-native-prepare on a fresh target`);
   }
 }
-export function verifyNativeBuild(repo: string): VerifiedNativeBuild {
-  if (!QUALIFIED_NATIVE_BUILD || !/^[0-9a-f]{64}$/.test(QUALIFIED_NATIVE_BUILD.sha256) ||
-      QUALIFIED_NATIVE_BUILD.patchSha256 !== PATCH_SHA256 || QUALIFIED_NATIVE_BUILD.runtime !== RUNTIME ||
-      !Array.isArray(QUALIFIED_NATIVE_BUILD.toolchain) || QUALIFIED_NATIVE_BUILD.toolchain.length !== 3)
-    throw new Error('Native SQLite fixed-output admission is pending; no distribution is admitted');
+const HASH = /^[0-9a-f]{64}$/;
+function exactObject(value: unknown, keys: readonly string[]): asserts value is Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      Object.keys(value).sort().join('\0') !== [...keys].sort().join('\0'))
+    throw new Error('Malformed native qualification evidence');
+}
+function canonicalAbsolute(value: unknown): value is string {
+  return typeof value === 'string' && value.length < 1024 && path.isAbsolute(value) &&
+    path.normalize(value) === value && !/[\x00-\x1f\x7f]/.test(value);
+}
+function toolInput(value: unknown): asserts value is NativeToolchainInput {
+  exactObject(value, ['path', 'realpath', 'sha256']);
+  if (!canonicalAbsolute(value.path) || !canonicalAbsolute(value.realpath) ||
+      typeof value.sha256 !== 'string' || !HASH.test(value.sha256))
+    throw new Error('Malformed native toolchain evidence');
+}
+export function qualificationVerifierInputs(repo: string): { path: string; sha256: string }[] {
+  return NATIVE_QUALIFICATION_INPUTS.map(name => ({ path: name, sha256: sha256(regularBytes(path.join(repo, name), 256 * 1024)) }));
+}
+export function nativeQualificationHost(): NativeQualificationReceipt['host'] {
+  return { platform: 'darwin', architecture: 'arm64', release: os.release(), hostname: os.hostname() };
+}
+export function nativeQualificationRuntime(): NativeQualificationReceipt['runtime'] {
+  const executable = fs.realpathSync(process.execPath);
+  return { version: RUNTIME, executable: { path: executable, realpath: executable, sha256: sha256(regularBytes(executable, 256 * 1024 * 1024)) } };
+}
+export function validateNativeLibraryReport(stdout: string): void {
+  if (Buffer.byteLength(stdout) > 32 * 1024) throw new Error('Oversized native library report');
+  const report: unknown = JSON.parse(stdout);
+  exactObject(report, ['runtime', 'package', 'sqlite', 'selected', ...NATIVE_LIBRARY_CHECKS, 'applicationAdmissionLifted']);
+  if (report.runtime !== RUNTIME || report.package !== 'better-sqlite3@13.0.3' ||
+      report.selected !== 'node_modules/better-sqlite3' || report.applicationAdmissionLifted !== false ||
+      typeof report.sqlite !== 'string' || !/^\d+\.\d+\.\d+$/.test(report.sqlite) ||
+      !NATIVE_LIBRARY_CHECKS.every(check => report[check] === true))
+    throw new Error('Native library qualification did not pass every required check');
+  const [major, minor, patch] = report.sqlite.split('.').map(Number);
+  if (major !== 3 || !(minor > 51 || minor === 51 && patch >= 3 || minor === 50 && patch >= 7 || minor === 44 && patch >= 6))
+    throw new Error('Native library report lacks the patched WAL engine');
+}
+export function parseNativeProvenance(json: string): NativeBuildProvenance {
+  if (Buffer.byteLength(json) > 512 * 1024) throw new Error('Oversized native provenance');
+  const value: unknown = JSON.parse(json);
+  const hosted = !!value && typeof value === 'object' && 'buildMode' in value;
+  exactObject(value, ['schema', 'package', 'runtime', 'platform', 'architecture', 'napi', 'cxx',
+    'packageDir', 'archives', 'patch', 'inputFiles', 'toolchain', 'sdk', 'sandboxProfileSha256',
+    'environment', 'commands', 'qualification', 'output', 'status',
+    ...(hosted ? ['buildMode', 'hostedToolchain'] : [])]);
+  const provenance = value as unknown as NativeBuildProvenance;
+  if (provenance.schema !== 1 || provenance.package !== 'better-sqlite3@13.0.3' ||
+      provenance.runtime !== `Bun ${RUNTIME}` || provenance.platform !== 'darwin' ||
+      provenance.architecture !== 'arm64' || provenance.napi !== 10 || provenance.cxx !== 'c++20' ||
+      provenance.status !== 'built-not-qualified' || provenance.qualification !== 'not-run' ||
+      !canonicalAbsolute(provenance.packageDir) || !canonicalAbsolute(provenance.sdk) ||
+      !HASH.test(provenance.sandboxProfileSha256) || !Array.isArray(provenance.toolchain) ||
+      provenance.toolchain.length !== 3 || !Array.isArray(provenance.inputFiles) ||
+      !provenance.inputFiles.length || provenance.inputFiles.length > 1024 ||
+      JSON.stringify(provenance.archives) !== JSON.stringify(INPUTS.map(({ name, sha256: archiveSha256 }) => ({ name, archiveSha256 }))))
+    throw new Error('Native binary/provenance differs from pinned build inputs; explicitly rebuild (no stock prebuild fallback)');
+  exactObject(provenance.patch, ['path', 'sha256']);
+  exactObject(provenance.output, ['path', 'sha256', 'bytes']);
+  if (provenance.patch.path !== PATCH || provenance.patch.sha256 !== PATCH_SHA256 ||
+      !(hosted ? [NATIVE_OUTPUT_PATH] : [NATIVE_OUTPUT_PATH, '.omp/tooling/sqlite-native-13.0.3/candidate/better-sqlite3/build/Release/bosun_sqlite.node']).includes(provenance.output.path) ||
+      !HASH.test(provenance.output.sha256) ||
+      !Number.isSafeInteger(provenance.output.bytes) || provenance.output.bytes < 32 || provenance.output.bytes > 32 * 1024 * 1024)
+    throw new Error('Native binary/provenance differs from pinned build inputs; explicitly rebuild (no stock prebuild fallback)');
+  const seen = new Set<string>();
+  for (const input of provenance.inputFiles) {
+    exactObject(input, ['name', 'sha256']);
+    if (typeof input.name !== 'string' || input.name.length >= 512 ||
+        input.name.split('/').some(part => !part || part === '.' || part === '..') ||
+        /[\\\x00-\x1f\x7f]/.test(input.name) || !HASH.test(input.sha256) || seen.has(input.name))
+      throw new Error('Malformed native source evidence');
+    seen.add(input.name);
+  }
+  provenance.toolchain.forEach(toolInput);
+  exactObject(provenance.environment, ['HOME', 'TMPDIR', 'XDG_CACHE_HOME', 'CLANG_MODULE_CACHE_PATH',
+    'PATH', 'LANG', 'LC_ALL', 'SDKROOT', 'MACOSX_DEPLOYMENT_TARGET', 'ZERO_AR_DATE']);
+  if (Object.values(provenance.environment).some(value => typeof value !== 'string' || value.length > 2048) ||
+      provenance.environment.SDKROOT !== provenance.sdk || provenance.environment.MACOSX_DEPLOYMENT_TARGET !== '11.0' ||
+      provenance.environment.ZERO_AR_DATE !== '1' || provenance.environment.LANG !== 'C' || provenance.environment.LC_ALL !== 'C' ||
+      !Array.isArray(provenance.commands) || provenance.commands.length !== 5)
+    throw new Error('Malformed native build command evidence');
+  for (const command of provenance.commands) {
+    exactObject(command, ['binary', 'arguments']);
+    if (!provenance.toolchain.slice(0, 2).some(tool => tool.path === command.binary) ||
+        !Array.isArray(command.arguments) || command.arguments.length > 512 ||
+        command.arguments.some(argument => typeof argument !== 'string' || argument.length > 2048))
+      throw new Error('Malformed native build command evidence');
+  }
+  if (hosted) {
+    if (provenance.buildMode !== 'hosted') throw new Error('Malformed hosted native provenance');
+    exactObject(provenance.hostedToolchain, ['developerDir', 'toolchainRoot', 'xcrun', 'sdkSettings']);
+    const { developerDir, toolchainRoot, xcrun, sdkSettings } = provenance.hostedToolchain;
+    toolInput(xcrun);
+    toolInput(sdkSettings);
+    if (!canonicalAbsolute(developerDir) || !/^\/Applications\/Xcode[^/]*\.app\/Contents\/Developer$/.test(developerDir) ||
+        toolchainRoot !== path.join(developerDir, 'Toolchains/XcodeDefault.xctoolchain') ||
+        xcrun.path !== '/usr/bin/xcrun' || xcrun.realpath !== '/usr/bin/xcrun' ||
+        sdkSettings.path !== path.join(provenance.sdk, 'SDKSettings.json') || sdkSettings.realpath !== sdkSettings.path ||
+        !inside(path.join(developerDir, 'Platforms/MacOSX.platform/Developer/SDKs'), provenance.sdk) ||
+        !provenance.toolchain.every((tool, index) => tool.path === path.join(toolchainRoot, 'usr/bin', ['clang', 'clang++', 'ld'][index]) && inside(toolchainRoot, tool.realpath)))
+      throw new Error('Hosted native evidence is outside canonical Xcode paths');
+  }
+  return provenance;
+}
+// Inspect exact sources and actual output without granting either admission path.
+// Only the explicit qualification command may turn an unqualified build into a receipt.
+export function inspectNativeBuild(repo: string): VerifiedNativeBuild {
   const packageDir = path.join(repo, 'node_modules/better-sqlite3');
-  const { selected } = loadInputs(repo);
+  const { selected, packageFiles } = loadInputs(repo);
   verifyPackage(packageDir, selected);
-  const release = path.join(packageDir, 'build/Release');
-  const bytes = regularBytes(path.join(release, 'bosun_sqlite.node'));
-  const provenanceBytes = regularBytes(path.join(release, 'bosun_sqlite.provenance.json'), 4 * 1024 * 1024);
-  const provenance: NativeBuildProvenance = JSON.parse(provenanceBytes.toString('utf8')) as NativeBuildProvenance;
-  if (sha256(bytes) !== QUALIFIED_NATIVE_BUILD.sha256 ||
-      JSON.stringify(provenance.toolchain) !== JSON.stringify(QUALIFIED_NATIVE_BUILD.toolchain))
-    throw new Error('Native output/toolchain is outside fixed-output admission; explicit requalification is required');
+  const licenseBytes = regularBytes(path.join(packageDir, 'LICENSE'), 1024 * 1024);
+  const pinnedLicense = packageFiles.get('LICENSE');
+  if (!pinnedLicense || !licenseBytes.equals(pinnedLicense))
+    throw new Error('Native license differs from the pinned archive');
+  const bytes = regularBytes(path.join(repo, NATIVE_OUTPUT_PATH));
+  const provenanceBytes = regularBytes(path.join(repo, NATIVE_PROVENANCE_PATH), 512 * 1024);
+  const provenance = parseNativeProvenance(provenanceBytes.toString('utf8'));
   if (bytes.length < 32 || bytes.readUInt32LE(0) !== 0xfeedfacf ||
       bytes.readUInt32LE(4) !== 0x0100000c || bytes.readUInt32LE(12) !== 8)
     throw new Error('Native SQLite binding must be one macOS arm64 Mach-O bundle');
-  if (provenance.schema !== 1 || provenance.package !== 'better-sqlite3@13.0.3' || provenance.runtime !== `Bun ${RUNTIME}` || provenance.platform !== 'darwin' || provenance.architecture !== 'arm64' || provenance.napi !== 10 || provenance.cxx !== 'c++20' || provenance.status !== 'built-not-qualified' || provenance.qualification !== 'not-run' || provenance.patch?.sha256 !== PATCH_SHA256 || provenance.patch?.path !== PATCH || provenance.output?.sha256 !== sha256(bytes) || provenance.output?.bytes !== bytes.length || JSON.stringify(provenance.archives) !== JSON.stringify(INPUTS.map(({ name, sha256: archiveSha256 }) => ({ name, archiveSha256 }))) || JSON.stringify(provenance.inputFiles) !== JSON.stringify(selected.map(([name, bytes]) => ({ name, sha256: sha256(bytes) }))))
+  if (provenance.output?.sha256 !== sha256(bytes) || provenance.output.bytes !== bytes.length ||
+      JSON.stringify(provenance.inputFiles) !== JSON.stringify(selected.map(([name, bytes]) => ({ name, sha256: sha256(bytes) }))))
     throw new Error('Native binary/provenance differs from pinned build inputs; explicitly rebuild (no stock prebuild fallback)');
-  // Build provenance is an inventory/integrity binding, not a claim of runtime qualification.
-  return { bytes, provenanceBytes, selected };
+  return { bytes, provenanceBytes, selected, licenseBytes };
+}
+export function validateNativeQualification(bytes: Buffer, workspace?: string): NativeQualificationReceipt {
+  if (bytes.length > 1024 * 1024) throw new Error('Oversized native qualification receipt');
+  const value: unknown = JSON.parse(bytes.toString('utf8'));
+  exactObject(value, ['schema', 'coverage', 'trust', 'applicationAdmissionLifted', 'root', 'host',
+    'runtime', 'verifierInputs', 'output', 'provenance', 'probe']);
+  const receipt = value as unknown as NativeQualificationReceipt;
+  exactObject(receipt.host, ['platform', 'architecture', 'release', 'hostname']);
+  exactObject(receipt.runtime, ['version', 'executable']);
+  exactObject(receipt.provenance, ['sha256', 'json']);
+  exactObject(receipt.output, ['path', 'sha256', 'bytes']);
+  exactObject(receipt.probe, ['exitCode', 'signal', 'stdout', 'stdoutSha256', 'stderr', 'stderrSha256', 'sandboxProfile', 'sandboxProfileSha256']);
+  toolInput(receipt.runtime.executable);
+  if (receipt.schema !== 1 || receipt.coverage !== 'native-library-smoke' ||
+      receipt.trust !== 'trusted-workspace-not-hostile-same-user' || receipt.applicationAdmissionLifted !== false ||
+      !canonicalAbsolute(receipt.root) || receipt.host.platform !== 'darwin' || receipt.host.architecture !== 'arm64' ||
+      typeof receipt.host.release !== 'string' || !receipt.host.release || receipt.host.release.length > 256 ||
+      typeof receipt.host.hostname !== 'string' || !receipt.host.hostname || receipt.host.hostname.length > 256 ||
+      receipt.runtime.version !== RUNTIME || receipt.runtime.executable.path !== receipt.runtime.executable.realpath ||
+      receipt.probe.exitCode !== 0 || receipt.probe.signal !== null ||
+      typeof receipt.probe.stdout !== 'string' || typeof receipt.probe.stderr !== 'string' ||
+      Buffer.byteLength(receipt.probe.stderr) > 32 * 1024 ||
+      typeof receipt.probe.sandboxProfile !== 'string' || Buffer.byteLength(receipt.probe.sandboxProfile) > 32 * 1024 ||
+      !receipt.probe.sandboxProfile.startsWith('(version 1)\n') ||
+      receipt.probe.stdoutSha256 !== sha256(receipt.probe.stdout) ||
+      receipt.probe.stderrSha256 !== sha256(receipt.probe.stderr) ||
+      receipt.probe.sandboxProfileSha256 !== sha256(receipt.probe.sandboxProfile) ||
+      typeof receipt.provenance.json !== 'string' || receipt.provenance.sha256 !== sha256(receipt.provenance.json))
+    throw new Error('Malformed or tampered native qualification receipt');
+  validateNativeLibraryReport(receipt.probe.stdout);
+  const provenance = parseNativeProvenance(receipt.provenance.json);
+  if (provenance.buildMode !== 'hosted' || provenance.packageDir !== path.join(receipt.root, 'node_modules/better-sqlite3') ||
+      JSON.stringify(receipt.output) !== JSON.stringify(provenance.output))
+    throw new Error('Native qualification receipt differs from hosted build provenance');
+  if (!Array.isArray(receipt.verifierInputs) || receipt.verifierInputs.length !== NATIVE_QUALIFICATION_INPUTS.length)
+    throw new Error('Stale native qualification verifier');
+  for (const input of receipt.verifierInputs) exactObject(input, ['path', 'sha256']);
+  const currentVerifierInputs = qualificationVerifierInputs(path.resolve(import.meta.dirname, '..'));
+  if (JSON.stringify(receipt.verifierInputs) !== JSON.stringify(currentVerifierInputs))
+    throw new Error('Stale native qualification verifier');
+  if (workspace) {
+    assertRuntime();
+    if (receipt.root !== fs.realpathSync(receipt.root) ||
+        JSON.stringify(receipt.host) !== JSON.stringify(nativeQualificationHost()) ||
+        JSON.stringify(receipt.runtime) !== JSON.stringify(nativeQualificationRuntime()) ||
+        JSON.stringify(receipt.verifierInputs) !== JSON.stringify(qualificationVerifierInputs(workspace)) ||
+        sha256(regularBytes(path.join(workspace, NATIVE_OUTPUT_PATH))) !== receipt.output.sha256 ||
+        sha256(regularBytes(path.join(workspace, NATIVE_PROVENANCE_PATH), 512 * 1024)) !== receipt.provenance.sha256)
+      throw new Error('Stale native qualification workspace/runtime/output');
+    // Exact-content build snapshots may reuse same-host evidence, but cannot
+    // rewrite its issuer root or outlive the issuer's actual source/output.
+    if (fs.realpathSync(workspace) !== receipt.root) {
+      const issuer = inspectNativeBuild(receipt.root);
+      verifyPackage(path.join(workspace, 'node_modules/better-sqlite3'), issuer.selected);
+      if (sha256(issuer.bytes) !== receipt.output.sha256 ||
+          sha256(issuer.provenanceBytes) !== receipt.provenance.sha256 ||
+          !regularBytes(path.join(receipt.root, NATIVE_QUALIFICATION_PATH), 1024 * 1024).equals(bytes) ||
+          sha256(regularBytes(path.join(workspace, PATCH))) !== PATCH_SHA256 ||
+          !INPUTS.every(input => sha256(regularBytes(path.join(inputsRoot(workspace), input.filename))) === input.sha256) ||
+          JSON.stringify(receipt.verifierInputs) !== JSON.stringify(qualificationVerifierInputs(receipt.root)))
+        throw new Error('Stale native qualification issuer workspace');
+    }
+    for (const tool of [...provenance.toolchain, provenance.hostedToolchain!.xcrun, provenance.hostedToolchain!.sdkSettings]) {
+      if (fs.realpathSync(tool.path) !== tool.realpath || sha256(regularBytes(tool.realpath)) !== tool.sha256)
+        throw new Error('Native qualification toolchain changed');
+    }
+    for (const directory of [provenance.sdk, provenance.hostedToolchain!.toolchainRoot])
+      if (!fs.lstatSync(directory).isDirectory() || fs.realpathSync(directory) !== directory)
+        throw new Error('Native qualification SDK/toolchain changed');
+  }
+  return receipt;
+}
+export function verifyNativeBuild(repo: string): VerifiedNativeBuild {
+  const native = inspectNativeBuild(repo);
+  const provenance = parseNativeProvenance(native.provenanceBytes.toString('utf8'));
+  const qualificationFile = path.join(repo, NATIVE_QUALIFICATION_PATH);
+  // An explicit receipt must be valid; malformed/stale evidence cannot fall back to local pins.
+  if (fs.lstatSync(qualificationFile, { throwIfNoEntry: false })) {
+    const qualificationBytes = regularBytes(qualificationFile, 1024 * 1024);
+    validateNativeQualification(qualificationBytes, repo);
+    return { ...native, qualificationBytes };
+  }
+  if (!QUALIFIED_NATIVE_BUILD || QUALIFIED_NATIVE_BUILD.patchSha256 !== PATCH_SHA256 ||
+      QUALIFIED_NATIVE_BUILD.runtime !== RUNTIME || provenance.buildMode ||
+      sha256(native.bytes) !== QUALIFIED_NATIVE_BUILD.sha256 ||
+      JSON.stringify(provenance.toolchain) !== JSON.stringify(QUALIFIED_NATIVE_BUILD.toolchain))
+    throw new Error('Native output/toolchain is outside fixed-output admission; explicit hosted requalification is required');
+  // Local fixed-output pins remain admission evidence, not full runtime qualification.
+  return native;
 }

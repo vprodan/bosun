@@ -1,0 +1,172 @@
+name: CD
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# Never cancel a run that may have created or published a release.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualified-build:
+    name: Qualify, build and package macOS arm64 release
+    if: >-
+      github.repository == 'vprodan/bosun' &&
+      github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
+    runs-on: macos-15
+    timeout-minutes: 120
+    outputs:
+      tag: ${{ steps.admission.outputs.tag }}
+      commit: ${{ steps.admission.outputs.commit }}
+      trusted-source: ${{ steps.admission.outputs.trusted-source }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - name: Check out release source without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          clean: true
+      - name: Admit owner-created version tag on the default branch
+        id: admission
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF" == "refs/tags/$RELEASE_TAG" ]]
+          [[ "$ACTOR" == "$OWNER" && "$TRIGGERING_ACTOR" == "$OWNER" ]]
+          [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          git check-ref-format "refs/heads/$DEFAULT_BRANCH"
+          commit=$(git rev-parse --verify 'HEAD^{commit}')
+          [[ "$commit" == "$GITHUB_SHA" && "$commit" =~ ^[0-9a-f]{40}$ ]]
+          [[ $(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}") == "$commit" ]]
+          trusted_source=$(git rev-parse --verify "refs/remotes/origin/$DEFAULT_BRANCH^{commit}")
+          git merge-base --is-ancestor "$commit" "$trusted_source"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          version = json.loads(Path('package.json').read_text())['version']
+          if os.environ['RELEASE_TAG'] != 'v' + version:
+              raise SystemExit('Version tag does not match package.json')
+          PY
+          printf 'tag=%s\ncommit=%s\ntrusted-source=%s\n' "$RELEASE_TAG" "$commit" "$trusted_source" >> "$GITHUB_OUTPUT"
+      - name: Prepare fresh qualified inputs and run all guarded checks
+        id: qualified
+        uses: ./.github/actions/prepare-qualified-bun
+      - name: Build, verify and qualify fresh compiled artifact
+        shell: bash
+        env:
+          QUALIFIED_BUN: ${{ steps.qualified.outputs.bun }}
+          RELEASE_TAG: ${{ steps.admission.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.admission.outputs.commit }}
+        run: |
+          set -euo pipefail
+          root=$(mktemp -d "$RUNNER_TEMP/bosun-release.XXXXXX")
+          artifact="$root/artifact"
+          package="$root/package"
+          qualification="$root/compiled-qualification.json"
+          sh scripts/bun-check.sh build --bun "$QUALIFIED_BUN" --out "$artifact"
+          sh scripts/bun-check.sh verify "$artifact" --source .
+          sh scripts/bun-check.sh release-check "$artifact" > "$qualification"
+          sh scripts/bun-check.sh release-package --artifact "$artifact" --out "$package" \
+            --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT" --qualification "$qualification"
+          python3 scripts/release-publish-verify.py --directory "$package" --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+          printf 'RELEASE_PACKAGE=%s\n' "$package" >> "$GITHUB_ENV"
+      - name: Retain only verified publication assets from this run
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-package
+          path: ${{ env.RELEASE_PACKAGE }}/*
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          overwrite: false
+
+  publish:
+    name: Verify assets and publish without replacement
+    needs: qualified-build
+    if: >-
+      github.repository == 'vprodan/bosun' && github.event_name == 'push' &&
+      github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: bosun-release-publication
+      cancel-in-progress: false
+    env:
+      RELEASE_TAG: ${{ needs.qualified-build.outputs.tag }}
+      RELEASE_COMMIT: ${{ needs.qualified-build.outputs.commit }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - name: Check out trusted default-branch verifier without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.qualified-build.outputs.trusted-source }}
+          fetch-depth: 0
+          persist-credentials: false
+          clean: true
+      - name: Download exact same-run artifact by immutable artifact ID
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          artifact-ids: ${{ needs.qualified-build.outputs.artifact-id }}
+          path: ${{ runner.temp }}/release-package
+          merge-multiple: true
+      - name: Recheck tag ancestry and verify publication bytes without executing package code
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          [[ "$RELEASE_COMMIT" =~ ^[0-9a-f]{40}$ && "$RELEASE_COMMIT" == "$GITHUB_SHA" ]]
+          git check-ref-format "refs/heads/$DEFAULT_BRANCH"
+          [[ $(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}") == "$RELEASE_COMMIT" ]]
+          git merge-base --is-ancestor "$RELEASE_COMMIT" "refs/remotes/origin/$DEFAULT_BRANCH"
+          python3 scripts/release-publish-verify.py --directory "$RUNNER_TEMP/release-package" \
+            --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+      - name: Create draft, upload, check downloaded bytes and publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          package="$RUNNER_TEMP/release-package"
+          archive="bosun-${RELEASE_TAG#v}-darwin-arm64.zip"
+          state=$(mktemp "$RUNNER_TEMP/bosun-release-state.XXXXXX")
+          status=$(curl --silent --show-error --proto '=https' --tlsv1.2 --max-time 60 \
+            --output "$state" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $GH_TOKEN" --header 'Accept: application/vnd.github+json' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG")
+          if [[ "$status" != 404 ]]; then
+            echo "Refusing publication: release lookup returned HTTP $status (existing release or uncertain outcome)." >&2
+            exit 1
+          fi
+          # Any failure after draft creation leaves the draft for human review; no replay or cleanup overwrite.
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --target "$RELEASE_COMMIT" --title "$RELEASE_TAG" --notes-file "$package/RELEASE_NOTES.md" --draft
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            "$package/$archive" "$package/release.json" "$package/SHA256SUMS" "$package/RELEASE_NOTES.md"
+          downloaded=$(mktemp -d "$RUNNER_TEMP/bosun-release-download.XXXXXX")
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$downloaded"
+          for file in "$archive" release.json SHA256SUMS RELEASE_NOTES.md; do
+            cmp "$package/$file" "$downloaded/$file"
+          done
+          python3 scripts/release-publish-verify.py --directory "$downloaded" --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,tagName,targetCommitish | \
+            jq --exit-status '.isDraft == true and .tagName == env.RELEASE_TAG and .targetCommitish == env.RELEASE_COMMIT'
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,tagName,targetCommitish | \
+            jq --exit-status '.isDraft == false and .tagName == env.RELEASE_TAG and .targetCommitish == env.RELEASE_COMMIT'

@@ -8,7 +8,11 @@ import { gzipSync, gunzipSync } from "node:zlib";
 import { renderAssets } from "./generate-assets.mts";
 import { NATIVE_SQLITE_RUNTIME } from "../src/platform/sqlite-runtime.ts";
 import { parseBunLock, productionPackages } from "./bun-lock-inputs.mts";
-import { INPUTS as NATIVE_INPUTS, PATCH, PATCH_SHA256, RUNTIME, QUALIFIED_NATIVE_BUILD, verifyNativeBuild } from "./sqlite-native-inputs.mts";
+import {
+  INPUTS as NATIVE_INPUTS, PATCH, PATCH_SHA256, RUNTIME, QUALIFIED_NATIVE_BUILD,
+  NATIVE_OUTPUT_PATH, NATIVE_PROVENANCE_PATH, NATIVE_QUALIFICATION_PATH,
+  NATIVE_QUALIFICATION_INPUTS, parseNativeProvenance, validateNativeQualification, verifyNativeBuild,
+} from "./sqlite-native-inputs.mts";
 
 export interface DistributionInput {
   path: string;
@@ -21,6 +25,7 @@ export interface InputSnapshot {
   sourceDigest: string;
   dependenciesDigest: string;
   assetsDigest: string;
+  nativeQualification?: { sha256: string; receiptJson: string };
 }
 export interface DistributionReport {
   coverage: "static-artifact";
@@ -284,7 +289,7 @@ export function collectInputs(root: string, destination?: string): InputSnapshot
       lock.packages["node-addon-api"]?.[3] !== NATIVE_INPUTS[1].integrity)
     throw new Error("Native binding/header dependency differs from immutable registry pins");
   const native = verifyNativeBuild(root);
-  for (const name of ROOT_INPUTS)
+  for (const name of new Set([...ROOT_INPUTS, ...NATIVE_QUALIFICATION_INPUTS]))
     add(
       name,
       name === "package.json"
@@ -311,6 +316,7 @@ export function collectInputs(root: string, destination?: string): InputSnapshot
   for (const input of NATIVE_INPUTS)
     add(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`,
       read(path.join(root, ".omp/tooling/sqlite-native-13.0.3", input.filename), 32 * 1024 * 1024));
+  if (native.qualificationBytes) add(NATIVE_QUALIFICATION_PATH, native.qualificationBytes);
   for (const entry of productionPackages(lock, pkg.dependencies)) {
     const name = `node_modules/${entry.name}`;
     if (!relative(name) || !/^node_modules\/(?:@[^/]+\/)?[^/]+$/.test(name))
@@ -320,6 +326,7 @@ export function collectInputs(root: string, destination?: string): InputSnapshot
       throw new Error("Installed production package differs from Bun lock");
     if (entry.name === "better-sqlite3") {
       for (const [file, bytes] of native.selected) add(`${name}/${file}`, bytes);
+      add(`${name}/LICENSE`, native.licenseBytes);
       add(`${name}/build/Release/bosun_sqlite.node`, native.bytes);
       add(`${name}/build/Release/bosun_sqlite.provenance.json`, native.provenanceBytes);
     } else walk(name);
@@ -327,7 +334,12 @@ export function collectInputs(root: string, destination?: string): InputSnapshot
   inputs.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   if (new Set(inputs.map((input) => input.path)).size !== inputs.length)
     throw new Error("Duplicate distribution input");
-  return { version: pkg.version, inputs, ...summaries(inputs) };
+  return {
+    version: pkg.version, inputs, ...summaries(inputs),
+    ...(native.qualificationBytes ? { nativeQualification: {
+      sha256: hash(native.qualificationBytes), receiptJson: native.qualificationBytes.toString('utf8'),
+    } } : {}),
+  };
 }
 
 export function compilerEnvironment(root: string, compiler: string): Record<string, string> {
@@ -551,6 +563,7 @@ export function verifyDistribution(output: string, { root }: { root?: string } =
     "binary",
     "developmentDebugger",
     "runtimeQualification",
+    ...('nativeQualification' in metadata ? ['nativeQualification'] : []),
   ]);
   object(metadata.compiler, ["version", "sha256"]);
   object(metadata.binary, ["bytes", "sha256"]);
@@ -600,9 +613,31 @@ export function verifyDistribution(output: string, { root }: { root?: string } =
       QUALIFIED_NATIVE_BUILD.runtime !== NATIVE_SQLITE_RUNTIME ||
       !metadata.inputs.some((input) => input.path === PATCH && input.sha256 === PATCH_SHA256) ||
       !NATIVE_INPUTS.every((pin) => metadata.inputs.some((input) => input.path === `.omp/tooling/sqlite-native-13.0.3/${pin.filename}` && input.sha256 === pin.sha256)) ||
-      !metadata.inputs.some((input) => input.path === "node_modules/better-sqlite3/build/Release/bosun_sqlite.node" && input.sha256 === QUALIFIED_NATIVE_BUILD.sha256) ||
-      !metadata.inputs.some((input) => input.path === "node_modules/better-sqlite3/build/Release/bosun_sqlite.provenance.json"))
+      !metadata.inputs.some((input) => input.path === NATIVE_PROVENANCE_PATH))
     throw new Error("Incomplete pinned native SQLite inventory");
+  if (metadata.nativeQualification) {
+    object(metadata.nativeQualification, ['sha256', 'receiptJson']);
+    if (typeof metadata.nativeQualification.receiptJson !== 'string' ||
+        !HASH.test(metadata.nativeQualification.sha256) ||
+        hash(metadata.nativeQualification.receiptJson) !== metadata.nativeQualification.sha256)
+      throw new Error('Native qualification metadata checksum mismatch');
+    const receiptBytes = Buffer.from(metadata.nativeQualification.receiptJson);
+    const receipt = validateNativeQualification(receiptBytes);
+    const provenance = parseNativeProvenance(receipt.provenance.json);
+    const matches = (name: string, sha256: string, bytes?: number): boolean =>
+      metadata.inputs.some(input => input.path === name && input.sha256 === sha256 && (bytes === undefined || input.bytes === bytes));
+    if (!matches(NATIVE_QUALIFICATION_PATH, metadata.nativeQualification.sha256, receiptBytes.length) ||
+        !matches(NATIVE_OUTPUT_PATH, receipt.output.sha256, receipt.output.bytes) ||
+        !matches(NATIVE_PROVENANCE_PATH, receipt.provenance.sha256, Buffer.byteLength(receipt.provenance.json)) ||
+        !receipt.verifierInputs.every(input => matches(input.path, input.sha256)) ||
+        !provenance.inputFiles.every(input => matches(`node_modules/better-sqlite3/${input.name}`, input.sha256)) ||
+        metadata.compiler.sha256 !== receipt.runtime.executable.sha256)
+      throw new Error('Native qualification evidence differs from distribution inventory/compiler');
+  } else if ('nativeQualification' in metadata ||
+      metadata.inputs.some(input => input.path === NATIVE_QUALIFICATION_PATH) ||
+      !metadata.inputs.some(input => input.path === NATIVE_OUTPUT_PATH && input.sha256 === QUALIFIED_NATIVE_BUILD.sha256)) {
+    throw new Error('Incomplete pinned native SQLite inventory');
+  }
   const names = sorted(["bosun", "build.json", archiveName(metadata.version)]);
   if (
     sorted(fs.readdirSync(output)).join("\0") !==

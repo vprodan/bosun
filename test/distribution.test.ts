@@ -21,8 +21,23 @@ import {
   PATCH,
   RUNTIME,
   verifyNativeBuild,
+  NATIVE_OUTPUT_PATH,
+  NATIVE_PROVENANCE_PATH,
+  NATIVE_QUALIFICATION_PATH,
+  NATIVE_QUALIFICATION_INPUTS,
+  qualificationVerifierInputs,
+  nativeQualificationHost,
+  parseNativeProvenance,
+  validateNativeQualification,
 } from "../scripts/sqlite-native-inputs.mts";
 
+import type { NativeQualificationReceipt } from "../scripts/sqlite-native-inputs.mts";
+interface StaticDistributionFixture {
+  root: string;
+  output: string;
+  compiler: string;
+  build(): unknown;
+}
 const hash = (value: Buffer) =>
   crypto.createHash("sha256").update(value).digest("hex");
 function machO() {
@@ -57,6 +72,7 @@ function fixture() {
     copy(name);
   for (const input of NATIVE_INPUTS)
     copy(`.omp/tooling/sqlite-native-13.0.3/${input.filename}`);
+  if (native.qualificationBytes) write(NATIVE_QUALIFICATION_PATH, native.qualificationBytes);
   const lock = parseBunLock(fs.readFileSync(path.join(root, "bun.lock")));
   const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
   function copyPackage(name: string) {
@@ -73,6 +89,7 @@ function fixture() {
     const name = `node_modules/${entry.name}`;
     if (entry.name === "better-sqlite3") {
       for (const [file, bytes] of native.selected) write(`${name}/${file}`, bytes);
+      write(`${name}/LICENSE`, native.licenseBytes);
       write(`${name}/build/Release/bosun_sqlite.node`, native.bytes);
       write(`${name}/build/Release/bosun_sqlite.provenance.json`, native.provenanceBytes);
     } else copyPackage(name);
@@ -99,6 +116,8 @@ function fixture() {
     "src/platform/canonical-path.d.cts",
   ])
     copy(name);
+  for (const name of NATIVE_QUALIFICATION_INPUTS)
+    if (!fs.existsSync(path.join(root, name))) copy(name);
   write(
     "src/app/entry.ts",
     fs.readFileSync(path.join(REPO, "src/app/entry.ts"), "utf8"),
@@ -114,10 +133,10 @@ function fixture() {
   write(".omp/tooling/sqlite-native-13.0.3/acquisition.json", "unreviewed tooling receipt");
   write(".omp/tooling/sqlite-native-13.0.3/builds/owner.txt", "not a public build input");
   write("bunfig.toml", 'preload = ["owner-file"]');
-  const compiler = path.join(sb.root, "synthetic-compiler");
-  fs.writeFileSync(compiler, "synthetic compiler fixture only", {
-    mode: 0o755,
-  });
+  // Hosted evidence binds the real pinned runtime's bytes even when this
+  // compilation adapter emits only synthetic framing and executes no compiler.
+  const compiler = native.qualificationBytes ? fs.realpathSync(process.execPath) : path.join(sb.root, "synthetic-compiler");
+  if (!native.qualificationBytes) fs.writeFileSync(compiler, "synthetic compiler fixture only", { mode: 0o755 });
   const calls: { args: string[]; cwd: string; env: Record<string, string> }[] =
     [];
   const invoke: NonNullable<
@@ -166,6 +185,153 @@ function sums(output: string) {
   );
 }
 
+function hostedStaticFixture(f: StaticDistributionFixture) {
+  f.build();
+  const metadataFile = path.join(f.output, "build.json");
+  const metadata = JSON.parse(fs.readFileSync(metadataFile, "utf8"));
+  const original = parseNativeProvenance(fs.readFileSync(path.join(f.root, NATIVE_PROVENANCE_PATH), "utf8"));
+  const developerDir = "/Applications/Xcode_StaticFixture.app/Contents/Developer";
+  const toolchainRoot = `${developerDir}/Toolchains/XcodeDefault.xctoolchain`;
+  const sdk = `${developerDir}/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk`;
+  const toolchain = original.toolchain.map((tool, index) => ({
+    ...tool, path: `${toolchainRoot}/usr/bin/${["clang", "clang++", "ld"][index]}`,
+    realpath: `${toolchainRoot}/usr/bin/${index === 2 ? "ld" : "clang"}`,
+  }));
+  // Framing/integrity fixture only, never workspace admission or probe execution.
+  // The report is a retained real installed-library report, not a mocked probe echo.
+  const outputBytes = Buffer.concat([fs.readFileSync(path.join(f.root, NATIVE_OUTPUT_PATH)), Buffer.from("static-only variant")]);
+  const provenance = {
+    ...original, packageDir: path.join(f.root, "node_modules/better-sqlite3"),
+    buildMode: "hosted", toolchain, sdk,
+    environment: { ...original.environment, SDKROOT: sdk, PATH: `${toolchainRoot}/usr/bin:/usr/bin:/bin` },
+    commands: original.commands.map(command => ({
+      binary: toolchain[original.toolchain.findIndex(tool => tool.path === command.binary)].path,
+      arguments: command.arguments.map(argument => argument === original.sdk ? sdk : argument),
+    })),
+    hostedToolchain: {
+      developerDir, toolchainRoot,
+      xcrun: { path: "/usr/bin/xcrun", realpath: "/usr/bin/xcrun", sha256: hash(Buffer.from("static xcrun fixture")) },
+      sdkSettings: { path: `${sdk}/SDKSettings.json`, realpath: `${sdk}/SDKSettings.json`, sha256: hash(Buffer.from("static SDK identity fixture")) },
+    },
+    output: { path: NATIVE_OUTPUT_PATH, sha256: hash(outputBytes), bytes: outputBytes.length },
+  };
+  const provenanceJson = `${JSON.stringify(provenance, null, 2)}\n`;
+  const stdout = fs.readFileSync(path.join(REPO, "docs/research/checkpoints/2026-10-13-sqlite-library-installed-final-probe.log"), "utf8");
+  const sandboxProfile = "(version 1)\n; static receipt-schema fixture, not a runnable barrier\n";
+  const receipt: NativeQualificationReceipt = {
+    schema: 1, coverage: "native-library-smoke", trust: "trusted-workspace-not-hostile-same-user",
+    applicationAdmissionLifted: false, root: f.root, host: nativeQualificationHost(),
+    runtime: { version: RUNTIME, executable: { path: f.compiler, realpath: f.compiler, sha256: hash(fs.readFileSync(f.compiler)) } },
+    verifierInputs: qualificationVerifierInputs(REPO), output: provenance.output,
+    provenance: { sha256: hash(Buffer.from(provenanceJson)), json: provenanceJson },
+    probe: { exitCode: 0, signal: null, stdout, stdoutSha256: hash(Buffer.from(stdout)),
+      stderr: "", stderrSha256: hash(Buffer.alloc(0)), sandboxProfile, sandboxProfileSha256: hash(Buffer.from(sandboxProfile)) },
+  };
+  const update = () => {
+    const receiptJson = `${JSON.stringify(receipt, null, 2)}\n`;
+    metadata.nativeQualification = { sha256: hash(Buffer.from(receiptJson)), receiptJson };
+    const setInput = (name: string, bytes: number, sha256: string) => {
+      const existing = metadata.inputs.find((input: { path: string }) => input.path === name);
+      if (existing) Object.assign(existing, { bytes, sha256 });
+      else metadata.inputs.push({ path: name, bytes, sha256 });
+    };
+    setInput(NATIVE_OUTPUT_PATH, receipt.output.bytes, receipt.output.sha256);
+    setInput(NATIVE_PROVENANCE_PATH, Buffer.byteLength(receipt.provenance.json), receipt.provenance.sha256);
+    setInput(NATIVE_QUALIFICATION_PATH, Buffer.byteLength(receiptJson), metadata.nativeQualification.sha256);
+    metadata.inputs.sort((a: { path: string }, b: { path: string }) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
+    metadata.sourceDigest = hash(Buffer.from(JSON.stringify(metadata.inputs)));
+    metadata.dependenciesDigest = hash(Buffer.from(JSON.stringify(metadata.inputs.filter((input: { path: string }) => input.path.startsWith("node_modules/")))));
+    fs.writeFileSync(metadataFile, `${JSON.stringify(metadata, null, 2)}\n`);
+    sums(f.output);
+  };
+  update();
+  return { metadata, receipt, update };
+}
+
+test("distribution hosted receipt schema admits a nonlocal inventory hash without changing full runtime qualification", () => {
+  const f = fixture();
+  try {
+    const hosted = hostedStaticFixture(f);
+    const report = verifyDistribution(f.output);
+    assert.equal(report.coverage, "static-artifact");
+    assert.equal(report.runtimeQualification, "unverified");
+    assert.equal(report.inputs, hosted.metadata.inputs.length);
+    assert.equal(validateNativeQualification(Buffer.from(hosted.metadata.nativeQualification.receiptJson)).coverage, "native-library-smoke");
+    // Static fixture bytes are never eligible for workspace native admission.
+    f.write(NATIVE_QUALIFICATION_PATH, hosted.metadata.nativeQualification.receiptJson);
+    assert.throws(() => verifyNativeBuild(f.root));
+    const qualification = hosted.metadata.nativeQualification;
+    delete hosted.metadata.nativeQualification;
+    fs.writeFileSync(path.join(f.output, "build.json"), JSON.stringify(hosted.metadata));
+    sums(f.output);
+    assert.throws(() => verifyDistribution(f.output));
+    hosted.metadata.nativeQualification = qualification;
+  } finally {
+    f.sb.cleanup();
+  }
+});
+
+test("distribution hosted receipts deny stale verifiers, failed checks and provenance/source/runtime tampering even with refreshed outer sums", () => {
+  const f = fixture();
+  try {
+    const hosted = hostedStaticFixture(f);
+    const original = JSON.stringify(hosted.receipt);
+    const cases: { mutate(receipt: NativeQualificationReceipt): void }[] = [
+      { mutate: receipt => { receipt.verifierInputs[0].sha256 = "0".repeat(64); } },
+      { mutate: receipt => { receipt.probe.stdout += " "; } },
+      { mutate: receipt => {
+        const report: Record<string, unknown> = JSON.parse(receipt.probe.stdout);
+        report.onlineBackup = false;
+        receipt.probe.stdout = JSON.stringify(report);
+        receipt.probe.stdoutSha256 = hash(Buffer.from(receipt.probe.stdout));
+      } },
+      { mutate: receipt => { receipt.runtime.executable = { ...receipt.runtime.executable, sha256: "0".repeat(64) }; } },
+      { mutate: receipt => { receipt.provenance.sha256 = "0".repeat(64); } },
+      { mutate: receipt => {
+        const provenance = parseNativeProvenance(receipt.provenance.json);
+        provenance.inputFiles[0].sha256 = "0".repeat(64);
+        receipt.provenance.json = JSON.stringify(provenance);
+        receipt.provenance.sha256 = hash(Buffer.from(receipt.provenance.json));
+      } },
+      { mutate: receipt => {
+        const provenance = parseNativeProvenance(receipt.provenance.json);
+        provenance.hostedToolchain!.toolchainRoot = "/uncontrolled/toolchain";
+        receipt.provenance.json = JSON.stringify(provenance);
+        receipt.provenance.sha256 = hash(Buffer.from(receipt.provenance.json));
+      } },
+    ];
+    for (const item of cases) {
+      Object.assign(hosted.receipt, JSON.parse(original));
+      item.mutate(hosted.receipt);
+      hosted.update();
+      assert.throws(() => verifyDistribution(f.output));
+    }
+  } finally {
+    f.sb.cleanup();
+  }
+});
+
+test("native admission never ignores malformed explicit receipts in favor of an existing admission path", () => {
+  const f = fixture();
+  try {
+    assert.ok(verifyNativeBuild(f.root).bytes.length > 32);
+    const receiptPath = path.join(f.root, NATIVE_QUALIFICATION_PATH);
+    const original = fs.existsSync(receiptPath) ? fs.readFileSync(receiptPath) : undefined;
+    f.write(NATIVE_QUALIFICATION_PATH, "{}");
+    assert.throws(() => verifyNativeBuild(f.root), /Malformed native qualification evidence/);
+    f.write(NATIVE_QUALIFICATION_PATH, "not json");
+    assert.throws(() => verifyNativeBuild(f.root), SyntaxError);
+    fs.unlinkSync(receiptPath);
+    fs.symlinkSync(path.join(f.root, "missing-receipt"), receiptPath);
+    assert.throws(() => verifyNativeBuild(f.root), /Noncanonical or oversized native input/);
+    fs.unlinkSync(receiptPath);
+    if (original) f.write(NATIVE_QUALIFICATION_PATH, original);
+    assert.ok(verifyNativeBuild(f.root).bytes.length > 32);
+  } finally {
+    f.sb.cleanup();
+  }
+});
+
 test("distribution synthetic compiler: scrubbed environment, current embedded assets, locked inputs and static-only evidence", () => {
   const f = fixture();
   try {
@@ -210,6 +376,7 @@ test("distribution synthetic compiler: scrubbed environment, current embedded as
       ...NATIVE_INPUTS.map((input) => `.omp/tooling/sqlite-native-13.0.3/${input.filename}`),
       "node_modules/better-sqlite3/build/Release/bosun_sqlite.node",
       "node_modules/better-sqlite3/build/Release/bosun_sqlite.provenance.json",
+      ...(metadata.nativeQualification ? [NATIVE_QUALIFICATION_PATH] : []),
       "src/platform/canonical-path.cjs",
       "src/platform/canonical-path.d.cts",
     ]) {
@@ -228,9 +395,10 @@ test("distribution synthetic compiler: scrubbed environment, current embedded as
       metadata.inputs
         .filter((input: { path: string }) => input.path.startsWith(".omp/"))
         .map((input: { path: string }) => input.path),
-      NATIVE_INPUTS
-        .map((input) => `.omp/tooling/sqlite-native-13.0.3/${input.filename}`)
-        .sort(),
+      [
+        ...NATIVE_INPUTS.map((input) => `.omp/tooling/sqlite-native-13.0.3/${input.filename}`),
+        ...(metadata.nativeQualification ? [NATIVE_QUALIFICATION_PATH] : []),
+      ].sort(),
     );
     assert.equal(
       metadata.inputs.some(
@@ -405,7 +573,7 @@ test("distribution source admission rejects native and authoritative Bun lock ta
           fs.readFileSync(path.join(f.root, release, "bosun_sqlite.node")),
           Buffer.from("changed binary"),
         ]),
-        error: /outside fixed-output admission/,
+        error: /binary\/provenance differs from pinned build inputs/,
       },
       {
         name: provenanceFile,
@@ -415,7 +583,7 @@ test("distribution source admission rejects native and authoritative Bun lock ta
       {
         name: provenanceFile,
         bytes: Buffer.from(JSON.stringify({ ...provenance, toolchain: [] })),
-        error: /outside fixed-output admission/,
+        error: /binary\/provenance differs from pinned build inputs/,
       },
       {
         name: "bun.lock",

@@ -17,9 +17,11 @@ case "${1:-}" in
   sqlite-native-acquire) driver=scripts/acquire-sqlite-native.mts ;;
   sqlite-native-prepare) driver=scripts/prepare-sqlite-native.mts ;;
   sqlite-native-build) driver=scripts/build-sqlite-native.mts ;;
+  sqlite-native-qualify) driver=scripts/qualify-sqlite-native.mts ;;
   release-check) driver=scripts/check-release.mts ;;
+  release-package) driver=scripts/release-package.mts ;;
   lsp) driver=scripts/run-lsp.mts ;;
-  *) echo 'Usage: sh scripts/bun-check.sh tests|containment|typecheck|boundaries|build|verify|formula|assets|eval-router|eval-memory|sqlite-probe|sqlite-library-probe|sqlite-native-acquire|sqlite-native-prepare|sqlite-native-build|release-check|lsp [arguments]' >&2; exit 2 ;;
+  *) echo 'Usage: sh scripts/bun-check.sh tests|containment|typecheck|boundaries|build|verify|formula|assets|eval-router|eval-memory|sqlite-probe|sqlite-library-probe|sqlite-native-acquire|sqlite-native-prepare|sqlite-native-build|sqlite-native-qualify|release-check|release-package|lsp [arguments]' >&2; exit 2 ;;
 esac
 shift
 bun=$(command -v bun) || { echo 'Installed Bun is required; this command never installs it' >&2; exit 2; }
