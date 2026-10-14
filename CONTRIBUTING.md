@@ -195,3 +195,7 @@ Full model/native-control/designated-machine qualification remains separate.
 Static `runtimeQualification: unverified` stays appropriate; raw native smoke,
 source checks and compiled minimum safety are distinct evidence scopes.
 
+
+`release-package` also accepts `--git /absolute/path/to/installed/git` for
+workstations whose Apple Git requires unaccepted Xcode terms. This selects an
+existing tool explicitly; it does not install Git or accept SDK licenses.

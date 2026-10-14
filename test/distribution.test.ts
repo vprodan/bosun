@@ -563,6 +563,11 @@ test("distribution source admission rejects native and authoritative Bun lock ta
         error: /Native archive integrity mismatch/,
       },
       {
+        name: "node_modules/better-sqlite3/LICENSE",
+        bytes: Buffer.from("changed license"),
+        error: Error,
+      },
+      {
         name: "node_modules/better-sqlite3/binding.gyp",
         bytes: Buffer.from("changed native source"),
         error: /exact patched source/,

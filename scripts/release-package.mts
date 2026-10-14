@@ -35,14 +35,16 @@ const args = process.argv.slice(2);
 const options: Record<string, string> = {};
 for (let i = 0; i < args.length; i += 2) {
   const key = args[i], value = args[i + 1];
-  if (!['--artifact', '--out', '--tag', '--commit', '--qualification'].includes(key) || !value || options[key]) fail('Usage: release-package --artifact DIR --out ABSENT_DIR --tag vX.Y.Z --commit FULLSHA --qualification COMPILED_JSON');
+  if (!['--artifact', '--out', '--tag', '--commit', '--qualification', '--git'].includes(key) || !value || options[key]) fail('Usage: release-package --artifact DIR --out ABSENT_DIR --tag vX.Y.Z --commit FULLSHA --qualification COMPILED_JSON [--git ABSOLUTE_GIT]');
   options[key] = value;
 }
-if (Object.keys(options).length !== 5) fail('All five release-package flags are required');
+if (['--artifact', '--out', '--tag', '--commit', '--qualification'].some(key => !options[key])) fail('All five release-package flags are required');
+const git = options['--git'] ?? '/usr/bin/git';
+if (!path.isAbsolute(git) || !/^git version \d+\.\d+/.test(command(git, ['--version']))) fail('An absolute installed Git executable is required');
 const tag = options['--tag'], commit = options['--commit'];
 if (!/^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+)*)?$/.test(tag) || !/^[0-9a-f]{40}$/.test(commit)) fail('Invalid version tag or full Git commit');
-if (command('/usr/bin/git', ['rev-parse', 'HEAD']) !== commit || command('/usr/bin/git', ['rev-parse', `${tag}^{commit}`]) !== commit) fail('Tag/checkout/commit mismatch');
-command('/usr/bin/git', ['diff', '--quiet', 'HEAD', '--']);
+if (command(git, ['rev-parse', 'HEAD']) !== commit || command(git, ['rev-parse', `${tag}^{commit}`]) !== commit) fail('Tag/checkout/commit mismatch');
+command(git, ['diff', '--quiet', 'HEAD', '--']);
 const output = path.resolve(options['--out']);
 if (fs.existsSync(output) || fs.realpathSync(path.dirname(output)) !== path.dirname(output)) fail('Output must be absent with a canonical existing parent');
 const artifact = path.resolve(options['--artifact']);
@@ -69,7 +71,7 @@ function add(name: string, bytes: Buffer): void {
 for (const name of ['bosun', 'build.json', verified.archive, 'SHA256SUMS']) add(name, regularBytes(path.join(artifact, name), MAX));
 add('qualification.json', qualificationBytes);
 add('LICENSE', regularBytes(path.join(root, 'LICENSE'), 1024 * 1024));
-if (command('/usr/bin/git', ['hash-object', '--', 'LICENSE']) !== command('/usr/bin/git', ['rev-parse', 'HEAD:LICENSE'])) fail('Project license is not committed source');
+if (command(git, ['hash-object', '--', 'LICENSE']) !== command(git, ['rev-parse', 'HEAD:LICENSE'])) fail('Project license is not committed source');
 const lock = parseBunLock(regularBytes(path.join(root, 'bun.lock'), 4 * 1024 * 1024));
 const pkg = record(JSON.parse(regularBytes(path.join(root, 'package.json'), 131072).toString('utf8')));
 const packages = productionPackages(lock, pkg.dependencies as Record<string, string>);
@@ -98,7 +100,7 @@ const licenseNames = fs.readdirSync(licenseDirectory).sort();
 for (const required of ['bun-LICENSE.md', 'yoga-LICENSE', 'RELINKING.md', 'LGPL-2.0.txt', 'LGPL-2.1.txt']) if (!licenseNames.includes(required)) fail(`Missing reviewed license/relink document: ${required}`);
 for (const name of licenseNames) {
   add(`licenses/runtime/${name}`, regularBytes(path.join(licenseDirectory, name), 4 * 1024 * 1024));
-  if (command('/usr/bin/git', ['hash-object', '--', `docs/licenses/${name}`]) !== command('/usr/bin/git', ['rev-parse', `HEAD:docs/licenses/${name}`])) fail('Runtime license/relink document is not committed reviewed source');
+  if (command(git, ['hash-object', '--', `docs/licenses/${name}`]) !== command(git, ['rev-parse', `HEAD:docs/licenses/${name}`])) fail('Runtime license/relink document is not committed reviewed source');
 }
 if (!files.get('licenses/runtime/bun-LICENSE.md')?.toString('utf8').includes('LGPL')) fail('Bun LGPL notice missing');
 const source = { project: `https://github.com/vprodan/bosun/tree/${tag}`, commit, bun: { version: '1.4.3', commit: 'c6da4a4d3', url: 'https://github.com/oven-sh/bun/tree/c6da4a4d3' }, sqlite: { archives: INPUTS.map(({name, url, sha256}) => ({name, url, sha256})), patch: { path: PATCH, sha256: PATCH_SHA256 }, publicDomain: 'https://www.sqlite.org/copyright.html' } };

@@ -440,7 +440,7 @@ export function validateNativeQualification(bytes: Buffer, workspace?: string): 
         throw new Error('Stale native qualification issuer workspace');
     }
     for (const tool of [...provenance.toolchain, provenance.hostedToolchain!.xcrun, provenance.hostedToolchain!.sdkSettings]) {
-      if (fs.realpathSync(tool.path) !== tool.realpath || sha256(regularBytes(tool.realpath)) !== tool.sha256)
+      if (fs.realpathSync(tool.path) !== tool.realpath || sha256(regularBytes(tool.realpath, 512 * 1024 * 1024)) !== tool.sha256)
         throw new Error('Native qualification toolchain changed');
     }
     for (const directory of [provenance.sdk, provenance.hostedToolchain!.toolchainRoot])
