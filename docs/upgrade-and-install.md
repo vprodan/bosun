@@ -1,12 +1,13 @@
 # Upgrade, installation and onboarding
 
-## Guided v1.0.2 installation (release pending)
+## Guided v1.0.2 installation
 
-The new guided flow below is for **v1.0.2**, whose release is pending. The
-currently published **v1.0.1 does not include the wizard**; use the
-[manual fallback below](#current-v101-manual-fallback) for that binary.
+This flow requires **v1.0.2 or later**. The older **v1.0.1 does not include the
+wizard**; use the [manual fallback below](#current-v101-manual-fallback) for
+that binary.
 
-Download the matching trusted macOS arm64 ZIP when published, verify its
+Download `bosun-1.0.2-darwin-arm64.zip` from
+[GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains
 an unnotarized terminal application, not a GUI installer. The narrow
@@ -16,7 +17,7 @@ applies; installation cannot bypass macOS security policy.
 Run one command in an interactive terminal:
 
 ```sh
-./bosun install
+shasum -a 256 -c SHA256SUMS && ./bosun --version && ./bosun install
 ```
 
 Keep your intended `BOSUN_HOME` consistent across terminals (default `~/.bosun`).
@@ -70,7 +71,7 @@ bypass; noninteractive callers should use the secondary
 
 ## Current v1.0.1 manual fallback
 
-The following numbered procedure remains available for the published v1.0.1
+The following numbered procedure remains available for the older v1.0.1
 binary and for users deliberately choosing explicit plan/apply. It is not the
 guided v1.0.2 quickstart.
 

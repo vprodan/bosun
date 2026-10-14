@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Release 1.0.1](https://img.shields.io/badge/Release-1.0.1-555555.svg)](https://github.com/vprodan/bosun/releases)
+[![Version 1.0.2](https://img.shields.io/badge/Version-1.0.2-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -77,13 +77,13 @@ extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
 cd "$HOME/Downloads/bosun-1.0.2-darwin-arm64"
-./bosun install
+shasum -a 256 -c SHA256SUMS && ./bosun install
 ```
 
-**The guided installer is new in v1.0.2; its release is pending.** The currently
-published v1.0.1 does not have this interactive flow. If you have that release,
-use the [v1.0.1 manual fallback](docs/upgrade-and-install.md#current-v101-manual-fallback)
-instead; do not enter the new command into an older binary.
+**The guided installer requires v1.0.2 or later.** If you have v1.0.1, download
+the newer ZIP or use the
+[v1.0.1 manual fallback](docs/upgrade-and-install.md#current-v101-manual-fallback);
+do not enter the new command into an older binary.
 
 In a real terminal, the installer inspects your home before changing anything.
 For a new private home it asks to prepare local data, shows the release source,
