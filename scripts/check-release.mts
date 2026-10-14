@@ -59,7 +59,9 @@ try {
   checks.push({name:stage,...await runSqliteRequests((audience,method,params,invalid=false)=>currentRpc(ctx.socket,ctx.cwd,audience,method,params,++sequence,invalid)),passed:true});
   stage='shutdown';const stop=await daemon.close();daemon=undefined;assert.equal(stop.joined,true);assert.equal(stop.controlledCancellation,true);assert.equal(fs.existsSync(ctx.socket),false);
   stage='reacquire';daemon=foregroundDaemon(ctx,{execute});await daemon.ready();await currentRpc(ctx.socket,ctx.cwd,'owner','daemon.status',{},++sequence);const second=await daemon.close();daemon=undefined;assert.equal(second.joined,true);assert.equal(second.controlledCancellation,true);checks.push({name:'shutdown-and-reacquire',passed:true});
-  stage='public-hook';const bench=await processProbe(context('benchmark'),['memory','bench','--n','10000','--public-view'],{execute,timeoutMs:120000});passed(bench);const report=record(JSON.parse(bench.text)),hook=record(report.hook);
+  // This full-corpus safety diagnostic has no two-minute performance SLA.
+  // Keep its workload/assertions and use the same finite hosted budget as source qualification.
+  stage='public-hook';const bench=await processProbe(context('benchmark'),['memory','bench','--n','10000','--public-view'],{execute,timeoutMs:600000});passed(bench);const report=record(JSON.parse(bench.text)),hook=record(report.hook);
   assert.equal(record(report.corpus).notes,10000);assert.equal(record(report.store).samples,10000);assert.equal(record(hook.firstRun).outcome,'injected');assert.equal(record(hook.outcomes).injected,20);assert.equal(hook.processCompletion,'original-and-group-confirmed');assert.equal(report.modelsCalled,false);checks.push({name:stage,notes:10000,injections:21,passed:true});
   assert.equal(allJoined,true);console.log(JSON.stringify({version:verified.version,binarySha256:verified.binarySha256,scope:'compiled-local-release-safety',checks,allJoined,liveHosts:false,liveModels:false,personalActivation:false},null,2));
 } catch(error) { console.error(JSON.stringify({stage,failed:true,message:error instanceof Error?error.message:'Qualification failed',checks}));process.exitCode=1; }

@@ -1,12 +1,12 @@
 # Upgrade, installation and onboarding
 
-## Guided v1.0.2 installation
+## Guided v1.0.3 installation
 
-This flow requires **v1.0.2 or later**. The older **v1.0.1 does not include the
+This flow requires **v1.0.3 or later**. The older **v1.0.1 does not include the
 wizard**; use the [manual fallback below](#current-v101-manual-fallback) for
 that binary.
 
-Download `bosun-1.0.2-darwin-arm64.zip` from
+Download `bosun-1.0.3-darwin-arm64.zip` from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains
@@ -73,7 +73,7 @@ bypass; noninteractive callers should use the secondary
 
 The following numbered procedure remains available for the older v1.0.1
 binary and for users deliberately choosing explicit plan/apply. It is not the
-guided v1.0.2 quickstart.
+guided v1.0.3 quickstart.
 
 This guide is for the **macOS Apple Silicon (`arm64`)** release. You do not need a
 source checkout, Bun, Node, npm, `gh` or `jq`: the executable bundles its Bun
