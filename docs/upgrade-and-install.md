@@ -1,12 +1,12 @@
 # Upgrade, installation and onboarding
 
-## Guided v1.0.3 installation
+## Guided installation
 
 This flow requires **v1.0.3 or later**. The older **v1.0.1 does not include the
 wizard**; use the [manual fallback below](#current-v101-manual-fallback) for
 that binary.
 
-Download `bosun-1.0.3-darwin-arm64.zip` from
+Download `bosun-1.0.4-darwin-arm64.zip` from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains

@@ -97,7 +97,10 @@ export async function* streamProcess(spec: ProcessSpec): AsyncGenerator<ProcessE
     // A parent can close while an ordinary child with ignored stdio survives.
     // The group is still ours: do not cancel its KILL merely because the parent closed.
     try { process.kill(-child.pid, 'SIGKILL'); } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw new BosunError('unavailable', 'Process termination unavailable');
+      const code = (error as NodeJS.ErrnoException).code;
+      // EPERM is not a termination acknowledgement. The original group may
+      // still settle; require native ESRCH below within the existing grace.
+      if (code !== 'ESRCH' && code !== 'EPERM') throw new BosunError('unavailable', 'Process termination unavailable');
     }
     const deadline = performance.now() + killGraceMs;
     while (exists()) {

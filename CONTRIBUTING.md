@@ -1,7 +1,7 @@
 # Extending bosun
 
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
-Package metadata is `1.0.3`. Hosted CI qualifies fresh native inputs and runs every
+Package metadata is `1.0.4`. Hosted CI qualifies fresh native inputs and runs every
 guarded suite; tag CD additionally smokes and packages the compiled artifact.
 Existing local artifacts retain their original versions and evidence scopes.
 Real-model quality, live-host and full production qualification remain deferred.
@@ -170,8 +170,8 @@ builds into an absent output directory, verifies source/artifact integrity and
 exercises compiled storage/privacy/shutdown/public-hook safety before packaging.
 
 ```sh
-git tag v1.0.3 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
-git push origin refs/tags/v1.0.3
+git tag v1.0.4 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
+git push origin refs/tags/v1.0.4
 ```
 
 Use a new matching version/tag for future releases; never move a published tag.

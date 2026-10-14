@@ -206,6 +206,75 @@ test('native cancellation kills an ordinary descendant even when its parent clos
   assert.ok(descendant > 0); assert.throws(() => process.kill(descendant, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
 });
 
+for (const settles of [true, false]) {
+  test(`permission-denied native group termination ${settles ? 'joins only after actual absence' : 'holds while an actual descendant survives'}`, async () => {
+    const token = ++sequence;
+    const ready = path.join(process.env.HOME!, `denied-ready-${token}`);
+    const release = path.join(process.env.HOME!, `denied-release-${token}`);
+    const worker = `const fs=require('node:fs');fs.watch(${JSON.stringify(process.env.HOME)},()=>{if(fs.existsSync(${JSON.stringify(release)}))process.exit(0);});fs.writeFileSync(${JSON.stringify(ready)},'ready');`;
+    const source = `const fs=require('node:fs');let child;const watcher=fs.watch(${JSON.stringify(process.env.HOME)},()=>{if(fs.existsSync(${JSON.stringify(ready)})){watcher.close();process.stdout.write(JSON.stringify({parent:process.pid,descendant:child.pid})+'\\n');process.exit(0);}});child=require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(worker)}],{env:process.env,stdio:'ignore'});`;
+    const nativeKill = process.kill;
+    let parent = 0, descendant = 0, denied = 0, joined = false;
+    const events: ProcessEvent[] = [];
+    process.kill = (pid, signal) => {
+      if (parent > 0 && pid === -parent && signal === 'SIGKILL') {
+        nativeKill(pid, 0); // Denial is injected only while the real owned group exists.
+        denied++;
+        if (settles) fs.writeFileSync(release, 'release', { mode: 0o600 });
+        throw Object.assign(new Error('Synthetic permission denial'), { code: 'EPERM' });
+      }
+      return nativeKill(pid, signal);
+    };
+    try {
+      const consume = async () => {
+        for await (const event of streamProcess({ command: process.execPath, args: ['-e', source], cwd: process.env.HOME!, env: process.env,
+          signal: new AbortController().signal, killGraceMs: settles ? 2000 : 100,
+          onClosed() {
+            assert.throws(() => nativeKill(-parent, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+            assert.throws(() => nativeKill(descendant, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+            joined = true;
+          },
+        })) {
+          events.push(event);
+          if (event.t === 'line') {
+            const ids: { parent: number; descendant: number } = JSON.parse(event.text);
+            parent = ids.parent; descendant = ids.descendant;
+          }
+        }
+      };
+      if (settles) {
+        await consume();
+        assert.equal(joined, true);
+        assert.deepEqual(events.at(-1), { t: 'exit', code: 0, signal: null });
+      } else {
+        await assert.rejects(consume(), (error: unknown) => error instanceof BosunError && error.code === 'unavailable');
+        assert.equal(joined, false);
+        assert.equal(events.some(event => event.t === 'exit'), false);
+        assert.equal(nativeKill(-parent, 0), true);
+        assert.equal(nativeKill(descendant, 0), true);
+      }
+      assert.equal(denied, 1); // No second kill attempt or manufactured acknowledgement.
+    } finally {
+      process.kill = nativeKill;
+      if (parent > 0) {
+        try { nativeKill(-parent, 'SIGKILL'); }
+        catch (error) { if (!['ESRCH', 'EPERM'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error; }
+        const deadline = performance.now() + 5000;
+        for (;;) {
+          try { nativeKill(-parent, 0); }
+          catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ESRCH') break;
+            if ((error as NodeJS.ErrnoException).code !== 'EPERM') throw error;
+          }
+          assert.ok(performance.now() < deadline, 'owned fixture group must positively close before cleanup');
+          // Real OS reaping, not a JS timer contract: fake time cannot make a native group disappear.
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+      }
+    }
+  });
+}
+
 test('real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names', () => {
   const config = parseRuntimeConfig('[roles.worker.codex]\nmodel="gpt-6.1-sol"\neffort="high"\n[router]\nmodel="custom:9b"\n',
     { BOSUN_ROUTER_MODEL: 'clef-flash:9b', BOSUN_ROLE_WORKER_OPENCODE_MODEL: 'provider/custom:exact:tag', BOSUN_HANDOFF_ENABLED: 'false', OPENAI_API_KEY: 'SECRET_CANARY' });

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { diagnosticProbe, failureDiagnostic, finiteCliError, RELAY } from '../scripts/qualification-diagnostics.mts';
 import { cleanupAllowed, prepareIsolation } from '../scripts/qualification.mts';
-import { REPO, sandbox } from './helpers.ts';
+import { sandbox } from './helpers.ts';
 import { streamProcess } from '../src/platform/process.ts';
 
 function fixture() {
@@ -18,6 +18,7 @@ function fixture() {
       wall: d(20), verifiedInjectionWall: d(20), componentLatency: null }, publicView: 'ready-synthetic',
     bytes: { primary: 1024, view: 1024 }, designatedMacLatency: 'unverified', ownerStorageOpened: false, modelsCalled: false };
 }
+// Real native relay/child cancellation is the integration surface; fake JS time cannot advance those processes.
 const SOURCE = `#!${process.execPath}
 import fs from 'node:fs';
 fs.writeFileSync(process.env.FIXTURE_PID,JSON.stringify({pid:process.pid,relay:process.ppid,args:process.argv.slice(2)}));
@@ -34,8 +35,8 @@ if(process.env.FIXTURE_MODE==='success'){
 else {process.stderr.write('public synthetic pending\\n');setInterval(()=>{},1000);}
 `;
 
-test('benchmark diagnostic preserves actual child channels/exit and confirms the unchanged relay group lifecycle', async () => {
-  for (const mode of ['success', 'error', 'bound', 'timeout']) {
+for (const mode of ['success', 'error', 'bound', 'timeout']) {
+  test(`benchmark diagnostic ${mode} preserves actual channels and original/group closure`, async () => {
     const sb = sandbox();
     try {
       const binary = path.join(sb.root, 'node-benchmark-fixture.mjs'), relay = path.join(sb.root, 'relay.mjs');
@@ -50,7 +51,8 @@ test('benchmark diagnostic preserves actual child channels/exit and confirms the
         // allow hosted scheduling without weakening that confirmation.
         execute: (spec) => streamProcess({ ...spec, killGraceMs: 2000 }),
       });
-      assert.equal(report.relay.joined, true); assert.ok(report.framedBytes <= 1048576 && report.rawBytes <= 1048576);
+      assert.equal(report.relay.joined, true, JSON.stringify({ mode, relay: report.relay }));
+      assert.ok(report.framedBytes <= 1048576 && report.rawBytes <= 1048576);
       const pid = JSON.parse(fs.readFileSync(pidFile, 'utf8'));
       assert.deepEqual(pid.args, ['memory', 'bench', '--n', '10000', '--public-view']);
       for (const target of [pid.pid, pid.relay, -pid.relay])
@@ -71,16 +73,16 @@ test('benchmark diagnostic preserves actual child channels/exit and confirms the
         } else assert.equal(report.relay.error, mode === 'bound' ? 'unavailable' : 'timeout');
       }
     } finally { sb.cleanup(); }
-  }
-});
+  });
+}
 
 test('a child close frame cannot substitute for positive relay original/group completion', async () => {
   const sb = sandbox();
   try {
     const isolation = prepareIsolation(sb.root, 'isolated');
     const report = await diagnosticProbe({ binary: '/synthetic/unused', ...isolation }, '/synthetic/relay', {
-      async *execute(spec: any) {
-        spec.stdout(Buffer.from(JSON.stringify({ t: 'started', pid: 123 }) + '\n'
+      async *execute(spec) {
+        spec.stdout?.(Buffer.from(JSON.stringify({ t: 'started', pid: 123 }) + '\n'
           + JSON.stringify({ t: 'stdout', data: Buffer.from(JSON.stringify(fixture())).toString('base64') }) + '\n'
           + JSON.stringify({ t: 'closed', pid: 123, code: 0, signal: null, spawnFailed: false }) + '\n'));
         yield { t: 'exit', code: 0, signal: null };
