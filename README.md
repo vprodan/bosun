@@ -60,44 +60,80 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-[GitHub Releases](https://github.com/vprodan/bosun/releases) are produced by
-version-tag CI/CD after fresh native qualification, all guarded tests and actual
-compiled safety checks pass. The supported binary target is **macOS arm64**.
-No other platform or live-model qualification is implied.
+Download **`bosun-1.0.1-darwin-arm64.zip`** from
+[GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
+Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
+release notes are supplementary metadata, checksums and tested-scope information,
+not programs to open. You do not need to unpack the inner distribution tar archive.
 
-Each release has a licensed ZIP bundle, `release.json`, checksums and notes.
-The bundle retains the original compiled distribution, safety receipt, project/
-dependency/runtime licenses and source/relink information. The repository is
-private; downloading its releases requires appropriate GitHub access.
+This release is for **macOS Apple Silicon (arm64)** only. The repository is
+private, so downloads require appropriate GitHub access. The executable is
+**not notarized**; see the guide below if macOS blocks it.
+
+### Start with the downloaded ZIP
+
+Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
+extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-gh release download v1.0.1 --repo vprodan/bosun --dir bosun-release
-cd bosun-release
-shasum -a 256 -c SHA256SUMS
-unzip bosun-1.0.1-darwin-arm64.zip -d unpacked
-cd unpacked
-shasum -a 256 -c SHA256SUMS
+cd "$HOME/Downloads/bosun-1.0.1-darwin-arm64"
+BOSUN="$PWD/bosun"
 ./bosun --version
+"$BOSUN" doctor
 ```
 
-Keep license notices and provenance with redistributed copies. The executable
-needs no external Node runtime or `node_modules`; it is not notarized. Follow
-the release notes for the exact candidate's tested scope and limitations.
-Local candidates and their historical receipts are in
+On first use, `doctor` reports `prepared: false` and exits with an error because
+the data home is not set up yet. This is expected; follow the new-home steps below.
+
+**[Follow the complete numbered setup and installation guide](docs/upgrade-and-install.md)**
+for Gatekeeper, checksum checks, new-home setup, reviewed installation into
+`~/.local/bin/bosun`, and PATH setup. Installation uses the CLI's **plan/apply**
+flow; do not copy a binary over a running installation.
+
+For a **new home only**, you can begin directly from the extracted folder:
+
+```sh
+"$BOSUN" setup
+"$BOSUN" config show
+"$BOSUN" daemon run
+```
+
+Your local data lives in `~/.bosun` by default (`BOSUN_HOME` selects another
+absolute path). **If you already have `~/.bosun` data, do not run `setup` or
+reset it:** use the guide's advanced upgrade instructions instead.
+`setup` prepares a new data home; it does not install the executable.
+
+Leave the foreground daemon running in this terminal. Open a **second terminal**
+and select the same extracted folder to try local memory:
+
+```sh
+cd "$HOME/Downloads/bosun-1.0.1-darwin-arm64"
+BOSUN="$PWD/bosun"
+"$BOSUN" memory add --category project --title "First note" --body "Bosun is running locally."
+"$BOSUN" memory search Bosun
+```
+
+The release **bundles Bun**: you need no separate Bun, Node, npm, `gh`, or `jq`
+installation. Clients do not start the daemon implicitly, and these commands
+do not install a host or model or make model calls. OMP and other host
+integrations are optional, separate steps after memory works; configure explicit
+provider/model bindings as described in the guide before using them.
+
+Keep license notices and provenance with redistributed copies. The bundle
+retains the original compiled distribution, safety receipt, project/dependency/
+runtime licenses and source/relink information. Release notes describe the exact
+candidate's tested scope; no other platform or live-model qualification is implied.
+Local candidates and historical receipts remain in
 [maintenance guidance](docs/maintenance.md), not substitutes for release assets.
 
-For an existing runtime, follow the
-[upgrade, installation and onboarding guide](docs/upgrade-and-install.md).
-Installation is a reviewed plan/apply flow, not copying a binary over a running
-authority. There is no npm or Homebrew installation shortcut here.
+### Developer source usage (not needed for the ZIP)
 
-### Basic source usage
-
-Source usage requires **Bun 1.4.3 on macOS arm64**, existing project dependencies
-and the reviewed native SQLite inputs. There is no Node fallback. These examples
-use the established checkout entry; they do not install dependencies, hosts or
-models. Use storage and lifecycle commands only after runtime qualification and
-owner review.
+The commands below are for developers running a source checkout, **not the
+downloaded application**. Source usage requires **Bun 1.4.3 on macOS arm64**,
+existing project dependencies and the reviewed native SQLite inputs. There is
+no Node fallback. These examples use the established checkout entry; they do
+not install dependencies, hosts or models. Use storage and lifecycle commands
+only after runtime qualification and owner review.
 
 Inspect the selected home first:
 

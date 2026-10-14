@@ -171,7 +171,9 @@ def verify(directory, tag, commit):
             require(digest(data) == item['sha256'], 'ZIP checksum mismatch')
             contents[entry.filename] = data
     mandatory = {'bosun', 'build.json', original, 'SHA256SUMS', 'qualification.json', 'LICENSE', 'THIRD_PARTY.json'}
-    require(mandatory <= contents.keys() and all(name in mandatory or name.startswith('licenses/') for name in contents), 'Unexpected/missing ZIP files')
+    require(mandatory <= contents.keys() and all(name in mandatory or name == 'INSTALL.md' or name.startswith('licenses/') for name in contents), 'Unexpected/missing ZIP files')
+    if 'INSTALL.md' in contents:
+        require(0 < len(contents['INSTALL.md']) <= 1024 * 1024 and '\0' not in contents['INSTALL.md'].decode('utf-8'), 'Invalid installation guide')
     require(release['binarySha256'] == digest(contents['bosun']) and release['buildSha256'] == digest(contents['build.json']) and release['qualificationSha256'] == digest(contents['qualification.json']) and release['originalArchive'] == {'name': original, 'sha256': digest(contents[original])}, 'Release hash bonds mismatch')
     receipt(contents['qualification.json'], version, release['binarySha256'])
     build = decode(contents['build.json'])

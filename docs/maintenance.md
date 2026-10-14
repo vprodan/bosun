@@ -2,6 +2,14 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Release-user onboarding (2026-10-14)
+
+The downloaded ZIP path now has a release-first README and numbered installation guide, with no source/Bun/Node/gh/jq prerequisites. Future packages include the committed guide as `INSTALL.md` and getting-started release notes; published1.0.1 assets remain unchanged. The current guide is available online.
+
+The exact published1.0.1 binary was downloaded and verified, then exercised under an OS barrier in disposable HOME/runtime roots: initial doctor hold, setup with default config, install plan, macOS plutil planHash extraction, install apply/status, installed version, foreground readiness, memory add/search and joined shutdown all passed. No personal installation, LaunchAgent activation, models or external network were allowed during execution. Gatekeeper UI behavior was not exercised.
+
+Typecheck,36 containment probes and17 distribution/lint cases passed. A disposable committed source snapshot produced a fresh compiled artifact, passed compiled safety, packaged the guide verbatim and passed the publisher verifier. Temporary fixtures were removed; no published tag or release asset was rewritten.
+
 ## GitHub-hosted CI/CD (2026-10-14)
 
 The owner selected GitHub-hosted macOS arm64 builds and explicitly approved ephemeral CI dependency preparation and fresh native qualification. CI automatically runs containment, typecheck, boundaries and every guarded suite. Version-tag CD repeats qualification, builds and smokes the compiled binary, bundles reviewed dependency/runtime notices and source/relink guidance, then hands verified same-run assets to a separate write-token publisher. No self-hosted runner, personal configuration or live host/model activation is required.

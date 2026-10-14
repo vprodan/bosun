@@ -72,6 +72,10 @@ for (const name of ['bosun', 'build.json', verified.archive, 'SHA256SUMS']) add(
 add('qualification.json', qualificationBytes);
 add('LICENSE', regularBytes(path.join(root, 'LICENSE'), 1024 * 1024));
 if (command(git, ['hash-object', '--', 'LICENSE']) !== command(git, ['rev-parse', 'HEAD:LICENSE'])) fail('Project license is not committed source');
+const guidePath = 'docs/upgrade-and-install.md';
+const guideBytes = regularBytes(path.join(root, guidePath), 1024 * 1024);
+if (command(git, ['hash-object', '--', guidePath]) !== command(git, ['rev-parse', `HEAD:${guidePath}`])) fail('Installation guide is not committed reviewed source');
+add('INSTALL.md', guideBytes);
 const lock = parseBunLock(regularBytes(path.join(root, 'bun.lock'), 4 * 1024 * 1024));
 const pkg = record(JSON.parse(regularBytes(path.join(root, 'package.json'), 131072).toString('utf8')));
 const packages = productionPackages(lock, pkg.dependencies as Record<string, string>);
@@ -108,7 +112,7 @@ add('THIRD_PARTY.json', Buffer.from(JSON.stringify({ schema: 1, source, packages
 const members = [...files].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([name, bytes]) => ({ path: name, bytes: bytes.length, sha256: sha256(bytes) }));
 if (members.length > 1000 || members.reduce((total, member) => total + member.bytes, 0) > 600 * 1024 * 1024) fail('Release ZIP inventory exceeds bounds');
 const zipName = `bosun-${verified.version}-darwin-arm64.zip`;
-const notes = Buffer.from(`# Bosun ${tag}\n\nCommit: ${commit}\nTarget: macOS arm64\nBun: 1.4.3\n\nCompiled local release safety checks passed for binary SHA-256 ${verified.binarySha256}. Full runtime qualification remains unverified; live hosts, live models, and personal activation were not exercised.\n\nThe ZIP preserves the original distribution and includes dependency/runtime notices, source references, and LGPL relinking guidance. This is not a legal-clearance opinion.\n`);
+const notes = Buffer.from(`# Bosun ${tag}\n\n## Getting started\n\nDownload **${zipName}**, unzip it, and open **INSTALL.md** in the extracted folder for setup and installation steps. Bosun is a Terminal app for Apple Silicon Macs, not a graphical app. Bun is bundled: do not install Node, Bun or npm to use this release. You do not need to unpack the inner tar.gz.\n\nThe complete guide is also available at https://github.com/vprodan/bosun/blob/${tag}/docs/upgrade-and-install.md . Checksums and release.json are verification files, not installers. This binary is not notarized; the guide explains the macOS security prompt and safe first-run options.\n\n## Build evidence\n\nCommit: ${commit}\nTarget: macOS arm64\nBun: 1.4.3\n\nCompiled local release safety checks passed for binary SHA-256 ${verified.binarySha256}. Full runtime qualification remains unverified; live hosts, live models, and personal activation were not exercised.\n\nThe ZIP preserves the original distribution and includes dependency/runtime notices, source references, and LGPL relinking guidance. This is not a legal-clearance opinion.\n`);
 const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'bosun-package-')));
 let created = false;
 try {
