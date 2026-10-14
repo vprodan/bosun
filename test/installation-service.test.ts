@@ -162,13 +162,10 @@ async function fixture() {
     source,
     `#!/usr/bin/env node
 if(process.argv[2]==='--version'){process.stdout.write(${JSON.stringify(version + '\n')});process.exit(0);}
-(async()=>{
-const {startDaemon}=await import(${JSON.stringify(path.join(REPO, 'src/app/daemon.ts'))});
-const {runtimePaths}=await import(${JSON.stringify(path.join(REPO, 'src/platform/paths.ts'))});
-const {loadRuntimeConfig}=await import(${JSON.stringify(path.join(REPO, 'src/platform/config.ts'))});
-const paths=runtimePaths(process.env);const runtime=await startDaemon({paths,config:loadRuntimeConfig(paths,process.env),environment:process.env,runners:{}});
-process.send?.({ready:runtime.status()});let closing=false;for(const name of ['SIGTERM','SIGINT'])process.on(name,async()=>{if(closing)return;closing=true;await runtime.close();process.exit(0);});
-})().catch(error=>{process.stderr.write(String(error));process.exit(1);});
+import(${JSON.stringify(path.join(REPO, 'src/app/cli.ts'))}).then(async({main})=>{
+ const code=await main(process.argv.slice(2),{stdout(text){process.stdout.write(text);if(text.includes('bosun daemon ready'))process.send?.({ready:true});},stderr(text){process.stderr.write(text);}});
+ process.exit(code);
+}).catch(error=>{process.stderr.write(String(error));process.exitCode=1;});
 `,
     { mode: 0o755 },
   );
@@ -187,9 +184,9 @@ if(args[0]==='managername'){process.stdout.write((settings.context||'Aqua')+'\\n
 if(args[0]==='list'){if(settings.badList){process.stdout.write('unsupported format\\n');process.exit(0);}const value=get();process.stdout.write('PID\\tStatus\\tLabel\\n');if(value)process.stdout.write((value.pid===null?'-':String(value.pid))+'\\t0\\t'+value.label+'\\n');process.exit(0);}
 if(args[0]==='bootstrap'){
 const text=fs.readFileSync(args[2],'utf8');const decode=s=>s.replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&apos;',"'").replaceAll('&amp;','&');
-const field=name=>decode(new RegExp('<key>'+name+'</key><string>([^<]*)</string>').exec(text)[1]);const binary=decode(/<key>ProgramArguments<\\/key><array><string>([^<]*)<\\/string>/.exec(text)[1]),label=field('Label');
+const field=name=>decode(new RegExp('<key>'+name+'</key><string>([^<]*)</string>').exec(text)[1]);const argumentsXml=/<key>ProgramArguments<\\/key><array>(.*?)<\\/array>/s.exec(text)[1];const programArgs=[...argumentsXml.matchAll(/<string>([^<]*)<\\/string>/g)].map(match=>decode(match[1]));const label=field('Label');
 if(settings.noReady){fs.writeFileSync(stateFile,JSON.stringify({label,pid:null}));process.exit(0);}
-const child=cp.spawn(process.execPath,[binary,'daemon'],{env:{...process.env,HOME:field('HOME'),BOSUN_HOME:field('BOSUN_HOME'),BOSUN_SOCKET:field('BOSUN_SOCKET'),BOSUN_INSTALLATION_ID:field('BOSUN_INSTALLATION_ID')},cwd:field('WorkingDirectory'),detached:true,stdio:['ignore','ignore','pipe','ipc']});let stderr='';child.stderr.on('data',bytes=>stderr+=bytes);child.once('exit',()=>{if(stderr)process.stderr.write(stderr);process.exit(1);});child.once('message',()=>{fs.writeFileSync(stateFile,JSON.stringify({label,pid:child.pid}));fs.appendFileSync(callsFile,JSON.stringify(['daemon-pid',String(child.pid)])+'\\n');child.disconnect();child.unref();if(settings.loseBootstrap)process.exit(9);process.exit(0);});
+const child=cp.spawn(process.execPath,programArgs,{env:{...process.env,HOME:field('HOME'),BOSUN_HOME:field('BOSUN_HOME'),BOSUN_SOCKET:field('BOSUN_SOCKET'),BOSUN_INSTALLATION_ID:field('BOSUN_INSTALLATION_ID')},cwd:field('WorkingDirectory'),detached:true,stdio:['ignore','ignore','pipe','ipc']});let stderr='';child.stderr.on('data',bytes=>stderr+=bytes);child.once('exit',()=>{if(stderr)process.stderr.write(stderr);process.exit(1);});child.once('message',()=>{fs.writeFileSync(stateFile,JSON.stringify({label,pid:child.pid}));fs.appendFileSync(callsFile,JSON.stringify(['daemon-pid',String(child.pid)])+'\\n');child.disconnect();child.unref();if(settings.loseBootstrap)process.exit(9);process.exit(0);});
 }else if(args[0]==='bootout'){
 const value=get();if(!value||!args[1].endsWith('/'+value.label))process.exit(9);if(value.pid!==null)try{process.kill(value.pid,'SIGTERM');}catch{}
 const until=Date.now()+4000;const poll=()=>{let alive=false;if(value.pid!==null)try{process.kill(value.pid,0);alive=true;}catch{}if(!alive){fs.unlinkSync(stateFile);process.exit(settings.loseBootout?9:0);}if(Date.now()>until)process.exit(9);setTimeout(poll,10);};poll();

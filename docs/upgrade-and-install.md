@@ -6,7 +6,7 @@ This flow requires **v1.0.3 or later**. The older **v1.0.1 does not include the
 wizard**; use the [manual fallback below](#current-v101-manual-fallback) for
 that binary.
 
-Download `bosun-1.0.4-darwin-arm64.zip` from
+Download `bosun-1.0.5-darwin-arm64.zip` from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains
@@ -42,6 +42,10 @@ unknown service operation or drifted installation is not repaired or replayed:
 follow the printed `doctor`, upgrade or installation-status guidance. Do not
 delete data/receipts, remove SQLite sidecars or change permissions to bypass a
 hold. No hosts, credentials or model bindings are installed or guessed.
+
+Version1.0.5 fixes the owned LaunchAgent command to `daemon run`. Existing1.0.4 installations must first settle any unknown service outcome and undo the reviewed executable installation **using their original1.0.4 executable**, with clients and daemon stopped. Read current `install status` for the ID/version/hash before `install undo`; keep runtime data and retained receipts/backups. Then run the new downloaded executable’s installer. Do not edit the old hash-bound plist or overwrite an uncertain receipt. Undo restores a reviewed previous executable when present; it does not delete memory/configuration.
+
+Router admission accepts stable Ollama **0.35.x and0.40.x**, including0.40.4. Other minor families and prerelease/custom-suffix versions remain unverified. Admission retains the actual detected version and validates SystemOne decision capability, model/selected-child digests, runner, minimum required version and loaded residency. It does not install/pull models or qualify live model quality or automatic dispatch.
 
 Use the absolute executable path printed on completion. For the default layout,
 if background start was declined, leave this running in the first terminal:

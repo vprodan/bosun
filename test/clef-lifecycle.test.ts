@@ -41,10 +41,26 @@ test('readiness construction is inert and probes only metadata, projecting no ot
   } finally { await m.close(); }
 });
 
+for (const version of ['0.35.0', '0.35.9', '0.40.4', '0.40.99']) {
+  test(`stable Ollama ${version} admits its minor family without bypassing model capability checks`, async () => {
+    const value = metadata({ version }); const m = await native(value);
+    try {
+      const probe = createClefReadiness({ url: m.url }, { now: () => NOW });
+      const ready = await probe.status(SIGNAL);
+      assert.equal(ready.state, 'ready'); assert.equal(ready.version, version);
+      assert.equal(ready.automaticDispatch, false); assert.equal(ready.qualification.liveReadiness, 'unverified');
+      value.show.capabilities = ['completion'];
+      assert.equal((await probe.status(SIGNAL)).reason, 'capability_missing');
+    } finally { await m.close(); }
+  });
+}
+
 test('missing model, old/unknown/prerelease versions, absent capability and cloud/unsupported weights are finite held states without start/pull/inference', async () => {
   const arms: [string, (v: ReturnType<typeof metadata>) => void][] = [
     ['unsupported_version', (v) => v.version.version = '0.34.4'], ['version_unverified', (v) => v.version.version = '0.40.0-rc3'],
     ['version_unverified', (v) => v.version.version = '0.41.0'], ['metadata_invalid', (v) => v.version.version = 'PRIVATE_VERSION'],
+    ['version_unverified', (v) => v.version.version = '1.40.4'], ['version_unverified', (v) => v.version.version = '0.40.4+custom'],
+    ['version_unverified', (v) => v.version.version = '0.040.4'],
     ['model_missing', (v) => v.tags.models = []], ['capability_missing', (v) => v.show.capabilities = ['completion']],
     ['unsupported_model', (v) => v.tags.models[0].remote_host = 'https://PRIVATE_CLOUD'], ['unsupported_model', (v) => v.show.remote_model = 'PRIVATE_REMOTE'],
     ['unsupported_model', (v) => v.show.details.format = 'safetensors'], ['metadata_invalid', (v) => v.tags.models[0].digest = 'PRIVATE_DIGEST'],
@@ -58,8 +74,9 @@ test('missing model, old/unknown/prerelease versions, absent capability and clou
   }
 });
 
-test('Ollama0.40 selected MLX child digest is distinct from the catalog tag; loaded runner/child must match without an invented runner override', async () => {
-  const value = metadata({ version: '0.40.0', multi: true }); const m = await native(value);
+for (const version of ['0.40.0', '0.40.4']) {
+test(`Ollama ${version} selected MLX child digest is distinct from the catalog tag; loaded runner/child must match`, async () => {
+  const value = metadata({ version, multi: true }); const m = await native(value);
   try {
     const probe = createClefReadiness({ url: m.url, digest: `sha256:${CHILD}` }); const result = await probe.status(SIGNAL);
     assert.equal(result.state, 'ready'); assert.equal(result.tagDigest, DIGEST); assert.equal(result.digest, CHILD); assert.equal(result.runner, 'mlx'); assert.equal(result.format, 'safetensors');
@@ -70,6 +87,7 @@ test('Ollama0.40 selected MLX child digest is distinct from the catalog tag; loa
     value.show.manifests[0].selected = true; value.ps.models[0].runner = 'ggml'; assert.equal((await probe.status(SIGNAL)).reason, 'loaded_identity_mismatch');
   } finally { await m.close(); }
 });
+}
 
 test('readiness reports unloaded/unknown residency and never substitutes a catalog context or fabricates GPU percentages', async () => {
   const value = metadata({ loaded: false }); const m = await native(value);

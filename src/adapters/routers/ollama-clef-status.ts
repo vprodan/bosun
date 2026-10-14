@@ -3,8 +3,8 @@ import type { RouterLoaded, RouterStatus, RouterStatusReason } from '../../core/
 import { httpJson, protocolBase } from '../../platform/http-json.ts';
 import { CLEF_DEFAULT_MODEL, CLEF_QUALIFICATION, type ClefSettings } from './ollama-clef.ts';
 
-// Source-inspected protocol pairs, not live model/calibration qualifications.
-export const CLEF_INSPECTED_VERSIONS = Object.freeze(['0.35.1', '0.40.0']);
+// Source-inspected major/minor protocol families, not live model/calibration qualifications.
+const CLEF_INSPECTED_MINORS = Object.freeze(['0.35', '0.40']);
 const object = (value: unknown): Record<string, unknown> | null => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null;
 const nonnegative = (value: unknown): value is number => Number.isSafeInteger(value) && Number(value) >= 0;
 const context = (value: unknown): number | null => nonnegative(value) && Number(value) >= 1 && Number(value) <= 1048576 ? Number(value) : null;
@@ -69,7 +69,9 @@ export function createClefReadiness(settings: ClefSettings, { now = () => Date.n
       deadline.throwIfAborted(); const version = object(await read('/api/version'))?.version;
       if (typeof version !== 'string' || !/^\d{1,3}\.\d{1,3}\.\d{1,3}(?:[-+][a-zA-Z0-9.-]{1,32})?$/.test(version)) return finish('held', 'metadata_invalid');
       result.version = version;
-      if (!CLEF_INSPECTED_VERSIONS.includes(version)) return finish('held', older(version) ? 'unsupported_version' : 'version_unverified');
+      const stable = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.exec(version);
+      const family = stable ? `${stable[1]}.${stable[2]}` : null;
+      if (!family || !CLEF_INSPECTED_MINORS.includes(family)) return finish('held', older(version) ? 'unsupported_version' : 'version_unverified');
       result.inspectedVersion = true; stage = 'metadata';
       const tag = selected(models(await read('/api/tags')), cfg.identity);
       if (!tag) { result.available = false; return finish('held', 'model_missing'); }
@@ -87,14 +89,14 @@ export function createClefReadiness(settings: ClefSettings, { now = () => Date.n
       if (result.decisionCapability === 'absent') return finish('held', 'capability_missing');
       let format = object(info.details)?.format; result.digest = result.tagDigest;
       if (info.manifests !== undefined) {
-        if (version !== '0.40.0' || !Array.isArray(info.manifests) || info.manifests.length < 1 || info.manifests.length > 16 || info.manifests.some((v) => !object(v))) return finish('held', 'metadata_invalid');
+        if (family !== '0.40' || !Array.isArray(info.manifests) || info.manifests.length < 1 || info.manifests.length > 16 || info.manifests.some((v) => !object(v))) return finish('held', 'metadata_invalid');
         const choices = info.manifests.map(object).filter((v) => v?.selected === true);
         if (choices.length !== 1) return finish('held', 'metadata_invalid');
         const choice = choices[0]!; result.digest = digest(choice.digest); result.runner = runner(choice.runner); format = choice.format;
         if (!result.digest || !result.runner) return finish('held', 'metadata_invalid');
       }
       result.format = format === 'gguf' || format === 'safetensors' ? format : null;
-      if (!result.format || result.format === 'safetensors' && (version !== '0.40.0' || result.runner !== 'mlx')) return finish('held', 'unsupported_model');
+      if (!result.format || result.format === 'safetensors' && (family !== '0.40' || result.runner !== 'mlx')) return finish('held', 'unsupported_model');
       result.catalogContextTokens = catalogContext(info.model_info);
       if (cfg.digest && cfg.digest !== result.digest) return finish('held', 'digest_mismatch');
       if (pinned && (pinned.digest !== result.digest || pinned.runner !== result.runner)) return finish('held', 'digest_changed');
