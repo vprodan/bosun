@@ -109,6 +109,7 @@ GROUPS.codexmanaged = ['codex-control.test.ts'];
 GROUPS.claudeclient = ['claude-client.test.ts'];
 GROUPS.claudetranscript = ['claude-transcript.test.ts'];
 GROUPS.compiledcurrent = ['compiled-current.test.ts'];
+GROUPS.compileddiagnostic = ['compiled-benchmark-diagnostic.test.ts'];
 GROUPS.omp = ['omp-native.test.ts', 'omp-host.test.ts'];
 try {
   assertRuntime();

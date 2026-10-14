@@ -115,7 +115,7 @@ for (const mode of ['lost-append', 'wrong-seed', 'wrong-user', 'wrong-session', 
 
 for (const mode of ['timeout', 'error', 'foreign-id'])
   test(`native control ${mode} holds until original producer termination and hides raw errors`, async () => {
-    const f = fixture(mode); const client = await connectClaudeStream({ ...f.options, requestTimeoutMs: 40 }, signal());
+    const f = fixture(mode); const client = await connectClaudeStream(f.options, signal());
     try {
       await assert.rejects(client.read('get_settings'), unknown);
       assert.equal(f.closed, true);

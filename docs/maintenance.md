@@ -14,6 +14,8 @@ Fresh compiled1.0.2 safety passed version/help/private-hook/private-route/MCP, s
 
 Guided source CI run38603440425 passed94/95 files but the same explicit10k test hit Bun's120s default watchdog on the slower hosted runner. That diagnostic asserts measured samples/privacy/20 hook deliveries, not a120s SLA. Its test-only timeout is now600s; corpus, writer protections, hook producer deadlines and all assertions remain unchanged. Typecheck and both full benchmark suites passed locally (23 cases, including actual10000-note/20-hook source delivery in51.8s). Hosted qualification remains required before release; no retry-to-green or skipped workload.
 
+Hosted run38606367891 completed the unchanged10k corpus and20/20 verified source hook deliveries in148.3s, confirming the prior watchdog was too short; its wizard/service checks passed. Two other synthetic fixture files failed: Claude initialization used the40ms negative-read deadline, and relay closure remained unconfirmed within its500ms termination grace. The Claude cases now use their existing500ms fixture budget; the diagnostic fixture explicitly uses2000ms timeout/grace and still requires actual original/group closure and negative unknown outcomes. Production timeout/grace and join semantics are unchanged. Both affected suites passed23/23 locally with typecheck and36 containment.
+
 ## Release-user onboarding (2026-10-14)
 
 The downloaded ZIP path now has a release-first README and numbered installation guide, with no source/Bun/Node/gh/jq prerequisites. Future packages include the committed guide as `INSTALL.md` and getting-started release notes; published1.0.1 assets remain unchanged. The current guide is available online.

@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import { diagnosticProbe, failureDiagnostic, finiteCliError, RELAY } from '../scripts/qualification-diagnostics.mts';
 import { cleanupAllowed, prepareIsolation } from '../scripts/qualification.mts';
 import { REPO, sandbox } from './helpers.ts';
+import { streamProcess } from '../src/platform/process.ts';
 
 function fixture() {
   const d = (samples: number) => ({ samples, p50: 1, p95: 2 });
@@ -43,7 +44,12 @@ test('benchmark diagnostic preserves actual child channels/exit and confirms the
       const isolation = prepareIsolation(sb.root, 'isolated');
       const context = { binary, ...isolation, env: { ...sb.env(), ...isolation.env,
         FIXTURE_PID: pidFile, FIXTURE_MODE: mode, FIXTURE_REPORT: JSON.stringify(fixture()) } };
-      const report = await diagnosticProbe(context, relay, mode === 'timeout' ? { timeoutMs: 500 } : {});
+      const report = await diagnosticProbe(context, relay, {
+        ...(mode === 'timeout' ? { timeoutMs: 2000 } : {}),
+        // Synthetic cancellation must still prove positive group closure;
+        // allow hosted scheduling without weakening that confirmation.
+        execute: (spec) => streamProcess({ ...spec, killGraceMs: 2000 }),
+      });
       assert.equal(report.relay.joined, true); assert.ok(report.framedBytes <= 1048576 && report.rawBytes <= 1048576);
       const pid = JSON.parse(fs.readFileSync(pidFile, 'utf8'));
       assert.deepEqual(pid.args, ['memory', 'bench', '--n', '10000', '--public-view']);
