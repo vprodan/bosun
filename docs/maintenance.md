@@ -8,6 +8,8 @@ The owner selected GitHub-hosted macOS arm64 builds and explicitly approved ephe
 
 Fresh hosted SQLite admission uses a receipt bound to pinned source/patch, native output and provenance, current Bun/host/toolchain/SDK, verifier source and the actual app-free OS-contained probe. It does not substitute a workstation hash for a hosted build or weaken the fixed local admission path. Build metadata remains `runtimeQualification: unverified`; hosted/native/compiled safety evidence does not qualify live controls or model quality.
 
+Hosted run38506840133 passed fresh native qualification,35 containment probes, typecheck and boundaries, then93/94 test files passed. Distribution tests were blocked by the JavaScript file guard when hashing Bun outside the checkout, not by SQLite behavior. The guard now permits the current runtime and only exact canonical public Apple compiler/SDK files declared by the qualification receipt; SDK/toolchain directory metadata is permitted, but directory contents, private data, writes and process execution remain protected. Fresh contained compiled and release-package smoke passed locally, including ZIP/commit/overwrite denials. The hosted correction still requires a passing observed run before publication.
+
 Publication rejects existing releases and uncertain lookup outcomes. After draft creation, failures retain the draft for review rather than replaying or overwriting. `.github/workflows/cd.yml` is tag-triggered; commands and asset format are documented in `CONTRIBUTING.md`. Hosted execution/publication evidence must be observed before claiming a release.
 
 ## Native major compatibility and CI correction (2026-10-14)

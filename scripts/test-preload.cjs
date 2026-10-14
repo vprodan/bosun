@@ -47,6 +47,36 @@ function canonical(value, follow = true) {
   }
   catch { fail('cannot resolve filesystem path'); }
 }
+// Qualification hashes public executable inputs. Grant exact files, never their
+// containing directories, credentials, configuration, writes or execution.
+const publicInputFiles = new Set([canonical(process.execPath)]);
+const publicInputMetadata = new Set();
+const nativeReceipt = path.join(repo, '.omp/tooling/sqlite-native-13.0.3/qualification.json');
+if (original.exists(nativeReceipt)) {
+  const stat = original.lstat(nativeReceipt);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 1024 * 1024 || canonical(nativeReceipt) !== nativeReceipt)
+    fail('invalid native public-input receipt');
+  const receipt = JSON.parse(original.read(nativeReceipt, 'utf8'));
+  const provenance = JSON.parse(receipt.provenance.json);
+  const appleRoot = '(?:/Library/Developer/CommandLineTools|/Applications/Xcode(?:_[0-9.]+)?\\.app/Contents/Developer)';
+  const compiler = new RegExp(`^${appleRoot}/(?:Toolchains/[^/]+\\.xctoolchain/)?usr/bin/(?:clang(?:\\+\\+)?|ld)$`);
+  const sdk = new RegExp(`^${appleRoot}/(?:Platforms/MacOSX\\.platform/Developer/)?SDKs/MacOSX[^/]*\\.sdk$`);
+  const toolchain = new RegExp(`^${appleRoot}(?:/Toolchains/[^/]+\\.xctoolchain)?$`);
+  const tools = [...provenance.toolchain, provenance.hostedToolchain.xcrun, provenance.hostedToolchain.sdkSettings];
+  if (tools.length !== 5) fail('invalid native public-input inventory');
+  for (const tool of tools) {
+    if (typeof tool.realpath !== 'string' || canonical(tool.realpath) !== tool.realpath ||
+        !(compiler.test(tool.realpath) || tool.realpath === '/usr/bin/xcrun' ||
+          (path.basename(tool.realpath) === 'SDKSettings.json' && sdk.test(path.dirname(tool.realpath)))))
+      fail('native public input is not an installed Apple tool/SDK file');
+    publicInputFiles.add(tool.realpath);
+  }
+  for (const [directory, pattern] of [[provenance.sdk, sdk], [provenance.hostedToolchain.toolchainRoot, toolchain]]) {
+    if (typeof directory !== 'string' || !pattern.test(directory) || canonical(directory) !== directory)
+      fail('native public-input metadata escapes Apple SDK/toolchain');
+    publicInputMetadata.add(directory);
+  }
+}
 function gitMetadata(cwd) {
   for (let current = canonical(cwd); inside(root,current); current = path.dirname(current)) {
     const marker = path.join(current,'.git');
@@ -124,7 +154,7 @@ function nativeCall(fn, receiver, args) {
   try { return fn.apply(receiver, args); } finally { nativePermit--; }
 }
 function checkResolvedFile(resolved, write) {
-  if (!inside(root, resolved) && (write || !inside(repo, resolved))) fail(`${write ? 'write' : 'read'} outside run root${write ? '' : '/repository'}`);
+  if (!inside(root, resolved) && (write || (!inside(repo, resolved) && !publicInputFiles.has(resolved)))) fail(`${write ? 'write' : 'read'} outside run root${write ? '' : '/repository'}`);
 }
 function checkFile(value, write = false, follow = true) {
   if (typeof value === 'number') return; // stdin/stdout and descriptors opened through the guard
@@ -140,6 +170,7 @@ function wrapFiles(target, name, checks) {
       // Executability metadata for the already allowlisted standalone Git is
       // permitted; its bytes, host config and all writes remain protected.
       if (!write && ['stat','statSync','access','accessSync'].includes(name) && GIT_REAL && resolved === GIT_REAL) continue;
+      if (!write && ['stat','statSync','lstat','lstatSync','realpath','realpathSync'].includes(name) && publicInputMetadata.has(resolved)) continue;
       // The metadata-only resolver walks fixed root ancestors without opening
       // files. Permit their lstat metadata, never ancestor bytes or directory lists.
       if (!write && ['lstat','lstatSync'].includes(name)) {

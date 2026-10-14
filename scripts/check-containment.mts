@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import net from 'node:net';
 import { spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 const { environment, ROOT_KEYS, GIT_REAL } = createRequire(import.meta.url)('./test-env.cjs') as typeof TestEnvironment;
@@ -254,6 +255,13 @@ try {
       const derived=new Derived(':memory:'); assert.ok(derived instanceof Derived); assert.ok(derived instanceof Database); derived.close();
     } finally {db.close();}`));
   assert.equal(fs.existsSync(constructorFile), false, 'rejected constructor URIs must not reach a native file open');
+  const runtimeDigest = crypto.createHash('sha256').update(fs.readFileSync(process.execPath)).digest('hex');
+  probe('public runtime hashing is read-only and does not grant private sentinel access', () => good(`
+    import assert from 'node:assert/strict'; import fs from 'node:fs'; import crypto from 'node:crypto';
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(process.execPath)).digest('hex'),${JSON.stringify(runtimeDigest)});
+    assert.throws(()=>fs.openSync(process.execPath,'r+'));
+    assert.throws(()=>fs.readFileSync(${JSON.stringify(path.join(outside,'read-sentinel'))}));
+    assert.throws(()=>fs.readdirSync(${JSON.stringify(path.dirname(process.execPath))}));`));
   probe('real credential/config reads fail', () => good(`
     import assert from 'node:assert/strict'; import fs from 'node:fs';
     assert.throws(()=>fs.readFileSync(${JSON.stringify(path.join(outside, '.claude', '.credentials.json'))}),/containment/);`));
