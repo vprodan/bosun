@@ -23,6 +23,7 @@ import { createLaunchdControl, launchdList } from '../src/adapters/services/laun
 import { callLocalRpc } from '../src/adapters/transport/local-rpc.ts';
 import { readRuntimeManifest, writeRuntimeManifest } from '../src/platform/manifest.ts';
 import { main } from '../src/app/cli.ts';
+import { runInstallWizard } from '../src/app/install-wizard.ts';
 
 test('start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart', async () => {
   const f = await fixture();
@@ -262,6 +263,68 @@ const until=Date.now()+4000;const poll=()=>{let alive=false;if(value.pid!==null)
     },
   };
 }
+
+test('wizard optional start uses the owned service transaction and preserves local memory privacy', async () => {
+  const f = await fixture();
+  try {
+    const questions: string[] = [];
+    const result = await runInstallWizard({
+      ...f.options,
+      binary: f.plan.binary.path,
+      control: f.control,
+      confirm: async question => { questions.push(question.kind); return question.kind === 'start'; },
+      write() {},
+    });
+    assert.equal(result.state, 'ready');
+    assert.equal(result.service, 'enabled');
+    assert.deepEqual(questions, ['start']);
+    assert.equal(f.record().service.state, 'enabled');
+    assert.equal(f.calls().filter(args => args[0] === 'bootstrap').length, 1);
+    const stored = await callLocalRpc<{ memory: { id: string; private: boolean } }>({
+      socket: f.paths.socket,
+      request: {
+        version: 1, id: 'wizard-private-note', method: 'memory.store',
+        params: { category: 'personal', title: 'Private wizard note', body: 'Owner-only retained data.', private: true },
+        scope: { workspace: f.sb.root, sessionId: null, audience: 'owner' },
+      },
+    });
+    assert.equal(stored.memory.private, true);
+    const publicSearch = await callLocalRpc<{ hits: { id: string }[] }>({
+      socket: f.paths.socket,
+      request: {
+        version: 1, id: 'wizard-public-search', method: 'memory.search',
+        params: { text: 'Owner-only retained', includePrivate: false },
+        scope: { workspace: f.sb.root, sessionId: null, audience: 'owner' },
+      },
+    });
+    assert.equal(publicSearch.hits.some(note => note.id === stored.memory.id), false);
+    await f.operate('disable', 'wizard-close');
+  } finally { await f.close(); }
+});
+
+test('wizard holds a genuinely unknown service acknowledgement without replaying or rewriting receipts', async () => {
+  const f = await fixture();
+  try {
+    f.settings({ loseBootstrap: true });
+    await assert.rejects(() => f.operate('enable', 'wizard-lost-enable'));
+    assert.equal(f.record().service.state, 'unknown');
+    const calls = f.calls();
+    const manifest = fs.readFileSync(f.paths.manifest);
+    const binary = fs.readFileSync(f.plan.targetBinary);
+    let prompts = 0;
+    for (let n = 0; n < 2; n++) {
+      const result = await runInstallWizard({
+        ...f.options, binary: f.plan.binary.path, control: f.control,
+        confirm: async () => { prompts++; return true; }, write() {},
+      });
+      assert.equal(result.state, 'held');
+    }
+    assert.equal(prompts, 0);
+    assert.deepEqual(f.calls(), calls);
+    assert.deepEqual(fs.readFileSync(f.paths.manifest), manifest);
+    assert.deepEqual(fs.readFileSync(f.plan.targetBinary), binary);
+  } finally { await f.close(); }
+});
 const code = (expected: string) => (error: unknown) =>
   error instanceof BosunError && error.code === expected;
 test('legacy launchd list accepts only bounded declared columns and unique labels, withholding unknown observations', () => {

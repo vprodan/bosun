@@ -60,7 +60,7 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-Download **`bosun-1.0.1-darwin-arm64.zip`** from
+Download **`bosun-1.0.2-darwin-arm64.zip`** from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
 Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
 release notes are supplementary metadata, checksums and tested-scope information,
@@ -76,42 +76,45 @@ Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
 extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.0.1-darwin-arm64"
-BOSUN="$PWD/bosun"
-./bosun --version
-"$BOSUN" doctor
+cd "$HOME/Downloads/bosun-1.0.2-darwin-arm64"
+./bosun install
 ```
 
-On first use, `doctor` reports `prepared: false` and exits with an error because
-the data home is not set up yet. This is expected; follow the new-home steps below.
+**The guided installer is new in v1.0.2; its release is pending.** The currently
+published v1.0.1 does not have this interactive flow. If you have that release,
+use the [v1.0.1 manual fallback](docs/upgrade-and-install.md#current-v101-manual-fallback)
+instead; do not enter the new command into an older binary.
 
-**[Follow the complete numbered setup and installation guide](docs/upgrade-and-install.md)**
-for Gatekeeper, checksum checks, new-home setup, reviewed installation into
-`~/.local/bin/bosun`, and PATH setup. Installation uses the CLI's **plan/apply**
-flow; do not copy a binary over a running installation.
+In a real terminal, the installer inspects your home before changing anything.
+For a new private home it asks to prepare local data, shows the release source,
+installed destination and backup, and asks you to confirm that existing clients
+are stopped before installation. Replacing an unmanaged executable needs a
+separate approval. Starting the background service is optional and defaults to
+**No**. A ready home retains its saved configuration and exact model selections.
+Unsafe, legacy, incomplete or unknown state is held for inspection, not reset
+or retried. No JSON editing or hash-copy commands are needed.
 
-For a **new home only**, you can begin directly from the extracted folder:
+The installer prints your absolute installed executable path. If you decline
+background start, run it in the foreground and leave that terminal open:
 
 ```sh
-"$BOSUN" setup
-"$BOSUN" config show
-"$BOSUN" daemon run
+"$HOME/.local/bin/bosun" daemon run
 ```
 
-Your local data lives in `~/.bosun` by default (`BOSUN_HOME` selects another
-absolute path). **If you already have `~/.bosun` data, do not run `setup` or
-reset it:** use the guide's advanced upgrade instructions instead.
-`setup` prepares a new data home; it does not install the executable.
-
-Leave the foreground daemon running in this terminal. Open a **second terminal**
-and select the same extracted folder to try local memory:
+Open a second terminal (with the same `BOSUN_HOME`, if customized):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.0.1-darwin-arm64"
-BOSUN="$PWD/bosun"
-"$BOSUN" memory add --category project --title "First note" --body "Bosun is running locally."
-"$BOSUN" memory search Bosun
+"$HOME/.local/bin/bosun" memory add --category project --title "First note" --body "Bosun is running locally."
+"$HOME/.local/bin/bosun" memory search Bosun
 ```
+
+Use the explicit installed path or `export PATH="$HOME/.local/bin:$PATH"` for
+the current shell session. Bosun never edits your shell configuration. Data
+lives in `~/.bosun` by default (`BOSUN_HOME` selects another absolute path).
+Existing data must never be reset to bypass an installation hold.
+
+**[Complete installation guide](docs/upgrade-and-install.md)** covers expected
+prompts, Gatekeeper limits and the secondary advanced plan/apply interface.
 
 The release **bundles Bun**: you need no separate Bun, Node, npm, `gh`, or `jq`
 installation. Clients do not start the daemon implicitly, and these commands

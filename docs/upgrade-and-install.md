@@ -1,6 +1,78 @@
 # Upgrade, installation and onboarding
 
-## Start here: downloaded v1.0.1 ZIP
+## Guided v1.0.2 installation (release pending)
+
+The new guided flow below is for **v1.0.2**, whose release is pending. The
+currently published **v1.0.1 does not include the wizard**; use the
+[manual fallback below](#current-v101-manual-fallback) for that binary.
+
+Download the matching trusted macOS arm64 ZIP when published, verify its
+`SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
+The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains
+an unnotarized terminal application, not a GUI installer. The narrow
+[Gatekeeper guidance below](#1-unzip-and-open-the-extracted-folder-in-terminal)
+applies; installation cannot bypass macOS security policy.
+
+Run one command in an interactive terminal:
+
+```sh
+./bosun install
+```
+
+Keep your intended `BOSUN_HOME` consistent across terminals (default `~/.bosun`).
+The installer first inspects paths and retained receipts without initializing
+existing data. Expect these explicit choices:
+
+1. **Prepare local data?** Only offered for an absent or empty private home.
+   Declining leaves it untouched. Existing ready settings and exact model
+   selections are preserved; OMP remains the primary default for new homes.
+2. **Replace an existing unmanaged executable?** A separate approval, only when
+   needed. Declining does not replace it.
+3. **Install this reviewed release with clients stopped?** Read the human
+   summary of source, destination, backup and data home. Stop daemon and clients
+   yourself before confirming. The wizard saves and applies the exact reviewed
+   plan internally; you never need to copy JSON fields or hashes.
+4. **Start the background service?** Optional, defaults to **No**. A successful
+   installation otherwise leaves the service prepared, not running.
+
+Cancelling never silently approves the next step. Setup already explicitly
+approved can remain after declining installation. A held home, changed receipt,
+unknown service operation or drifted installation is not repaired or replayed:
+follow the printed `doctor`, upgrade or installation-status guidance. Do not
+delete data/receipts, remove SQLite sidecars or change permissions to bypass a
+hold. No hosts, credentials or model bindings are installed or guessed.
+
+Use the absolute executable path printed on completion. For the default layout,
+if background start was declined, leave this running in the first terminal:
+
+```sh
+"$HOME/.local/bin/bosun" daemon run
+```
+
+In a second terminal, with the same home selection:
+
+```sh
+"$HOME/.local/bin/bosun" memory add --category project --title "First note" --body "Bosun is installed and running."
+"$HOME/.local/bin/bosun" memory search installed
+```
+
+These are local lexical-memory operations, not model calls. Use a non-sensitive
+example note and inspect `memory add --help` before storing private information.
+For this shell session only, optionally run
+`export PATH="$HOME/.local/bin:$PATH"`. Bosun does not edit shell startup files.
+After memory works, `bosun onboard --host omp` describes optional reviewed host
+setup; authentication and explicit provider/model selection remain yours.
+
+Source-checkout users must select a qualified absolute release executable:
+`bun bin/bosun install --binary /absolute/release/bosun`. There is no `--yes`
+bypass; noninteractive callers should use the secondary
+[advanced plan/apply interface](#install-an-owned-executable).
+
+## Current v1.0.1 manual fallback
+
+The following numbered procedure remains available for the published v1.0.1
+binary and for users deliberately choosing explicit plan/apply. It is not the
+guided v1.0.2 quickstart.
 
 This guide is for the **macOS Apple Silicon (`arm64`)** release. You do not need a
 source checkout, Bun, Node, npm, `gh` or `jq`: the executable bundles its Bun

@@ -85,6 +85,8 @@ GROUPS.managedruntime = ['managed-runtime.test.ts'];
 GROUPS.upgrade = ['upgrade.test.ts'];
 GROUPS.remote = ['remote-runtime.test.ts', 'remote-view.test.ts'];
 GROUPS.installation = ['installation.test.ts'];
+GROUPS.installwizard = ['install-wizard.test.ts'];
+GROUPS.cli = ['cli.test.ts'];
 GROUPS.service = ['installation-service.test.ts'];
 GROUPS.suggestions = ['memory-suggestions.test.ts'];
 GROUPS.privacy.push('memory-suggestions.test.ts');

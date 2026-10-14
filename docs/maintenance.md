@@ -2,6 +2,16 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Guided installation (2026-10-14)
+
+The owner requested simple installation/use after a generic setup failure. Source1.0.2 adds explicit terminal `bosun install`: approved new-home preparation, readable review and separate replacement approval, internal exact plan/hash application, and an optional separately approved owned-service start. Existing configuration/model selections and unknown receipts are retained; unsafe/legacy/incomplete layouts hold without repair or replay. Noninteractive/model callers cannot silently install. Advanced plan/apply remains available.
+
+An actual compiled terminal smoke approved preparation/install and declined service start; the user-local executable and ready dormant receipt were created only inside disposable OS-contained HOME. Terminal cancellation left the home absent; an unsafe0755 home held unchanged; a ready repeat retained config/installation and asked only about service start; noninteractive entry refused. Optional native start is covered by the existing synthetic launchd seam, not a live personal service.
+
+Typecheck and36 containment probes passed. Guided installer, CLI, installation, runtime, boundaries and lint suites passed; a new service privacy assertion initially used the wrong RPC result shape, then all18 service cases passed after correcting it. Source1.0.2 release still requires hosted qualification/publication. The previous onboarding push's full CI hit an existing120s10k benchmark timeout, not an onboarding assertion; do not claim that run green or weaken its benchmark checks.
+
+Fresh compiled1.0.2 safety passed version/help/private-hook/private-route/MCP, seven storage/privacy requests, shutdown/reacquisition and10000-note/21-hook delivery with all producers joined. Local binary SHA256 `595a250827c52dee55049ad2ec2d00d416cec65b8c5e59a385b18aa58c300e0f` is local smoke evidence, not a hosted release hash.
+
 ## Release-user onboarding (2026-10-14)
 
 The downloaded ZIP path now has a release-first README and numbered installation guide, with no source/Bun/Node/gh/jq prerequisites. Future packages include the committed guide as `INSTALL.md` and getting-started release notes; published1.0.1 assets remain unchanged. The current guide is available online.

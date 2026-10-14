@@ -32,6 +32,8 @@ import { project } from '../platform/project.ts';
 import type { startDaemon as DaemonFactory } from './daemon.ts';
 import { acceptedJob } from '../core/domain/job.ts';
 import { cardStatus } from '../core/domain/card.ts';
+import { runInstallWizard, type InstallWizardOptions } from './install-wizard.ts';
+import { diagnoseRuntime } from './doctor.ts';
 
 function textInput(file: string, max = 32768): string {
   const fd = file === '-' ? 0 : fs.openSync(file, 'r');
@@ -73,6 +75,7 @@ export async function main(
     admit?: Parameters<typeof DaemonFactory>[0]['admit'];
     quotaSources?: Parameters<typeof DaemonFactory>[0]['quotaSources'];
     serviceControl?: import('../adapters/services/launchd.ts').LaunchdControl;
+    installConfirm?: InstallWizardOptions['confirm'];
   } = {},
 ): Promise<number> {
   const env = options.env ?? process.env;
@@ -649,7 +652,15 @@ export async function main(
     .description('Initialize a new private runtime; install no hosts or models.')
     .action(async () => {
       owner();
-      print(await setupRuntime(paths(), config()));
+      try {
+        print(await setupRuntime(paths(), config()));
+      } catch {
+        out('Setup did not finish; existing data was retained. Run bosun doctor and inspect setup or the supported upgrade before retrying. Runtime ownership and private permissions require review; no automatic repair was attempted.\n');
+        try { print(diagnoseRuntime({ paths: paths(), env })); } catch {
+          out('Runtime diagnostics are unavailable. Inspect the configured runtime path and its ownership without modifying existing data.\n');
+        }
+        exitCode = 1;
+      }
     });
   program
     .command('onboard')
@@ -665,7 +676,37 @@ export async function main(
     });
   const install = program
     .command('install')
-    .description('Review and apply an owned binary and dormant daemon definition.');
+    .description('Install interactively, or review and apply an advanced installation plan.')
+    .option('--binary <file>', 'Absolute downloaded release executable (required when running from source).')
+    .action(async (opt) => {
+      owner();
+      if (!options.installConfirm && (!process.stdin.isTTY || !process.stdout.isTTY)) {
+        out('Interactive installation requires an owner terminal. Run ./bosun install there, or use bosun setup and bosun install plan/apply for reviewed noninteractive installation.\n');
+        exitCode = 1;
+        return;
+      }
+      const binary = opt.binary ?? (import.meta.url.includes('/$bunfs/') ? process.execPath : undefined);
+      if (!binary) {
+        out('Source execution requires a downloaded release: install --binary /absolute/path/to/bosun. No changes were made.\n');
+        exitCode = 1;
+        return;
+      }
+      // The prompt UI must not load for ordinary commands or noninteractive rejection.
+      const prompts = options.installConfirm ? undefined : await import('@clack/prompts');
+      prompts?.intro('Install Bosun');
+      const confirm: InstallWizardOptions['confirm'] =
+        options.installConfirm ?? (async (question) => {
+          const answer = await prompts!.confirm({ message: question.message, initialValue: question.initialValue });
+          return !prompts!.isCancel(answer) && answer === true;
+        });
+      const result = await runInstallWizard({
+        paths: paths(), env, binary, confirm, control: options.serviceControl,
+        write: (text) => { if (prompts) prompts.log.info(text.trimEnd()); else out(text); },
+      });
+      if (prompts) prompts.outro(result.message);
+      else out(result.message + '\n');
+      if (result.state === 'held') exitCode = 1;
+    });
   type InstallationOptions = { version: number; hash: string; clientsStopped?: boolean };
   type ServiceOptions = InstallationOptions & { requestId: string };
   const undoOwnedInstallation = async (id: string, opt: InstallationOptions) => {
