@@ -1,16 +1,15 @@
 # Extending bosun
 
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
-Package metadata is `1.0.0`. The owner-approved fresh cleanup artifact is
-`dist/bosun-1.0.0-darwin-arm64-cleanup/`, with the original local release retained.
-It passed the coordinator's exercised contained minimum safety before the typed-tooling
-migration; migration verification is pending. Real-model tuning/quality, live-host
-and broader physical qualification remain deferred. Unverified controls stay gated.
+Package metadata is `1.0.1`. Hosted CI qualifies fresh native inputs and runs every
+guarded suite; tag CD additionally smokes and packages the compiled artifact.
+Existing local artifacts retain their original versions and evidence scopes.
+Real-model quality, live-host and full production qualification remain deferred.
 [Maintenance guidance](docs/maintenance.md) records candidate-bound
-evidence, retained-stash/external-backup recovery and current permissions. Complete
-housekeeping/code cleanup, a fresh rebuild/requalification and one local commit
-of the cleaned repository were authorized; no push, installs, live calls,
-personal-state changes or history rewriting.
+evidence, retained-stash/external-backup recovery and current permissions.
+The owner authorized commits/pushes, tag-based publication and ephemeral hosted
+dependency preparation. Local installs, live calls, personal-state changes and
+history rewriting remain unauthorized.
 
 The source entry `./install.sh <action>` invokes Bun with `--no-env-file
 --no-install`; `./install.sh --help` reaches command help without installing.
@@ -171,8 +170,8 @@ builds into an absent output directory, verifies source/artifact integrity and
 exercises compiled storage/privacy/shutdown/public-hook safety before packaging.
 
 ```sh
-git tag v1.0.0 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
-git push origin refs/tags/v1.0.0
+git tag v1.0.1 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
+git push origin refs/tags/v1.0.1
 ```
 
 Use a new matching version/tag for future releases; never move a published tag.

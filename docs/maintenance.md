@@ -10,6 +10,10 @@ Fresh hosted SQLite admission uses a receipt bound to pinned source/patch, nativ
 
 Hosted run38506840133 passed fresh native qualification,35 containment probes, typecheck and boundaries, then93/94 test files passed. Distribution tests were blocked by the JavaScript file guard when hashing Bun outside the checkout, not by SQLite behavior. The guard now permits the current runtime and only exact canonical public Apple compiler/SDK files declared by the qualification receipt; SDK/toolchain directory metadata is permitted, but directory contents, private data, writes and process execution remain protected. Fresh contained compiled and release-package smoke passed locally, including ZIP/commit/overwrite denials. The hosted correction still requires a passing observed run before publication.
 
+CI run38508423972 at `2b892b3` subsequently passed fresh native qualification,36/36 containment, typecheck, boundaries and94/94 guarded files. First CD run38509299790 for `v1.0.0` stopped before build/publication on a normal synthetic Codex creation with an unknown outcome; its100ms fixture request budget is a likely scheduling sensitivity, not a confirmed production defect. The fixture budget is now1000ms, while production deadlines and explicit cancellation/nonreplay assertions stay unchanged. Preserve the pushed `v1.0.0` tag; use package/tag1.0.1 for the corrected delivery rather than rewriting tag history.
+
+The patch's guarded Codex suite passed14/14 and typecheck passed. A disposable OS-contained client smoke delayed the real initialization response150ms: the100ms budget produced timeout/unknown;1000ms connected with the exact native version. Both original processes joined with no retries or live models. The throwaway fixture was removed. This proves the fixture budget distinction, not the hidden cause of the earlier hosted catch.
+
 Publication rejects existing releases and uncertain lookup outcomes. After draft creation, failures retain the draft for review rather than replaying or overwriting. `.github/workflows/cd.yml` is tag-triggered; commands and asset format are documented in `CONTRIBUTING.md`. Hosted execution/publication evidence must be observed before claiming a release.
 
 ## Native major compatibility and CI correction (2026-10-14)
@@ -25,7 +29,7 @@ Current artifact: `dist/bosun-1.0.0-darwin-arm64-host-major/`. Binary SHA256 `0d
 
 ## Current scope and permissions
 
-- Package version is **1.0.0**; **OMP is primary for new configuration**, with OpenCode 2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.
+- Package version is **1.0.1**; **OMP is primary for new configuration**, with OpenCode 2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.
 - The owner authorized complete repository housekeeping and code cleanup, preservation and identical reapplication of the retained stash, canonical asset reconciliation, and a **fresh local artifact rebuild and guarded requalification**. This supersedes the older “no cleanup/removal workstream” instructions, including those still present in dated plans.
 - The owner subsequently authorized reviewed commits/pushes and version-tag CI/CD publication. Ephemeral GitHub-hosted dependency preparation is approved; local installs, personal configuration/auth/database/LaunchAgent changes, live host/model/service calls and history rewriting remain unauthorized. Use Bun only; native Node-API headers remain build inputs, never permission to execute Node. Preserve existing recovery artifacts.
 - The coordinator owns artifact cleanup, stash integration, source/asset integration and final verification. Workers do not run tests/builds/linters during edits. Fresh local rebuild permission does not execute old pending compiled/corpus proposals or authorize live qualification.

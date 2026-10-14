@@ -116,7 +116,8 @@ rl.on('close',()=>process.exit(0));
     freshClaim: () => ({ ownerId: 'owner_fixture', generation: generation + 1 }),
   };
   const driver = createCodexControl(
-    { env: environment, requestTimeoutMs: 100, killGraceMs: 20 },
+    // Success fixtures must tolerate hosted scheduling; cancellation still uses explicit aborts.
+    { env: environment, requestTimeoutMs: 1000, killGraceMs: 20 },
     gates,
   );
   return {

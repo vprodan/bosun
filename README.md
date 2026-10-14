@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Release 1.0.0](https://img.shields.io/badge/Release-1.0.0-555555.svg)](https://github.com/vprodan/bosun/releases)
+[![Release 1.0.1](https://img.shields.io/badge/Release-1.0.1-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -71,10 +71,10 @@ dependency/runtime licenses and source/relink information. The repository is
 private; downloading its releases requires appropriate GitHub access.
 
 ```sh
-gh release download v1.0.0 --repo vprodan/bosun --dir bosun-release
+gh release download v1.0.1 --repo vprodan/bosun --dir bosun-release
 cd bosun-release
 shasum -a 256 -c SHA256SUMS
-unzip bosun-1.0.0-darwin-arm64.zip -d unpacked
+unzip bosun-1.0.1-darwin-arm64.zip -d unpacked
 cd unpacked
 shasum -a 256 -c SHA256SUMS
 ./bosun --version
