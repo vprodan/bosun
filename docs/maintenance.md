@@ -12,6 +12,8 @@ Typecheck and36 containment probes passed. Guided installer, CLI, installation, 
 
 Fresh compiled1.0.2 safety passed version/help/private-hook/private-route/MCP, seven storage/privacy requests, shutdown/reacquisition and10000-note/21-hook delivery with all producers joined. Local binary SHA256 `595a250827c52dee55049ad2ec2d00d416cec65b8c5e59a385b18aa58c300e0f` is local smoke evidence, not a hosted release hash.
 
+Guided source CI run38603440425 passed94/95 files but the same explicit10k test hit Bun's120s default watchdog on the slower hosted runner. That diagnostic asserts measured samples/privacy/20 hook deliveries, not a120s SLA. Its test-only timeout is now600s; corpus, writer protections, hook producer deadlines and all assertions remain unchanged. Typecheck and both full benchmark suites passed locally (23 cases, including actual10000-note/20-hook source delivery in51.8s). Hosted qualification remains required before release; no retry-to-green or skipped workload.
+
 ## Release-user onboarding (2026-10-14)
 
 The downloaded ZIP path now has a release-first README and numbered installation guide, with no source/Bun/Node/gh/jq prerequisites. Future packages include the committed guide as `INSTALL.md` and getting-started release notes; published1.0.1 assets remain unchanged. The current guide is available online.

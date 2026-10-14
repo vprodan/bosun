@@ -708,7 +708,9 @@ test('benchmark requires a successful child, valid envelope and exact synthetic 
   assert.equal(benchmarkHookOutcome({ status: 0, stdout: '' }, ids), 'held');
 });
 
-test('explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats', async () => {
+// This explicit 10k diagnostic is not a two-minute performance SLA; retain
+// its full corpus and assertions on slower contained hosted runners.
+test('explicit 10k public-view bench delivers actual native hook notes while preserving owner paths, epoch and stats', { timeout: 600000 }, async () => {
   const sb = sandbox();
   try {
     const repo = gitRepo(sb, 'bench-public', 'git@github.com:org/bench-public.git');
