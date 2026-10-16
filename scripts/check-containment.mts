@@ -464,6 +464,29 @@ try {
       assert.equal(r.status,2,r.stderr);
     }
   });
+  probe('malformed, duplicate and impossible shards fail before application suites', () => {
+    const invalid = [
+      ['--shard'],
+      ...['', '0/1', '1/0', '-1/2', '1/-2', '2/1', '01/2', '1/02', '+1/2',
+        '1.0/2', '1/2.0', '1e0/2', '1', '1/2/3', '1/2=extra', ' 1/2',
+        '1/2 ', '9007199254740992/9007199254740992', '1/9007199254740992']
+        .flatMap((value) => [['--shard', value], [`--shard=${value}`]]),
+      ['--shard', '1/1', '--shard', '1/1'],
+      ['--shard=1/1', '--shard=1/1'],
+      ['--shard', '1/1', '--shard=1/1'],
+      ['--suite', 'core', '--shard', '1/2'],
+      ['--suite=core', '--shard=2/2'],
+      ['--suite', 'containment', '--shard', '1/1'],
+    ];
+    for (const args of invalid) {
+      const r = spawnSync(process.execPath, [path.join(repo, 'scripts/run-tests.mts'), ...args], {
+        cwd: repo, env: { PATH: path.dirname(process.execPath) }, encoding: 'utf8', timeout: 10000,
+      });
+      assert.equal(r.error, undefined, JSON.stringify(args));
+      assert.equal(r.status, 2, JSON.stringify({ args, stdout: r.stdout, stderr: r.stderr }));
+      assert.equal(r.stdout, '', 'invalid shards must fail before containment or application suites run');
+    }
+  });
   assert.deepEqual(fs.readdirSync(outside), ['read-sentinel'], 'negative probes must not add outside files');
   assert.equal(fs.readFileSync(path.join(outside, 'read-sentinel'), 'utf8'), 'synthetic immutable sentinel', 'outside bytes must remain unchanged');
   console.log(`Containment: ${count}/${count} probes passed; application suites not imported.`);

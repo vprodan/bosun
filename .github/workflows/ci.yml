@@ -18,13 +18,16 @@ jobs:
     name: Changed active-source hygiene
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      product-changes: ${{ steps.changed-paths.outputs.product-changes }}
     steps:
       - name: Check out source
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Check changed active paths for whitespace errors
+      - name: Classify changed paths and check active-source whitespace
+        id: changed-paths
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -33,27 +36,54 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          if [[ "$EVENT_NAME" == pull_request ]]; then
-            base=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
-            tip=$PR_HEAD_SHA
+          # Only a known push/PR range can authorize skipping qualification.
+          comparable=false
+          base=
+          tip=$GITHUB_SHA
+          if [[ "$EVENT_NAME" == pull_request && -n "$PR_BASE_SHA" && -n "$PR_HEAD_SHA" ]]; then
+            if base=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA"); then
+              tip=$PR_HEAD_SHA
+              comparable=true
+            fi
           elif [[ "$EVENT_NAME" == push && -n "$BEFORE_SHA" && "$BEFORE_SHA" != 0000000000000000000000000000000000000000 ]]; then
-            base=$BEFORE_SHA
+            if git cat-file -e "$BEFORE_SHA^{commit}" && git cat-file -e "$GITHUB_SHA^{commit}"; then
+              base=$BEFORE_SHA
+              comparable=true
+            fi
+          fi
+          if [[ "$comparable" != true ]]; then
+            # Unknown ranges still receive hygiene and full qualification.
             tip=$GITHUB_SHA
-          else
-            # A new branch/manual dispatch checks the latest commit, not historical evidence.
-            tip=$GITHUB_SHA
-            if git rev-parse --verify "$tip^" >/dev/null 2>&1; then
-              base=$(git rev-parse "$tip^")
-            else
+            if ! base=$(git rev-parse --verify "$tip^" 2>/dev/null); then
               base=$(git hash-object -t tree /dev/null)
             fi
           fi
+
+          product_changes=true
+          paths=$(mktemp)
+          trap 'rm -f "$paths"' EXIT
+          # A file, rather than process substitution, preserves diff failure.
+          # Disabling renames checks both sides of moves, including deletions.
+          if [[ "$comparable" == true ]] && git diff --no-renames --name-only -z "$base" "$tip" -- >"$paths"; then
+            product_changes=false
+            while IFS= read -r -d '' path; do
+              case "$path" in
+                README.md|AGENTS.md|CONTRIBUTING.md|ARCHITECTURE.md) ;;
+                docs/licenses|docs/licenses/*) product_changes=true; break ;;
+                docs/*.md) ;;
+                *) product_changes=true; break ;;
+              esac
+            done <"$paths"
+          fi
+          printf 'product-changes=%s\n' "$product_changes" >>"$GITHUB_OUTPUT"
           git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab diff --check "$base" "$tip" -- \
             src scripts test bin .github roles skills \
             package.json bun.lock tsconfig.json install.sh policy.md
 
   qualified-checks:
     name: Hosted macOS arm64 qualification and full checks
+    needs: source-hygiene
+    if: ${{ needs.source-hygiene.result == 'success' && needs.source-hygiene.outputs.product-changes != 'false' }}
     runs-on: macos-15
     timeout-minutes: 90
     steps:

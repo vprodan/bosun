@@ -10,6 +10,9 @@ const { environment, cleanupRun } = require('./test-env.cjs') as typeof TestEnvi
 const { assertRuntime, createRun, launch } = require('./test-runtime.cjs') as typeof TestRuntime;
 const repo = path.resolve(import.meta.dirname, '..');
 let suite = 'all';
+let shard: { index: number; count: number } | undefined;
+let tests: string[] = [];
+let totalTests = 0;
 const GROUPS: Record<string, string[]> = {
   publicreader: ['public-reader.test.ts'],
   publication: ['publication.test.ts'],
@@ -117,13 +120,24 @@ try {
   assertRuntime();
   const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i++) {
-    const [flag, inline] = args[i].split('=');
-    if (!['--suite', '--runtime'].includes(flag)) throw new Error(`Unknown option: ${flag}`);
+    const separator = args[i].indexOf('=');
+    const flag = separator === -1 ? args[i] : args[i].slice(0, separator);
+    const inline = separator === -1 ? undefined : args[i].slice(separator + 1);
+    if (!['--suite', '--runtime', '--shard'].includes(flag)) throw new Error(`Unknown option: ${flag}`);
     const value = inline ?? args[++i];
     if (value === undefined) throw new Error(`Missing value for ${flag}`);
     if (flag === '--runtime' && value !== 'bun')
       throw new Error('Only --runtime bun is supported; no Node fallback');
     if (flag === '--suite') suite = value;
+    if (flag === '--shard') {
+      if (shard) throw new Error('Duplicate --shard option');
+      if (!/^[1-9][0-9]*\/[1-9][0-9]*$/.test(value))
+        throw new Error('--shard requires canonical INDEX/COUNT positive integers');
+      const [index, count] = value.split('/').map(Number);
+      if (!Number.isSafeInteger(index) || !Number.isSafeInteger(count) || index > count)
+        throw new Error('--shard requires safe integers with INDEX <= COUNT');
+      shard = { index, count };
+    }
   }
   selectedGroups = suite.split(',');
   if (
@@ -132,6 +146,34 @@ try {
     )
   )
     throw new Error(`Unknown or unimplemented suite: ${suite}`);
+  // Classify files without importing application code, so invalid shards fail
+  // before the containment subprocess (and cannot recursively invoke its probes).
+  const special = new Set(
+    Object.entries(GROUPS)
+      .filter(([group]) => !['benchmark', 'memory', 'context'].includes(group))
+      .flatMap(([, files]) => files),
+  );
+  tests = fs
+    .readdirSync(path.join(repo, 'test'))
+    .filter(
+      (name) =>
+        name.endsWith('.test.ts') &&
+        name !== 'e2e.test.ts' &&
+        selectedGroups.some(
+          (group) =>
+            group === 'all' ||
+            (group === 'legacy' && !special.has(name)) ||
+            GROUPS[group]?.includes(name),
+        ),
+    )
+    .sort();
+  totalTests = tests.length;
+  if (shard) {
+    if (shard.count > totalTests)
+      throw new Error(`Shard count ${shard.count} exceeds suite ${suite} file count ${totalTests}`);
+    const { index: shardIndex, count } = shard;
+    tests = tests.filter((_, index) => index % count === shardIndex - 1);
+  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(2);
@@ -150,27 +192,9 @@ const root = createRun('bosun-test-run-');
 try {
   const cwd = path.join(root, 'work');
   fs.mkdirSync(cwd);
-  // Aliases of existing legacy tests retain their legacy coverage.
-  const special = new Set(
-    Object.entries(GROUPS)
-      .filter(([group]) => !['benchmark', 'memory', 'context'].includes(group))
-      .flatMap(([, files]) => files),
-  );
-  const tests = fs
-    .readdirSync(path.join(repo, 'test'))
-    .filter(
-      (name) =>
-        name.endsWith('.test.ts') &&
-        name !== 'e2e.test.ts' &&
-        selectedGroups.some(
-          (group) =>
-            group === 'all' ||
-            (group === 'legacy' && !special.has(name)) ||
-            GROUPS[group]?.includes(name),
-        ),
-    )
-    .sort();
   if (!tests.length) throw new Error(`Suite ${suite} contains no implemented tests`);
+  if (shard)
+    console.log(`Guarded Bun shard ${shard.index}/${shard.count}: ${tests.length}/${totalTests} selected files (suite ${suite}).`);
   let failed = 0;
   // Each file is a separate process: native Bun HOME/config caches never see
   // another file's bootstrap environment. No shared Bun test import graph.

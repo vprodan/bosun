@@ -56,6 +56,8 @@ sh scripts/bun-check.sh boundaries
 
 Choose affected existing suites from `scripts/run-tests.mts`; unknown selectors fail closed. Keep meaningful behavior/privacy/selection/CAS/nonreplay assertions, not wording, source-copy or incidental-version pins. For behavioral changes, exercise the actual changed source or compiled path in disposable contained roots; tests alone do not prove surface behavior. Never use a live personal runtime as a smoke fixture.
 
+CI runs all guarded files in four isolated `--shard INDEX/COUNT` wrapper invocations on one macOS runner; unsharded local commands retain full coverage. Only explicitly allowlisted documentation-only push/PR ranges skip macOS setup. Manual/unknown ranges, product/native/workflow/canonical-asset/license changes and every release still require fresh full qualification. No native build/qualification cache or cross-run receipt reuse is authorized by this scheduling optimization.
+
 For a release artifact, static verification does not execute the product; the separate checker exercises contained compiled safety:
 
 ```sh

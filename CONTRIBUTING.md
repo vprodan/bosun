@@ -148,11 +148,28 @@ never reapply the retained stash over newer edits.
 
 ## GitHub CI/CD
 
-[CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml) checks changed-source
-whitespace and runs the complete guarded suite on fresh GitHub-hosted `macos-15`
-arm64 machines. The user approved ephemeral CI dependency preparation and native
-qualification; no self-hosted runner, personal workstation service, secret or
-input-bundle variable is required. Private repositories consume Actions minutes.
+[CI](https://github.com/vprodan/bosun/actions/workflows/ci.yml) always checks
+changed active-source whitespace. Known-range push/PR changes limited to
+`README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `ARCHITECTURE.md` and Markdown under
+`docs/` skip macOS qualification; `docs/licenses/` is excluded from that allowlist.
+Source, tests, workflows, native inputs, licenses, canonical roles/skills/policy
+and unknown paths require full checks. Renames inspect both paths. Manual
+dispatch, new branches and unavailable ranges also require full checks; diff
+errors or absent classification output never authorize skipping.
+
+Full checks use one fresh GitHub-hosted `macos-15` arm64 runner. All source files
+run in four concurrent wrapper invocations, each retaining its own startup
+HOME, run root, mandatory preloads and OS barrier. Each sorted file belongs to
+exactly one modulo shard; all four processes must finish and any failure fails
+the job. No test, workload, assertion or native qualification is dropped.
+`sh scripts/bun-check.sh tests --runtime bun --suite all --shard 1/4` runs the
+first shard; use indices1–4 for the complete partition. Without `--shard`, the
+selected suite still runs in full. Invalid/duplicate/impossible selectors fail
+before application imports.
+
+The user approved ephemeral CI dependency preparation and native qualification;
+no self-hosted runner, personal workstation service, secret or input-bundle
+variable is required. Private repositories consume Actions minutes.
 
 The shared preparation action downloads Bun1.4.3 with an exact archive SHA256,
 installs the frozen `bun.lock` with lifecycle scripts disabled, acquires only

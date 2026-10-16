@@ -2,6 +2,16 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## CI latency reduction
+
+The owner prioritized CI/CD latency after the published MLX patch. Recorded source CI spent most time in serial guarded test files, not Bun/SQLite preparation. The redundant documentation-evidence CI38908497826 was deliberately cancelled; source CI38903340111 and release CD38905586941 had already passed, and published1.1.1 remains unchanged.
+
+Known-range documentation-only push/PR changes now run cheap hygiene/classification without provisioning macOS. Only the four maintained root guides and Markdown under `docs/` qualify; runtime license documents, canonical roles/skills/policy, native/source/test/build/workflow paths and unknown files still require full checks. NUL-safe `--no-renames` comparison sees both rename paths; manual/new-branch/unavailable ranges and classification errors fail closed to full qualification. Hygiene failure still fails CI.
+
+The shared CI/CD preparation action keeps fresh native acquisition/build/qualification, typecheck, boundaries and every source test. Its four concurrent existing wrapper invocations partition sorted files exactly once, with independent startup homes/run roots/preloads/OS barriers on one runner. Default local selection is unchanged without `--shard`. Release CD still performs fresh complete qualification plus compiled safety; this is not cross-run trust reuse, native caching or removal of release gates.
+
+Local actual-action smoke passed1274 tests across all97 files exactly once in173.54s, with38/38 containment probes per shard; typecheck and257-file/1420-edge boundaries passed. Actual workflow-shell decisions passed28 disposable Git cases, including docs, source/canonical/native/licenses, both rename directions, control-character paths, initial/unknown/empty ranges, manual dispatch, classification errors and whitespace failure. Native fixture processes proved the actual coordinator starts four children, waits for all four on success/failure and propagates any failure. Workflow YAML parsed successfully. Hosted timing and documentation-only skip verification remain pending.
+
 ## Single-manifest Clef runner compatibility
 
 The owner reported `unsupported_model` for Ollama0.40.4/Clef9b despite `/api/show` reporting `details.format: "safetensors"`, `details.runner: "mlx"` and the decision capability. Bosun previously read runners only from selected child manifests. Readiness now also reads the single-manifest details runner; explicit selected-child digest/format/runner still take precedence. Stable minor-family admission, minimum required version, remote-model denial, loaded identity/residency, digest/runner drift and automatic-dispatch gates are unchanged.

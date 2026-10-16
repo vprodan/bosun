@@ -1,5 +1,5 @@
 name: Prepare and qualify pinned Bun
-description: Install immutable Bun and dependencies on an ephemeral arm64 runner, then qualify fresh native output and run all guarded checks.
+description: Install immutable Bun and dependencies on an ephemeral arm64 runner, then qualify fresh native output and run all guarded checks in isolated shards.
 outputs:
   bun:
     description: Absolute SHA-verified Bun compiler path
@@ -63,6 +63,30 @@ runs:
     - name: Check architecture boundaries
       shell: bash
       run: sh scripts/bun-check.sh boundaries
-    - name: Run all guarded source tests
+    - name: Run all guarded source tests in four isolated shards
       shell: bash
-      run: sh scripts/bun-check.sh tests --runtime bun --suite all
+      run: |
+        set -euo pipefail
+        logs=$(mktemp -d "$RUNNER_TEMP/bosun-test-shards.XXXXXX")
+        pids=()
+        for shard in 1 2 3 4; do
+          sh scripts/bun-check.sh tests --runtime bun --suite all --shard "$shard/4" \
+            > "$logs/$shard.log" 2>&1 &
+          pids+=("$!")
+        done
+        failed=0
+        for index in "${!pids[@]}"; do
+          shard=$((index + 1))
+          if wait "${pids[$index]}"; then
+            echo "Guarded shard $shard/4 passed."
+          else
+            echo "::error::Guarded shard $shard/4 failed."
+            failed=1
+          fi
+        done
+        for shard in 1 2 3 4; do
+          echo "::group::Guarded source shard $shard/4"
+          cat "$logs/$shard.log"
+          echo "::endgroup::"
+        done
+        exit "$failed"
