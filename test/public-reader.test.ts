@@ -297,6 +297,38 @@ await main(process.env,{output:()=>output}); process.send?.({phase:'returned'});
   };
 }
 
+test('native hook omission diagnostics are opt-in metadata and distinguish held reader state from empty context', POSIX, async () => {
+  const f = await fixture();
+  try {
+    mutateView(f.paths.view, db => db.exec("UPDATE bosun_public_state SET state='HOLD'"));
+    const request = { prompt: PROMPT, cwd: f.repo };
+    const run = (diagnostic: boolean, input = request) => bosun(['hook'], {
+      env: f.sb.env({ BOSUN_BENCHMARK_HOOK_DIAGNOSTIC: diagnostic ? '1' : '' }),
+      cwd: f.repo, input: JSON.stringify(input),
+    });
+    const before = footprint(path.dirname(f.paths.view));
+    const quiet = await run(false);
+    assert.equal(quiet.code, 0, quiet.err);
+    assert.equal(quiet.out + quiet.err, '');
+    const held = await run(true);
+    assert.equal(held.code, 0, held.err);
+    assert.equal(held.out, '');
+    assert.deepEqual(JSON.parse(held.err), { hookDiagnostic: { phase: 'reader-open', reason: 'state' } });
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), before, 'diagnostic does not write into the read lease');
+    await publishMemoryView(options(f.paths));
+    const empty = await run(true, { prompt: 'unmatchedsyntheticword', cwd: f.repo });
+    assert.equal(empty.code, 0, empty.err);
+    assert.equal(empty.out, '');
+    assert.deepEqual(JSON.parse(empty.err), { hookDiagnostic: { phase: 'context', reason: 'empty' } });
+    const injected = await run(true);
+    assert.equal(injected.code, 0, injected.err);
+    assert.equal(injected.err, '');
+    assert.match(injected.out, new RegExp(PUBLIC));
+    assert.doesNotMatch(held.err + empty.err, new RegExp(PRIVATE + '|' + PUBLIC + '|public-reader|m_|source_id|generation'));
+    assert.deepEqual(f.sb.calls(), []);
+  } finally { f.close(); }
+});
+
 test(
   'public reader projects scoped search/get with exact IDs/hash/provenance, FTS terms and no filesystem footprint',
   POSIX,

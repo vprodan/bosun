@@ -6,9 +6,101 @@ import path from 'node:path';
 import childProcess from 'node:child_process';
 import { runMemoryBenchmark, type BenchmarkFailureDiagnostic } from '../src/app/memory-benchmark.ts';
 import { main as cli } from '../src/app/cli.ts';
-import { BosunError } from '../src/core/errors.ts';
+import { BosunError, MemoryError } from '../src/core/errors.ts';
+import { benchmarkHookDiagnostic, benchmarkHookErrorReason } from '../src/core/memory-benchmark.ts';
 import { streamProcess, type ProcessSpec } from '../src/platform/process.ts';
 import { BIN, gitRepo, sandbox } from './helpers.ts';
+
+test('hook omission diagnostics accept only one finite metadata record and never project error details', () => {
+  const diagnostic = { phase: 'reader-search', reason: 'deadline' };
+  const record = JSON.stringify({ hookDiagnostic: diagnostic }) + '\n';
+  assert.deepEqual(benchmarkHookDiagnostic(record), diagnostic);
+  for (const stderr of [
+    '', 'PRIVATE CONTENT /owner/path', record + record,
+    JSON.stringify({ hookDiagnostic: { ...diagnostic, content: 'PRIVATE CONTENT' } }),
+    JSON.stringify({ hookDiagnostic: { ...diagnostic, phase: '/owner/path' } }),
+    JSON.stringify({ hookDiagnostic: { ...diagnostic, reason: 'PRIVATE CONTENT' } }),
+    JSON.stringify({ hookDiagnostic: diagnostic, rawError: 'PRIVATE CONTENT' }),
+    ' '.repeat(1025) + record,
+  ]) assert.equal(benchmarkHookDiagnostic(stderr), null);
+  assert.equal(benchmarkHookErrorReason(new MemoryError('unavailable', 'local public memory unavailable (deadline)')), 'deadline');
+  assert.equal(benchmarkHookErrorReason(new MemoryError('unavailable', 'local memory unavailable (storage)')), 'storage');
+  for (const error of [
+    Error('PRIVATE CONTENT /owner/path'),
+    new MemoryError('invalid', 'local public memory unavailable (deadline)'),
+    new MemoryError('unavailable', 'local public memory unavailable (deadline) PRIVATE CONTENT'),
+    { get message() { throw Error('PRIVATE CONTENT'); } },
+    Object.defineProperty(new MemoryError('unavailable', ''), 'message', {
+      get() { throw Error('PRIVATE CONTENT'); },
+    }),
+  ]) assert.equal(benchmarkHookErrorReason(error), 'exception');
+});
+
+test('native stderr observers retain the combined byte bound, normalize observer failure and positively join', async () => {
+  const sb = sandbox();
+  try {
+    for (const mode of ['record', 'bound', 'observer-throws']) {
+      const record = JSON.stringify({ hookDiagnostic: { phase: 'reader-open', reason: 'deadline' } }) + '\n';
+      let stderr = '', stdout = '', joined = false, failure: unknown, code: number | null = null;
+      const source = mode === 'bound'
+        ? "const fs=require('node:fs');fs.writeSync(1,'x'.repeat(24));fs.writeSync(2,'y'.repeat(24));"
+        : `require('node:fs').writeSync(2,${JSON.stringify(record)});`;
+      try {
+        for await (const event of streamProcess({
+          command: process.execPath, args: ['--no-env-file', '--no-install', '-e', source],
+          cwd: sb.root, env: sb.env(), signal: new AbortController().signal,
+          timeoutMs: 5000, maxOutputBytes: mode === 'bound' ? 32 : 1024,
+          stdout(chunk) { stdout += Buffer.from(chunk).toString('utf8'); },
+          stderr(chunk) {
+            if (mode === 'observer-throws') throw Error('PRIVATE OBSERVER DETAIL');
+            stderr += Buffer.from(chunk).toString('utf8');
+          },
+          onClosed() { joined = true; },
+        })) if (event.t === 'exit') code = event.code;
+      } catch (error) { failure = error; }
+      assert.equal(joined, true, mode);
+      if (mode === 'record') {
+        assert.equal(failure, undefined);
+        assert.equal(code, 0);
+        assert.equal(stderr, record);
+        assert.equal(stdout, '');
+      } else {
+        assert.ok(failure instanceof BosunError && failure.code === 'unavailable', mode);
+        assert.doesNotMatch(failure.message, /PRIVATE OBSERVER DETAIL/);
+        if (mode === 'bound') assert.ok(Buffer.byteLength(stdout + stderr) <= 32);
+      }
+    }
+  } finally { sb.cleanup(); }
+});
+
+test('benchmark retains only bounded parsed metadata for held samples without changing injection counts', async () => {
+  const sb = sandbox();
+  try {
+    const workspace = gitRepo(sb, 'workspace', 'git@github.com:org/benchmark-diagnostic.git');
+    let samples = 0;
+    const report = await runMemoryBenchmark({ n: 1, publicView: false, workspace, env: sb.env() }, {
+      async *process(spec) {
+        assert.equal(spec.env.BOSUN_BENCHMARK_HOOK_DIAGNOSTIC, '1');
+        const record = samples++ === 0
+          ? JSON.stringify({ hookDiagnostic: { phase: 'reader-search', reason: 'deadline' } }) + '\n'
+          : 'PRIVATE CONTENT /owner/path';
+        spec.stderr?.(Buffer.from(record.slice(0, 17)));
+        spec.stderr?.(Buffer.from(record.slice(17)));
+        spec.onClosed?.();
+        yield { t: 'exit', code: 0, signal: null };
+      },
+    });
+    assert.equal(samples, 21);
+    assert.equal(report.hook.firstRun?.outcome, 'held');
+    assert.deepEqual(report.hook.outcomes, { injected: 0, held: 20, failed: 0, unqualified: 0 });
+    assert.equal(report.hook.heldSamples.length, 21);
+    assert.deepEqual(report.hook.heldSamples[0].diagnostic, { phase: 'reader-search', reason: 'deadline' });
+    assert.deepEqual(report.hook.heldSamples.map(sample => sample.sample), Array.from({ length: 21 }, (_, i) => i));
+    for (const sample of report.hook.heldSamples.slice(1)) assert.equal(sample.diagnostic, null);
+    assert.equal(report.hook.verifiedInjectionWall.samples, 0);
+    assert.doesNotMatch(JSON.stringify(report), /PRIVATE CONTENT|owner\/path/);
+  } finally { sb.cleanup(); }
+});
 
 test('benchmark selects explicit Bun source, interpreter source and compiled hook recipes without treating Bun as compiled', async () => {
   for (const recipe of ['bun-source', 'interpreter-source', 'compiled']) {

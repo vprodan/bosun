@@ -11,6 +11,7 @@ export type ProcessSpec = {
   onClosed?: () => void;
   // Binary capture preserves Git's NUL-delimited paths without another process lifecycle.
   stdout?: (chunk: Uint8Array) => void;
+  stderr?: (chunk: Uint8Array) => void;
   timeoutMs?: number; killGraceMs?: number; maxOutputBytes?: number; maxLineBytes?: number;
 };
 export type ProcessInput = { write(text: string): Promise<void>; end(): void };
@@ -47,7 +48,8 @@ export async function* streamProcess(spec: ProcessSpec): AsyncGenerator<ProcessE
     || Buffer.byteLength(JSON.stringify(spec.args)) > 1048576 || spec.input !== undefined && Buffer.byteLength(spec.input) > 262144
     || spec.stdin !== undefined && (typeof spec.stdin !== 'function' || spec.input !== undefined)
     || spec.onClosed !== undefined && typeof spec.onClosed !== 'function'
-    || spec.stdout !== undefined && typeof spec.stdout !== 'function') {
+    || spec.stdout !== undefined && typeof spec.stdout !== 'function'
+    || spec.stderr !== undefined && typeof spec.stderr !== 'function') {
     throw new BosunError('invalid', 'Invalid process request');
   }
   const command = executable(spec.command, spec.env);
@@ -72,7 +74,10 @@ export async function* streamProcess(spec: ProcessSpec): AsyncGenerator<ProcessE
   const abort = () => stop('cancelled'); spec.signal.addEventListener('abort', abort, { once: true });
   const timer = setTimeout(() => stop('timeout'), timeoutMs); timer.unref();
   const count = (bytes: number) => { outputBytes += bytes; if (outputBytes > maxOutputBytes) stop('unavailable'); };
-  child.stderr.on('data', (chunk: Buffer) => count(chunk.length));
+  child.stderr.on('data', (chunk: Buffer) => {
+    count(chunk.length);
+    if (!failure) try { spec.stderr?.(chunk); } catch { stop('unavailable'); }
+  });
   child.stdin.on('error', () => stop('unavailable'));
   const decoder = new StringDecoder('utf8'); let pending = '';
   let inputBytes = 0; let inputEnded = false;

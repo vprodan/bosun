@@ -36,6 +36,27 @@ selected router/runtime/distribution/lint files passed88 tests with38/38
 containment probes; the actual child CLI again crossed the former10s boundary.
 The14 unique locally exercised files cover136 tests across the two selections.
 
+Tag **v1.1.3** remains immutable at `1dc6a6561b82455cd222a6240a2e42178a808d5b`
+and was **not published**. [Source CI38957794205](https://github.com/vprodan/bosun/actions/runs/38957794205)
+passed all four independently qualified source shards. [CD38957794115](https://github.com/vprodan/bosun/actions/runs/38957794115)
+rejected the release before build/publication: shard4's real10k public-view
+benchmark delivered19/20 measured injections and one held, positively joined,
+successful child with empty output. The original omission had no retained
+phase/reason, so its cause cannot be claimed or repaired from counts alone.
+The tag is not replaced and the failed topology/assertion is not retried to green.
+
+The benchmark now enables a closed opt-in stderr omission diagnostic, containing
+only allowlisted phase/reason, and retains at most21 held-sample metadata entries.
+It never records prompts, paths, raw exceptions or note IDs, changes normal hook
+stdout, retries, or widens existing read/delivery deadlines. The shared process
+stderr observer retains its existing combined byte limit and native/group join.
+Instrumented local native10k smoke passed20/20 injections; a green sample does
+not identify the hosted omission. After correcting a new fixture to actually
+put a published view inHOLD, reader19/19, types and257-file/1423-edge boundaries
+passed. Fresh hosted diagnostic evidence is required before claiming resolution.
+The owner then prioritized guided onboarding and a complete command DX review;
+those changes remain separate from the failed immutable tag.
+
 
 ## CI latency reduction
 

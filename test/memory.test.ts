@@ -647,6 +647,11 @@ test('memory bench: measured numbers, no owner files or unsupported retrieval ti
     assert.ok(report.tokens.maximumEstimate <= 400);
     assert.equal(report.tokens.hostTokens, 'unverified');
     assert.deepEqual(report.hook.outcomes, { injected: 0, held: 20, failed: 0, unqualified: 0 });
+    assert.equal(report.hook.heldSamples.length, 21);
+    assert.deepEqual(report.hook.heldSamples.map((sample: { sample: number }) => sample.sample),
+      Array.from({ length: 21 }, (_, i) => i));
+    for (const sample of report.hook.heldSamples)
+      assert.deepEqual(sample.diagnostic, { phase: 'reader-open', reason: 'state' });
     assert.equal(report.hook.wall.samples, 20);
     assert.deepEqual(report.hook.verifiedInjectionWall, { samples: 0, p50: null, p95: null });
     assert.equal(report.hook.componentLatency, null);
@@ -740,8 +745,10 @@ test('explicit 10k public-view bench delivers actual native hook notes while pre
     assert.equal(report.corpusLoading.lifecycle.samples, 39);
     assert.equal(report.search.samples, 200);
     assert.equal(report.context.samples, 200);
-    assert.equal(report.hook.firstRun.outcome, 'injected');
-    assert.deepEqual(report.hook.outcomes, { injected: 20, held: 0, failed: 0, unqualified: 0 });
+    assert.equal(report.hook.firstRun.outcome, 'injected', JSON.stringify(report.hook.heldSamples));
+    assert.deepEqual(report.hook.outcomes, { injected: 20, held: 0, failed: 0, unqualified: 0 },
+      JSON.stringify(report.hook.heldSamples));
+    assert.deepEqual(report.hook.heldSamples, []);
     assert.equal(report.hook.verifiedInjectionWall.samples, 20);
     assert.ok(report.hook.verifiedInjectionWall.p95 >= report.hook.verifiedInjectionWall.p50);
     assert.equal(report.hook.componentLatency, null);

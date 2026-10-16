@@ -12,6 +12,7 @@ import { memorySqliteRuntime } from '../platform/sqlite-runtime.ts';
 import { hookOutput, type HookOutput } from '../platform/hook-output.ts';
 import { callLocalRpc } from '../adapters/transport/local-rpc.ts';
 import type { MemoryReader } from '../core/ports/memory.ts';
+import { benchmarkHookErrorReason, type BenchmarkHookDiagnostic } from '../core/memory-benchmark.ts';
 
 import { screenPublicText } from '../core/secret-screen.ts';
 const MAX_OUTPUT = 16384;
@@ -78,17 +79,24 @@ function deliver(output: HookOutput, line: string, signal: AbortSignal): Promise
   });
 }
 
+function omit(env: Env, phase: BenchmarkHookDiagnostic['phase'], reason: BenchmarkHookDiagnostic['reason']): number {
+  if (env.BOSUN_BENCHMARK_HOOK_DIAGNOSTIC === '1')
+    try { fs.writeSync(2, JSON.stringify({ hookDiagnostic: { phase, reason } }) + '\n'); } catch {}
+  return 0;
+}
+
 // Lean one-shot entry: generated JSON, one bounded local metadata request and a
 // producer-owned read lease. No model inference, indexing or storage mutation.
 export async function main(env: Env = process.env, options: { output?: () => HookOutput } = {}): Promise<number> {
-  if (env.BOSUN_DEPTH || !sink()) return 0;
+  if (env.BOSUN_DEPTH) return omit(env, 'admission', 'depth');
+  if (!sink()) return omit(env, 'admission', 'sink');
   const request = input();
+  if (!request) return omit(env, 'admission', 'input');
   if (
-    !request ||
     (request.private !== undefined && request.private !== false) ||
     (request.privacy !== undefined && request.privacy !== 'public')
   )
-    return 0;
+    return omit(env, 'admission', 'privacy');
   const prompt = typeof request.prompt === 'string' ? request.prompt : '';
   if (
     !prompt.trim() ||
@@ -97,10 +105,11 @@ export async function main(env: Env = process.env, options: { output?: () => Hoo
     prompt.includes('#noroute') ||
     prompt.length > 8000
   )
-    return 0;
-  try { screenPublicText(prompt); } catch { return 0; }
+    return omit(env, 'admission', 'prompt');
+  try { screenPublicText(prompt); } catch { return omit(env, 'admission', 'secret'); }
   let reader: (MemoryReader & { validate?: () => void }) | undefined;
   let output: HookOutput | undefined;
+  let phase: BenchmarkHookDiagnostic['phase'] = 'config';
   const abort = new AbortController();
   const cancel = () => abort.abort();
   process.once('SIGTERM', cancel);
@@ -108,13 +117,15 @@ export async function main(env: Env = process.env, options: { output?: () => Hoo
   try {
     const paths = runtimePaths(env);
     const config = loadHookConfig(paths);
-    if (!config) return 0;
+    if (!config) return omit(env, phase, 'config');
+    phase = 'scope';
     const workspace =
       typeof request.cwd === 'string' ? request.cwd : env.CLAUDE_PROJECT_DIR || process.cwd();
     const sessionId =
       typeof request.session_id === 'string' ? request.session_id : env.CODEX_THREAD_ID || null;
     const ctx = memoryScope(project(workspace), config.memory.linkedProjects, sessionId, 'hook');
     let candidates: Set<string> | null = null;
+    phase = 'candidates';
     if (!config.memory.remoteAuthorityId)
       try {
         const result = await callLocalRpc<{ ids: unknown }>({
@@ -134,14 +145,15 @@ export async function main(env: Env = process.env, options: { output?: () => Hoo
           result.ids.length > 20 ||
           result.ids.some((id) => typeof id !== 'string' || id.length > 64)
         )
-          return 0;
+          return omit(env, phase, 'candidates');
         candidates = new Set(result.ids);
       } catch {
         /* Absent daemon: the same bound public/rollback reader remains read-only. */
       }
-    if (abort.signal.aborted) return 0;
+    if (abort.signal.aborted) return omit(env, phase, 'aborted');
+    phase = 'reader-open';
     if (config.memory.remoteAuthorityId) {
-      if (!config.memory.remoteClientId || !config.memory.sourceId) return 0;
+      if (!config.memory.remoteClientId || !config.memory.sourceId) return omit(env, phase, 'remote-binding');
       const { RemoteViewReadOnly } = await import('../adapters/memory/remote-view-readonly.ts');
       reader = new RemoteViewReadOnly(
         path.join(paths.home, 'remote-view.db'),
@@ -169,10 +181,13 @@ export async function main(env: Env = process.env, options: { output?: () => Hoo
       get: reader.get.bind(reader),
       close() {},
       async search(query, scope) {
+        phase = 'reader-search';
         const records = await reader!.search(query, scope);
+        phase = 'context';
         return candidates ? records.filter((record) => candidates!.has(record.id)) : records;
       },
     };
+    phase = 'context';
     const result = await createRetrieveContext([createCuratedSource(borrowed)], {
       now: Date.now,
       monotonic: () => performance.now(),
@@ -180,18 +195,23 @@ export async function main(env: Env = process.env, options: { output?: () => Hoo
       dateLabel: (at) => new Date(at).toISOString().slice(0, 10),
       measure() {},
     })(prompt, ctx, config.context);
-    if (!result.text || abort.signal.aborted) return 0;
+    if (abort.signal.aborted) return omit(env, phase, 'aborted');
+    if (!result.text) return omit(env, phase, 'empty');
+    phase = 'reader-validate';
     reader.validate?.();
+    phase = 'envelope';
     const line =
       JSON.stringify({
         hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: result.text },
       }) + '\n';
-    if (Buffer.byteLength(line) > MAX_OUTPUT) return 0;
+    if (Buffer.byteLength(line) > MAX_OUTPUT) return omit(env, phase, 'output-limit');
+    phase = 'delivery';
     output = (options.output ?? hookOutput)();
-    await deliver(output, line, abort.signal);
+    if (!await deliver(output, line, abort.signal)) return omit(env, phase, 'delivery');
     return 0;
-  } catch {
-    return 0;
+  } catch (error) {
+    if (env.BOSUN_BENCHMARK_HOOK_DIAGNOSTIC !== '1') return 0;
+    return omit(env, phase, benchmarkHookErrorReason(error));
   } finally {
     reader?.close();
     output?.finish?.();

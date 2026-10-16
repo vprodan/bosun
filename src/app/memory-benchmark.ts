@@ -10,6 +10,8 @@ import {
   benchmarkCount,
   benchmarkDistribution,
   benchmarkHookOutcome,
+  benchmarkHookDiagnostic,
+  type BenchmarkHookDiagnostic,
   type BenchmarkHookProcess,
 } from '../core/memory-benchmark.ts';
 import { createRetrieveContext } from '../core/use-cases/retrieve-context.ts';
@@ -95,6 +97,7 @@ async function benchmark(
     BOSUN_HOME: dir,
     BOSUN_SOCKET: path.join(dir, 's'),
     BOSUN_DEPTH: '',
+    BOSUN_BENCHMARK_HOOK_DIAGNOSTIC: '1',
     NODE_DISABLE_COMPILE_CACHE: '1',
   };
   const paths = runtimePaths(env),
@@ -232,6 +235,7 @@ async function benchmark(
     const wall: number[] = [],
       injected: number[] = [],
       outcomes = { injected: 0, held: 0, failed: 0, unqualified: 0 };
+    const heldSamples: { sample: number; wallMs: number; diagnostic: BenchmarkHookDiagnostic | null }[] = [];
     let firstRun: { wallMs: number; outcome: ReturnType<typeof benchmarkHookOutcome> } | null =
       null;
     for (let i = 0; i <= HOOK_RUNS; i++) {
@@ -239,6 +243,7 @@ async function benchmark(
       const start = performance.now();
       const child: BenchmarkHookProcess = { status: null, stdout: '' };
       const chunks: Buffer[] = [];
+      const stderr: Buffer[] = [];
       producerJoined = false;
       try {
         for await (const event of execute({
@@ -250,6 +255,7 @@ async function benchmark(
           timeoutMs: 5000,
           maxOutputBytes: 32768,
           stdout: (chunk) => { chunks.push(Buffer.from(chunk)); },
+          stderr: (chunk) => { stderr.push(Buffer.from(chunk)); },
           onClosed: () => { producerJoined = true; },
         })) {
           if (event.t === 'exit') {
@@ -267,9 +273,12 @@ async function benchmark(
           { details: { outcome: 'unknown' } });
       child.stdout = Buffer.concat(chunks).toString('utf8');
       const ms = performance.now() - start;
-      if (!i) firstRun = { wallMs: ms, outcome: benchmarkHookOutcome(child, ids) };
+      const outcome = benchmarkHookOutcome(child, ids);
+      if (outcome === 'held') heldSamples.push({
+        sample: i, wallMs: ms, diagnostic: benchmarkHookDiagnostic(Buffer.concat(stderr).toString('utf8')),
+      });
+      if (!i) firstRun = { wallMs: ms, outcome };
       if (i) {
-        const outcome = benchmarkHookOutcome(child, ids);
         outcomes[outcome]++;
         wall.push(ms);
         if (outcome === 'injected') injected.push(ms);
@@ -306,6 +315,7 @@ async function benchmark(
         firstRun,
         runs: HOOK_RUNS,
         outcomes,
+        heldSamples,
         wall: benchmarkDistribution(wall),
         verifiedInjectionWall: benchmarkDistribution(injected),
         componentLatency: null,

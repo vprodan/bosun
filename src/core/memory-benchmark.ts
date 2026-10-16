@@ -1,4 +1,4 @@
-import { BosunError } from './errors.ts';
+import { BosunError, MemoryError } from './errors.ts';
 
 export type BenchmarkHookProcess = {
   status: number | null;
@@ -6,6 +6,40 @@ export type BenchmarkHookProcess = {
   error?: unknown;
   signal?: unknown;
 };
+const HOOK_PHASES = ['admission', 'config', 'scope', 'candidates', 'reader-open', 'reader-search',
+  'context', 'reader-validate', 'envelope', 'delivery'] as const;
+const READ_REASONS = ['input', 'path', 'missing', 'identity', 'size', 'format', 'wal_requires_writes',
+  'journal_pending', 'schema', 'state', 'data', 'storage', 'runtime', 'deadline', 'closed'] as const;
+const HOOK_REASONS = [...READ_REASONS, 'depth', 'sink', 'privacy', 'prompt', 'secret', 'config',
+  'candidates', 'aborted', 'remote-binding', 'empty', 'output-limit', 'delivery', 'exception'] as const;
+export type BenchmarkHookDiagnostic = {
+  phase: typeof HOOK_PHASES[number];
+  reason: typeof HOOK_REASONS[number];
+};
+export function benchmarkHookErrorReason(error: unknown): BenchmarkHookDiagnostic['reason'] {
+  try {
+    if (error instanceof MemoryError && Object.getOwnPropertyDescriptor(error, 'code')?.value === 'unavailable') {
+      const message: unknown = Object.getOwnPropertyDescriptor(error, 'message')?.value;
+      return READ_REASONS.find(reason => message === `local public memory unavailable (${reason})`
+        || message === `local memory unavailable (${reason})`) ?? 'exception';
+    }
+  } catch { /* Untrusted errors never supply diagnostic text or getters. */ }
+  return 'exception';
+}
+export function benchmarkHookDiagnostic(stderr: string): BenchmarkHookDiagnostic | null {
+  if (stderr.length > 1024) return null;
+  try {
+    const parsed: unknown = JSON.parse(stderr);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)
+      || Object.keys(parsed).length !== 1 || !Object.hasOwn(parsed, 'hookDiagnostic')) return null;
+    const value: unknown = (parsed as Record<string, unknown>).hookDiagnostic;
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length !== 2) return null;
+    const { phase, reason } = value as Record<string, unknown>;
+    const knownPhase = HOOK_PHASES.find(candidate => candidate === phase);
+    const knownReason = HOOK_REASONS.find(candidate => candidate === reason);
+    return knownPhase && knownReason ? { phase: knownPhase, reason: knownReason } : null;
+  } catch { return null; }
+}
 // A successful process alone is not retrieval evidence. Validate the actual
 // delivered envelope and exact synthetic identities before reporting injection.
 export function benchmarkHookOutcome(
