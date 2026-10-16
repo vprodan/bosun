@@ -20,6 +20,15 @@ function metadata({ version = '0.35.1', loaded = true, multi = false } = {}) {
     expires_at: '2099-01-01T00:00:00Z', context_length: 32768, ...(multi ? { runner: 'mlx' } : {}) };
   return { version: { version }, tags: { models: [tag] }, show, ps: { models: loaded ? [running] : [] } };
 }
+function flatMlxMetadata({ loaded = true } = {}) {
+  const value = metadata({ version: '0.40.4', loaded });
+  value.show.requires = '0.40.0';
+  value.show.details = { format: 'safetensors', family: 'clef', parameter_size: '9.5B', quantization_level: 'mxfp8', runner: 'mlx' };
+  value.show.model_info = { 'general.architecture': 'clef', 'clef.context_length': 262144 };
+  if (loaded) value.ps.models[0].runner = 'mlx';
+  return value;
+}
+
 async function native(value = metadata(), decision?: () => Record<string, any>) {
   return mock({ '/api/version': () => ({ json: value.version }), '/api/tags': () => ({ json: value.tags }), '/api/show': () => ({ json: value.show }), '/api/ps': () => ({ json: value.ps }),
     '/v1/systemone': () => ({ json: decision ? decision() : JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8')) }) });
@@ -74,9 +83,49 @@ test('missing model, old/unknown/prerelease versions, absent capability and clou
   }
 });
 
+test('single-manifest Clef reads details.runner, preserves cold/loaded identity and fences later runner drift', async () => {
+  const value = flatMlxMetadata({ loaded: false }); const m = await native(value);
+  try {
+    const probe = createClefReadiness({ url: m.url }, { now: () => NOW });
+    const cold = await probe.status(SIGNAL);
+    assert.equal(cold.state, 'cold'); assert.equal(cold.reason, 'model_unloaded'); assert.equal(cold.runner, 'mlx');
+    assert.equal(cold.format, 'safetensors'); assert.equal(cold.digest, DIGEST); assert.equal(cold.catalogContextTokens, 262144);
+    assert.equal(cold.loaded.state, 'unloaded'); assert.equal(cold.automaticDispatch, false);
+    value.ps = flatMlxMetadata().ps;
+    const ready = await probe.status(SIGNAL);
+    assert.equal(ready.state, 'ready'); assert.equal(ready.loaded.runner, 'mlx'); assert.equal(ready.loaded.digest, DIGEST);
+    value.ps.models[0].runner = 'ggml';
+    assert.equal((await probe.status(SIGNAL)).reason, 'loaded_identity_mismatch');
+    value.show.details = { format: 'gguf', runner: 'ggml' };
+    assert.equal((await probe.status(SIGNAL)).reason, 'digest_changed');
+    assert.ok(m.requests.every((r) => ['/api/version', '/api/tags', '/api/show', '/api/ps'].includes(r.path)));
+  } finally { await m.close(); }
+});
+
+test('flat MLX metadata cannot bypass runner/version gates or malformed selected manifests', async () => {
+  const arms: [string, (value: ReturnType<typeof flatMlxMetadata>) => void][] = [
+    ['unsupported_model', (value) => delete value.show.details.runner],
+    ['unsupported_model', (value) => value.show.details.runner = null],
+    ['unsupported_model', (value) => value.show.details.runner = 'unreviewed'],
+    ['unsupported_model', (value) => value.show.details.runner = 'ggml'],
+    ['unsupported_model', (value) => { value.version.version = '0.35.9'; delete value.show.requires; }],
+    ['metadata_invalid', (value) => value.show.manifests = null],
+    ['metadata_invalid', (value) => value.show.manifests = []],
+    ['metadata_invalid', (value) => value.show.manifests = [{ selected: false, digest: DIGEST, runner: 'mlx', format: 'safetensors' }]],
+  ];
+  for (const [reason, mutate] of arms) {
+    const value = flatMlxMetadata(); mutate(value); const m = await native(value);
+    try {
+      const result = await createClefReadiness({ url: m.url }).status(SIGNAL);
+      assert.equal(result.state, 'held'); assert.equal(result.reason, reason);
+      assert.equal(m.requests.some((r) => r.path === '/v1/systemone'), false);
+    } finally { await m.close(); }
+  }
+});
+
 for (const version of ['0.40.0', '0.40.4']) {
 test(`Ollama ${version} selected MLX child digest is distinct from the catalog tag; loaded runner/child must match`, async () => {
-  const value = metadata({ version, multi: true }); const m = await native(value);
+  const value = metadata({ version, multi: true }); value.show.details = { format: 'gguf', runner: 'ggml' }; const m = await native(value);
   try {
     const probe = createClefReadiness({ url: m.url, digest: `sha256:${CHILD}` }); const result = await probe.status(SIGNAL);
     assert.equal(result.state, 'ready'); assert.equal(result.tagDigest, DIGEST); assert.equal(result.digest, CHILD); assert.equal(result.runner, 'mlx'); assert.equal(result.format, 'safetensors');

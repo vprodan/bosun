@@ -87,7 +87,8 @@ export function createClefReadiness(settings: ClefSettings, { now = () => Date.n
       if (!Array.isArray(info.capabilities) || info.capabilities.length > 32 || info.capabilities.some((v) => typeof v !== 'string')) return finish('held', 'metadata_invalid');
       result.decisionCapability = info.capabilities.includes('decision') ? 'reported' : 'absent';
       if (result.decisionCapability === 'absent') return finish('held', 'capability_missing');
-      let format = object(info.details)?.format; result.digest = result.tagDigest;
+      const details = object(info.details);
+      let format = details?.format; result.digest = result.tagDigest; result.runner = runner(details?.runner);
       if (info.manifests !== undefined) {
         if (family !== '0.40' || !Array.isArray(info.manifests) || info.manifests.length < 1 || info.manifests.length > 16 || info.manifests.some((v) => !object(v))) return finish('held', 'metadata_invalid');
         const choices = info.manifests.map(object).filter((v) => v?.selected === true);

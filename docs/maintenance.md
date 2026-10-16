@@ -2,6 +2,14 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Single-manifest Clef runner compatibility
+
+The owner reported `unsupported_model` for Ollama0.40.4/Clef9b despite `/api/show` reporting `details.format: "safetensors"`, `details.runner: "mlx"` and the decision capability. Bosun previously read runners only from selected child manifests. Readiness now also reads the single-manifest details runner; explicit selected-child digest/format/runner still take precedence. Stable minor-family admission, minimum required version, remote-model denial, loaded identity/residency, digest/runner drift and automatic-dispatch gates are unchanged.
+
+All five affected guarded files passed60 cases, including cold-to-ready flat MLX metadata, loaded-runner mismatch, pinned-runner drift, missing/unknown/non-MLX runners, older-family denial, malformed manifest refusal and explicit child precedence. Typecheck and37 containment probes passed; boundaries remained257 production files/1420 edges/zero violations. A separate disposable actual CLI/daemon smoke replayed the reported0.40.4 show shape: metadata-only status was cold with runnerMLX; one explicit public `route` returned synthetic advice after matching loaded identity, with automatic dispatch false. Private CLI input made no metadata/inference request, no agent ran, and every fixture closed. The runtime end-to-end file passed all11 cases including that throwaway smoke, then its scaffold was removed. No live Ollama/model call or personal runtime change occurred; live scoring/model quality remains unverified. This source fix is not in published v1.1.0.
+
+Source/package1.1.1 regenerates the21 canonical embedded assets for this patch. Release preflight passed all seven selected router/observation/evaluation/lint/distribution files, strict typecheck,37 containment probes and whitespace hygiene. Hosted full qualification and immutable patch publication are pending; existing1.1.0 assets/tags remain unchanged.
+
 ## Guided lifecycle release (2026-10-15)
 
 The owner requested `bosun install` reinstall, GitHub-release update, retained-data uninstall, optional Ollama installation/start and exact configured model pull, followed by push/release. Source/package1.1.0 implements these owner-terminal paths using the existing reviewed installation/service transactions. Cross-version retirement validates installed identity and invokes the original executable with its own fresh receipt version/hash; it does not weaken version-bound plans. A selected replacement is staged and version-qualified before retiring the original.

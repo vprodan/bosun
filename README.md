@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Version 1.1.0](https://img.shields.io/badge/Version-1.1.0-555555.svg)](https://github.com/vprodan/bosun/releases)
+[![Version 1.1.1](https://img.shields.io/badge/Version-1.1.1-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -60,7 +60,7 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-Download **`bosun-1.1.0-darwin-arm64.zip`** from
+Download **`bosun-1.1.1-darwin-arm64.zip`** from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
 Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
 release notes are supplementary metadata, checksums and tested-scope information,
@@ -76,12 +76,14 @@ Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
 extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.1.0-darwin-arm64"
+cd "$HOME/Downloads/bosun-1.1.1-darwin-arm64"
 shasum -a 256 -c SHA256SUMS && ./bosun install
 ```
 
 Use **v1.1.0 or later** for guided reinstall, update and uninstall. Older binaries
 need the new ZIP once; they cannot acquire commands added after their release.
+For Ollama0.40.x single-manifest MLX Clef models, use **v1.1.1 or later**;
+it fixes a false `unsupported_model` result without changing the selected model.
 
 The installer walks through explicit approvals: prepare a new data home,
 review executable replacement, optionally start Bosun in the background, and
