@@ -13,18 +13,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  qualified-build:
-    name: Qualify, build and package macOS arm64 release
+  admission:
+    name: Admit immutable release source
     if: >-
       github.repository == 'vprodan/bosun' &&
       github.actor == github.repository_owner && github.triggering_actor == github.repository_owner
-    runs-on: macos-15
-    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       tag: ${{ steps.admission.outputs.tag }}
       commit: ${{ steps.admission.outputs.commit }}
       trusted-source: ${{ steps.admission.outputs.trusted-source }}
-      artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: Check out release source without persisted credentials
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -43,13 +42,13 @@ jobs:
           OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
-          [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF" == "refs/tags/$RELEASE_TAG" ]]
-          [[ "$ACTOR" == "$OWNER" && "$TRIGGERING_ACTOR" == "$OWNER" ]]
-          [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          [[ "$GITHUB_EVENT_NAME" == push && "$GITHUB_REF" == "refs/tags/$RELEASE_TAG" ]] || exit 1
+          [[ "$ACTOR" == "$OWNER" && "$TRIGGERING_ACTOR" == "$OWNER" ]] || exit 1
+          [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
           git check-ref-format "refs/heads/$DEFAULT_BRANCH"
           commit=$(git rev-parse --verify 'HEAD^{commit}')
-          [[ "$commit" == "$GITHUB_SHA" && "$commit" =~ ^[0-9a-f]{40}$ ]]
-          [[ $(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}") == "$commit" ]]
+          [[ "$commit" == "$GITHUB_SHA" && "$commit" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ $(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}") == "$commit" ]] || exit 1
           trusted_source=$(git rev-parse --verify "refs/remotes/origin/$DEFAULT_BRANCH^{commit}")
           git merge-base --is-ancestor "$commit" "$trusted_source"
           python3 - <<'PY'
@@ -60,15 +59,56 @@ jobs:
               raise SystemExit('Version tag does not match package.json')
           PY
           printf 'tag=%s\ncommit=%s\ntrusted-source=%s\n' "$RELEASE_TAG" "$commit" "$trusted_source" >> "$GITHUB_OUTPUT"
-      - name: Prepare fresh qualified inputs and run all guarded checks
+
+  qualified-source:
+    name: Qualify release source shard ${{ matrix.shard }}/4
+    needs: admission
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out admitted source without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.admission.outputs.commit }}
+          persist-credentials: false
+          clean: true
+      - name: Prepare and qualify this runner's fresh native inputs
+        uses: ./.github/actions/prepare-qualified-bun
+      - name: Run this isolated guarded release source shard
+        shell: bash
+        run: sh scripts/bun-check.sh tests --runtime bun --suite all --shard "${{ matrix.shard }}/4"
+
+  qualified-build:
+    name: Qualify, build and package macOS arm64 release
+    needs: [admission, qualified-source]
+    runs-on: macos-15
+    timeout-minutes: 120
+    outputs:
+      tag: ${{ needs.admission.outputs.tag }}
+      commit: ${{ needs.admission.outputs.commit }}
+      trusted-source: ${{ needs.admission.outputs.trusted-source }}
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - name: Check out admitted release source without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.admission.outputs.commit }}
+          fetch-depth: 0
+          persist-credentials: false
+          clean: true
+      - name: Prepare and qualify the artifact runner's fresh native inputs
         id: qualified
         uses: ./.github/actions/prepare-qualified-bun
       - name: Build, verify and qualify fresh compiled artifact
         shell: bash
         env:
           QUALIFIED_BUN: ${{ steps.qualified.outputs.bun }}
-          RELEASE_TAG: ${{ steps.admission.outputs.tag }}
-          RELEASE_COMMIT: ${{ steps.admission.outputs.commit }}
+          RELEASE_TAG: ${{ needs.admission.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.admission.outputs.commit }}
         run: |
           set -euo pipefail
           root=$(mktemp -d "$RUNNER_TEMP/bosun-release.XXXXXX")

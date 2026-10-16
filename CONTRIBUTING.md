@@ -1,7 +1,7 @@
 # Extending bosun
 
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
-Package metadata is `1.1.1`. Hosted CI qualifies fresh native inputs and runs every
+Package metadata is `1.1.2`. Hosted CI qualifies fresh native inputs and runs every
 guarded suite; tag CD additionally smokes and packages the compiled artifact.
 Existing local artifacts retain their original versions and evidence scopes.
 Real-model quality, live-host and full production qualification remain deferred.
@@ -161,11 +161,12 @@ Cancellation belongs only to the full qualification job: documentation-only
 pushes do not cancel an in-flight product check. A newer product-changing run
 can still cancel superseded qualification on the same branch or PR.
 
-Full checks use one fresh GitHub-hosted `macos-15` arm64 runner. All source files
-run in four concurrent wrapper invocations, each retaining its own startup
-HOME, run root, mandatory preloads and OS barrier. Each sorted file belongs to
-exactly one modulo shard; all four processes must finish and any failure fails
-the job. No test, workload, assertion or native qualification is dropped.
+Full checks use four fresh GitHub-hosted `macos-15` arm64 runners, one guarded
+source shard per runner. Each runner rebuilds and qualifies its own native
+inputs, retains independent startup HOME/run roots/preloads/OS containment, and
+runs its files serially. Each sorted file belongs to exactly one modulo shard;
+the stable aggregate check fails unless every shard succeeds. No test,
+workload, assertion or native qualification is dropped.
 `sh scripts/bun-check.sh tests --runtime bun --suite all --shard 1/4` runs the
 first shard; use indices 1–4 for the complete partition. Without `--shard`, the
 selected suite still runs in full. Invalid/duplicate/impossible selectors fail
@@ -186,13 +187,16 @@ Containment, strict typecheck, boundaries and all source tests must pass.
 
 [CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml) runs on an owner's
 stable version-tag push. The tag must equal `v` plus `package.json`'s version,
-and its commit must belong to the default branch. It repeats fresh qualification,
-builds into an absent output directory, verifies source/artifact integrity and
-exercises compiled storage/privacy/shutdown/public-hook safety before packaging.
+and its commit must belong to the default branch. Owner/tag admission runs
+before four freshly qualified source-shard runners. Only after all shards pass
+does a separate artifact runner rebuild/requalify its own native bytes, build
+into an absent output directory, verify source/artifact integrity and exercise
+compiled storage/privacy/shutdown/public-hook safety before packaging. Native
+outputs and qualification receipts are never borrowed across runners or runs.
 
 ```sh
-git tag v1.1.1 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
-git push origin refs/tags/v1.1.1
+git tag v1.1.2 FULL_WORKFLOW_ENABLED_MAIN_COMMIT
+git push origin refs/tags/v1.1.2
 ```
 
 Use a new matching version/tag for future releases; never move a published tag.

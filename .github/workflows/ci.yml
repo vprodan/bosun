@@ -76,13 +76,17 @@ jobs:
             src scripts test bin .github roles skills \
             package.json bun.lock tsconfig.json install.sh policy.md
 
-  qualified-checks:
-    name: Hosted macOS arm64 qualification and full checks
+  qualified-shards:
+    name: Guarded source shard ${{ matrix.shard }}/4
     needs: source-hygiene
     if: ${{ needs.source-hygiene.result == 'success' && needs.source-hygiene.outputs.product-changes != 'false' }}
-    # A skipped documentation job must not cancel in-flight product checks.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    # Documentation-only pushes never enter these qualification groups.
     concurrency:
-      group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-shard-${{ matrix.shard }}
       cancel-in-progress: true
     runs-on: macos-15
     timeout-minutes: 90
@@ -92,5 +96,21 @@ jobs:
         with:
           persist-credentials: false
           clean: true
-      - name: Prepare fresh qualified inputs and run guarded checks
+      - name: Prepare and qualify this runner's fresh native inputs
         uses: ./.github/actions/prepare-qualified-bun
+      - name: Run this isolated guarded source shard
+        shell: bash
+        run: sh scripts/bun-check.sh tests --runtime bun --suite all --shard "${{ matrix.shard }}/4"
+
+  qualified-checks:
+    name: Hosted macOS arm64 qualification and full checks
+    needs: [source-hygiene, qualified-shards]
+    if: ${{ always() && needs.source-hygiene.result == 'success' && needs.source-hygiene.outputs.product-changes != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every qualified shard to succeed
+        shell: bash
+        env:
+          SHARD_RESULT: ${{ needs.qualified-shards.result }}
+        run: test "$SHARD_RESULT" = success
