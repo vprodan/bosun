@@ -2,7 +2,7 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
-## Guided lifecycle candidate (2026-10-15)
+## Guided lifecycle release (2026-10-15)
 
 The owner requested `bosun install` reinstall, GitHub-release update, retained-data uninstall, optional Ollama installation/start and exact configured model pull, followed by push/release. Source/package1.1.0 implements these owner-terminal paths using the existing reviewed installation/service transactions. Cross-version retirement validates installed identity and invokes the original executable with its own fresh receipt version/hash; it does not weaken version-bound plans. A selected replacement is staged and version-qualified before retiring the original.
 
@@ -18,7 +18,11 @@ Fresh compiled candidate `cef818df469f216f8ee072f84018d10c99097045a2ae4d74f19c79
 
 Compiled optional-tool smoke separately approved the exact configured model pull through an owned native fixture, retained the endpoint/model and withheld an unrelated provider secret; only version/model-list GETs occurred, with zero inference. Acknowledged native launch/pull completion is recorded separately from later readiness metadata. Unknown native acknowledgements remain fenced; uncertain mounted stages are never detached/deleted beneath their original producers. Temporary smoke-profile failures were isolated to denied owned Unix sockets and `/bin/sh`'s `/bin/bash` variant, not SQLite or product failure; narrow fixture permissions fixed them without weakening production assertions.
 
-Publication is pending hosted CI/CD and downloaded-byte verification. The previous published1.0.5 evidence below remains historical; no new published release or live-tool qualification is claimed yet.
+Published **v1.1.0** at2026-10-16T03:51:57Z from `0e925e1a5fa6806c48320eeb6a87b9ec33b2cd6e`. [Source CI38844859833](https://github.com/vprodan/bosun/actions/runs/38844859833) passed97/97 guarded files,37/37 containment, typecheck and boundaries; [CD38846175817](https://github.com/vprodan/bosun/actions/runs/38846175817) independently repeated qualification, passed all eight compiled safety paths and published without replacement. ZIP SHA256 `46f6ff1d0b637aebc345b1e0f999efccbc5574b19d1775f7a5705306d608378e`; binary SHA256 `0425e745c81b994f82ff13ab76cedf4181f1c06f03d3df8884516dbe57aef4ac`.
+
+The actual downloaded four assets matched GitHub digests and passed the independent publisher verifier/extracted checksums. Exact published bytes passed fresh guided install, public memory storage/search, installed-path reinstall and retained-data uninstall. A final-code disposable1.0.6 predecessor updated through the full download/verifier/inherited-terminal/original-version recovery path to those published bytes, preserving exact configuration/database bytes, original recovery bytes and installation identity; retained memory remained readable afterward. Real GitHub metadata/assets were replayed through a contained transport fixture after independently verified live download, not supplied synthetic release contents. The published up-to-date path made one metadata request, transferred no assets and changed no installation/artifact files. Every original process/group joined; no personal service/config/database, real tool installation or model inference was exercised.
+
+For this workstation's static publisher checker, use the existing `/opt/homebrew/bin/python3`; `/usr/bin/python3` is an Apple shim blocked by unaccepted Xcode terms. No license acceptance or installation was performed. Live native controls/model quality and full production qualification remain unverified; static `runtimeQualification` metadata was not promoted.
 
 
 ## Background service defect (2026-10-15)
@@ -98,7 +102,7 @@ Current artifact: `dist/bosun-1.0.0-darwin-arm64-host-major/`. Binary SHA256 `0d
 
 ## Current scope and permissions
 
-- Source/package version is **1.1.0** (candidate); latest published version is1.0.5 until new publication is observed. **OMP is primary for new configuration**, with OpenCode2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.
+- Source/package and published release are **1.1.0**. **OMP is primary for new configuration**, with OpenCode2, Codex and Claude Code retained. Preserve explicit host/model/effort/cwd/access selections.
 - The owner authorized complete repository housekeeping and code cleanup, preservation and identical reapplication of the retained stash, canonical asset reconciliation, and a **fresh local artifact rebuild and guarded requalification**. This supersedes the older “no cleanup/removal workstream” instructions, including those still present in dated plans.
 - The owner subsequently authorized reviewed commits/pushes and version-tag CI/CD publication. Ephemeral GitHub-hosted dependency preparation is approved; local installs, personal configuration/auth/database/LaunchAgent changes, live host/model/service calls and history rewriting remain unauthorized. Use Bun only; native Node-API headers remain build inputs, never permission to execute Node. Preserve existing recovery artifacts.
 - The coordinator owns artifact cleanup, stash integration, source/asset integration and final verification. Workers do not run tests/builds/linters during edits. Fresh local rebuild permission does not execute old pending compiled/corpus proposals or authorize live qualification.
