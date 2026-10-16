@@ -9,10 +9,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   source-hygiene:
     name: Changed active-source hygiene
@@ -84,6 +80,10 @@ jobs:
     name: Hosted macOS arm64 qualification and full checks
     needs: source-hygiene
     if: ${{ needs.source-hygiene.result == 'success' && needs.source-hygiene.outputs.product-changes != 'false' }}
+    # A skipped documentation job must not cancel in-flight product checks.
+    concurrency:
+      group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     runs-on: macos-15
     timeout-minutes: 90
     steps:
