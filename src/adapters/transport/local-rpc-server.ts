@@ -6,6 +6,7 @@ import { Hono } from 'hono';
 import { getRequestListener, type HttpBindings } from '@hono/node-server';
 import { BosunError } from '../../core/errors.ts';
 import { rpcRequest, rpcError, RPC_LIMITS, type RpcRequest, type RpcResponse } from '../../contracts/rpc.ts';
+import { METHODS, methodDefinition } from '../../contracts/methods.ts';
 import { jobEventsRequest, projectJobEvent, JOB_STREAM_LIMITS } from '../../contracts/job-events.ts';
 import { readBody, socketIdentity, socketPath } from '../../platform/local-socket.ts';
 
@@ -35,11 +36,11 @@ export async function serveLocalRpc(options: { socket: string; assertOwner(): vo
   let stopping = false; let closing: Promise<void> | undefined;
   const work = new Set<Promise<void>>(); const pulls = new Set<Promise<void>>(); const sockets = new Set<Socket>(); const subscriptions = new Set<Subscription>();
   const app = new Hono<{ Bindings: HttpBindings }>();
-  const controllers = new WeakMap<http.ServerResponse, AbortController>();
+  const controllers = new WeakMap<http.ServerResponse, { control: AbortController; setDeadline(timeoutMs: number): void }>();
   const fail = (id = 'invalid', error: unknown = new BosunError('unavailable', '')) => response({ version: 1, id, ok: false, error: rpcError(error) });
   app.onError((_error, context) => { context.env.outgoing.setHeader('Connection', 'close'); return fail(); });
   app.all('*', async context => {
-    const req = context.env.incoming; const res = context.env.outgoing; const control = controllers.get(res)!;
+    const req = context.env.incoming; const res = context.env.outgoing; const { control, setDeadline } = controllers.get(res)!;
     let id = 'invalid';
     try {
       if (stopping) throw new BosunError('unavailable', ''); assertOwner();
@@ -51,6 +52,10 @@ export async function serveLocalRpc(options: { socket: string; assertOwner(): vo
       const request = rpcRequest(value); id = request.id;
       if (control.signal.aborted || stopping) throw new BosunError('cancelled', ''); assertOwner();
       if (req.url === '/rpc') {
+        if (Object.hasOwn(METHODS, request.method)) {
+          const timeoutMs = methodDefinition(request.method).timeoutMs;
+          if (timeoutMs !== undefined) setDeadline(timeoutMs);
+        }
         const result = await dispatch(request, control.signal);
         return response({ version: 1, id, ok: true, result: result === undefined ? null : result });
       }
@@ -124,8 +129,12 @@ export async function serveLocalRpc(options: { socket: string; assertOwner(): vo
   });
   const listener = getRequestListener(app.fetch, { overrideGlobalObjects: false, autoCleanupIncoming: false, errorHandler: () => fail() });
   const server = http.createServer({ maxHeaderSize: 4096 }, (req, res) => {
-    const control = new AbortController(); controllers.set(res, control);
-    const deadline = setTimeout(() => { if (req.url !== '/events' || !res.headersSent) { control.abort(); res.destroy(); } }, RPC_LIMITS.timeoutMs); deadline.unref();
+    const control = new AbortController(); const started = performance.now();
+    const expire = () => { if (req.url !== '/events' || !res.headersSent) { control.abort(); res.destroy(); } };
+    let deadline = setTimeout(expire, RPC_LIMITS.timeoutMs); deadline.unref();
+    controllers.set(res, { control, setDeadline(timeoutMs) {
+      clearTimeout(deadline); deadline = setTimeout(expire, Math.max(1, timeoutMs - (performance.now() - started))); deadline.unref();
+    } });
     res.once('close', () => { clearTimeout(deadline); if (!res.writableFinished) control.abort(); });
     const operation = listener(req, res); work.add(operation);
     void operation.catch(() => { control.abort(); res.destroy(); }).finally(() => { clearTimeout(deadline); work.delete(operation); });

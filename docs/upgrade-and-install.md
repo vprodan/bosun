@@ -165,6 +165,52 @@ After setup, run `bosun router status`. A `held` or unknown loaded state still
 requires the reported compatibility/capability/residency condition to be
 resolved; successful download is not readiness or quality qualification.
 
+### Test the router and understand deadlines
+
+With the Bosun daemon and your selected Ollama endpoint running:
+
+```sh
+bosun router status
+bosun route "Fix a typo in README.md."
+```
+
+Only send public text to `route`. This requests advice, not file changes.
+`cold` / `model_unloaded` means the selected model is installed but not resident;
+it is not an unsupported-model error. Status checks only metadata and never
+load a model. An explicit route makes one decision request, which may load it.
+
+**v1.1.3 fixes the one-second cold-start cutoff.** Cold requests default to a
+two-minute total budget, including initial metadata, loading/decision and final
+identity checks. Initial metadata and warm requests retain the existing
+`router.timeoutMs` budget. The CLI/server response deadline for explicit routing
+is 130s, so the old 10s transport cutoff cannot truncate that cold-start budget.
+Header/body receipt and unrelated operations keep their existing limits.
+
+No configuration edit is required to get the new cold default. To set a shorter
+limit, edit these entries **inside the existing `[router]` section** of
+`~/.bosun/config.toml` (or your selected `BOSUN_HOME`); keep its model, URL and
+digest selections:
+
+```toml
+timeoutMs = 1000
+coldStartTimeoutMs = 120000
+```
+
+`timeoutMs` accepts 1–30000ms; `coldStartTimeoutMs` accepts 1–120000ms.
+The corresponding environment overrides are `BOSUN_ROUTER_TIMEOUT_MS` and
+`BOSUN_ROUTER_COLD_START_TIMEOUT_MS`. They configure the **daemon at startup**;
+setting them only on a later `route` client does not reconfigure the daemon.
+For owner edits, stop the daemon/clients, edit, run `bosun config validate`,
+then restart the daemon using its existing foreground/service arrangement.
+
+A timeout returns no advice and never retries. Its status can be the
+**pre-decision snapshot**: `model_unloaded` there is not a new observation
+after the timeout. Inspect `bosun router status` and `ollama ps` for current
+state. Dropping the HTTP request is not proof Ollama stopped native loading or
+inference. Private requests, identity mismatches and unqualified automatic
+dispatch remain held.
+
+
 
 ## Current v1.0.1 manual fallback
 

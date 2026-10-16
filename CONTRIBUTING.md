@@ -1,7 +1,7 @@
 # Extending bosun
 
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
-Package metadata is `1.1.2`. Hosted CI qualifies fresh native inputs and runs every
+Package metadata is `1.1.3`. Hosted CI qualifies fresh native inputs and runs every
 guarded suite; tag CD additionally smokes and packages the compiled artifact.
 Existing local artifacts retain their original versions and evidence scopes.
 Real-model quality, live-host and full production qualification remain deferred.
@@ -27,6 +27,13 @@ the existing application service or a focused service composed by
 [the daemon](src/app/daemon.ts). Reuse its owned resources and lifecycle.
 [CLI](src/app/cli.ts), [MCP](src/app/mcp.ts) and [dashboard](src/app/dashboard.ts)
 remain thin clients of those operations, without another writer or implicit startup.
+
+Declare an exceptional RPC response deadline in that same method table. The CLI
+passes it to the lean local client; the server admits it only after reading the
+bounded request envelope and subtracts elapsed request time. Header/body receipt
+and other operations retain their ordinary limits. Low-level `callLocalRpc`
+callers must pass the declared `timeoutMs` when invoking a longer operation;
+hooks do not import the method table or gain a longer inference path.
 
 Keep domain decisions, admission and use cases in `src/core`; supply effects
 through its seven ports and injected dependencies:

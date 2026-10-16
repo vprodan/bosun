@@ -103,7 +103,7 @@ export async function main(
     const request: RpcRequest = { version: 1, id: crypto.randomUUID(), method, params, scope };
     methodParams(request);
     const definition = methodDefinition(method);
-    return callLocalRpc({ socket: paths().socket, request, mutation: definition.mutation });
+    return callLocalRpc({ socket: paths().socket, request, mutation: definition.mutation, timeoutMs: definition.timeoutMs });
   }
   const call = async (method: string, params: Record<string, unknown>) =>
     print(await fetch(method, params));

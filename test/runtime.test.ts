@@ -119,18 +119,22 @@ test('malformed and oversized requests never invoke dispatch; stopped admission 
   } finally { await server.close(); }
 });
 
-test('lost mutation reply has unknown outcome and is never automatically repeated', async () => {
-  const file = socket(); let effects = 0; let aborted!: () => void; let completed!: () => void;
-  const seenAbort = new Promise<void>(r => aborted = r); const completion = new Promise<void>(r => completed = r);
-  const server = await serveLocalRpc({ socket: file, assertOwner() {}, async dispatch(_q, signal) {
-    effects++; signal.addEventListener('abort', aborted, { once: true }); await completion; return effects;
-  } });
-  try {
-    await assert.rejects(callLocalRpc({ socket: file, request: request('test.mutate'), mutation: true, timeoutMs: 30 }), unknown);
-    await seenAbort; assert.equal(effects, 1);
-    const closing = server.close(); completed(); await closing;
-    assert.equal(effects, 1);
-  } finally { completed(); await server.close(); }
+test('lost mutation and extended route replies abort original dispatch without replay and shutdown joins it', async () => {
+  for (const [method, mutation] of [['test.mutate', true], ['route.classify', false]] as const) {
+    const file = socket(); let effects = 0; let aborted!: () => void; let completed!: () => void;
+    const seenAbort = new Promise<void>(r => aborted = r); const completion = new Promise<void>(r => completed = r);
+    const server = await serveLocalRpc({ socket: file, assertOwner() {}, async dispatch(_q, signal) {
+      effects++; signal.addEventListener('abort', aborted, { once: true }); await completion; return effects;
+    } });
+    try {
+      await assert.rejects(callLocalRpc({ socket: file, request: request(method, { privacy: 'public', text: 'Public request' }), mutation, timeoutMs: 30 }),
+        mutation ? unknown : (error: unknown) => error instanceof BosunError && error.code === 'unavailable' && error.details === undefined);
+      await seenAbort; assert.equal(effects, 1);
+      let joined = false; const closing = server.close().then(() => { joined = true; });
+      await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(joined, false);
+      completed(); await closing; assert.equal(effects, 1);
+    } finally { completed(); await server.close(); }
+  }
 });
 
 test('oversized successful replies preserve uncertainty instead of claiming a failed mutation', async () => {
@@ -276,10 +280,11 @@ for (const settles of [true, false]) {
 }
 
 test('real TOML/Zod config applies typed defaults, TOML and explicit environment without changing chosen model names', () => {
-  const config = parseRuntimeConfig('[roles.worker.codex]\nmodel="gpt-6.1-sol"\neffort="high"\n[router]\nmodel="custom:9b"\n',
-    { BOSUN_ROUTER_MODEL: 'clef-flash:9b', BOSUN_ROLE_WORKER_OPENCODE_MODEL: 'provider/custom:exact:tag', BOSUN_HANDOFF_ENABLED: 'false', OPENAI_API_KEY: 'SECRET_CANARY' });
+  const config = parseRuntimeConfig('[roles.worker.codex]\nmodel="gpt-6.1-sol"\neffort="high"\n[router]\nmodel="custom:9b"\ncoldStartTimeoutMs=7000\n',
+    { BOSUN_ROUTER_MODEL: 'clef-flash:9b', BOSUN_ROUTER_COLD_START_TIMEOUT_MS: '9000', BOSUN_ROLE_WORKER_OPENCODE_MODEL: 'provider/custom:exact:tag', BOSUN_HANDOFF_ENABLED: 'false', OPENAI_API_KEY: 'SECRET_CANARY' });
   assert.equal(config.roles.worker.codex!.model, 'gpt-6.1-sol');
   assert.equal(config.roles.worker.opencode!.model, 'provider/custom:exact:tag'); assert.equal(config.router.model, 'clef-flash:9b'); assert.equal(config.handoff.enabled, false);
+  assert.equal(config.router.coldStartTimeoutMs, 9000);
   assert.equal(JSON.stringify(config).includes('CANARY'), false); assert.ok(Object.isFrozen(config.roles.worker.codex));
   assert.throws(() => { config.local.model = 'changed'; });
   const roundtrip = parseRuntimeConfig(renderRuntimeConfig(config)); assert.deepEqual(roundtrip, config); assert.equal(configRevision(roundtrip), configRevision(config));
@@ -287,6 +292,12 @@ test('real TOML/Zod config applies typed defaults, TOML and explicit environment
     assert.throws(() => parseRuntimeConfig(text), (error: unknown) => error instanceof BosunError && error.code === 'invalid' && !error.message.includes('CANARY'));
   }
   assert.throws(() => parseRuntimeConfig('', { BOSUN_HANDOFF_ENABLED: 'yes' }));
+  for (const value of ['0', '120001', 'NaN', '1.5', '']) {
+    assert.throws(() => parseRuntimeConfig('', { BOSUN_ROUTER_COLD_START_TIMEOUT_MS: value }), (error: unknown) => error instanceof BosunError && error.code === 'invalid');
+  }
+  for (const value of ['0', '120001', '1.5', '"SECRET_CANARY"']) {
+    assert.throws(() => parseRuntimeConfig('[router]\ncoldStartTimeoutMs=' + value), (error: unknown) => error instanceof BosunError && error.code === 'invalid' && !error.message.includes('CANARY'));
+  }
   const pinned = parseRuntimeConfig('[router]\nmodel = "clef-custom:chosen"\ndigest = "sha256:' + 'a'.repeat(64) + '"\n', { BOSUN_ROUTER_DIGEST: 'b'.repeat(64) });
   assert.equal(pinned.router.model, 'clef-custom:chosen'); assert.equal(pinned.router.digest, 'b'.repeat(64));
   assert.equal(parseRuntimeConfig(renderRuntimeConfig(pinned)).router.digest, pinned.router.digest);

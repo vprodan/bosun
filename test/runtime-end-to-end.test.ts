@@ -245,17 +245,21 @@ test('actual portable profile CLI exports selected models and reviewed instructi
 
 test('final daemon/CLI uses configured Clef advice without autonomous delegation, private inference or model substitution', async () => {
   const reply = JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8'));
-  const digest = 'a'.repeat(64);
+  const digest = 'a'.repeat(64); let loaded = false; let loading: Promise<void> | undefined;
   const mockServer = await mock({
-    '/api/version': () => ({ json: { version: '0.35.1' } }),
+    '/api/version': () => ({ json: { version: '0.40.4' } }),
     '/api/tags': () => ({ json: { models: [{ name: 'clef-flash:9b', model: 'clef-flash:9b', digest }] } }),
-    '/api/show': () => ({ json: { capabilities: ['decision'], details: { format: 'gguf' }, model_info: { 'general.architecture': 'qwen35', 'qwen35.context_length': 65536 } } }),
-    '/api/ps': () => ({ json: { models: [{ name: 'clef-flash:9b', model: 'clef-flash:9b', digest, size: 11000000000, size_vram: 9000000000, context_length: 32768, expires_at: '2099-01-01T00:00:00Z' }] } }),
-    '/v1/systemone': () => ({ json: reply }),
+    '/api/show': () => ({ json: { requires: '0.40.0', capabilities: ['decision'], details: { format: 'safetensors', runner: 'mlx' }, model_info: { 'general.architecture': 'clef', 'clef.context_length': 65536 } } }),
+    '/api/ps': () => ({ json: { models: loaded ? [{ name: 'clef-flash:9b', model: 'clef-flash:9b', digest, runner: 'mlx', size: 11000000000, size_vram: 9000000000, context_length: 32768, expires_at: '2099-01-01T00:00:00Z' }] : [] } }),
+    '/v1/systemone': async () => {
+      loading = new Promise(resolve => setTimeout(resolve, 11000));
+      await loading; loaded = true; return { json: reply };
+    },
   });
   const f = await fixture(`[router]\nurl = ${JSON.stringify(mockServer.url)}\n`);
   try {
-    const result = await f.cli(['route', 'Implement refund handling']); assert.equal(result.code, 0, result.err); const advice = JSON.parse(result.out);
+    const result = await bosun(['route', 'Implement refund handling'], { env: f.env, cwd: f.workspace }); assert.equal(result.code, 0, result.err); const advice = JSON.parse(result.out);
+    assert.equal(advice.reason, null); assert.equal(advice.residencyBefore, 'cold'); assert.equal(advice.status.state, 'ready'); assert.equal(advice.status.runner, 'mlx');
     assert.equal(advice.route.decision.router, 'clef-flash:9b'); assert.equal(advice.automaticDispatch, false);
     assert.equal(advice.qualification.calibration, 'unverified'); assert.equal(advice.qualification.liveReadiness, 'unverified'); assert.equal(f.calls(), 0);
     assert.deepEqual(mockServer.requests.map(request => request.path), ['/api/version', '/api/tags', '/api/show', '/api/ps', '/v1/systemone', '/api/version', '/api/tags', '/api/show', '/api/ps']);
@@ -267,7 +271,7 @@ test('final daemon/CLI uses configured Clef advice without autonomous delegation
     assert.equal(mockServer.requests.length, 13); assert.equal(mockServer.requests.filter(request => request.path === '/v1/systemone').length, 1);
     const deniedStatus = await main(['router', 'status'], { env: { ...f.env, BOSUN_CALLER: 'model' }, cwd: f.workspace, stdout() {}, stderr() {} }); assert.notEqual(deniedStatus, 0);
     assert.deepEqual(f.sb.calls(), []);
-  } finally { await f.close(); await mockServer.close(); }
+  } finally { await f.close(); await loading; await mockServer.close(); }
 });
 
 test('real MCP v2 SDK stdio client uses the same methods with fixed model audience and protocol-only stdout', async () => {

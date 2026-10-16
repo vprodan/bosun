@@ -8,7 +8,7 @@ import type { Schema } from './schema.ts';
 import type { StoreInput, Patch, Query } from '../core/domain/memory.ts';
 import { BosunError } from '../core/errors.ts';
 import { requirePublicInput } from '../core/policy.ts';
-import type { RpcRequest } from './rpc.ts';
+import { RPC_LIMITS, type RpcRequest } from './rpc.ts';
 import { handoffCreateSchema, handoffBundleSchema, handoffSummarizeSchema } from './handoff.ts';
 import { publicSummaryEvidence } from '../core/use-cases/summarize-evidence.ts';
 import { GraphInputSchema, GraphQuerySchema } from './graph.ts';
@@ -16,7 +16,7 @@ import { consolidationSubmitSchema } from './consolidation.ts';
 import { profileExportSchema, profileDocumentSchema, profilePreviewSchema } from './profile.ts';
 import { workspaceCreateSchema, workspaceIdSchema } from './workspace.ts';
 import { OPERATIONS } from '../core/dispatch-policy.ts';
-import { HOSTS } from '../core/domain/config.ts';
+import { HOSTS, ROUTER_MAX_COLD_START_MS } from '../core/domain/config.ts';
 import {
   managedStartSchema,
   managedTurnSchema,
@@ -31,6 +31,7 @@ type Options = {
   mutation?: boolean;
   ownerOnly?: boolean;
   inference?: boolean;
+  timeoutMs?: number;
   tool?: string;
   description?: string;
   modelSchema?: z.ZodType;
@@ -137,7 +138,7 @@ export const METHODS = {
   }),
   'route.classify': method(
     z.strictObject({ privacy: z.literal('public'), text: z.string().min(1).max(24000) }),
-    { inference: true },
+    { inference: true, timeoutMs: ROUTER_MAX_COLD_START_MS + RPC_LIMITS.timeoutMs },
   ),
   'route.status': method(empty, { ownerOnly: true }),
   'route.observations': method(

@@ -1,6 +1,6 @@
 import { BosunError } from '../core/errors.ts';
 import { requirePublicInput } from '../core/policy.ts';
-import type { RuntimeConfig } from '../core/domain/config.ts';
+import { ROUTER_MAX_COLD_START_MS, type RuntimeConfig } from '../core/domain/config.ts';
 import type { InferenceInput } from '../core/domain/inference.ts';
 import { createRoutePrompt } from '../core/use-cases/route-prompt.ts';
 import type { createClefRouter } from '../adapters/routers/ollama-clef.ts';
@@ -15,11 +15,14 @@ export function createRouteService(config: RuntimeConfig) {
   let settings: Readonly<RuntimeConfig['router']> | undefined;
   const configured = () => {
     if (settings) return settings;
-    const { url, model, timeoutMs, minConfidence, digest } = config.router;
+    const { url, model, timeoutMs, coldStartTimeoutMs, minConfidence, digest } = config.router;
     if (
       !Number.isSafeInteger(timeoutMs) ||
       timeoutMs < 1 ||
       timeoutMs > 30000 ||
+      !Number.isSafeInteger(coldStartTimeoutMs) ||
+      coldStartTimeoutMs < 1 ||
+      coldStartTimeoutMs > ROUTER_MAX_COLD_START_MS ||
       !Number.isFinite(minConfidence) ||
       minConfidence < 0 ||
       minConfidence > 1
@@ -30,14 +33,16 @@ export function createRouteService(config: RuntimeConfig) {
       url,
       model,
       timeoutMs,
+      coldStartTimeoutMs,
       minConfidence,
       ...(digest === undefined ? {} : { digest }),
     }));
   };
   const router = () =>
-    (selected ??= import('../adapters/routers/ollama-clef.ts').then(({ createClefRouter }) =>
-      createClefRouter(configured()),
-    ));
+    (selected ??= import('../adapters/routers/ollama-clef.ts').then(({ createClefRouter }) => {
+      const cfg = configured();
+      return createClefRouter({ ...cfg, timeoutMs: Math.max(cfg.timeoutMs, cfg.coldStartTimeoutMs) });
+    }));
   const status = () =>
     (readiness ??= import('../adapters/routers/ollama-clef-status.ts').then(
       ({ createClefReadiness }) => createClefReadiness(configured()),
@@ -56,8 +61,10 @@ export function createRouteService(config: RuntimeConfig) {
       const adapter = await router();
       const body = adapter.prepare(permitted); // Size/privacy validation precedes every metadata request.
       const cfg = configured();
-      const deadline = AbortSignal.any([signal, AbortSignal.timeout(cfg.timeoutMs)]);
       const probe = await status();
+      const started = performance.now();
+      let budgetMs = cfg.timeoutMs;
+      let deadline = AbortSignal.any([signal, AbortSignal.timeout(budgetMs)]);
       const before = await probe.status(deadline);
       if (signal.aborted) throw new BosunError('cancelled', 'Routing cancelled');
       const residencyBefore =
@@ -81,12 +88,23 @@ export function createRouteService(config: RuntimeConfig) {
       )
         return fallback('input_context_unverified');
       try {
+        if (deadline.aborted || performance.now() - started >= budgetMs) return fallback('timeout');
+        if (before.state === 'cold') {
+          budgetMs = cfg.coldStartTimeoutMs;
+          const remaining = budgetMs - (performance.now() - started);
+          if (remaining <= 0) return fallback('timeout');
+          deadline = AbortSignal.any([signal, AbortSignal.timeout(Math.ceil(remaining))]);
+        }
+        if (deadline.aborted || performance.now() - started >= budgetMs) return fallback('timeout');
         const route = await createRoutePrompt({
           router: adapter,
           minConfidence: cfg.minConfidence,
         })(permitted, deadline);
+        if (signal.aborted) throw new BosunError('cancelled', 'Routing cancelled');
+        if (deadline.aborted || performance.now() - started >= budgetMs) return fallback('timeout');
         const after = await probe.status(deadline);
         if (signal.aborted) throw new BosunError('cancelled', 'Routing cancelled');
+        if (deadline.aborted || performance.now() - started >= budgetMs) return fallback('timeout', after);
         if (
           after.state !== 'ready' ||
           after.digest !== before.digest ||

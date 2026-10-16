@@ -2,6 +2,7 @@ import { BosunError } from '../../core/errors.ts';
 import { publicInput } from '../../core/policy.ts';
 import { screenPublicText } from '../../core/secret-screen.ts';
 import { finite, LANES, RISK, type Lane, type Risk } from '../../core/domain/route.ts';
+import { ROUTER_MAX_COLD_START_MS } from '../../core/domain/config.ts';
 import type { Router } from '../../core/ports/router.ts';
 import { httpJson, protocolBase } from '../../platform/http-json.ts';
 
@@ -47,7 +48,7 @@ export function createClefRouter(settings: ClefSettings): Router & { readonly qu
       screenPublicText(input.text);
       if (!selected) {
         const timeoutMs = settings.timeoutMs ?? 1000;
-        if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30_000) throw new BosunError('invalid', 'Invalid decision deadline configuration');
+        if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > ROUTER_MAX_COLD_START_MS) throw new BosunError('invalid', 'Invalid decision deadline configuration');
         selected = { url: protocolBase(settings.url), model: model(settings.model), timeoutMs };
       }
       const body = JSON.stringify({ model: selected.model, state: input.text, questions: {

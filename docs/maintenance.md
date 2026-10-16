@@ -2,6 +2,41 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Cold-start routing deadlines
+
+The owner reported v1.1.2 returning `route:null`, `reason:timeout` with a cold,
+unloaded Ollama0.40.4/Clef9b MLX snapshot. Source had a1000ms total routing
+deadline and the adapter's own1000ms HTTP cap; CLI and server also imposed
+10000ms RPC response deadlines. Raising only the router setting could hit
+either transport limit.
+
+Source/package1.1.3 adds a separate bounded `router.coldStartTimeoutMs`
+(default/maximum120000ms) only for explicit admitted cold routing. Its
+monotonic total includes initial metadata and final revalidation; initial
+metadata and warm requests retain `router.timeoutMs`. One method-table
+response deadline covers that budget plus10000ms transport allowance.
+Header/body receipt, unrelated methods, event streams and lean hook limits
+are unchanged. There is no retry, hidden warmup, model substitution, native
+cancellation claim or automatic dispatch.
+
+The existing actual CLI/daemon regression now replays0.40.4 flat MLX metadata,
+starts unloaded, delays one synthetic SystemOne response11000ms and then
+reports matching loaded identity. Before the fix it failed with `timeout`;
+afterward the actual child CLI returned ready advice. All13 affected guarded
+files passed123 tests with38 containment probes, including shorter warm
+expiry, cold expiry/cancellation, cumulative deadlines, privacy, digest/runner
+drift, original-dispatch shutdown joins and unknown/nonreplay receipts.
+This is synthetic protocol/latency evidence, not live9b load-speed or model
+quality qualification. Published1.1.2 remains the immutable prior release;
+new release qualification is recorded after publication.
+
+Final1.1.3 preflight regenerated21 canonical text assets and passed strict
+typecheck plus257-file/1422-edge boundaries with zero violations. All seven
+selected router/runtime/distribution/lint files passed88 tests with38/38
+containment probes; the actual child CLI again crossed the former10s boundary.
+The14 unique locally exercised files cover136 tests across the two selections.
+
+
 ## CI latency reduction
 
 The owner prioritized CI/CD latency after the published MLX patch. Recorded source CI spent most time in serial guarded test files, not Bun/SQLite preparation. The redundant documentation-evidence CI38908497826 was deliberately cancelled; source CI38903340111 and release CD38905586941 had already passed, and published1.1.1 remains unchanged.

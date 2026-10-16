@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { z } from 'zod';
 import { parse, stringify } from 'smol-toml';
-import { defaultConfig, HOSTS, type RuntimeConfig } from '../core/domain/config.ts';
+import { defaultConfig, HOSTS, ROUTER_MAX_COLD_START_MS, type RuntimeConfig } from '../core/domain/config.ts';
 import { BosunError } from '../core/errors.ts';
 import type { Env } from '../core/domain/inference.ts';
 import type { RuntimePaths } from './paths.ts';
@@ -82,6 +82,7 @@ export const configSchema = z
       model: text,
       url: endpoint,
       timeoutMs: integer(1, 30000),
+      coldStartTimeoutMs: integer(1, ROUTER_MAX_COLD_START_MS),
       minConfidence: z.number().min(0).max(1),
       digest: z
         .string()
@@ -244,6 +245,7 @@ const ENV_FIELDS = {
   BOSUN_ROUTER_MODEL: ['router', 'model', 'text'],
   BOSUN_ROUTER_URL: ['router', 'url', 'text'],
   BOSUN_ROUTER_TIMEOUT_MS: ['router', 'timeoutMs', 'number'],
+  BOSUN_ROUTER_COLD_START_TIMEOUT_MS: ['router', 'coldStartTimeoutMs', 'number'],
   BOSUN_ROUTER_DIGEST: ['router', 'digest', 'text'],
   BOSUN_ROUTER_MIN_CONFIDENCE: ['router', 'minConfidence', 'number'],
   BOSUN_LOCAL_MODEL: ['local', 'model', 'text'],

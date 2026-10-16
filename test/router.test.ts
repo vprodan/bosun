@@ -8,6 +8,7 @@ import { mock, REPO } from './helpers.ts';
 import { createAdapterRegistry } from '../src/app/registry.ts';
 import { createRoutePrompt } from '../src/core/use-cases/route-prompt.ts';
 import { BosunError } from '../src/core/errors.ts';
+import { ROUTER_MAX_COLD_START_MS } from '../src/core/domain/config.ts';
 import { requireCapability } from '../src/core/policy.ts';
 import { routerContract } from './router-contract.ts';
 
@@ -311,6 +312,16 @@ test('Clef bounds streamed response bytes and aborts stalled bodies within its d
   }
 });
 
+test('Clef accepts the cold HTTP ceiling while the caller deadline still bounds a started request', async () => {
+  let requests = 0;
+  const m = await streamingFixture((res) => { requests++; res.write('{'); });
+  try {
+    const router = await createAdapterRegistry().router('ollama-clef', { url: m.url, timeoutMs: ROUTER_MAX_COLD_START_MS });
+    await assert.rejects(router.classify(PUBLIC, AbortSignal.timeout(100)), safeFailure('timeout'));
+    assert.equal(requests, 1);
+  } finally { await m.close(); }
+});
+
 test('Clef caller cancellation and invalid configuration perform no inference or substitution', async () => {
   const m = await mock({ '/v1/systemone': () => ({ json: fixture() }) });
   try {
@@ -324,6 +335,10 @@ test('Clef caller cancellation and invalid configuration perform no inference or
     for (const settings of [
       { url: m.url, model: '' },
       { url: m.url, timeoutMs: 0 },
+      { url: m.url, timeoutMs: ROUTER_MAX_COLD_START_MS + 1 },
+      { url: m.url, timeoutMs: NaN },
+      { url: m.url, timeoutMs: Infinity },
+      { url: m.url, timeoutMs: 1.5 },
       { url: 'http://user:PRIVATE-AUTH@localhost' },
     ]) {
       const candidate = await createAdapterRegistry().router('ollama-clef', settings);

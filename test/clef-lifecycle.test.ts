@@ -29,9 +29,9 @@ function flatMlxMetadata({ loaded = true } = {}) {
   return value;
 }
 
-async function native(value = metadata(), decision?: () => Record<string, any>) {
+async function native(value = metadata(), decision?: () => Record<string, unknown> | Promise<Record<string, unknown>>) {
   return mock({ '/api/version': () => ({ json: value.version }), '/api/tags': () => ({ json: value.tags }), '/api/show': () => ({ json: value.show }), '/api/ps': () => ({ json: value.ps }),
-    '/v1/systemone': () => ({ json: decision ? decision() : JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8')) }) });
+    '/v1/systemone': async () => ({ json: decision ? await decision() : JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8')) }) });
 }
 const noLeaks = (value: unknown) => assert.doesNotMatch(JSON.stringify(value), /PRIVATE_|private-canary|api_key|template-secret/);
 
@@ -180,21 +180,79 @@ test('final explicit classification validates privacy/bounds before metadata, bi
   } finally { await m.close(); }
 });
 
-test('cold classification may use its explicitly selected installed model, but metadata status alone never warms it', async () => {
-  const value = metadata({ loaded: false }); const m = await native(value, () => { value.ps = metadata().ps; return JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8')); });
-  const config = defaultConfig(); config.router.url = m.url; const service = createRouteService(config);
-  try { assert.equal((await service.status(SIGNAL)).state, 'cold'); assert.equal(m.requests.some((r) => r.path === '/v1/systemone'), false);
-    const result = await service.classify({ privacy: 'public', text: 'Explicit public request' }, SIGNAL); assert.equal(result.status.state, 'ready'); assert.ok(result.route); }
-  finally { await m.close(); }
+test('only admitted cold classification gets the frozen longer budget; status never warms and a later warm decision stays bounded', async () => {
+  // Real HTTP/AbortSignal deadlines must share the platform clock; fake timers cannot drive fetch cancellation.
+  const warmResponse = Promise.withResolvers<void>(); let decisions = 0;
+  const value = flatMlxMetadata({ loaded: false }); const m = await native(value, async () => {
+    decisions++; const delay = Promise.withResolvers<void>(); setTimeout(delay.resolve, 400); await delay.promise;
+    value.ps = flatMlxMetadata().ps; if (decisions === 2) warmResponse.resolve();
+    return JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8'));
+  });
+  const config = defaultConfig(); config.router.url = m.url; config.router.timeoutMs = 200; config.router.coldStartTimeoutMs = 2000;
+  const service = createRouteService(config);
+  try {
+    assert.equal((await service.status(SIGNAL)).state, 'cold'); assert.equal(m.requests.some((r) => r.path === '/v1/systemone'), false);
+    config.router.coldStartTimeoutMs = 1;
+    const cold = await service.classify({ privacy: 'public', text: 'Explicit public request' }, SIGNAL);
+    assert.equal(cold.status.state, 'ready'); assert.equal(cold.residencyBefore, 'cold'); assert.ok(cold.route); assert.equal(cold.reason, null);
+    const warm = await service.classify({ privacy: 'public', text: 'Explicit public request' }, SIGNAL);
+    assert.equal(warm.residencyBefore, 'warm'); assert.equal(warm.route, null); assert.equal(warm.reason, 'timeout');
+    assert.equal(m.requests.filter((r) => r.path === '/v1/systemone').length, 2);
+    await warmResponse.promise;
+    assert.equal(warm.route, null); assert.equal(m.requests.filter((r) => r.path === '/v1/systemone').length, 2);
+  } finally { await m.close(); }
+});
+
+test('cold expiry and caller cancellation after inference starts discard late responses without postchecks or repeats', async () => {
+  for (const arm of ['timeout', 'cancelled'] as const) {
+    const value = flatMlxMetadata({ loaded: false });
+    const pending = Promise.withResolvers<void>(); const started = Promise.withResolvers<void>(); const late = Promise.withResolvers<void>();
+    const m = await native(value, async () => {
+      started.resolve(); await pending.promise; value.ps = flatMlxMetadata().ps; late.resolve();
+      return JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8'));
+    });
+    const config = defaultConfig(); config.router.url = m.url; config.router.timeoutMs = 1000; config.router.coldStartTimeoutMs = arm === 'timeout' ? 150 : 2000;
+    const caller = new AbortController(); const service = createRouteService(config);
+    try {
+      const result = service.classify({ privacy: 'public', text: 'Explicit public request' }, caller.signal);
+      const rejected = arm === 'cancelled' ? assert.rejects(result, (e: unknown) => e instanceof BosunError && e.code === 'cancelled') : undefined;
+      await Promise.race([started.promise, result.then(() => { throw Error('Classification returned before inference started'); })]);
+      if (arm === 'cancelled') { caller.abort(); await rejected; }
+      else { const held = await result; assert.equal(held.route, null); assert.equal(held.reason, 'timeout'); assert.equal(held.automaticDispatch, false); }
+      pending.resolve(); await late.promise;
+      assert.deepEqual(m.requests.map((r) => r.path), ['/api/version', '/api/tags', '/api/show', '/api/ps', '/v1/systemone']);
+      assert.equal((await service.status(SIGNAL)).state, 'ready');
+      assert.equal(m.requests.filter((r) => r.path === '/v1/systemone').length, 1);
+    } finally { pending.resolve(); await m.close(); }
+  }
+});
+
+test('invalid cold budgets fail before metadata or inference', async () => {
+  const m = await native(flatMlxMetadata({ loaded: false }));
+  try {
+    for (const coldStartTimeoutMs of [0, -1, 120001, 1.5, NaN, Infinity, -Infinity]) {
+      const config = defaultConfig(); config.router.url = m.url; config.router.coldStartTimeoutMs = coldStartTimeoutMs;
+      await assert.rejects(createRouteService(config).classify({ privacy: 'public', text: 'Explicit public request' }, SIGNAL), (e: unknown) => e instanceof BosunError && e.code === 'invalid');
+    }
+    assert.equal(m.requests.length, 0);
+  } finally { await m.close(); }
 });
 
 test('metadata absence, malformed decision, loaded-context bound and post-decision digest drift conservatively return no routing advice', async () => {
-  for (const arm of ['missing', 'malformed', 'context', 'drift'] as const) {
-    const value = metadata(); if (arm === 'missing') value.tags.models = []; if (arm === 'context') value.ps.models[0].context_length = 1024;
-    const m = await native(value, () => { if (arm === 'malformed') return { error: 'PRIVATE_UPSTREAM' }; if (arm === 'drift') { value.tags.models[0].digest = CHILD; value.ps.models[0].digest = CHILD; }
-      return JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8')); });
+  for (const arm of ['missing', 'malformed', 'context', 'drift', 'cold-drift', 'cold-runner'] as const) {
+    const value = arm.startsWith('cold') ? flatMlxMetadata({ loaded: false }) : metadata();
+    if (arm === 'missing') value.tags.models = []; if (arm === 'context') value.ps.models[0].context_length = 1024;
+    const m = await native(value, () => {
+      if (arm === 'malformed') return { error: 'PRIVATE_UPSTREAM' };
+      if (arm.startsWith('cold')) value.ps = flatMlxMetadata().ps;
+      if (arm === 'drift' || arm === 'cold-drift') { value.tags.models[0].digest = CHILD; value.ps.models[0].digest = CHILD; }
+      if (arm === 'cold-runner') value.ps.models[0].runner = 'ggml';
+      return JSON.parse(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8'));
+    });
     const config = defaultConfig(); config.router.url = m.url;
     try { const result = await createRouteService(config).classify({ privacy: 'public', text: 'Explicit public request' }, SIGNAL); assert.equal(result.route, null); assert.equal(result.automaticDispatch, false); noLeaks(result);
+      if (arm === 'cold-drift') assert.equal(result.reason, 'digest_changed');
+      if (arm === 'cold-runner') assert.equal(result.reason, 'loaded_identity_mismatch');
       assert.equal(m.requests.filter((r) => r.path === '/v1/systemone').length, arm === 'missing' || arm === 'context' ? 0 : 1); }
     finally { await m.close(); }
   }
@@ -213,19 +271,43 @@ test('caller cancellation, HTTP failures and oversize/stalled bodies obey one fi
   }
 });
 
-test('the total classification deadline includes every pre/post metadata phase and produces no late/retried advice', async () => {
-  const value = metadata(); const paths: string[] = []; const timers = new Set<ReturnType<typeof setTimeout>>();
-  const server = http.createServer((request, response) => {
-    paths.push(request.url!); request.resume(); const timer = setTimeout(() => {
-      timers.delete(timer); response.writeHead(200, { 'content-type': 'application/json' });
-      const key = request.url!.split('/').at(-1)!; response.end(JSON.stringify(value[key as keyof typeof value] ?? {}));
-    }, 40); timers.add(timer);
-  });
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const config = defaultConfig(); config.router.url = `http://127.0.0.1:${(server.address() as { port: number }).port}`; config.router.timeoutMs = 70;
-  try { const result = await createRouteService(config).classify({ privacy: 'public', text: 'Bounded public request' }, SIGNAL);
-    assert.equal(result.route, null); assert.equal(result.reason, 'timeout'); assert.equal(result.status.reason, 'timeout'); assert.deepEqual(paths, ['/api/version', '/api/tags']); }
-  finally { for (const timer of timers) clearTimeout(timer); server.closeAllConnections(); await new Promise<void>((resolve) => server.close(() => resolve())); }
+test('warm and cold total deadlines include pre/inference/post metadata without resetting the cold budget', async () => {
+  // This integration exercises real fetch/AbortSignal timing, not a timer-driven application callback.
+  for (const arm of ['initial', 'warm-post', 'cold-post', 'cold-inference'] as const) {
+    const cold = arm.startsWith('cold'); const value = metadata({ loaded: !cold });
+    const paths: string[] = []; const timers = new Set<ReturnType<typeof setTimeout>>();
+    const server = http.createServer((request, response) => {
+      const inference = request.url === '/v1/systemone'; paths.push(request.url!); request.resume();
+      const timer = setTimeout(() => {
+        timers.delete(timer); if (response.destroyed) return;
+        response.writeHead(200, { 'content-type': 'application/json' });
+        if (inference) {
+          value.ps = metadata().ps;
+          response.end(fs.readFileSync(path.join(REPO, 'test/fixtures/clef-systemone.json'), 'utf8'));
+        } else {
+          const key = request.url!.split('/').at(-1)!; response.end(JSON.stringify(value[key as keyof typeof value] ?? {}));
+        }
+      }, inference ? arm === 'cold-post' ? 200 : arm === 'cold-inference' ? 240 : 0 : 40);
+      timers.add(timer);
+    });
+    const listening = Promise.withResolvers<void>(); server.listen(0, '127.0.0.1', listening.resolve); await listening.promise;
+    const address = server.address(); assert.ok(address && typeof address !== 'string');
+    const config = defaultConfig(); config.router.url = `http://127.0.0.1:${address.port}`;
+    config.router.timeoutMs = arm === 'initial' ? 70 : arm === 'warm-post' ? 280 : 300;
+    config.router.coldStartTimeoutMs = arm === 'cold-inference' ? 350 : 500;
+    try {
+      const result = await createRouteService(config).classify({ privacy: 'public', text: 'Bounded public request' }, SIGNAL);
+      assert.equal(result.route, null); assert.equal(result.reason, 'timeout');
+      if (arm === 'initial') { assert.equal(result.status.reason, 'timeout'); assert.deepEqual(paths, ['/api/version', '/api/tags']); }
+      else {
+        assert.equal(paths.filter((entry) => entry === '/v1/systemone').length, 1);
+        assert.equal(paths.filter((entry) => entry === '/api/version').length, arm === 'cold-inference' ? 1 : 2);
+      }
+    } finally {
+      for (const timer of timers) clearTimeout(timer); server.closeAllConnections();
+      const closed = Promise.withResolvers<void>(); server.close(error => error ? closed.reject(error) : closed.resolve()); await closed.promise;
+    }
+  }
 });
 
 test('public input is captured once before asynchronous metadata and mutable caller/config objects cannot change the admitted model or state', async () => {

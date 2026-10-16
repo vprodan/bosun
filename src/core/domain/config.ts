@@ -1,4 +1,5 @@
 export const HOSTS = ['omp', 'opencode', 'codex', 'claude'] as const;
+export const ROUTER_MAX_COLD_START_MS = 120000;
 export type HostId = (typeof HOSTS)[number];
 export type ModelBinding = { model?: string; effort?: string };
 export type RoleBindings = Record<string, Partial<Record<HostId, ModelBinding>>>;
@@ -42,6 +43,7 @@ export type RuntimeConfig = {
     model: string;
     url: string;
     timeoutMs: number;
+    coldStartTimeoutMs: number;
     minConfidence: number;
     digest?: string;
   };
@@ -164,6 +166,7 @@ export function defaultConfig(): RuntimeConfig {
       model: 'clef-flash:9b',
       url: 'http://127.0.0.1:11434',
       timeoutMs: 1000,
+      coldStartTimeoutMs: ROUTER_MAX_COLD_START_MS,
       minConfidence: 0.7,
     },
     providers: {
