@@ -157,13 +157,17 @@ and unknown paths require full checks. Renames inspect both paths. Manual
 dispatch, new branches and unavailable ranges also require full checks; diff
 errors or absent classification output never authorize skipping.
 
+Cancellation belongs only to the full qualification job: documentation-only
+pushes do not cancel an in-flight product check. A newer product-changing run
+can still cancel superseded qualification on the same branch or PR.
+
 Full checks use one fresh GitHub-hosted `macos-15` arm64 runner. All source files
 run in four concurrent wrapper invocations, each retaining its own startup
 HOME, run root, mandatory preloads and OS barrier. Each sorted file belongs to
 exactly one modulo shard; all four processes must finish and any failure fails
 the job. No test, workload, assertion or native qualification is dropped.
 `sh scripts/bun-check.sh tests --runtime bun --suite all --shard 1/4` runs the
-first shard; use indices1–4 for the complete partition. Without `--shard`, the
+first shard; use indices 1–4 for the complete partition. Without `--shard`, the
 selected suite still runs in full. Invalid/duplicate/impossible selectors fail
 before application imports.
 
