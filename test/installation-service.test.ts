@@ -264,17 +264,15 @@ const until=Date.now()+4000;const poll=()=>{let alive=false;if(value.pid!==null)
 test('wizard optional start uses the owned service transaction and preserves local memory privacy', async () => {
   const f = await fixture();
   try {
-    const questions: string[] = [];
     const result = await runInstallWizard({
       ...f.options,
       binary: f.plan.binary.path,
       control: f.control,
-      confirm: async question => { questions.push(question.kind); return question.kind === 'start'; },
+      confirm: async question => question.kind === 'start',
       write() {},
     });
     assert.equal(result.state, 'ready');
     assert.equal(result.service, 'enabled');
-    assert.deepEqual(questions, ['start']);
     assert.equal(f.record().service.state, 'enabled');
     assert.equal(f.calls().filter(args => args[0] === 'bootstrap').length, 1);
     const stored = await callLocalRpc<{ memory: { id: string; private: boolean } }>({

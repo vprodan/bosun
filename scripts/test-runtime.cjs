@@ -21,7 +21,7 @@ function createRun(prefix) {
 function writeSandbox(root) {
   const profile = path.join(root, 'containment.sb');
   const runtime = fs.realpathSync(process.execPath);
-  const helpers = [runtime, GIT_REAL, '/usr/bin/id', '/bin/sleep', '/usr/bin/true', '/bin/true', '/usr/bin/plutil'].filter(Boolean);
+  const helpers = [runtime, GIT_REAL, '/usr/bin/id', '/bin/sleep', '/usr/bin/true', '/bin/true', '/usr/bin/plutil', '/usr/bin/ditto'].filter(Boolean);
   const literal = file => `(literal ${JSON.stringify(file)})`;
   const subpath = file => `(subpath ${JSON.stringify(file)})`;
   fs.writeFileSync(profile, `(version 1)

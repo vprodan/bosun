@@ -109,6 +109,13 @@ The client forwards to one authority; it never merges a local L1 or queues offli
 
 [Installation](src/app/installation.ts), [host profiles](src/app/host-install.ts), [foreground launch](src/app/host-launch.ts) and [owned service control](src/app/installation-service.ts) use reviewed hashes/versions, exact roots/files and durable receipts. Undo removes or restores only matching owned paths. Unknown/drifted ownership is held. Planning, copying a binary and preparing a dormant plist do not authorize native trust, login, model pulls or service activation.
 
+[The guided lifecycle](src/app/installation-lifecycle.ts) composes those same transactions for reinstall/uninstall, invoking the verified original executable for version-bound old receipts. It never rewrites old plans or kills an inferred foreground PID. Memory, configuration, previous-executable backups and historical receipts remain authoritative.
+
+[GitHub release download](src/app/release-download.ts) pins/rechecks repository release/tag/commit and asset identities, verifies bounded archive/manifest/checksum/safety/source/license bonds, then hands verified bytes to the new owner-terminal installer. Download is not installation authority; no downgrade or authentication change is implicit.
+
+[Optional router tools](src/app/install-tools.ts) are explicit installer-only steps, never daemon/hook startup work. Inspection, installation, app launch and exact configured model pull require separate owner choices. Native effects use the existing bounded process primitive and private durable intents. Unconfirmed original native completion remains unknown and blocks subsequent tool mutations; observed desired state is not proof of producer closure.
+
+
 ## Verification and remaining work
 
 **Historical pre-migration cleanup/release evidence (2026-10-13):** the owner authorized complete

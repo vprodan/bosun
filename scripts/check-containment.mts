@@ -275,6 +275,15 @@ try {
     const linked=path.join(process.cwd(),'escaped-git-pointer'); fs.mkdirSync(linked); fs.writeFileSync(path.join(linked,'.git'),'gitdir: ${outside}/git');
     assert.throws(()=>spawnSync('git',['worktree','add','owned'],{cwd:linked}),/containment/);
     assert.throws(()=>spawnSync('plutil',['-replace','Label','-string','bad',${quotedOutside}]),/containment/);`));
+  probe('native archive extraction rejects other modes and escaped input/output paths', () => good(`
+    import assert from 'node:assert/strict'; import fs from 'node:fs'; import path from 'node:path'; import {spawnSync} from 'node:child_process';
+    const archive=path.join(process.cwd(),'test.zip'), destination=path.join(process.cwd(),'extracted');
+    fs.writeFileSync(archive,'invalid ZIP'); fs.mkdirSync(destination);
+    const flags=['-x','-k','--norsrc','--noextattr'];
+    assert.throws(()=>fs.writeFileSync('/usr/bin/ditto','bad'),/containment/);
+    assert.throws(()=>spawnSync('/usr/bin/ditto',['-c','-k',archive,destination]),/containment/);
+    assert.throws(()=>spawnSync('/usr/bin/ditto',[...flags,${quotedOutside},destination]),/containment/);
+    assert.throws(()=>spawnSync('/usr/bin/ditto',[...flags,archive,${quotedOutside}]),/containment/);`));
   probe('fetch external and unregistered loopback endpoints fail', () => good(`
     import assert from 'node:assert/strict';
     await assert.rejects(fetch('http://198.51.100.1:80'),/containment/);

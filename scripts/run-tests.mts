@@ -88,6 +88,8 @@ GROUPS.installation = ['installation.test.ts'];
 GROUPS.installwizard = ['install-wizard.test.ts'];
 GROUPS.cli = ['cli.test.ts'];
 GROUPS.service = ['installation-service.test.ts'];
+GROUPS.installtools = ['install-tools.test.ts'];
+GROUPS.releasedownload = ['release-download.test.ts'];
 GROUPS.suggestions = ['memory-suggestions.test.ts'];
 GROUPS.privacy.push('memory-suggestions.test.ts');
 GROUPS.observations = ['route-observations.test.ts'];

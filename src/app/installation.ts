@@ -229,7 +229,7 @@ export function readInstallationPlan(file: string) {
     throw error;
   }
 }
-function sourceCurrent(plan: InstallationPlan) {
+function sourceCurrent(plan: Pick<InstallationPlan, 'binary'>) {
   if (!same(inspectBinary(plan.binary.path), plan.binary))
     throw conflict('Installation executable changed');
 }
@@ -269,7 +269,7 @@ export function installationProcessEnv(env: Env) {
   }
   return selected;
 }
-async function probeBinary(plan: InstallationPlan, env: Env, signal: AbortSignal) {
+export async function probeInstallationBinary(plan: Pick<InstallationPlan, 'binary' | 'runtimeHome' | 'version'>, env: Env, signal: AbortSignal) {
   sourceCurrent(plan);
   let output = '',
     code: number | null = null;
@@ -429,7 +429,7 @@ export async function applyInstallation(
       Date.now() - plan.createdAt > 300000
     )
       throw conflict('Installation plan is stale');
-    await probeBinary(plan, options.env, signal);
+    await probeInstallationBinary(plan, options.env, signal);
     owner.assert();
     retainedCapacity(options.paths);
     if (

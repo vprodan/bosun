@@ -39,7 +39,9 @@ const limit = (value: number | undefined, fallback: number, max: number): number
 export async function* streamProcess(spec: ProcessSpec): AsyncGenerator<ProcessEvent> {
   if (spec.signal.aborted) throw new BosunError('cancelled', 'Process cancelled');
   const timeoutMs = limit(spec.timeoutMs, 1800000, 86400000); const killGraceMs = limit(spec.killGraceMs, 500, 10000);
-  const maxOutputBytes = limit(spec.maxOutputBytes, 1048576, 4194304); const maxLineBytes = limit(spec.maxLineBytes, 65536, 262144);
+  // Explicit binary streaming (release assets) may opt into a larger finite cap;
+  // ordinary callers retain the 1 MiB default and bounded line decoding.
+  const maxOutputBytes = limit(spec.maxOutputBytes, 1048576, 300 * 1024 * 1024); const maxLineBytes = limit(spec.maxLineBytes, 65536, 262144);
   if (!path.isAbsolute(spec.cwd) || spec.cwd.includes('\0') || !fs.statSync(spec.cwd).isDirectory()
     || !Array.isArray(spec.args) || spec.args.some(arg => typeof arg !== 'string' || arg.includes('\0'))
     || Buffer.byteLength(JSON.stringify(spec.args)) > 1048576 || spec.input !== undefined && Buffer.byteLength(spec.input) > 262144

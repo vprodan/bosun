@@ -3,19 +3,23 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import type { LaunchdControl } from '../adapters/services/launchd.ts';
 import type { InstallationReceipt } from '../core/domain/installation.ts';
+import { BosunError } from '../core/errors.ts';
 import { loadRuntimeConfig } from '../platform/config.ts';
 import { readRuntimeManifest } from '../platform/manifest.ts';
 import { privateDirectory } from '../platform/private-file.ts';
 import { inspectBinary, installationDirectory, planInstallationDirectories, previousBinary } from '../platform/installation-files.ts';
 import { setupRuntime } from './setup.ts';
-import { applyInstallation, installationStatus, planInstallation, saveInstallationPlan, type InstallationOptions } from './installation.ts';
+import { applyInstallation, installationStatus, planInstallation, probeInstallationBinary, saveInstallationPlan, type InstallationOptions } from './installation.ts';
 import { controlInstallationService } from './installation-service.ts';
+import { retireInstallation, stageInstallerBinary, type LifecycleQuestion } from './installation-lifecycle.ts';
+import { version } from '../platform/assets.ts';
 
 export type InstallWizardOptions = InstallationOptions & {
   binary: string;
-  confirm: (question: { kind: 'setup' | 'replace' | 'install' | 'start'; message: string; initialValue: boolean }) => Promise<boolean>;
+  confirm: (question: LifecycleQuestion) => Promise<boolean>;
   write: (text: string) => void;
   control?: LaunchdControl;
+  afterInstall?: () => Promise<void>;
 };
 export type InstallWizardResult = {
   state: 'ready' | 'cancelled' | 'held';
@@ -49,26 +53,47 @@ export async function runInstallWizard(options: InstallWizardOptions): Promise<I
     const present = exists(runtime);
     let fresh = !present;
     if (present) {
-      privateDirectory(runtime);
+      installationDirectory(runtime);
       fresh = fs.readdirSync(runtime).length === 0;
+      const mode = fs.lstatSync(runtime).mode & 0o7777;
+      if (fresh && mode !== 0o700) {
+        if (!await options.confirm({ kind: 'permissions', message: `Restrict your EMPTY data directory ${runtime} to owner-only permissions (0700)? No existing data will be changed.`, initialValue: false })) return cancelled();
+        const fd = fs.openSync(runtime, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+        try {
+          const before = fs.fstatSync(fd), current = fs.lstatSync(runtime);
+          if (!before.isDirectory() || before.dev !== current.dev || before.ino !== current.ino ||
+              fs.readdirSync(runtime).length || before.uid !== process.getuid?.())
+            return held('Empty directory changed; no permission repair was performed.');
+          fs.fchmodSync(fd, 0o700);
+        } finally { fs.closeSync(fd); }
+      }
+      privateDirectory(runtime);
     }
     let receipt: InstallationReceipt | undefined;
+    let selectedBinary = options.binary;
     if (!fresh) {
       failure = 'Existing runtime setup is incomplete, legacy, or unavailable. Run bosun doctor and inspect the supported bosun upgrade flow; existing data was retained.';
       const manifest = readRuntimeManifest(options.paths, { installationStatus: true });
       if (manifest.state !== 'ready') return held('Runtime preparation is incomplete. Run bosun doctor and inspect setup or upgrade recovery; existing data was retained.');
       loadRuntimeConfig(options.paths, options.env);
-      const status = installationStatus(options);
-      if (status.record && status.record.state !== 'undone') {
-        if (status.record.state !== 'ready' || !status.matches)
-          return held('The owned installation is uncertain or has changed. Run bosun doctor and bosun install status; review recovery before installing again.');
-        if (uncertain(status.record)) return held('The service has an unconfirmed outcome. Run bosun install status and review bosun install reconcile; do not replay installation or service operations.');
-        receipt = status.record;
+      const existing = manifest.installation;
+      if (existing && existing.state !== 'undone') {
+        if (existing.state !== 'ready' || uncertain(existing)) return held('The owned installation/service is uncertain. Existing receipts are retained; inspect and explicitly reconcile the original outcome before replacing files.');
+        failure = 'Reinstall did not finish. Data and original receipts were retained. Inspect bosun install status and stop any separately launched foreground/nohup daemon; never replay an unknown service operation.';
+        options.write(`Selected replacement release: ${version}\nSource executable: ${options.binary}\n`);
+        if (!await retireInstallation({ ...options, async prepareReplacement() {
+          selectedBinary = stageInstallerBinary(options, options.binary);
+          await probeInstallationBinary({ binary: inspectBinary(selectedBinary), runtimeHome: options.paths.home, version }, options.env, new AbortController().signal);
+        } }, 'reinstall')) {
+          const retained = installationStatus(options);
+          if (!retained.record || retained.matches !== true || uncertain(retained.record)) return cancelled();
+          receipt = retained.record;
+        }
       }
     }
     if (!receipt) {
       failure = 'The release executable or destination could not be safely inspected. Use install --binary with an absolute downloaded release path; inspect bosun doctor and bosun install status before retrying.';
-      inspectBinary(options.binary);
+      inspectBinary(selectedBinary);
       planInstallationDirectories(home, true);
       const target = path.join(home, '.local', 'bin', 'bosun');
       const previous = previousBinary(target);
@@ -83,7 +108,7 @@ export async function runInstallWizard(options: InstallWizardOptions): Promise<I
       }
       if (previous && !await options.confirm({ kind: 'replace', message: `Replace the existing unmanaged executable at ${target}, retaining its backup?`, initialValue: false })) return cancelled();
       failure = 'Installation planning could not verify current state. Run bosun doctor and bosun install status; no installation was applied.';
-      const plan = planInstallation(options, { requestId: 'wizard_' + crypto.randomUUID(), binary: options.binary, replaceExisting: !!previous });
+      const plan = planInstallation(options, { requestId: 'wizard_' + crypto.randomUUID(), binary: selectedBinary, replaceExisting: !!previous });
       options.write(`Source: ${plan.binary.path}\nDestination: ${plan.targetBinary}\nBackup: ${plan.previous ? path.join(runtime, 'installation', plan.id, 'previous-binary') : 'not needed (no existing executable)'}\nData home: ${runtime}\nService: prepared only; starting requires separate approval.\n`);
       if (!await options.confirm({ kind: 'install', message: 'Install this reviewed executable and dormant service definition? Confirm that all Bosun/native clients are stopped and their effects settled.', initialValue: false })) return cancelled();
       failure = 'Installation did not finish or its outcome is unconfirmed. Existing data and receipts were retained. Run bosun doctor and bosun install status; do not replay an uncertain operation.';
@@ -101,9 +126,11 @@ export async function runInstallWizard(options: InstallWizardOptions): Promise<I
     if (service !== 'enabled' && service !== 'prepared' && service !== 'disabled')
       return held('The service outcome is unconfirmed. Run bosun install status and review recovery before any service operation.');
     const binary = receipt.targetBinary;
+    failure = 'Bosun is installed, but optional tool setup did not finish. Retain tool receipts and inspect the reported tool step; do not repeat an uncertain tool installation or model pull.';
+    await options.afterInstall?.();
     options.write(`Installed executable: ${binary}\nForeground alternative: ${quote(binary)} daemon run\n${service === 'enabled' ? 'The background service is enabled.' : 'Start the foreground daemon in another terminal before using memory commands.'}\nFor this shell session: export PATH=${quote(path.dirname(binary))}:"$PATH"\nFrom the same workspace/directory, try:\n  ${quote(binary)} memory add --category project --title 'First note' --body 'Bosun is running.'\n  ${quote(binary)} memory search Bosun\nOptional host follow-up: ${quote(binary)} onboard\nNo shell configuration, authentication, host selection, or model selection was changed.\n`);
     return { state: 'ready', message: service === 'enabled' ? 'Bosun is installed and the background service is enabled.' : 'Bosun is installed; the background service was not started.', binary, service };
-  } catch {
-    return held(failure);
+  } catch (error) {
+    return held(failure + (error instanceof BosunError ? `\n${error.message}` : ''));
   }
 }

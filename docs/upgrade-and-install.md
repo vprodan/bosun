@@ -2,11 +2,11 @@
 
 ## Guided installation
 
-This flow requires **v1.0.3 or later**. The older **v1.0.1 does not include the
-wizard**; use the [manual fallback below](#current-v101-manual-fallback) for
-that binary.
+Use **v1.1.0 or later** for the complete guided install/reinstall/update/uninstall
+flow. Earlier guided installers support fewer steps; download the new ZIP once
+rather than expecting an old executable to expose new commands.
 
-Download `bosun-1.0.5-darwin-arm64.zip` from
+Download `bosun-1.1.0-darwin-arm64.zip` from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains
@@ -24,28 +24,48 @@ Keep your intended `BOSUN_HOME` consistent across terminals (default `~/.bosun`)
 The installer first inspects paths and retained receipts without initializing
 existing data. Expect these explicit choices:
 
-1. **Prepare local data?** Only offered for an absent or empty private home.
-   Declining leaves it untouched. Existing ready settings and exact model
-   selections are preserved; OMP remains the primary default for new homes.
-2. **Replace an existing unmanaged executable?** A separate approval, only when
-   needed. Declining does not replace it.
-3. **Install this reviewed release with clients stopped?** Read the human
-   summary of source, destination, backup and data home. Stop daemon and clients
-   yourself before confirming. The wizard saves and applies the exact reviewed
-   plan internally; you never need to copy JSON fields or hashes.
-4. **Start the background service?** Optional, defaults to **No**. A successful
-   installation otherwise leaves the service prepared, not running.
+1. **Inspect paths and permissions.** An absent home is safe to prepare. An
+   empty, canonical directory owned by you can be restricted to0700 after a
+   separate approval. Nonempty loose-permission, symlink, legacy and incomplete
+   homes hold; the installer never resets them.
+2. **Prepare local data?** Offered only for a new or empty private home.
+   Existing ready configuration and exact host/model/effort selections remain
+   unchanged; OMP is the default only for new homes.
+3. **Reinstall an existing owned installation?** The selected new binary is
+   checked before removing the old one. The original installed executable
+   validates and retires its own version-bound receipt, including across
+   releases. A separately approved stop affects only the receipt-owned service.
+   Close native clients and separately launched foreground/nohup daemons first.
+4. **Review and install.** Source, destination, previous-binary backup and data
+   home are shown before approval. Replacing an unmanaged executable needs
+   another approval. Plans, versions and hashes are handled internally.
+5. **Start the background service?** Optional, default **No**. Otherwise the
+   executable is installed but no background process is started.
+6. **Set up optional Ollama/router tools?** Optional, default **No**; declining
+   makes no executable-version or endpoint requests. If approved, inspection
+   uses metadata only. Missing Ollama installation, app launch and exact model
+   pull are three separately approved effects. See [optional tools](#optional-ollama-and-router-model).
 
-Cancelling never silently approves the next step. Setup already explicitly
-approved can remain after declining installation. A held home, changed receipt,
-unknown service operation or drifted installation is not repaired or replayed:
-follow the printed `doctor`, upgrade or installation-status guidance. Do not
-delete data/receipts, remove SQLite sidecars or change permissions to bypass a
-hold. No hosts, credentials or model bindings are installed or guessed.
+Cancelling a step never approves the next effect. Already approved preparation
+or installation can remain. Unknown native operations, changed executable
+identities and receipt drift hold without resetting or replaying them. Inspect
+the original `install status` and recovery instructions; never delete receipts,
+SQLite sidecars or uncertain tool intents to bypass a hold.
 
-Version1.0.5 fixes the owned LaunchAgent command to `daemon run`. Existing1.0.4 installations must first settle any unknown service outcome and undo the reviewed executable installation **using their original1.0.4 executable**, with clients and daemon stopped. Read current `install status` for the ID/version/hash before `install undo`; keep runtime data and retained receipts/backups. Then run the new downloaded executable’s installer. Do not edit the old hash-bound plist or overwrite an uncertain receipt. Undo restores a reviewed previous executable when present; it does not delete memory/configuration.
+Version1.0.5 fixed generated LaunchAgent arguments to `daemon run`;1.1.0 can
+retire a ready old receipt using its original executable automatically. An
+older unknown service operation must still be explicitly reconciled using its
+original executable before reinstall. Hash-bound old plists are never edited.
 
-Router admission accepts stable Ollama **0.35.x and0.40.x**, including0.40.4. Other minor families and prerelease/custom-suffix versions remain unverified. Admission retains the actual detected version and validates SystemOne decision capability, model/selected-child digests, runner, minimum required version and loaded residency. It does not install/pull models or qualify live model quality or automatic dispatch.
+Reinstall retires the old owned installation before the final new-install
+approval. If you cancel after retirement, the old executable stays removed (or
+its reviewed previous executable is restored); memory/settings remain. You can
+run the downloaded new binary's installer again to finish from that known state.
+
+Router admission accepts stable Ollama **0.35.x and0.40.x**, including0.40.4.
+Other minor families and suffix builds remain unverified. Tool/model presence
+does not qualify SystemOne decision capability, selected-child/model digests,
+runner requirements, loaded residency, live model quality or automatic dispatch.
 
 Use the absolute executable path printed on completion. For the default layout,
 if background start was declined, leave this running in the first terminal:
@@ -72,6 +92,76 @@ Source-checkout users must select a qualified absolute release executable:
 `bun bin/bosun install --binary /absolute/release/bosun`. There is no `--yes`
 bypass; noninteractive callers should use the secondary
 [advanced plan/apply interface](#install-an-owned-executable).
+
+## Reinstall, update and uninstall
+
+These commands require1.1.0 or later and an interactive owner terminal:
+
+```sh
+bosun install
+bosun update
+bosun uninstall
+```
+
+`bosun install` offers reinstall from the currently selected release. Approving
+it retains exact configuration, memory and all original recovery evidence. If
+you decline reinstall on a matching current installation, you can still review
+its optional background start and tool steps.
+
+`bosun update` finds the latest stable macOS arm64 GitHub release and asks before
+downloading. It pins the release/tag/commit and asset identities, verifies GitHub
+SHA256 digests, both checksum inventories, bounded archive contents, executable
+identity and compiled safety/source/license bonds, then opens that release's
+installer in the same terminal. It never downgrades or executes unverified bytes.
+Downloads remain in private runtime artifacts for inspection.
+If this executable is already current (or newer), only release metadata is
+checked: no download approval, archive transfer or reinstall is performed.
+
+The repository is private: automatic updates use your **existing** authenticated
+GitHub CLI when available. Bosun does not install `gh`, read or print tokens, or
+change authentication. Without authorized access, download the new ZIP through
+GitHub and run its `./bosun install`; no separate runtime is needed.
+
+`bosun uninstall` reviews the current receipt and separately asks before stopping
+its owned background service. It removes only owned installation files, retaining
+memory, configuration, receipts, backups, native host settings, Ollama and models.
+A reviewed previous executable is restored, not deleted. Active reviewed host
+profiles may need their own reviewed undo before the binary can be removed.
+Foreground/nohup daemons must be stopped by their owner; Bosun never kills a
+guessed PID. This command does not purge user data.
+
+## Optional Ollama and router model
+
+The installer can use an existing Ollama CLI/app without replacing it. If
+missing, it offers existing Homebrew's canonical `ollama-app` cask in your user
+Applications folder without privileged links. It does **not** install Homebrew.
+Without Homebrew, it downloads the official HTTPS DMG, mounts it read-only,
+requires codesign/Gatekeeper verification, and copies into an absent owned app
+destination. No sudo, shell-piped installer or trust bypass is used.
+
+Launching the inspected app is a separate approval. A custom local port/protocol
+must already be configured correctly; Bosun does not rewrite Ollama bindings.
+For a remote router endpoint, local installation/start/pull is skipped—perform
+those steps on that machine with its owner's approval.
+
+An acknowledged app-launch command is recorded separately from server readiness.
+If first-run setup takes longer, finish it in Ollama and rerun the guided tool
+step; the app is not silently relaunched. A missing native acknowledgement, in
+contrast, leaves its original intent unknown and blocks later tool mutations.
+Failed native image/copy/detach stages are retained for review, never force-
+detached or recursively removed beneath an unconfirmed producer.
+
+The model prompt names the **exact configured model**, `clef-flash:9b` only when
+that is your selection. Pulls may be many gigabytes. Existing models are not
+re-pulled, configurations are not changed, and no inference is submitted.
+An unconfirmed tool effect remains durably unknown and blocks later tool
+mutations, even when desired state becomes visible. Retain its artifacts and
+inspect the original outcome; reinstall is not permission to replay it.
+
+After setup, run `bosun router status`. A `held` or unknown loaded state still
+requires the reported compatibility/capability/residency condition to be
+resolved; successful download is not readiness or quality qualification.
+
 
 ## Current v1.0.1 manual fallback
 

@@ -674,39 +674,66 @@ export async function main(
       if (opt.json) print(value);
       else out(renderOnboarding(value));
     });
-  const install = program
-    .command('install')
-    .description('Install interactively, or review and apply an advanced installation plan.')
-    .option('--binary <file>', 'Absolute downloaded release executable (required when running from source).')
-    .action(async (opt) => {
-      owner();
-      if (!options.installConfirm && (!process.stdin.isTTY || !process.stdout.isTTY)) {
-        out('Interactive installation requires an owner terminal. Run ./bosun install there, or use bosun setup and bosun install plan/apply for reviewed noninteractive installation.\n');
-        exitCode = 1;
-        return;
-      }
-      const binary = opt.binary ?? (import.meta.url.includes('/$bunfs/') ? process.execPath : undefined);
-      if (!binary) {
-        out('Source execution requires a downloaded release: install --binary /absolute/path/to/bosun. No changes were made.\n');
-        exitCode = 1;
-        return;
-      }
-      // The prompt UI must not load for ordinary commands or noninteractive rejection.
-      const prompts = options.installConfirm ? undefined : await import('@clack/prompts');
-      prompts?.intro('Install Bosun');
-      const confirm: InstallWizardOptions['confirm'] =
-        options.installConfirm ?? (async (question) => {
-          const answer = await prompts!.confirm({ message: question.message, initialValue: question.initialValue });
-          return !prompts!.isCancel(answer) && answer === true;
-        });
-      const result = await runInstallWizard({
-        paths: paths(), env, binary, confirm, control: options.serviceControl,
-        write: (text) => { if (prompts) prompts.log.info(text.trimEnd()); else out(text); },
-      });
-      if (prompts) prompts.outro(result.message);
-      else out(result.message + '\n');
-      if (result.state === 'held') exitCode = 1;
+  const lifecycle = async (action: 'install' | 'update' | 'uninstall', opt: { binary?: string } = {}) => {
+    owner();
+    if (!options.installConfirm && (!process.stdin.isTTY || !process.stdout.isTTY)) {
+      out(`Interactive ${action} requires an owner terminal. Advanced install plan/apply/undo remains available.\n`);
+      exitCode = 1; return;
+    }
+    const prompts = options.installConfirm ? undefined : await import('@clack/prompts');
+    prompts?.intro(`${action === 'update' ? 'Update' : action === 'uninstall' ? 'Uninstall' : 'Install / reinstall'} Bosun`);
+    const confirm: InstallWizardOptions['confirm'] = options.installConfirm ?? (async question => {
+      const answer = await prompts!.confirm({ message: question.message, initialValue: question.initialValue });
+      return !prompts!.isCancel(answer) && answer === true;
     });
+    const write = (text: string) => { if (prompts) prompts.log.info(text.trimEnd()); else out(text); };
+    const base = { paths: paths(), env, confirm, write, control: options.serviceControl };
+    if (action === 'uninstall') {
+      const { retireInstallation } = await import('./installation-lifecycle.ts');
+      const removed = await retireInstallation(base, 'uninstall');
+      prompts?.outro(removed ? 'Owned Bosun installation removed; data, configuration, tools and models retained.' : 'Uninstall declined; no further changes.');
+      return;
+    }
+    let binary = opt.binary ?? (import.meta.url.includes('/$bunfs/') ? process.execPath : undefined);
+    if (action === 'update') {
+      const { downloadLatestRelease } = await import('./release-download.ts');
+      const { privateDirectory } = await import('../platform/private-file.ts');
+      privateDirectory(base.paths.artifacts);
+      const release = await downloadLatestRelease({ env, directory: base.paths.artifacts, currentVersion: version,
+        confirm: question => confirm({ ...question, kind: 'install' }), write });
+      if (release.binary === null) {
+        const message = release.state === 'current' ? `Already on ${version}. Use bosun install to reinstall.`
+          : `Latest stable ${release.version} is older than this executable (${version}); downgrade refused.`;
+        if (prompts) prompts.outro(message); else out(message + '\n');
+        return;
+      }
+      prompts?.outro(`Verified ${release.version}; opening its installer.`);
+      const { foregroundProcess } = await import('../platform/foreground-process.ts');
+      const { installationProcessEnv } = await import('./installation.ts');
+      const result = await foregroundProcess({ command: release.binary, args: ['install', '--binary', release.binary], cwd,
+        env: installationProcessEnv(env), signal: new AbortController().signal });
+      exitCode = result.code === 0 && result.signal === null ? 0 : 1; return;
+    }
+    if (!binary) { write('Source execution requires install --binary /absolute/release/bosun. No changes were made.\n'); exitCode = 1; return; }
+    const result = await runInstallWizard({ ...base, binary, afterInstall: async () => {
+      const { runOptionalTools } = await import('./install-tools.ts');
+      await runOptionalTools({ env, cwd, write, confirm: question => confirm({ ...question, kind: 'tools' }) });
+    } });
+    if (prompts) prompts.outro(result.message); else out(result.message + '\n');
+    if (result.state === 'held') exitCode = 1;
+  };
+  const guidedLifecycle = async (action: 'install' | 'update' | 'uninstall', opt: { binary?: string } = {}) => {
+    try { await lifecycle(action, opt); }
+    catch (error) {
+      out((error instanceof BosunError ? error.message : 'Lifecycle outcome could not be verified. Retain receipts and inspect bosun install status; do not replay an uncertain operation.') + '\n');
+      exitCode = 1;
+    }
+  };
+  const install = program.command('install')
+    .description('Step-by-step install or reinstall, preserving memory and configuration.')
+    .option('--binary <file>', 'Absolute downloaded release executable (required from source).')
+    .action(opt => guidedLifecycle('install', opt));
+  program.command('update').description('Verify and install the latest stable GitHub release.').action(() => guidedLifecycle('update'));
   type InstallationOptions = { version: number; hash: string; clientsStopped?: boolean };
   type ServiceOptions = InstallationOptions & { requestId: string };
   const undoOwnedInstallation = async (id: string, opt: InstallationOptions) => {
@@ -799,12 +826,16 @@ export async function main(
       .option('--clients-stopped')
       .action(async (id, opt) => print(await operateOwnedService(operation, id, opt)));
   program
-    .command('uninstall <id>')
-    .description('Migration spelling for install undo; requires the reviewed owned receipt.')
-    .requiredOption('--version <number>', 'Reviewed receipt version.', Number)
-    .requiredOption('--hash <hash>')
+    .command('uninstall [id]')
+    .description('Guided owned uninstall retaining data; an ID selects advanced reviewed undo.')
+    .option('--version <number>', 'Reviewed receipt version.', Number)
+    .option('--hash <hash>')
     .option('--clients-stopped')
-    .action(undoOwnedInstallation);
+    .action(async (id, opt) => {
+      if (!id) return guidedLifecycle('uninstall');
+      if (!Number.isSafeInteger(opt.version) || typeof opt.hash !== 'string') throw new BosunError('invalid', 'Reviewed receipt version and hash required');
+      return undoOwnedInstallation(id, { version: opt.version!, hash: opt.hash, clientsStopped: opt.clientsStopped });
+    });
   for (const [name, operation] of [
     ['start', 'enable'],
     ['stop', 'disable'],

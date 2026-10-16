@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Version 1.0.5](https://img.shields.io/badge/Version-1.0.5-555555.svg)](https://github.com/vprodan/bosun/releases)
+[![Version 1.1.0](https://img.shields.io/badge/Version-1.1.0-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -60,7 +60,7 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-Download **`bosun-1.0.5-darwin-arm64.zip`** from
+Download **`bosun-1.1.0-darwin-arm64.zip`** from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
 Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
 release notes are supplementary metadata, checksums and tested-scope information,
@@ -76,23 +76,25 @@ Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
 extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.0.5-darwin-arm64"
+cd "$HOME/Downloads/bosun-1.1.0-darwin-arm64"
 shasum -a 256 -c SHA256SUMS && ./bosun install
 ```
 
-**The guided installer requires v1.0.3 or later.** If you have v1.0.1, download
-the newer ZIP or use the
-[v1.0.1 manual fallback](docs/upgrade-and-install.md#current-v101-manual-fallback);
-do not enter the new command into an older binary.
+Use **v1.1.0 or later** for guided reinstall, update and uninstall. Older binaries
+need the new ZIP once; they cannot acquire commands added after their release.
 
-In a real terminal, the installer inspects your home before changing anything.
-For a new private home it asks to prepare local data, shows the release source,
-installed destination and backup, and asks you to confirm that existing clients
-are stopped before installation. Replacing an unmanaged executable needs a
-separate approval. Starting the background service is optional and defaults to
-**No**. A ready home retains its saved configuration and exact model selections.
-Unsafe, legacy, incomplete or unknown state is held for inspection, not reset
-or retried. No JSON editing or hash-copy commands are needed.
+The installer walks through explicit approvals: prepare a new data home,
+review executable replacement, optionally start Bosun in the background, and
+optionally set up Ollama and pull your exact configured router model
+(`clef-flash:9b` by default). Every tool download, app launch and model pull needs
+its own approval. Declining optional tools makes no tool or endpoint calls.
+
+An existing ready installation offers reinstall without resetting memory,
+configuration or model selections. It uses the original installed executable
+to retire its receipt safely across versions, rather than asking you to copy
+hashes. Unknown operations, drift, active foreground daemons and unsafe
+nonempty homes are held, never erased or replayed. An empty owned directory
+with loose permissions can be restricted to0700 after a separate approval.
 
 The installer prints your absolute installed executable path. If you decline
 background start, run it in the foreground and leave that terminal open:
@@ -113,14 +115,37 @@ the current shell session. Bosun never edits your shell configuration. Data
 lives in `~/.bosun` by default (`BOSUN_HOME` selects another absolute path).
 Existing data must never be reset to bypass an installation hold.
 
+### Reinstall, update or uninstall
+
+After adding `~/.local/bin` to your shell's PATH:
+
+```sh
+bosun install    # guided reinstall; retain data and settings
+bosun update     # download, verify and install the latest stable GitHub release
+bosun uninstall  # remove owned executable/service; retain memory and settings
+```
+
+Updates verify GitHub asset digests, release/tag/commit identity, archive contents
+and compiled safety provenance before opening the new installer. Downgrades are
+refused. This private repository requires existing authorized `gh` access for
+automatic updates; Bosun does not install `gh` or change your authentication.
+Without it, download the new ZIP in GitHub and run its `./bosun install`.
+
+Only the receipt-owned Bosun service can be stopped automatically after approval.
+Stop separately launched foreground/nohup daemons yourself. Uninstall retains
+Ollama, models, configuration, memory, backups and receipts; a reviewed previous
+executable is restored when the installation replaced one. It is not a data purge.
+
+
 **[Complete installation guide](docs/upgrade-and-install.md)** covers expected
 prompts, Gatekeeper limits and the secondary advanced plan/apply interface.
 
-The release **bundles Bun**: you need no separate Bun, Node, npm, `gh`, or `jq`
-installation. Clients do not start the daemon implicitly, and these commands
-do not install a host or model or make model calls. OMP and other host
-integrations are optional, separate steps after memory works; configure explicit
-provider/model bindings as described in the guide before using them.
+The release **bundles Bun**: initial installation and memory need no separate
+Bun, Node, npm, `gh` or `jq`. Clients do not start the daemon implicitly.
+Memory operations never call models. Optional router setup downloads tools/model
+files only after approval, not inference; live model quality and automatic
+dispatch remain independently gated. Native host accounts and explicit
+provider/model bindings remain yours.
 
 Keep license notices and provenance with redistributed copies. The bundle
 retains the original compiled distribution, safety receipt, project/dependency/

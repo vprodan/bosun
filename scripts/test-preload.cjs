@@ -49,7 +49,7 @@ function canonical(value, follow = true) {
 }
 // Qualification hashes public executable inputs. Grant exact files, never their
 // containing directories, credentials, configuration, writes or execution.
-const publicInputFiles = new Set([canonical(process.execPath)]);
+const publicInputFiles = new Set([canonical(process.execPath), canonical('/usr/bin/ditto')]);
 const publicInputMetadata = new Set();
 const nativeReceipt = path.join(repo, '.omp/tooling/sqlite-native-13.0.3/qualification.json');
 if (original.exists(nativeReceipt)) {
@@ -320,7 +320,7 @@ Object.defineProperty(BetterDatabase.prototype, 'constructor', {
 require.cache[betterEntry].exports = GuardedBetterDatabase;
 
 // No shell interpreter executes test commands. Only the exact command-discovery operation is emulated.
-const safeSystem = new Set(['git', 'id', 'sleep', 'true', 'plutil']);
+const safeSystem = new Set(['git', 'id', 'sleep', 'true', 'plutil', 'ditto']);
 function resolveCommand(command, env) {
   const candidates = command.includes('/') ? [path.resolve(command)] : (env.PATH || '').split(path.delimiter).filter(Boolean).map((dir) => path.join(dir, command));
   for (const candidate of candidates) {
@@ -388,6 +388,17 @@ function child(command, args, options = {}) {
   if (path.basename(executable) === 'plutil' && !inside(root, executable)) {
     if (!(args.length === 3 && args[0] === '-lint' && args[1] === '-s' || args.length === 4 && args[0] === '-extract' && args[2] === 'raw')) fail('only read-only plutil checks are allowed');
     checkFile(args.at(-1));
+  }
+  if (path.basename(executable) === 'ditto' && !inside(root, executable)) {
+    // Only the production ZIP extraction shape; native writes remain OS-confined.
+    if (args.length !== 6 || args.slice(0, 4).join(' ') !== '-x -k --norsrc --noextattr')
+      fail('only bounded ZIP extraction is allowed');
+    const archive = canonical(args[4]), destination = canonical(args[5]);
+    if (!inside(root, archive) || !inside(root, destination))
+      fail('archive extraction requires contained source and destination');
+    checkFile(archive); checkFile(destination, true);
+    if (!original.lstat(archive).isFile() || !original.lstat(destination).isDirectory())
+      fail('archive extraction requires an existing regular archive and destination directory');
   }
   if (path.basename(executable) === 'id' && !inside(root, executable) && args.join(' ') !== '-u') fail('only id -u is allowed');
   return { executable, args, options: { ...options, env, cwd } };
