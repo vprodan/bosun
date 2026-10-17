@@ -135,6 +135,26 @@ for (const hostId of ['omp', 'opencode', 'codex', 'claude'] as const) {
   });
 }
 
+test('guided launch selects only the reviewed host profile, previews without native probes and decline preserves original receipts', async () => {
+  const f = await fixture('omp');
+  try {
+    native(f); const before = fs.readFileSync(f.paths.manifest);
+    const preview = await bosun(['host', 'launch', '--preview'], { env: f.env, cwd: f.sb.home });
+    assert.equal(preview.code, 0, preview.err);
+    assert.equal(JSON.parse(preview.out).id, f.installed.record.id);
+    assert.deepEqual(f.sb.calls(), []);
+    let questions = 0;
+    const declined = await main(['host', 'launch'], { env: f.env, cwd: f.sb.home, terminal: true,
+      installConfirm: async () => { questions++; return false; }, stdout() {}, stderr() {},
+    });
+    assert.equal(declined, 0); assert.equal(questions, 1);
+    assert.deepEqual(fs.readFileSync(f.paths.manifest), before); assert.deepEqual(f.sb.calls(), []);
+    const piped = await bosun(['host', 'launch'], { env: f.env, cwd: f.sb.home });
+    assert.equal(piped.code, 1); assert.equal(JSON.parse(piped.err).error.code, 'unsupported');
+    assert.deepEqual(f.sb.calls(), []);
+  } finally { f.sb.cleanup(); }
+});
+
 test('native version mismatch, ambiguous version output and nonzero probe cannot launch a UI or substitute a host', async () => {
   const f = await fixture('codex');
   try {

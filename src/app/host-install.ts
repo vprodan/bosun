@@ -402,7 +402,7 @@ export async function hostLaunchPlan(
   const selected = executable(options.config.hosts[record.hostId].command, options.env);
   if (!selected) throw new BosunError('unavailable', 'Native executable unavailable');
   const command = fs.realpathSync(selected);
-  const env = { ...record.launch.env, BOSUN_HOME: options.paths.home };
+  const env: Record<string, string> = { ...record.launch.env, BOSUN_HOME: options.paths.home };
   if (record.hostId === 'omp' && options.config.hosts.omp.home)
     Object.assign(env, { PI_CODING_AGENT_DIR: options.config.hosts.omp.home });
   if (record.hostId === 'codex' && options.config.hosts.codex.home)

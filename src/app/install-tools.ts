@@ -21,6 +21,7 @@ export type OptionalToolsOptions = {
   cwd: string;
   confirm: (question: OptionalToolsQuestion) => Promise<boolean>;
   write: (text: string) => void;
+  signal?: AbortSignal;
 };
 type Selection = { command: BinaryIdentity | null; app: string | null; version: string | null };
 type EndpointState = { ready: boolean; modelPresent: boolean | null; version: string | null };
@@ -75,7 +76,7 @@ function commandUnchanged(identity: BinaryIdentity): void {
 
 /** Owner-approved optional steps; neither inspection nor readiness submits inference. */
 export async function runOptionalTools(options: OptionalToolsOptions): Promise<void> {
-  await createOptionalTools(optionalToolsDependencies())(options);
+  await createOptionalTools(optionalToolsDependencies(options.signal))(options);
 }
 /** Synthetic fixtures inject all process/network effects; production uses the same flow. */
 export function createOptionalTools(deps: OptionalToolsDependencies): (options: OptionalToolsOptions) => Promise<void> {

@@ -509,6 +509,10 @@ test(
       "UPDATE bosun_public_state SET publication_id='bad'",
       'UPDATE bosun_public_state SET published_at=8640000000000000',
       'UPDATE bosun_public_state SET valid_until=1',
+      'UPDATE bosun_public_state SET valid_until=8640000000000000',
+      "UPDATE public_memories SET expires_at='invalid-expiry'",
+      "PRAGMA ignore_check_constraints=ON; UPDATE public_memories SET private=X'30'",
+      "PRAGMA ignore_check_constraints=ON; UPDATE public_memories SET status='archived'",
       "UPDATE public_memories SET hash='bad'",
       "UPDATE public_memories SET tags='bad'",
       'PRAGMA ignore_check_constraints=ON; UPDATE bosun_public_state SET format=1',
@@ -627,6 +631,49 @@ test(
   },
 );
 
+test('public reader accepts the exact encoded-byte ceiling and rejects one more unprojected foreign byte', POSIX, async () => {
+  const f = await fixture();
+  const now = Date.now();
+  let reader: SqlitePublicReadOnly | undefined;
+  try {
+    const unit = '漢😀"\\\u0000\u0001\t\r\n';
+    mutateView(f.paths.view, (db) => {
+      db.prepare("UPDATE public_memories SET source_ref='' WHERE id=?").run(f.foreign.id);
+      const records = db.prepare('SELECT * FROM public_memories').all();
+      const bytes = records.reduce((sum, row) => sum + Buffer.byteLength(JSON.stringify(row)), 0);
+      const remaining = PUBLIC_MAX_BYTES - bytes;
+      const unitBytes = Buffer.byteLength(JSON.stringify(unit)) - 2;
+      const padding = unit.repeat(Math.floor(remaining / unitBytes)) + 'x'.repeat(remaining % unitBytes);
+      db.prepare('UPDATE public_memories SET source_ref=? WHERE id=?').run(padding, f.foreign.id);
+    });
+    assert.ok(fs.statSync(f.paths.view).size < VIEW_MAX_BYTES);
+    const before = footprint(path.dirname(f.paths.view));
+    // A fixed clock isolates logical byte admission; the real 10k hook benchmark retains its deadline.
+    reader = new SqlitePublicReadOnly(f.readOptions, () => now);
+    assert.deepEqual(await reader.get(f.own.id, f.ctx), f.own);
+    await assert.rejects(reader.get(f.foreign.id, f.ctx), error('not_found'));
+    reader.close();
+    reader = undefined;
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), before);
+    mutateView(f.paths.view, (db) => {
+      db.prepare("UPDATE public_memories SET source_ref=source_ref||'x' WHERE id=?").run(f.foreign.id);
+    });
+    const oversized = footprint(path.dirname(f.paths.view));
+    assert.throws(() => new SqlitePublicReadOnly(f.readOptions, () => now),
+      e => e instanceof MemoryError && e.code === 'unavailable'
+        && e.message === 'local public memory unavailable (size)');
+    assert.deepEqual(footprint(path.dirname(f.paths.view)), oversized);
+    mutateView(f.paths.view, (db) => {
+      db.exec('DELETE FROM public_memories; UPDATE bosun_public_state SET valid_until=NULL');
+    });
+    reader = new SqlitePublicReadOnly(f.readOptions, () => now);
+    assert.deepEqual(await reader.search({ text: 'cart' }, f.ctx), []);
+  } finally {
+    reader?.close();
+    f.close();
+  }
+});
+
 test(
   'reader independently enforces encoded and row ceilings inside the physical bound without projecting content',
   POSIX,
@@ -679,7 +726,10 @@ test(
           'logical limits are checked before any scoped DTO/hash',
         );
         const before = footprint(runtimePaths(process.env).home);
-        assert.throws(() => new SqlitePublicReadOnly(f.readOptions, Date.now), error());
+        const now = Date.now();
+        assert.throws(() => new SqlitePublicReadOnly(f.readOptions, () => now),
+          e => e instanceof MemoryError && e.code === 'unavailable'
+            && e.message === `local public memory unavailable (${kind === 'encoded' ? 'size' : 'data'})`);
         assert.deepEqual(footprint(runtimePaths(process.env).home), before);
       } finally {
         f.close();

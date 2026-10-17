@@ -24,6 +24,7 @@ import { callLocalRpc } from '../src/adapters/transport/local-rpc.ts';
 import { readRuntimeManifest, writeRuntimeManifest } from '../src/platform/manifest.ts';
 import { main } from '../src/app/cli.ts';
 import { runInstallWizard } from '../src/app/install-wizard.ts';
+import { runServiceWizard } from '../src/app/service-wizard.ts';
 
 test('start/restart/stop aliases compose the owned service, bind original operations and never replay a completed restart', async () => {
   const f = await fixture();
@@ -134,6 +135,99 @@ test('restart with a lost actual stop acknowledgement holds its original operati
   } finally {
     await f.close();
   }
+});
+
+test('guided service decline retains prepared receipt and performs no native operation', async () => {
+  const f = await fixture();
+  try {
+    const before = fs.readFileSync(f.paths.manifest);
+    const questions: string[] = [];
+    const code = await main(['start'], { env: f.env, cwd: f.sb.root, terminal: true, serviceControl: f.control,
+      installConfirm: async question => { questions.push(question.kind); return false; }, stdout() {}, stderr() {},
+    });
+    assert.equal(code, 0); assert.deepEqual(questions, ['start']);
+    assert.deepEqual(fs.readFileSync(f.paths.manifest), before); assert.deepEqual(f.calls(), []);
+  } finally { await f.close(); }
+});
+
+test('guided restart separately approves stop and start and truthfully retains a declined stopped state', async () => {
+  const f = await fixture();
+  try {
+    const config = fs.readFileSync(f.paths.config);
+    const started = await runServiceWizard({ ...f.serviceOptions, confirm: async () => true, write() {} }, 'enable');
+    assert.equal(started.state, 'ready'); assert.equal(f.record().service.state, 'enabled');
+    const declined = await runServiceWizard({ ...f.serviceOptions, confirm: async () => false, write() {} }, 'restart');
+    assert.equal(declined.state, 'cancelled'); assert.equal(f.record().service.state, 'enabled');
+    assert.equal(f.calls().filter(args => args[0] === 'bootout').length, 0);
+    const questions: string[] = [];
+    const partial = await runServiceWizard({ ...f.serviceOptions,
+      confirm: async question => { questions.push(question.kind); return question.kind === 'stop'; }, write() {},
+    }, 'restart');
+    assert.equal(partial.state, 'cancelled'); assert.deepEqual(questions, ['stop', 'start']);
+    assert.equal(f.record().service.state, 'disabled');
+    assert.equal(f.calls().filter(args => args[0] === 'bootstrap').length, 1);
+    assert.equal(f.calls().filter(args => args[0] === 'bootout').length, 1);
+    assert.deepEqual(fs.readFileSync(f.paths.config), config);
+  } finally { await f.close(); }
+});
+
+test('guided lost stop acknowledgement preserves unknown and cannot start or replay without original reconciliation', async () => {
+  const f = await fixture();
+  try {
+    await f.operate('enable', 'guided-initial'); f.settings({ loseBootout: true });
+    const questions: string[] = [];
+    const result = await runServiceWizard({ ...f.serviceOptions,
+      confirm: async question => { questions.push(question.kind); return true; }, write() {},
+    }, 'restart');
+    assert.equal(result.state, 'held'); assert.deepEqual(questions, ['stop']);
+    assert.equal(f.record().service.state, 'unknown');
+    assert.equal(f.record().service.operations.at(-1)!.kind, 'disable');
+    const before = fs.readFileSync(f.paths.manifest); const calls = f.calls();
+    const repeated = await runServiceWizard({ ...f.serviceOptions, confirm: async () => false, write() {} }, 'restart');
+    assert.equal(repeated.state, 'held'); assert.deepEqual(f.calls(), calls);
+    assert.deepEqual(fs.readFileSync(f.paths.manifest), before);
+    assert.equal(calls.filter(args => args[0] === 'bootstrap').length, 1);
+    assert.equal(calls.filter(args => args[0] === 'bootout').length, 1);
+  } finally { await f.close(); }
+});
+
+test('guided service approval cannot replace the reviewed receipt version after concurrent change', async () => {
+  const f = await fixture();
+  try {
+    const version = f.record().version;
+    const result = await runServiceWizard({ ...f.serviceOptions, write() {}, confirm: async () => {
+      const current = readRuntimeManifest(f.paths, { installationStatus: true });
+      current.installation!.version++; writeRuntimeManifest(f.paths, current); return true;
+    } }, 'enable');
+    assert.equal(result.state, 'held'); assert.equal(f.record().version, version + 1);
+    assert.equal(f.record().service.state, 'prepared'); assert.deepEqual(f.calls(), []);
+  } finally { await f.close(); }
+});
+
+test('guided uninstall profile decline retains executable and profiles after the separately approved actual service stop', async () => {
+  const f = await fixture();
+  try {
+    const profile = await planHostInstallation({ paths: f.paths, config: f.config, binary: f.record().targetBinary, workspace: f.sb.home }, {
+      hostId: 'opencode', nativeVersion: '2.0.27', requestId: 'uninstall-profile',
+    });
+    await applyHostInstallation({ paths: f.paths, config: f.config, binary: f.record().targetBinary, workspace: f.sb.home }, profile, profile.planHash);
+    await f.operate('enable', 'before-declined-retirement');
+    const profiles = readRuntimeManifest(f.paths).hostProfiles;
+    const config = fs.readFileSync(f.paths.config);
+    const questions: string[] = []; let out = '', err = '';
+    const code = await main(['uninstall'], { env: f.env, cwd: f.sb.home, terminal: true, serviceControl: f.control,
+      installConfirm: async question => { questions.push(question.kind); return question.kind !== 'profiles'; },
+      stdout(text) { out += text; }, stderr(text) { err += text; },
+    });
+    assert.equal(code, 0, err); assert.deepEqual(questions, ['uninstall', 'stop', 'profiles']);
+    assert.equal(f.record().state, 'ready'); assert.equal(f.record().service.state, 'disabled');
+    assert.deepEqual(readRuntimeManifest(f.paths).hostProfiles, profiles);
+    assert.deepEqual(fs.readFileSync(f.paths.config), config); assert.ok(fs.existsSync(f.record().targetBinary));
+    assert.ok(fs.existsSync(path.join(f.paths.home, 'host-profiles', profile.id)));
+    assert.equal(f.calls().filter(args => args[0] === 'bootstrap').length, 1);
+    assert.equal(f.calls().filter(args => args[0] === 'bootout').length, 1);
+    assert.match(out, /already approved service stop remains in effect/);
+  } finally { await f.close(); }
 });
 import { BosunError } from '../src/core/errors.ts';
 import { inspectOnboarding, renderOnboarding } from '../src/app/onboarding.ts';

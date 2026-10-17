@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Version 1.1.3](https://img.shields.io/badge/Version-1.1.3-555555.svg)](https://github.com/vprodan/bosun/releases)
+[![Version 1.1.2](https://img.shields.io/badge/Version-1.1.2-555555.svg)](https://github.com/vprodan/bosun/releases)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -60,7 +60,7 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-Download **`bosun-1.1.3-darwin-arm64.zip`** from
+Download **`bosun-1.1.2-darwin-arm64.zip`** from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
 Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
 release notes are supplementary metadata, checksums and tested-scope information,
@@ -76,7 +76,7 @@ Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
 extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.1.3-darwin-arm64"
+cd "$HOME/Downloads/bosun-1.1.2-darwin-arm64"
 shasum -a 256 -c SHA256SUMS && ./bosun install
 ```
 
@@ -116,6 +116,27 @@ Use the explicit installed path or `export PATH="$HOME/.local/bin:$PATH"` for
 the current shell session. Bosun never edits your shell configuration. Data
 lives in `~/.bosun` by default (`BOSUN_HOME` selects another absolute path).
 Existing data must never be reset to bypass an installation hold.
+
+### Guided onboarding (1.2.0)
+
+The1.2.0 source candidate makes onboarding a walkthrough like installation:
+
+```sh
+bosun onboard
+```
+
+Choose a native host, review exact models and profile changes, then separately
+approve background start or native launch. Existing choices and memory survive.
+No plan/hash copying or TOML editing is needed for the normal first-profile path.
+`bosun onboard --json` remains read-only; piped inspection never prompts.
+
+Daily `bosun start`, `stop`, `restart` and `host launch` guide owner-terminal
+approvals without receipt archaeology. Everyday reports are readable in a
+terminal; `--json`, pipes, model callers and exported artifacts retain machine
+formats. Every command has useful `--help`, including advanced safety controls.
+See [the walkthrough](docs/upgrade-and-install.md#guided-onboarding-and-daily-commands).
+The failed1.1.3 tag was not published; use the latest actually published ZIP
+until fresh1.2.0 CI/CD completes.
 
 ### Reinstall, update or uninstall
 
@@ -165,8 +186,8 @@ bosun router status
 bosun route "Fix a typo in README.md."
 ```
 
-`cold` / `model_unloaded` means the installed model is not in memory. From
-v1.1.3, an explicit public `route` request can wait up to two minutes for cold
+`cold` / `model_unloaded` means the installed model is not in memory. The
+1.2.0 source candidate lets an explicit public `route` wait up to two minutes for cold
 loading and its decision. Status alone never loads a model. The result is
 advice, not a command to edit files; automatic dispatch remains disabled.
 See [router deadlines](docs/upgrade-and-install.md#test-the-router-and-understand-deadlines)

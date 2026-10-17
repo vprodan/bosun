@@ -15,6 +15,9 @@ import { callLocalRpc } from '../src/adapters/transport/local-rpc.ts';
 import type { RuntimePaths } from '../src/platform/paths.ts';
 import type { Env } from '../src/core/domain/inference.ts';
 import { retireInstallation } from '../src/app/installation-lifecycle.ts';
+import { planHostInstallation, applyHostInstallation } from '../src/app/host-install.ts';
+import { readRuntimeManifest } from '../src/platform/manifest.ts';
+import { BosunError } from '../src/core/errors.ts';
 
 let serial = 0;
 function fixture() {
@@ -233,6 +236,122 @@ test('guided uninstall restores reviewed previous bytes but retains memory/confi
     await assert.rejects(() => retireInstallation(options, 'uninstall'));
     assert.deepEqual(footprint(f.paths.home), before);
   } finally { f.sb.cleanup(); }
+});
+
+async function installedProfiles(f: { paths: RuntimePaths; env: Env; run(accept: (kind: Parameters<InstallWizardOptions['confirm']>[0]['kind']) => boolean): Promise<{ state: string }> }) {
+  await setupRuntime(f.paths, parseRuntimeConfig('[roles.worker.omp]\nmodel="openai-codex/gpt-6.1-sol"\n[roles.worker.claude]\nmodel="sonnet"\n', f.env));
+  assert.equal((await f.run(kind => kind !== 'start')).state, 'ready');
+  const installed = installationStatus({ paths: f.paths, env: f.env }).record!;
+  const selected = { paths: f.paths, config: loadRuntimeConfig(f.paths, f.env), binary: installed.targetBinary };
+  for (const [hostId, nativeVersion] of [['omp', '18.11.0'], ['claude', '2.2.0']] as const) {
+    const plan = await planHostInstallation(selected, { hostId, nativeVersion, requestId: `lifecycle-${hostId}` });
+    await applyHostInstallation(selected, plan, plan.planHash);
+  }
+  return readRuntimeManifest(f.paths).hostProfiles!;
+}
+
+for (const purpose of ['uninstall', 'reinstall'] as const)
+  test(`guided ${purpose} separately retires every owned profile and retains archives, configuration and memory`, async () => {
+    const f = fixture();
+    try {
+      const profiles = await installedProfiles(f);
+      await seedPrivateNote(f.paths, f.env, f.sb.root);
+      const retained = [f.paths.config, f.paths.memory, f.paths.state].map(file => [file, fs.readFileSync(file)] as const);
+      const trees = profiles.map(profile => [profile.id, footprint(path.join(f.paths.home, 'host-profiles', profile.id))] as const);
+      const questions: string[] = [];
+      assert.equal(await retireInstallation({ paths: f.paths, env: f.env, write() {}, confirm: async question => { questions.push(question.kind); return true; } }, purpose), true);
+      assert.deepEqual(questions, [purpose, 'profiles']);
+      assert.equal(readRuntimeManifest(f.paths, { installationStatus: true }).installation!.state, 'undone');
+      for (const profile of readRuntimeManifest(f.paths, { installationStatus: true }).hostProfiles!) assert.equal(profile.state, 'undone');
+      for (const [id, tree] of trees) assert.deepEqual(footprint(path.join(f.paths.home, 'host-profiles', id + '.retired')), tree);
+      for (const [file, bytes] of retained) assert.deepEqual(fs.readFileSync(file), bytes);
+      assert.deepEqual(f.sb.calls(), []);
+    } finally { f.sb.cleanup(); }
+  });
+
+test('declining profile retirement preserves every profile and the installed executable', async () => {
+  const f = fixture();
+  try {
+    await installedProfiles(f);
+    const before = footprint(f.paths.home);
+    assert.equal(await retireInstallation({ paths: f.paths, env: f.env, write() {}, confirm: async question => question.kind !== 'profiles' }, 'uninstall'), false);
+    assert.deepEqual(footprint(f.paths.home), before);
+    assert.equal(installationStatus({ paths: f.paths, env: f.env }).matches, true);
+  } finally { f.sb.cleanup(); }
+});
+
+for (const state of ['unknown', 'drifted', 'stale'] as const)
+  test(`guided profile retirement holds ${state} receipts without removing any profile or executable`, async () => {
+    const f = fixture();
+    try {
+      const profiles = await installedProfiles(f);
+      if (state === 'unknown') {
+        const manifest = JSON.parse(fs.readFileSync(f.paths.manifest, 'utf8'));
+        manifest.hostProfiles[0].state = 'unknown';
+        manifest.hostProfiles[0].version++;
+        fs.writeFileSync(f.paths.manifest, JSON.stringify(manifest), { mode: 0o600 });
+      } else if (state === 'drifted') fs.appendFileSync(path.join(f.paths.home, 'host-profiles', profiles[0].id, profiles[0].files[0].path), '\nowner edit\n');
+      const beforeProfiles = footprint(path.join(f.paths.home, 'host-profiles'));
+      await assert.rejects(() => retireInstallation({ paths: f.paths, env: f.env, write() {}, confirm: async question => {
+        if (state === 'stale' && question.kind === 'profiles') {
+          const manifest = JSON.parse(fs.readFileSync(f.paths.manifest, 'utf8'));
+          manifest.hostProfiles[0].version++;
+          fs.writeFileSync(f.paths.manifest, JSON.stringify(manifest), { mode: 0o600 });
+        }
+        return true;
+      } }, 'uninstall'));
+      assert.deepEqual(footprint(path.join(f.paths.home, 'host-profiles')), beforeProfiles);
+      assert.equal(installationStatus({ paths: f.paths, env: f.env }).matches, true);
+      assert.equal(readRuntimeManifest(f.paths).hostProfiles!.some(profile => profile.state === 'undone'), false);
+    } finally { f.sb.cleanup(); }
+  });
+
+test('aborting installation approval performs no native probe or installation mutation', async () => {
+  const f = fixture();
+  try {
+    await setupRuntime(f.paths, parseRuntimeConfig('', f.env));
+    const probed = path.join(f.sb.root, 'unexpected-release-probe');
+    fs.writeFileSync(f.binary, `#!/usr/bin/env node\nrequire('node:fs').writeFileSync(${JSON.stringify(probed)}, 'probed');process.stdout.write(${JSON.stringify(version + '\n')});\n`, { mode: 0o755 });
+    const before = footprint(f.sb.home);
+    const controller = new AbortController();
+    const result = await runInstallWizard({ paths: f.paths, env: f.env, binary: f.binary, signal: controller.signal, write() {},
+      confirm: async question => { assert.equal(question.kind, 'install'); controller.abort(); return true; } });
+    assert.equal(result.state, 'cancelled');
+    assert.equal(installationStatus({ paths: f.paths, env: f.env }).record, null);
+    assert.equal(fs.existsSync(probed), false);
+    assert.deepEqual(footprint(f.sb.home), before);
+    assert.deepEqual(f.sb.calls(), []);
+  } finally { f.sb.cleanup(); }
+});
+
+test('aborting profile approval retains all profiles and the original installation', async () => {
+  const f = fixture();
+  try {
+    await installedProfiles(f);
+    const before = footprint(f.paths.home);
+    const controller = new AbortController();
+    await assert.rejects(() => retireInstallation({ paths: f.paths, env: f.env, signal: controller.signal, write() {},
+      confirm: async question => { if (question.kind === 'profiles') controller.abort(); return true; } }, 'uninstall'),
+    error => error instanceof BosunError && error.code === 'cancelled');
+    assert.deepEqual(footprint(f.paths.home), before);
+    assert.equal(installationStatus({ paths: f.paths, env: f.env }).matches, true);
+  } finally { f.sb.cleanup(); }
+});
+
+test('foreground daemon ownership holds profile retirement before its separate approval', async () => {
+  const f = fixture();
+  let runtime: { close(): Promise<void> } | undefined;
+  try {
+    await installedProfiles(f);
+    runtime = await startDaemon({ paths: f.paths, environment: f.env, config: loadRuntimeConfig(f.paths, f.env), runners: {} });
+    const before = footprint(path.join(f.paths.home, 'host-profiles'));
+    const questions: string[] = [];
+    await assert.rejects(() => retireInstallation({ paths: f.paths, env: f.env, write() {},
+      confirm: async question => { questions.push(question.kind); return true; } }, 'uninstall'));
+    assert.deepEqual(questions, ['uninstall']);
+    assert.deepEqual(footprint(path.join(f.paths.home, 'host-profiles')), before);
+    assert.equal(installationStatus({ paths: f.paths, env: f.env }).matches, true);
+  } finally { await runtime?.close(); f.sb.cleanup(); }
 });
 
 test('empty owned public runtime directory is restricted only after separate permission approval', async () => {

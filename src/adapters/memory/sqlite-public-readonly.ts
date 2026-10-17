@@ -107,14 +107,15 @@ export class SqlitePublicReadOnly implements MemoryReader {
         || gate.source_id !== options.sourceId || gate.source_dev !== this.#source.dev || gate.source_ino !== this.#source.ino
         || gate.view_dev !== this.#view.dev || gate.view_ino !== this.#view.ino) unavailable('identity');
       this.state();
-      // Whole-view limits return only scalars. Foreign-scope content is never materialized into JavaScript here.
+      // One whole-view pass enforces eligibility, expiry and exact encoded bytes; only scalars leave SQLite.
       const count = this.#db.prepare(`SELECT count(*) AS n,sum(CASE WHEN typeof(private)!='integer' OR private!=0 OR status!='active'
         OR expires_at IS NOT NULL AND (typeof(expires_at)!='integer' OR expires_at<0 OR expires_at>8640000000000000)
-        THEN 1 ELSE 0 END) AS denied,min(expires_at) AS expiry FROM public_memories`).get() as Row;
+        THEN 1 ELSE 0 END) AS denied,min(expires_at) AS expiry,
+        COALESCE(sum(CASE WHEN typeof(private)='integer' AND private=0 AND status='active'
+          THEN length(CAST(json_object(${PUBLIC_COLUMNS.map((c) => `'${c}',${c}`).join(',')}) AS BLOB)) ELSE 0 END),0) AS bytes
+        FROM public_memories`).get() as Row;
       if (!integer(count.n) || count.n > PUBLIC_MAX_ROWS || count.denied !== null && count.denied !== 0 || count.expiry !== this.#state!.valid_until) unavailable('data');
-      const encoded = this.#db.prepare(`SELECT COALESCE(sum(length(CAST(json_object(${PUBLIC_COLUMNS.map((c) => `'${c}',${c}`).join(',')}) AS BLOB))),0) AS bytes
-        FROM public_memories WHERE typeof(private)='integer' AND private=0 AND status='active'`).get() as Row;
-      if (!integer(encoded.bytes) || encoded.bytes > PUBLIC_MAX_BYTES) unavailable('size');
+      if (!integer(count.bytes) || count.bytes > PUBLIC_MAX_BYTES) unavailable('size');
       this.check(); this.deadline(started);
     } catch (e) {
       this.close();

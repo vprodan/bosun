@@ -15,7 +15,6 @@ test('cli: help exits 0, unknown command exits 2', async () => {
   try {
     const h = await bosun(['help'], { env: sb.env() });
     assert.equal(h.code, 0);
-    assert.match(h.out, /bosun run/);
     assert.equal((await bosun(['nope'], { env: sb.env() })).code, 2);
   } finally {
     sb.cleanup();

@@ -65,6 +65,11 @@ approval. If you cancel after retirement, the old executable stays removed (or
 its reviewed previous executable is restored); memory/settings remain. You can
 run the downloaded new binary's installer again to finish from that known state.
 
+In1.2.0, prepared native profiles get a separate retirement approval before
+reinstall or uninstall. Their owned archives and historical receipts remain;
+cross-version retirement uses the original installed executable. Declining keeps
+the executable/profiles, but any separately approved service stop stays effective.
+
 Router admission accepts stable Ollama **0.35.x and0.40.x**, including0.40.4.
 Other minor families and suffix builds remain unverified. Tool/model presence
 does not qualify SystemOne decision capability, selected-child/model digests,
@@ -88,13 +93,109 @@ These are local lexical-memory operations, not model calls. Use a non-sensitive
 example note and inspect `memory add --help` before storing private information.
 For this shell session only, optionally run
 `export PATH="$HOME/.local/bin:$PATH"`. Bosun does not edit shell startup files.
-After memory works, `bosun onboard --host omp` describes optional reviewed host
-setup; authentication and explicit provider/model selection remain yours.
+After memory works, `bosun onboard` guides optional native host setup in an
+owner terminal. Authentication and explicit provider/model choices remain yours.
 
 Source-checkout users must select a qualified absolute release executable:
 `bun bin/bosun install --binary /absolute/release/bosun`. There is no `--yes`
 bypass; noninteractive callers should use the secondary
 [advanced plan/apply interface](#install-an-owned-executable).
+
+## Guided onboarding and daily commands
+
+From the workspace where you want to use Bosun:
+
+```sh
+bosun onboard
+```
+
+In1.2.0, this is an interactive walkthrough like `bosun install`, not a list of
+plan files and hashes to copy. It starts from saved state and offers one selected
+native host (the configured primary by default), preserves existing choices,
+and asks before inspecting that host's version or changing its profile. It can
+prepare a missing installation using the same installer. From source, supply
+`--binary /absolute/release/bosun`; an interpreter is not a release executable.
+
+For a first profile, missing exact model bindings can be entered and reviewed
+without editing TOML. Existing model/effort bindings and other hosts are retained.
+One exact selector can fill the reviewed missing bindings without replacing an
+existing choice. Approved saves retain a private original-configuration backup
+under the runtime artifacts directory; interrupted writes are held for inspection.
+Environment overrides are not copied into saved configuration. Another ready
+profile or configuration drift can prevent an edit; onboarding explains the hold
+rather than silently invalidating an existing profile. No authentication is
+copied or performed, and no model is queried to invent a selection.
+
+Profile/configuration changes require stopped native clients and a released
+daemon owner. The wizard can stop only the receipt-owned background service,
+after approval. Stop separately launched foreground/nohup daemons in their own
+terminal. Optional background start, Ollama downloads/pulls and native UI launch
+have separate approvals. A declined start leaves a prepared profile, not a
+running daemon; a declined launch does not remove it. Native trust and automatic
+controls remain independently qualified.
+
+Inspect without prompts or effects:
+
+```sh
+bosun onboard --json
+bosun host launch --preview
+```
+
+Piped `onboard` retains its previous read-only text inspection. Repeating a
+wizard reuses a matching prepared profile instead of replacing it. Unknown,
+incomplete, drifted or legacy state remains held for original-outcome review;
+neither onboarding nor reinstall is permission to replay an uncertain effect.
+
+### Everyday service control
+
+```sh
+bosun start
+bosun status
+bosun restart
+bosun stop
+```
+
+In an owner terminal, the no-ID commands select and show the current owned
+installation, ask for settled-client approval, and carry its exact version/hash
+internally. Restart approves stop and start separately. Declining start after an
+approved stop leaves the service disabled; an unknown stop never authorizes start.
+These commands do not adopt or kill unrelated foreground/nohup processes.
+Noninteractive automation retains the explicit-ID/version/hash/request-ID options
+shown by `--help`; omitting them cannot trigger a guessed service operation.
+
+Launch an already prepared host with `bosun host launch`, or select another
+prepared host with `--host`. Review its literal preview and approve before it
+opens. `--preview` is read-only; explicit profile IDs/version/hash remain
+available for reviewed automation.
+
+### Readable terminals, stable automation
+
+Every command/group has `--help`, including descriptions, bounds and effect
+warnings for advanced options. Start with `bosun --help`, then
+`bosun memory --help` or `bosun job --help`.
+
+Everyday owner-terminal memory, status, roles, routing and job reports have
+readable summaries and safe next actions. Use `--json` on those commands (or
+`bosun --json <command>`) for the full existing machine-readable shape. Pipes
+and model callers retain their previous structured output; queued or unknown
+work is never presented as completed. MCP stdio, effective TOML, exported
+profiles/handoffs, raw RPC, benchmark/evaluation reports and dashboard snapshots
+retain their existing protocol/artifact formats. MCP does not accept the
+presentation flag; invoke its configured plain `bosun mcp` entry.
+
+Basic examples after explicitly starting the daemon:
+
+```sh
+bosun memory add --category project --title Runtime --body "Use Bun."
+bosun memory search Runtime
+bosun job list
+bosun router status
+```
+
+Ordinary lexical memory operations call no model. `route` submits public text
+for advice, not task execution. Advanced review, run, capture, indexing and
+maintenance commands retain their explicit privacy, ownership, CAS and
+unknown-outcome safeguards; helpful prompts do not remove those checks.
 
 ## Reinstall, update and uninstall
 
@@ -179,7 +280,7 @@ Only send public text to `route`. This requests advice, not file changes.
 it is not an unsupported-model error. Status checks only metadata and never
 load a model. An explicit route makes one decision request, which may load it.
 
-**v1.1.3 fixes the one-second cold-start cutoff.** Cold requests default to a
+**1.2.0 includes the cold-start fix from the unpublished1.1.3 candidate.** Cold requests default to a
 two-minute total budget, including initial metadata, loading/decision and final
 identity checks. Initial metadata and warm requests retain the existing
 `router.timeoutMs` budget. The CLI/server response deadline for explicit routing

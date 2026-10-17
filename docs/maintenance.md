@@ -58,6 +58,57 @@ The owner then prioritized guided onboarding and a complete command DX review;
 those changes remain separate from the failed immutable tag.
 
 
+## Guided onboarding and command DX (1.2.0 candidate)
+
+The owner requested interactive onboarding comparable to installation, followed
+by a review of every CLI command. Owner-terminal `bosun onboard` now reuses the
+existing installer, selected-host version inspection, config/profile and service
+transactions. One explicitly entered selector can fill only reviewed missing
+role bindings; saved-file configuration stays separate from temporary native
+process/environment selections. Approved config writes retain exclusive private
+original-byte backups. Existing profiles/choices, stopped-owner checks, CAS and
+unknown/nonreplay receipts remain authoritative.
+
+No-ID start/stop/restart and host launch review their owned records internally;
+restart separately approves stop and start. Reinstall/uninstall separately
+approve retirement of all owned profiles, retaining archives/history and using
+the original executable across release versions. Cancellation joins the original
+native producers and prevents subsequent effects. Terminal reports have finite
+readable summaries/recovery hints; pipes, models, protocol/artifact bytes and
+explicit JSON retain their machine contracts. All concrete command help was
+reviewed; advanced mutation controls were not replaced with generic wizards.
+
+[Fresh hosted diagnostic38971742988](https://github.com/vprodan/bosun/actions/runs/38971742988)
+localized the prior10k hold to `reader-open/deadline` (368ms child wall time),
+not a particular SQL subphase. The public reader now fuses whole-view eligibility,
+expiry/count and exact JSON-byte validation into one aggregate traversal, removing
+a redundant full scan. The250ms fence, all20 measured deliveries, leases, schema,
+identity and privacy gates are unchanged; no speedup or hosted resolution is
+claimed from the local pass alone.
+
+Local strict typecheck and260-file/1458-edge boundaries passed with38/38
+containment probes. The full sweep passed98/99 files; its remaining new onboarding
+fixture supplied an invalid bare OpenCode selector. After correcting it to an
+exact provider/model, all55 onboarding cases passed. The actual source10k
+benchmark delivered20/20; all20 reader cases passed, including the exact16MiB
+ceiling, one extra foreign byte, escaping, expiry and non-public-row rejection.
+
+Fresh compiled candidate `ebc9f4e16ed902cf007987693c795e9a52058b2648a58ef7f8c4cde9291cb347`
+at `dist/bosun-1.2.0-darwin-arm64-onboarding` passed static/source verification and
+all eight compiled safety paths, including10000 notes/21 deliveries and positive
+original/group joins. A separate OS-contained actual terminal smoke passed
+fresh onboarding, Ctrl-C before preparation, one-model configuration, dormant
+service/declined launch and matching-profile reuse with byte-identical config
+and receipt. All145 compiled help paths exited successfully without mutation or
+extra native calls. Actual1.1.0-to-1.2.0 reinstall retired the old profile through
+the original executable, retained its archive and exact config/memory bytes, and
+did not initialize the absent state database. Only owned synthetic native version
+fixtures ran; no personal runtime, live model/service or vendor install was used.
+
+Published1.1.2 and failed immutable1.1.3 remain unchanged. Fresh hosted source/CD
+qualification is required before publishing1.2.0. Live-host/model quality and
+full production qualification remain unverified.
+
 ## CI latency reduction
 
 The owner prioritized CI/CD latency after the published MLX patch. Recorded source CI spent most time in serial guarded test files, not Bun/SQLite preparation. The redundant documentation-evidence CI38908497826 was deliberately cancelled; source CI38903340111 and release CD38905586941 had already passed, and published1.1.1 remains unchanged.

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import type { Env } from '../core/domain/inference.ts';
 import { BosunError } from '../core/errors.ts';
 import { executable, streamProcess } from '../platform/process.ts';
@@ -29,10 +30,10 @@ export function toolExists(file: string): boolean {
   catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false; throw error; }
 }
 
-async function downloadDmg(url: string, destination: string): Promise<void> {
+async function downloadDmg(url: string, destination: string, caller: AbortSignal): Promise<void> {
   privateDirectory(path.dirname(destination));
   const allowed: Readonly<Record<string, true>> = { 'ollama.com': true, 'github.com': true, 'release-assets.githubusercontent.com': true, 'objects.githubusercontent.com': true };
-  const signal = AbortSignal.timeout(15 * 60 * 1000);
+  const signal = AbortSignal.any([caller, AbortSignal.timeout(15 * 60 * 1000)]);
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   let fd: number | undefined;
   try {
@@ -80,25 +81,21 @@ async function downloadDmg(url: string, destination: string): Promise<void> {
     reader?.releaseLock();
   }
 }
-export function optionalToolsDependencies(): OptionalToolsDependencies {
+export function optionalToolsDependencies(signal: AbortSignal = new AbortController().signal): OptionalToolsDependencies {
   return {
     platform: process.platform,
     arch: process.arch,
     executable,
     async run(spec) {
       let output = ''; let code: number | null = null;
-      for await (const event of streamProcess({ ...spec, signal: new AbortController().signal, maxOutputBytes: 4194304, maxLineBytes: 262144 })) {
+      for await (const event of streamProcess({ ...spec, signal, maxOutputBytes: 4194304, maxLineBytes: 262144 })) {
         if (event.t === 'line') output += event.text + '\n'; else code = event.code;
       }
       return { code, output };
     },
-    metadata: (url) => httpJson(url, { method: 'GET', signal: new AbortController().signal }, 1500, 1048576),
-    download: downloadDmg,
-    sleep(milliseconds) {
-      const { promise, resolve } = Promise.withResolvers<void>();
-      setTimeout(resolve, milliseconds);
-      return promise;
-    },
+    metadata: (url) => httpJson(url, { method: 'GET', signal }, 1500, 1048576),
+    download: (url, destination) => downloadDmg(url, destination, signal),
+    async sleep(milliseconds) { await delay(milliseconds, undefined, { signal }); },
   };
 }
 export async function checkedToolCommand(deps: OptionalToolsDependencies, spec: OptionalToolCommand): Promise<string> {

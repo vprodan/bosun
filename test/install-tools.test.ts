@@ -10,6 +10,28 @@ import { setupRuntime } from '../src/app/setup.ts';
 import { createOptionalTools, type OptionalToolsQuestion } from '../src/app/install-tools.ts';
 import type { OptionalToolsDependencies, OptionalToolCommand } from '../src/app/install-tools-native.ts';
 import { beginOptionalToolEffect, optionalToolHistory } from '../src/app/install-tools-receipts.ts';
+import { optionalToolsDependencies } from '../src/app/install-tools-native.ts';
+import { BosunError } from '../src/core/errors.ts';
+
+test('cancelling guided optional tools joins the original native process and rejects later waits', async () => {
+  const sb = sandbox(); fresh(sb); const env = sb.env();
+  const controller = new AbortController();
+  const ready = path.join(sb.root, 'optional-ready');
+  const command = path.join(sb.root, 'optional-native');
+  fs.writeFileSync(command, `#!/usr/bin/env bun\nrequire('node:fs').writeFileSync(${JSON.stringify(ready)}, String(process.pid));setInterval(()=>{},1000);\n`, { mode: 0o755 });
+  const deps = optionalToolsDependencies(controller.signal);
+  const active = deps.run({ command, args: [], cwd: sb.root, env, timeoutMs: 10000 });
+  const rejected = assert.rejects(active, (error: unknown) => error instanceof BosunError && error.code === 'cancelled');
+  try {
+    for (let attempt = 0; attempt < 1000 && !fs.existsSync(ready); attempt++) await new Promise(resolve => setTimeout(resolve, 5));
+    assert.ok(fs.existsSync(ready), 'native process reached its owned readiness marker');
+    const pid = Number(fs.readFileSync(ready, 'utf8')); assert.ok(Number.isSafeInteger(pid) && pid > 1);
+    controller.abort(); await rejected;
+    assert.throws(() => process.kill(pid, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+    assert.throws(() => process.kill(-pid, 0), (error: NodeJS.ErrnoException) => error.code === 'ESRCH');
+    await assert.rejects(deps.sleep(10000));
+  } finally { controller.abort(); await rejected; sb.cleanup(); }
+});
 
 async function fixture(options: { installed?: boolean; ready?: boolean; present?: boolean; brew?: boolean; env?: Record<string, string> } = {}) {
   const sb = sandbox(); fresh(sb);
