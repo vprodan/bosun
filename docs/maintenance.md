@@ -58,7 +58,7 @@ The owner then prioritized guided onboarding and a complete command DX review;
 those changes remain separate from the failed immutable tag.
 
 
-## Guided onboarding and command DX (1.2.0 candidate)
+## Guided onboarding and command DX (1.2.0)
 
 The owner requested interactive onboarding comparable to installation, followed
 by a review of every CLI command. Owner-terminal `bosun onboard` now reuses the
@@ -105,9 +105,27 @@ the original executable, retained its archive and exact config/memory bytes, and
 did not initialize the absent state database. Only owned synthetic native version
 fixtures ran; no personal runtime, live model/service or vendor install was used.
 
-Published1.1.2 and failed immutable1.1.3 remain unchanged. Fresh hosted source/CD
-qualification is required before publishing1.2.0. Live-host/model quality and
-full production qualification remain unverified.
+Published **v1.2.0** at2026-10-17T01:12:57Z from
+`cdd9e118fa1c7b1b337d7ac7aa86f794843f8aec`.
+[Source CI38988511634](https://github.com/vprodan/bosun/actions/runs/38988511634)
+and [CD38989078629](https://github.com/vprodan/bosun/actions/runs/38989078629)
+independently passed all99 guarded files across four freshly qualified runners.
+Fresh hosted source10k delivery passed20/20 with the unchanged fence/assertions.
+The release builder independently rebuilt/qualified its native output and passed
+compiled safety before the separate publisher verified uploaded/read-back bytes.
+Historical1.1.2 assets and failed immutable1.1.3 remain unchanged.
+
+All four downloaded assets matched GitHub size/SHA256 identities and passed the
+independent publisher verifier and original distribution checksum checker. ZIP
+SHA256 `f83c6acd14844751ecec986d0393f30c3dab2e0d0a427b8711255a871c4a914b`;
+binary SHA256 `15fb7093ed61642d3fd487d638d81a2b6e6e5f73a06ea637e4476f42778f9460`.
+Those exact published bytes passed all eight contained compiled safety paths,
+including10000 public notes/21 deliveries, storage privacy and positive original/
+group joins. A separate fully network-denied smoke returned read-only onboarding
+state `setup`, OMP selection and native qualification `unverified`, leaving the
+runtime absent. Disposable download/terminal scaffolds were removed; no personal
+installation, vendor download/pull, native service or model was activated.
+Live-host/model quality and full production qualification remain unverified.
 
 ## CI latency reduction
 
