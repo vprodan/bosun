@@ -9,7 +9,7 @@ For Ollama0.40.x single-manifest MLX Clef models, use **v1.1.1 or later**:
 earlier versions can incorrectly report `unsupported_model` despite valid
 `details.runner: "mlx"` metadata. Updating Bosun does not require a model re-pull.
 
-Download `bosun-1.2.0-darwin-arm64.zip` from
+Download `bosun-1.2.1-darwin-arm64.zip` from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), verify its
 `SHA256SUMS`, and open the extracted folder containing `bosun` in Terminal.
 The bundled runtime needs no separate Bun, Node, npm, `gh` or `jq`. This remains

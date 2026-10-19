@@ -10,7 +10,7 @@
 [![CD](https://github.com/vprodan/bosun/actions/workflows/cd.yml/badge.svg)](https://github.com/vprodan/bosun/actions/workflows/cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun 1.4.3](https://img.shields.io/badge/Bun-1.4.3-555555.svg)](https://bun.sh/)
-[![Version 1.2.0](https://img.shields.io/badge/Version-1.2.0-555555.svg)](https://github.com/vprodan/bosun/releases/tag/v1.2.0)
+[![Version 1.2.1](https://img.shields.io/badge/Version-1.2.1-555555.svg)](https://github.com/vprodan/bosun/releases/tag/v1.2.1)
 
 Bosun pairs with **OMP, OpenCode 2, Codex and Claude Code** without taking over
 native accounts or silently changing models. One local daemon owns the runtime;
@@ -60,7 +60,7 @@ See [native profiles](docs/upgrade-and-install.md#select-an-optional-native-prof
 
 ## Releases
 
-Download **`bosun-1.2.0-darwin-arm64.zip`** from
+Download **`bosun-1.2.1-darwin-arm64.zip`** from
 [GitHub Releases](https://github.com/vprodan/bosun/releases), then extract it in
 Finder. **The ZIP contains the application.** `release.json`, `SHA256SUMS` and
 release notes are supplementary metadata, checksums and tested-scope information,
@@ -76,7 +76,7 @@ Bosun is a **terminal CLI, not a GUI app**. Open Terminal and change into the
 extracted folder containing `bosun` (replace the example path with yours):
 
 ```sh
-cd "$HOME/Downloads/bosun-1.2.0-darwin-arm64"
+cd "$HOME/Downloads/bosun-1.2.1-darwin-arm64"
 shasum -a 256 -c SHA256SUMS && ./bosun install
 ```
 
@@ -134,8 +134,10 @@ Daily `bosun start`, `stop`, `restart` and `host launch` guide owner-terminal
 approvals without receipt archaeology. Everyday reports are readable in a
 terminal; `--json`, pipes, model callers and exported artifacts retain machine
 formats. Every command has useful `--help`, including advanced safety controls.
+Version1.2.1 shortens owner-terminal root help; `bosun --help-all` lists every
+command. Onboarding no longer prints standalone install instructions mid-flow.
 See [the walkthrough](docs/upgrade-and-install.md#guided-onboarding-and-daily-commands).
-Version1.2.0 is published after fresh source and artifact qualification. The failed
+Version1.2.1 is published after fresh source and artifact qualification. The failed
 immutable1.1.3 tag was not published or replaced.
 
 ### Reinstall, update or uninstall

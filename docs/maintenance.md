@@ -2,7 +2,7 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
-## Experience simplification (1.2.1 candidate)
+## Experience simplification (1.2.1)
 
 The owner approved simplifying the application while preserving its purpose
 features, starting with CLI discovery and onboarding. The first source-only
@@ -39,7 +39,28 @@ producer joins. Actual contained compiled terminal smoke passed short/full help,
 advanced service help, read-only inspection and fresh onboarding with a synthetic
 selected-host version fixture. Completion appeared only after preparation;
 service start and native launch were declined. Native/model quality remains
-unverified. Hosted source and independent CD qualification remain required.
+unverified.
+
+Published **v1.2.1** at2026-10-19T08:27:00Z from
+`a9eac135f2e19b62262ee9fcca2a226fc707192a`.
+[Source CI39220634068](https://github.com/vprodan/bosun/actions/runs/39220634068)
+passed all99 guarded files across four fresh native-qualified runners, including
+20/20 measured native hook injections. Independent
+[CD39221552317](https://github.com/vprodan/bosun/actions/runs/39221552317)
+passed every release source shard, freshly rebuilt/qualified its artifact native
+bytes, passed all eight compiled safety paths and verified uploaded/read-back
+assets before publication. Existing tags/assets remain unchanged.
+
+All four downloaded assets matched GitHub sizes/SHA256 and passed the independent
+publisher verifier and original-distribution checker. ZIP SHA256
+`05429c55ac848fac1a226d94b7a6b768f9d45c2ede6782a7bd6ed5b18be3e130`;
+binary SHA256 `5a783f3279fab7642036e1dee47e8c7ae0d15cca995743a2db2303e74ab15cf9`.
+Exact published bytes passed all eight contained safety paths (10000 public
+notes/21 deliveries, privacy and positive producer joins), then actual terminal
+short/full help and fresh onboarding with only a synthetic selected-host version
+fixture. Service/native launch were declined; standalone install instructions
+were absent mid-flow. Disposable downloads/fixtures were removed. No personal
+activation, live vendor/model calls, signing or notarization was performed.
 
 ## Cold-start routing deadlines
 
