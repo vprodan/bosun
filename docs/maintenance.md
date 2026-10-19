@@ -2,6 +2,45 @@
 
 Current guidance after the owner-authorized housekeeping, code cleanup and local commit amendment (2026-10-13). Read this file and [AGENTS.md](../AGENTS.md) before continuing. Follow the current user request; archived prompts and older restrictions are historical where superseded here. Transfer the committed source plus ignored native/build inputs and retained recovery artifacts separately.
 
+## Experience simplification (1.2.1 candidate)
+
+The owner approved simplifying the application while preserving its purpose
+features, starting with CLI discovery and onboarding. The first source-only
+change shortens owner-terminal root help around memory, running, review and job
+continuation, with onboard/status and explicit `--help-all` discovery. All
+advanced commands remain registered; command-local and piped/model help remain
+complete. Embedded installation no longer prints standalone getting-started
+instructions midway through onboarding. Distinct effect approvals, native
+inspection, cancellation, data and machine-result contracts are unchanged.
+
+Verification passed all120 cases across seven affected guarded files,38/38
+containment probes, strict typecheck and260-file/1458-edge boundaries. A separate
+OS-contained actual source CLI/PTY smoke observed1343-byte terminal help versus
+7772-byte full piped help, exercised advanced leaf help/read-only onboarding and
+left the runtime absent. Published1.2.0 is unchanged; no new build/publication or
+live native/model qualification was performed.
+
+The next internal simplification registers start/stop/restart through one shared
+CLI path instead of a separate restart parser/handler. Explicit selection guards,
+owner checks, distinct guided approvals and original restart phase request IDs,
+version handoff and duplicate output remain unchanged. Strict typecheck and all113
+cases across five affected guarded files passed with38/38 containment probes.
+A separate OS-contained source CLI smoke exercised all three commands' help,
+noninteractive refusal and partial-selection refusal without creating a runtime.
+
+The owner requested completion and publication. Source/package1.2.1 regenerates
+the21 embedded assets; all120 focused cases,38/38 containment probes, typecheck
+and260-file/1458-edge boundaries passed. Incidental output-wording assertions
+added during the first pass were removed rather than made permanent contracts.
+Fresh compiled candidate `a84ec67bde01de809b4f26093ec39ce1e87245994d78e6c0e3fd43c58234950b`
+at `dist/bosun-1.2.1-darwin-arm64-simplified` passed static/source verification and
+all eight contained safety paths, including10000 notes/21 deliveries and positive
+producer joins. Actual contained compiled terminal smoke passed short/full help,
+advanced service help, read-only inspection and fresh onboarding with a synthetic
+selected-host version fixture. Completion appeared only after preparation;
+service start and native launch were declined. Native/model quality remains
+unverified. Hosted source and independent CD qualification remain required.
+
 ## Cold-start routing deadlines
 
 The owner reported v1.1.2 returning `route:null`, `reason:timeout` with a cold,

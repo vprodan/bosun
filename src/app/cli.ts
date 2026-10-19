@@ -205,6 +205,8 @@ export async function main(
     acceptedJob({ ...params, cwd });
     return params;
   }
+  let fullRootHelp = false;
+  const ownerTerminalHelp = terminal && audience === 'owner';
   const program = new Command()
     .name('bosun')
     .description('OMP-first agent orchestration and scoped memory; OpenCode, Codex and Claude remain supported.')
@@ -977,59 +979,53 @@ export async function main(
   for (const [name, operation] of [
     ['start', 'enable'],
     ['stop', 'disable'],
+    ['restart', 'restart'],
   ] as const)
     program
       .command(`${name} [id]`)
-      .description(`${name === 'start' ? 'Start' : 'Stop'} the owned background service with guided approval; an ID selects advanced receipt control.`, { id: 'Optional owned installation receipt ID for noninteractive version/hash CAS.' })
+      .description(name === 'restart'
+        ? 'Guide separately approved stop/start; an ID selects advanced durable original operations.'
+        : `${name === 'start' ? 'Start' : 'Stop'} the owned background service with guided approval; an ID selects advanced receipt control.`, { id: 'Optional owned installation receipt ID for noninteractive version/hash CAS.' })
       .option('--version <number>', 'Reviewed receipt version for explicit-ID automation.', Number)
       .option('--hash <hash>', 'Exact inspected installation plan hash for explicit-ID automation.')
-      .option('--request-id <id>', 'Stable original explicit-ID service request; retain it after uncertainty.')
+      .option('--request-id <id>', name === 'restart'
+        ? 'Stable original explicit-ID restart request; binds both phases.'
+        : 'Stable original explicit-ID service request; retain it after uncertainty.')
       .option('--clients-stopped', 'Attest hooks, native clients and executors are stopped and settled; does not stop them.')
       .action(async (id, opt) => {
+        if (operation === 'restart') owner();
         if (!id) {
           if (opt.version !== undefined || opt.hash !== undefined || opt.requestId !== undefined || opt.clientsStopped)
             throw new BosunError('invalid', 'Explicit service flags require an installation ID');
           return guidedService(operation);
         }
-        print(await operateOwnedService(operation, id, serviceSelection(opt)));
+        const selected = serviceSelection(opt);
+        if (operation !== 'restart') {
+          print(await operateOwnedService(operation, id, selected));
+          return;
+        }
+        if (!/^[A-Za-z0-9_-]{1,100}$/.test(selected.requestId))
+          throw new BosunError('invalid', 'Stable service operation required');
+        const requestId = (phase: string) =>
+          `restart_${crypto
+            .createHash('sha256')
+            .update(JSON.stringify([selected.requestId, phase]))
+            .digest('hex')}`;
+        const stopped = await operateOwnedService('disable', id, {
+          ...selected,
+          requestId: requestId('disable'),
+        });
+        const started = await operateOwnedService('enable', id, {
+          ...selected,
+          version: stopped.record.version,
+          requestId: requestId('enable'),
+        });
+        print({
+          record: started.record,
+          operations: [stopped.operation, started.operation],
+          duplicate: stopped.duplicate && started.duplicate,
+        });
       });
-  program
-    .command('restart [id]')
-    .description('Guide separately approved stop/start; an ID selects advanced durable original operations.', { id: 'Optional owned installation receipt ID for noninteractive version/hash CAS.' })
-    .option('--version <number>', 'Reviewed receipt version for explicit-ID automation.', Number)
-    .option('--hash <hash>', 'Exact inspected installation plan hash for explicit-ID automation.')
-    .option('--request-id <id>', 'Stable original explicit-ID restart request; binds both phases.')
-    .option('--clients-stopped', 'Attest hooks, native clients and executors are stopped and settled; does not stop them.')
-    .action(async (id, opt) => {
-      owner();
-      if (!id) {
-        if (opt.version !== undefined || opt.hash !== undefined || opt.requestId !== undefined || opt.clientsStopped)
-          throw new BosunError('invalid', 'Explicit service flags require an installation ID');
-        return guidedService('restart');
-      }
-      const selected = serviceSelection(opt);
-      if (!/^[A-Za-z0-9_-]{1,100}$/.test(selected.requestId))
-        throw new BosunError('invalid', 'Stable service operation required');
-      const requestId = (phase: string) =>
-        `restart_${crypto
-          .createHash('sha256')
-          .update(JSON.stringify([selected.requestId, phase]))
-          .digest('hex')}`;
-      const stopped = await operateOwnedService('disable', id, {
-        ...selected,
-        requestId: requestId('disable'),
-      });
-      const started = await operateOwnedService('enable', id, {
-        ...selected,
-        version: stopped.record.version,
-        requestId: requestId('enable'),
-      });
-      print({
-        record: started.record,
-        operations: [stopped.operation, started.operation],
-        duplicate: stopped.duplicate && started.duplicate,
-      });
-    });
   install
     .command('reconcile <id>')
     .description('Observe and reconcile an original uncertain service effect; never retry it.', { id: 'Original owned installation receipt ID.' })
@@ -1210,7 +1206,9 @@ export async function main(
     });
   program.addHelpText(
     'after',
-    '\nGetting started:\n  bosun install\n  bosun onboard --host omp\n  bosun doctor\n\nDaily use (requires an explicitly started daemon):\n  bosun status\n  bosun memory search Runtime\n  bosun context "Which runtime?" --sources lexical\n  bosun job list\n\nForeground alternative:\n  bosun daemon run\n  In another terminal: bosun status\n\nUse bosun <group> --help and bosun <group> <command> --help before advanced effects.\nRun/review/managed text is public and may invoke configured models; basic lexical reads do not.\nAdvanced mutations retain reviewed plan hashes, receipt-version CAS and stable request IDs.\nUnknown outcomes require original receipt inspection, never automatic repair or fresh-ID replay.\nHelp is read-only, including install --help, review --help and card --help.\n',
+    () => ownerTerminalHelp && !program.opts().json
+      ? '\nStart with bosun onboard; daily commands require an explicitly started daemon.\nUse bosun <command> --help for options, or bosun --help-all for every command.\nRun/review text is public and may invoke models. Continue existing work with job or handoff;\ninspect original receipts after unknown outcomes instead of resubmitting.\n'
+      : '\nGetting started:\n  bosun install\n  bosun onboard --host omp\n  bosun doctor\n\nDaily use (requires an explicitly started daemon):\n  bosun status\n  bosun memory search Runtime\n  bosun context "Which runtime?" --sources lexical\n  bosun job list\n\nForeground alternative:\n  bosun daemon run\n  In another terminal: bosun status\n\nUse bosun <group> --help and bosun <group> <command> --help before advanced effects.\nRun/review/managed text is public and may invoke configured models; basic lexical reads do not.\nAdvanced mutations retain reviewed plan hashes, receipt-version CAS and stable request IDs.\nUnknown outcomes require original receipt inspection, never automatic repair or fresh-ID replay.\nHelp is read-only, including install --help, review --help and card --help.\n',
   );
   const daemon = program.command('daemon').description('Run the single local authority.');
   daemon.command('run').description('Run the prepared daemon in the foreground until its owner stops this terminal.').action(async () => {
@@ -1827,6 +1825,28 @@ export async function main(
     }
   };
   jsonOptions(program);
+  const everydayHelp: Record<string, string> = {
+    memory: 'Remember: add, search and review scoped notes.',
+    run: 'Run: queue a public task with the selected model; default access is edit.',
+    review: 'Review: request an explicitly public, read-only checkout review.',
+    job: 'Continue: inspect existing jobs, wait for them and read their results.',
+    onboard: 'Set up the selected host with separate approvals for each effect.',
+    status: 'Inspect the existing daemon without starting it.',
+  };
+  const standardHelp = program.createHelp();
+  program.configureHelp({
+    visibleCommands(command) {
+      const commands = standardHelp.visibleCommands(command);
+      return ownerTerminalHelp && !program.opts().json && !fullRootHelp
+        ? Object.keys(everydayHelp).flatMap(name => commands.filter(child => child.name() === name))
+        : commands;
+    },
+    subcommandDescription(command) {
+      return ownerTerminalHelp && !program.opts().json && !fullRootHelp && everydayHelp[command.name()] || standardHelp.subcommandDescription(command);
+    },
+  });
+  program.option('--help-all', 'Show every command, including advanced groups.')
+    .on('option:help-all', () => { fullRootHelp = true; program.help(); });
   try {
     if (!argv.length && terminal && audience === 'owner') {
       program.outputHelp(); return 0;

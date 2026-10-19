@@ -13,6 +13,54 @@ async function invoke(args: string[], env: Record<string, string>, cwd: string, 
   return { code, out, err };
 }
 
+test('owner root discovery is concise while complete and command-local help stay read-only', async () => {
+  const sb = sandbox(); fresh(sb);
+  const env = {
+    ...sb.env(),
+    get BOSUN_HOME(): string { throw Error('Help must not resolve runtime paths'); },
+  };
+  try {
+    const short = await invoke(['--help'], env, sb.root, true);
+    const noargs = await invoke([], env, sb.root, true);
+    const full = await invoke(['--help-all'], env, sb.root, true);
+    const pipe = await invoke(['--help'], env, sb.root, false);
+    const jsonHelp = await invoke(['--json', '--help'], env, sb.root, true);
+    Object.assign(env, { BOSUN_CALLER: 'model' });
+    const model = await invoke(['--help'], env, sb.root, true);
+    Object.assign(env, { BOSUN_CALLER: 'owner' });
+    for (const result of [short, noargs, full, pipe, model, jsonHelp]) {
+      assert.equal(result.code, 0, result.err); assert.equal(result.err, '');
+    }
+    assert.equal(noargs.out, short.out);
+    assert.equal(jsonHelp.out, pipe.out);
+    assert.ok(short.out.split('\n').length < full.out.split('\n').length / 2);
+    assert.match(short.out, /--help-all/);
+    for (const command of ['memory', 'run', 'review', 'job', 'onboard', 'status'])
+      assert.match(short.out, new RegExp(`^  ${command}(?:\\s|\\[)`, 'm'));
+    const listing = full.out.split('Commands:\n')[1]?.split('\n\n')[0] ?? '';
+    const commands = [...listing.matchAll(/^  ([a-z][a-z-]*)(?:\s|\[)/gm)].map(match => match[1]);
+    assert.ok(commands.includes('managed') && commands.includes('remote-view') && commands.includes('rpc'));
+    for (const command of commands.filter(name => name !== 'help')) {
+      assert.match(pipe.out, new RegExp(`^  ${command}(?:\\s|\\[| <)`, 'm'));
+      assert.match(model.out, new RegExp(`^  ${command}(?:\\s|\\[| <)`, 'm'));
+      const human = await invoke([command, '--help'], env, sb.root, true);
+      const machine = await invoke([command, '--help'], env, sb.root, false);
+      assert.equal(human.code, 0, human.err); assert.equal(human.err, '');
+      assert.equal(human.out, machine.out, `${command} local help is unchanged by the audience`);
+    }
+    for (const args of [
+      ['managed', 'start', '--help'], ['graph', 'revoke', '--help'],
+      ['install', 'apply', '--help'], ['router', 'eval', '--help'],
+      ['--help-all', 'setup'], ['--help', 'setup'],
+    ]) {
+      const result = await invoke(args, env, sb.root, true);
+      assert.equal(result.code, 0, result.err); assert.equal(result.err, '');
+    }
+    assert.deepEqual(sb.calls(), []);
+    assert.deepEqual(fs.readdirSync(sb.home), []);
+  } finally { sb.cleanup(); }
+});
+
 test('owner terminal summaries retain scoped memory privacy and exact JSON escape while model and pipe outputs remain structured', async () => {
   const f = await runtimeFixture();
   try {
@@ -49,6 +97,8 @@ test('terminal status and jobs do not turn queued or unknown outcomes into compl
     assert.equal(status.code, 0, status.err); assert.match(status.out, /running/); assert.match(status.out, /Primary host: omp/);
     const raw = await invoke(['rpc', 'daemon.status', '{}'], f.env, f.workspace, true);
     assert.equal(raw.code, 0, raw.err); assert.equal(JSON.parse(raw.out).state, 'running');
+    const graph = await invoke(['graph', 'query', 'Runtime', '--expand', '--depth', '1', '--limit', '5'], f.env, f.workspace, true);
+    assert.equal(graph.code, 0, graph.err); assert.deepEqual(JSON.parse(graph.out).items, []);
     const empty = await invoke(['job', 'list'], f.env, f.workspace, true);
     assert.equal(empty.code, 0, empty.err); assert.match(empty.out, /No jobs/);
     const original = { id: 'job_original', runnerId: 'omp', state: 'unknown', version: 2, reason: 'runner_lost', requestId: 'request_original' };

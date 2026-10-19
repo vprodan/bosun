@@ -116,6 +116,10 @@ and asks before inspecting that host's version or changing its profile. It can
 prepare a missing installation using the same installer. From source, supply
 `--binary /absolute/release/bosun`; an interpreter is not a release executable.
 
+In1.2.1, embedded installation stays within the onboarding flow:
+installation review still appears, but getting-started instructions are shown
+only by standalone `install`, not halfway through host preparation.
+
 For a first profile, missing exact model bindings can be entered and reviewed
 without editing TOML. Existing model/effort bindings and other hosts are retained.
 One exact selector can fill the reviewed missing bindings without replacing an
@@ -170,9 +174,10 @@ available for reviewed automation.
 
 ### Readable terminals, stable automation
 
-Every command/group has `--help`, including descriptions, bounds and effect
-warnings for advanced options. Start with `bosun --help`, then
-`bosun memory --help` or `bosun job --help`.
+Owner-terminal `bosun --help` highlights everyday memory, task, review and job
+workflows plus onboarding/status. Use `bosun --help-all` for every command;
+command-local help such as `bosun memory --help` remains complete. Piped/model
+help retains the full listing. These presentation changes require1.2.1 or later.
 
 Everyday owner-terminal memory, status, roles, routing and job reports have
 readable summaries and safe next actions. Use `--json` on those commands (or

@@ -23,6 +23,7 @@ export type InstallWizardOptions = InstallationOptions & {
   afterInstall?: () => Promise<void>;
   signal?: AbortSignal;
   setupConfig?: RuntimeConfig;
+  showCompletion?: boolean;
 };
 export type InstallWizardResult = {
   state: 'ready' | 'cancelled' | 'held';
@@ -138,7 +139,7 @@ export async function runInstallWizard(options: InstallWizardOptions): Promise<I
     const binary = receipt.targetBinary;
     failure = 'Bosun is installed, but optional tool setup did not finish. Retain tool receipts and inspect the reported tool step; do not repeat an uncertain tool installation or model pull.';
     await options.afterInstall?.();
-    options.write(`Installed executable: ${binary}\nForeground alternative: ${quote(binary)} daemon run\n${service === 'enabled' ? 'The background service is enabled.' : 'Start the foreground daemon in another terminal before using memory commands.'}\nFor this shell session: export PATH=${quote(path.dirname(binary))}:"$PATH"\nFrom the same workspace/directory, try:\n  ${quote(binary)} memory add --category project --title 'First note' --body 'Bosun is running.'\n  ${quote(binary)} memory search Bosun\nOptional host follow-up: ${quote(binary)} onboard\nNo shell configuration, authentication, host selection, or model selection was changed.\n`);
+    if (options.showCompletion !== false) options.write(`Installed executable: ${binary}\nForeground alternative: ${quote(binary)} daemon run\n${service === 'enabled' ? 'The background service is enabled.' : 'Start the foreground daemon in another terminal before using memory commands.'}\nFor this shell session: export PATH=${quote(path.dirname(binary))}:"$PATH"\nFrom the same workspace/directory, try:\n  ${quote(binary)} memory add --category project --title 'First note' --body 'Bosun is running.'\n  ${quote(binary)} memory search Bosun\nOptional host follow-up: ${quote(binary)} onboard\nNo shell configuration, authentication, host selection, or model selection was changed.\n`);
     return { state: 'ready', message: service === 'enabled' ? 'Bosun is installed and the background service is enabled.' : 'Bosun is installed; the background service was not started.', binary, service };
   } catch (error) {
     if (error instanceof BosunError && error.code === 'cancelled' && error.details?.outcome !== 'unknown')

@@ -72,6 +72,11 @@ test('fresh preparation requires approvals and probes only the selected host, wi
   const f = fixture();
   try {
     f.native('omp');
+    f.prompts.selectHost = async initial => {
+      assert.equal(installationStatus({ paths: f.paths, env: f.env }).record?.state, 'ready');
+      f.defaults.push(initial);
+      return initial;
+    };
     const result = await f.run();
     assert.equal(result.state, 'ready', result.message);
     assert.equal(result.host, 'omp');

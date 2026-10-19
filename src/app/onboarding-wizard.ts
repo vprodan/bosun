@@ -153,12 +153,9 @@ export async function runOnboardingWizard(options: OnboardingOptions): Promise<O
     if (!state?.installed) {
       if (!options.binary) return result('held', 'Source onboarding requires --binary /absolute/path/to/the/downloaded/bosun release executable. No runtime was prepared.');
       // Installation must not serialize temporary configuration environment overlays.
-      const installation = await runInstallWizard({ ...options, setupConfig: loadRuntimeConfig(options.paths, {}), binary: options.binary,
+      const installation = await runInstallWizard({ ...options, showCompletion: false, setupConfig: loadRuntimeConfig(options.paths, {}), binary: options.binary,
         confirm: async question => {
-          if (question.kind === 'start') {
-            options.write('Background service start is offered separately after native profile preparation.\n');
-            return false;
-          }
+          if (question.kind === 'start') return false;
           const approved = await confirm(question);
           if (approved && question.kind === 'setup') effects.push('runtime preparation approved; inspect bosun doctor for its outcome');
           if (approved && question.kind === 'install') effects.push('installation approved; original plan and receipt retained');

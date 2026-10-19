@@ -1,7 +1,7 @@
 # Extending bosun
 
 Extend the single codebase described in [ARCHITECTURE.md](ARCHITECTURE.md).
-Package metadata is `1.2.0`. Hosted CI qualifies fresh native inputs and runs every
+Package metadata is `1.2.1`. Hosted CI qualifies fresh native inputs and runs every
 guarded suite; tag CD additionally smokes and packages the compiled artifact.
 Existing local artifacts retain their original versions and evidence scopes.
 Real-model quality, live-host and full production qualification remain deferred.
